@@ -1,0 +1,798 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="羽球團出席名單快照，僅供團員查看。">
+<title>羽球團出席名單</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@400;500;600;700&display=swap">
+
+<style>
+  :root{
+    --ink-0:#0A1013; --ink-1:#0D1519;
+    --mist-1:#E4EBE8; --mist-2:#A3B5AE; --mist-3:#798A84;
+    --jade-100:#D5E7DC; --jade-300:#9BC3AE; --jade-500:#6E9E88; --jade-700:#3D6555;
+    --gold:#C9A961; --cinnabar:#D07A6C; --amethyst:#9E8FC0;
+    --hair:rgba(228,235,232,.06); --hair-2:rgba(228,235,232,.11);
+    --ease:cubic-bezier(.32,.72,0,1);
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  html,body{background:var(--ink-0)}
+  body{
+    margin:0; color:var(--mist-2);
+    font-family:'Noto Sans TC',system-ui,-apple-system,"Segoe UI",sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.6;
+  }
+  body::before{
+    content:""; position:fixed; inset:-28%; z-index:-2; pointer-events:none;
+    background:
+      radial-gradient(52% 38% at 16% 8%, rgba(110,158,136,.17), transparent 64%),
+      radial-gradient(40% 30% at 86% 4%, rgba(201,169,97,.10), transparent 62%),
+      radial-gradient(66% 48% at 54% 102%, rgba(72,116,138,.16), transparent 66%);
+    animation:drift 52s var(--ease) infinite alternate;
+  }
+  body::after{
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:radial-gradient(128% 84% at 50% -4%, transparent 38%, rgba(4,8,10,.78) 100%);
+  }
+  @keyframes drift{
+    from{transform:translate3d(-2%,-1.5%,0) scale(1)}
+    to{transform:translate3d(2.5%,2%,0) scale(1.08)}
+  }
+  .grain{
+    position:fixed; inset:0; z-index:1; pointer-events:none; opacity:.035;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .disp{font-family:'Noto Serif TC',Georgia,serif;letter-spacing:.012em}
+  .num{font-variant-numeric:tabular-nums}
+  .wrap{max-width:48rem;margin:0 auto;padding:0 1.15rem}
+  svg{display:block;flex:none}
+
+  /* header */
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    background:rgba(10,16,19,.72); backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--hair);
+  }
+  .topbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding-top:.85rem;padding-bottom:.85rem}
+  .brand{display:flex;align-items:center;gap:.75rem;min-width:0}
+  .mark{
+    width:2.5rem;height:2.5rem;border-radius:14px;display:flex;align-items:center;justify-content:center;
+    color:var(--jade-100);
+    background:linear-gradient(160deg,rgba(155,195,174,.26),rgba(201,169,97,.10));
+    border:1px solid rgba(155,195,174,.24);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.18);
+  }
+  .brand .t{display:block;font-size:1rem;font-weight:700;color:var(--mist-1);line-height:1.2}
+  .brand .s{display:block;font-size:.7rem;color:var(--mist-3);margin-top:.2rem}
+  @media (max-width:520px){.brand .s{display:none}}
+  .ro{
+    display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .8rem;border-radius:999px;
+    background:linear-gradient(180deg,rgba(155,195,174,.10),rgba(155,195,174,.03));
+    border:1px solid rgba(155,195,174,.18);
+    color:var(--jade-300);font-size:.74rem;font-weight:600;white-space:nowrap;
+  }
+
+  /* masthead */
+  .masthead{padding:2.4rem 0 .5rem}
+  .eyebrow{
+    display:inline-flex;align-items:center;font-family:'Noto Serif TC',Georgia,serif;
+    font-size:10px;font-weight:600;letter-spacing:.28em;
+    padding:.3rem .7rem .3rem .78rem;border-radius:999px;color:var(--jade-300);
+    background:linear-gradient(180deg,rgba(155,195,174,.09),rgba(155,195,174,.03));
+    border:1px solid rgba(155,195,174,.14);
+  }
+  .masthead h1{font-size:1.9rem;font-weight:700;color:var(--mist-1);margin:.9rem 0 0;letter-spacing:.012em}
+  .masthead p{margin:.8rem 0 0;font-size:.85rem;color:var(--mist-3);line-height:1.75;max-width:36rem}
+  .stamp{
+    display:inline-flex;align-items:center;gap:.45rem;margin-top:1.1rem;padding:.4rem .85rem;border-radius:999px;
+    background:linear-gradient(180deg,rgba(228,235,232,.05),rgba(228,235,232,.018));
+    border:1px solid var(--hair);color:var(--mist-2);font-size:.75rem;font-weight:500;
+  }
+
+  /* surfaces */
+  .card{
+    background:linear-gradient(180deg,rgba(228,235,232,.052) 0%,rgba(228,235,232,.022) 100%);
+    border:1px solid var(--hair);border-radius:20px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 18px 40px -32px rgba(0,0,0,.9);
+    padding:1.35rem;margin-top:1rem;
+  }
+  @media (min-width:640px){.card{padding:1.7rem}}
+  .inlay{
+    background:linear-gradient(180deg,rgba(228,235,232,.03),rgba(228,235,232,.012));
+    border:1px solid var(--hair);border-radius:18px;
+  }
+
+  /* event head */
+  .ev-head{display:flex;align-items:flex-start;gap:1rem}
+  .seal{
+    position:relative;width:58px;height:58px;flex:none;border-radius:18px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:linear-gradient(180deg,rgba(228,235,232,.03),rgba(228,235,232,.012));
+    border:1px solid var(--hair);
+  }
+  .seal .d{font-family:'Noto Serif TC',Georgia,serif;font-size:24px;font-weight:700;line-height:1;color:var(--mist-1);font-variant-numeric:tabular-nums}
+  .seal .m{margin-top:.25rem;font-size:9.5px;letter-spacing:.18em;color:var(--mist-3)}
+  .seal .w{
+    position:absolute;top:-6px;right:-6px;width:19px;height:19px;border-radius:999px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Noto Serif TC',Georgia,serif;font-size:10px;font-weight:600;color:var(--jade-100);
+    background:linear-gradient(180deg,rgba(155,195,174,.30),rgba(155,195,174,.12));
+    border:1px solid rgba(155,195,174,.30);
+  }
+  .ev-title{font-size:1.35rem;font-weight:700;color:var(--mist-1);margin:0;line-height:1.25;letter-spacing:.012em}
+  .meta{display:flex;flex-wrap:wrap;gap:.4rem 1.1rem;margin-top:.7rem;font-size:.8rem;color:var(--mist-2)}
+  .meta span{display:inline-flex;align-items:center;gap:.4rem}
+  .meta svg{color:var(--mist-3)}
+
+  .pill{
+    display:inline-flex;align-items:center;gap:.35rem;padding:.16rem .6rem;border-radius:999px;
+    font-family:'Noto Serif TC',Georgia,serif;font-size:11.5px;font-weight:600;letter-spacing:.04em;
+    border:1px solid var(--pb,rgba(228,235,232,.14));
+    background:linear-gradient(180deg,var(--ph,rgba(228,235,232,.09)),var(--pl,rgba(228,235,232,.025)));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.10);
+    color:var(--pc,var(--mist-2));white-space:nowrap;
+  }
+  .p-jade{--pc:var(--jade-300);--pb:rgba(155,195,174,.26);--ph:rgba(155,195,174,.13);--pl:rgba(155,195,174,.03)}
+  .p-gold{--pc:var(--gold);--pb:rgba(201,169,97,.30);--ph:rgba(201,169,97,.16);--pl:rgba(201,169,97,.04)}
+  .p-red{--pc:var(--cinnabar);--pb:rgba(208,122,108,.30);--ph:rgba(208,122,108,.15);--pl:rgba(208,122,108,.04)}
+  .p-violet{--pc:var(--amethyst);--pb:rgba(158,143,192,.28);--ph:rgba(158,143,192,.14);--pl:rgba(158,143,192,.03)}
+  .p-male{--pc:#A8CBD8;--pb:rgba(168,203,216,.24);--ph:rgba(168,203,216,.11);--pl:rgba(168,203,216,.03)}
+  .p-female{--pc:#DFB4C4;--pb:rgba(223,180,196,.24);--ph:rgba(223,180,196,.11);--pl:rgba(223,180,196,.03)}
+
+  /* progress */
+  .prog-h{display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin:1.4rem 0 .55rem;font-size:.7rem;color:var(--mist-3);letter-spacing:.02em}
+  .flow{height:4px;border-radius:999px;background:rgba(228,235,232,.055);overflow:hidden}
+  .flow i{display:block;height:100%;border-radius:999px;background-position:left center}
+
+  /* stats */
+  .stats{display:grid;grid-template-columns:repeat(1,minmax(0,1fr));gap:.7rem;margin-top:1.4rem}
+  @media (min-width:720px){.stats{grid-template-columns:3fr 2fr}}
+  .stat-main{border-radius:18px;padding:1.25rem;border:1px solid rgba(155,195,174,.18);
+    background:linear-gradient(150deg,rgba(155,195,174,.10),rgba(228,235,232,.012))}
+  .stat-main .l{display:flex;align-items:center;gap:.4rem;font-size:.72rem;font-weight:600;color:var(--jade-300)}
+  .stat-main .v{display:flex;align-items:flex-end;gap:.75rem;margin-top:.75rem}
+  .stat-main .big{font-family:'Noto Serif TC',Georgia,serif;font-size:3.2rem;font-weight:700;line-height:.85;color:var(--mist-1);font-variant-numeric:tabular-nums}
+  .stat-main .of{font-size:.95rem;color:var(--mist-3);padding-bottom:.35rem}
+  .stat-side{display:grid;gap:.7rem;align-content:start}
+  .stat-row{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1rem;border-radius:16px}
+  .stat-row .n{font-family:'Noto Serif TC',Georgia,serif;font-size:1.5rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+  .warn{display:flex;align-items:center;gap:.6rem;margin-top:1rem;padding:.75rem 1rem;border-radius:16px;
+    background:linear-gradient(180deg,rgba(208,122,108,.12),rgba(208,122,108,.04));
+    border:1px solid rgba(208,122,108,.22);color:var(--cinnabar);font-size:.8rem;font-weight:600}
+
+  /* info + notes */
+  .split{display:grid;gap:.8rem;margin-top:.9rem;align-items:start}
+  @media (min-width:720px){.split{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .box{padding:1.15rem}
+  .box h3{display:flex;align-items:center;gap:.5rem;margin:0 0 1rem;font-family:'Noto Serif TC',Georgia,serif;
+    font-size:.95rem;font-weight:600;color:var(--mist-1)}
+  .info{display:grid;gap:.9rem}
+  .info .row{display:flex;align-items:flex-start;gap:.7rem}
+  .info .ic{width:32px;height:32px;flex:none;border-radius:11px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(180deg,rgba(228,235,232,.03),rgba(228,235,232,.012));border:1px solid var(--hair);color:var(--mist-3)}
+  .info .k{display:block;font-size:.66rem;color:var(--mist-3);letter-spacing:.02em}
+  .info .v{display:block;font-size:.84rem;font-weight:500;color:var(--mist-1);margin-top:.15rem;line-height:1.5}
+  .notes{margin:1rem 0 0;padding:1rem 0 0;border-top:1px solid var(--hair);list-style:none}
+  .notes .lbl{font-size:.66rem;color:var(--mist-3);letter-spacing:.02em;margin-bottom:.6rem}
+  .notes li{display:flex;align-items:flex-start;gap:.6rem;font-size:.79rem;color:var(--mist-2);line-height:1.7;margin-top:.45rem;word-break:break-word}
+  .notes li::before{content:"";width:4px;height:4px;border-radius:999px;background:var(--jade-500);flex:none;margin-top:.62rem}
+
+  /* rules */
+  .rule{display:grid;grid-template-columns:26px 1fr;gap:.7rem;padding:.75rem .1rem}
+  .rule+.rule{border-top:1px solid var(--hair)}
+  .rule .g{width:26px;height:26px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;
+    background:linear-gradient(180deg,rgba(228,235,232,.06),rgba(228,235,232,.02));border:1px solid var(--hair)}
+  .rule .t{font-family:'Noto Serif TC',Georgia,serif;font-size:.85rem;font-weight:600;color:var(--mist-1);line-height:1.45}
+  .rule .b{font-size:.79rem;color:var(--mist-2);line-height:1.7;margin-top:.25rem}
+
+  /* roster */
+  .roster-h{display:flex;align-items:flex-end;justify-content:space-between;gap:.5rem;margin:2rem 0 .3rem}
+  .roster-h .n{font-family:'Noto Serif TC',Georgia,serif;font-size:1.2rem;font-weight:700;color:var(--mist-1);margin:.7rem 0 0}
+  .roster-h .n small{font-size:.8rem;font-weight:400;color:var(--mist-3);margin-left:.35rem}
+  .grp{margin-top:1.2rem}
+  .grp-h{display:flex;align-items:center;gap:.5rem}
+  .grp-h .dot{width:6px;height:6px;border-radius:999px;flex:none}
+  .grp-h .name{font-size:.85rem;font-weight:600}
+  .names{list-style:none;margin:.75rem 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(10.5rem,1fr));gap:.5rem}
+  .names li{
+    display:flex;align-items:center;gap:.55rem;padding:.55rem .7rem;border-radius:14px;
+    background:linear-gradient(180deg,rgba(228,235,232,.04),rgba(228,235,232,.015));
+    border:1px solid var(--hair);font-size:.88rem;color:var(--mist-1);font-weight:500;
+  }
+  .names .i{font-size:.7rem;color:var(--mist-3);min-width:1.1rem;text-align:right;font-variant-numeric:tabular-nums}
+  .names .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+  .none{margin:.6rem 0 0;font-size:.78rem;color:var(--mist-3)}
+
+  .empty{border:1px dashed var(--hair-2);border-radius:20px;padding:2.6rem 1rem;text-align:center;color:var(--mist-3);font-size:.85rem;margin-top:1rem}
+  .foot{margin:1.8rem 0 3rem;padding:1.2rem;border-radius:20px;
+    background:linear-gradient(180deg,rgba(228,235,232,.03),rgba(228,235,232,.012));
+    border:1px solid var(--hair);font-size:.79rem;color:var(--mist-3);line-height:1.8}
+  .foot strong{color:var(--mist-2)}
+
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}body::before{animation:none}}
+</style>
+
+<div class="grain" aria-hidden="true"></div>
+
+<script type="application/json" id="snapshot">
+{
+  "generatedAt": "2026-09-08T16:25:09.220Z",
+  "events": [
+    {
+      "title": "中秋節羽球團",
+      "dateText": "9/25 (五)",
+      "startTime": "10:00",
+      "endTime": "13:00",
+      "place": "亞伯林羽球館－東區振興店（東區振興路284巷2號）",
+      "courts": 5,
+      "fee": 220,
+      "note": "用球：輝厲2號｜9/23 (三) 23:00 前可免費取消，之後恕需補場地費｜24 小時自助場館，街對面有停車場、館內無飲水機請自備｜導航：https://maps.google.com/?cid=13177163577299936594",
+      "roster": [
+        {
+          "nickname": "MAX",
+          "gender": "male",
+          "level": 8,
+          "status": "going"
+        },
+        {
+          "nickname": "士昕",
+          "gender": "male",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "大友",
+          "gender": "male",
+          "level": 6,
+          "status": "going"
+        },
+        {
+          "nickname": "奕仲",
+          "gender": "male",
+          "level": 4,
+          "status": "going"
+        },
+        {
+          "nickname": "阿岳",
+          "gender": "male",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "小塗",
+          "gender": "male",
+          "level": 4,
+          "status": "going"
+        },
+        {
+          "nickname": "Ben",
+          "gender": "male",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "Marlo",
+          "gender": "male",
+          "level": 7,
+          "status": "going"
+        },
+        {
+          "nickname": "聰顯",
+          "gender": "male",
+          "level": 4,
+          "status": "going"
+        },
+        {
+          "nickname": "宗益",
+          "gender": "male",
+          "level": 7,
+          "status": "going"
+        },
+        {
+          "nickname": "智傑",
+          "gender": "male",
+          "level": 4,
+          "status": "going"
+        },
+        {
+          "nickname": "倧琦",
+          "gender": "male",
+          "level": 3,
+          "status": "going"
+        },
+        {
+          "nickname": "承恩",
+          "gender": "male",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "阿標",
+          "gender": "male",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "小羊",
+          "gender": "male",
+          "level": 4,
+          "status": "going"
+        },
+        {
+          "nickname": "小澤",
+          "gender": "male",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "近江",
+          "gender": "male",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "逸昌",
+          "gender": "male",
+          "level": 7,
+          "status": "going"
+        },
+        {
+          "nickname": "Ciao",
+          "gender": "female",
+          "level": 4,
+          "status": "going"
+        },
+        {
+          "nickname": "Tobe",
+          "gender": "female",
+          "level": 4,
+          "status": "going"
+        },
+        {
+          "nickname": "Judy",
+          "gender": "female",
+          "level": 4,
+          "status": "going"
+        },
+        {
+          "nickname": "大阿姨",
+          "gender": "female",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "小阿姨",
+          "gender": "female",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "小雅",
+          "gender": "female",
+          "level": 4,
+          "status": "going"
+        },
+        {
+          "nickname": "文菱",
+          "gender": "female",
+          "level": 5,
+          "status": "going"
+        }
+      ]
+    },
+    {
+      "title": "教師節羽球團",
+      "dateText": "9/28 (一)",
+      "startTime": "10:00",
+      "endTime": "13:00",
+      "place": "亞伯林羽球館－東區振興店（東區振興路284巷2號）",
+      "courts": 5,
+      "fee": 220,
+      "note": "用球：輝厲2號｜9/23 (三) 23:00 前可免費取消，之後恕需補場地費｜24 小時自助場館，街對面有停車場、館內無飲水機請自備｜導航：https://maps.google.com/?cid=13177163577299936594",
+      "roster": [
+        {
+          "nickname": "MAX",
+          "gender": "male",
+          "level": 8,
+          "status": "going"
+        },
+        {
+          "nickname": "士昕",
+          "gender": "male",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "大友",
+          "gender": "male",
+          "level": 6,
+          "status": "going"
+        },
+        {
+          "nickname": "大溢",
+          "gender": "male",
+          "level": 6,
+          "status": "going"
+        },
+        {
+          "nickname": "奕仲",
+          "gender": "male",
+          "level": 4,
+          "status": "going"
+        },
+        {
+          "nickname": "阿岳",
+          "gender": "male",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "小塗",
+          "gender": "male",
+          "level": 4,
+          "status": "going"
+        },
+        {
+          "nickname": "Marlo",
+          "gender": "male",
+          "level": 7,
+          "status": "going"
+        },
+        {
+          "nickname": "宗益",
+          "gender": "male",
+          "level": 7,
+          "status": "going"
+        },
+        {
+          "nickname": "倧琦",
+          "gender": "male",
+          "level": 3,
+          "status": "going"
+        },
+        {
+          "nickname": "祥仔",
+          "gender": "male",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "承恩",
+          "gender": "male",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "Han",
+          "gender": "male",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "阿標",
+          "gender": "male",
+          "level": 5,
+          "status": "maybe"
+        },
+        {
+          "nickname": "宇",
+          "gender": "male",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "小羊",
+          "gender": "male",
+          "level": 4,
+          "status": "going"
+        },
+        {
+          "nickname": "小澤",
+          "gender": "male",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "Jimmy",
+          "gender": "male",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "近江",
+          "gender": "male",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "智how",
+          "gender": "male",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "小徵",
+          "gender": "female",
+          "level": 4,
+          "status": "going"
+        },
+        {
+          "nickname": "妤",
+          "gender": "female",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "Ciao",
+          "gender": "female",
+          "level": 4,
+          "status": "going"
+        },
+        {
+          "nickname": "Judy",
+          "gender": "female",
+          "level": 4,
+          "status": "going"
+        },
+        {
+          "nickname": "月月",
+          "gender": "female",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "禎",
+          "gender": "female",
+          "level": 4,
+          "status": "going"
+        },
+        {
+          "nickname": "大阿姨",
+          "gender": "female",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "小阿姨",
+          "gender": "female",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "凱西",
+          "gender": "female",
+          "level": 5,
+          "status": "going"
+        },
+        {
+          "nickname": "Heidi",
+          "gender": "female",
+          "level": 5,
+          "status": "going"
+        }
+      ]
+    }
+  ]
+}
+</script>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <span class="mark" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.9" cy="6.1" r="2.05" fill="currentColor" stroke="none" opacity=".92"/><path d="M2.9 14c2-2.5 4.8-3.8 8.2-3.8s6.2 1.3 8.2 3.8"/><path d="M7 17.9c1.5-1.8 3.4-2.7 5.6-2.7s4.1 1 5.6 2.7" opacity=".74"/><path d="M11.6 21.2c.7-.8 1.5-1.2 2.4-1.2s1.7.4 2.4 1.2" opacity=".46"/></svg></span>
+      <span>
+        <span class="t disp">羽球團出席名單</span>
+        <span class="s">名單快照・不會即時更新</span>
+      </span>
+    </div>
+    <span class="ro"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>唯讀</span>
+  </div>
+</header>
+
+<div class="masthead">
+  <div class="wrap">
+    <span class="eyebrow">出席名單</span>
+    <h1 class="disp">近期開團</h1>
+    <p>這頁只能看、不能改。要報名、請假或問問題，請在 LINE 群組說一聲，管理者會幫你更新。</p>
+    <span class="stamp num" id="stamp">名單更新時間載入中…</span>
+  </div>
+</div>
+
+<main class="wrap" id="app"></main>
+
+<script>
+(function () {
+  "use strict";
+  var PER_COURT = 7;
+  var GROUPS = [
+    { k: 'going', label: '確認參加', emoji: '✅', cls: 'p-jade', dot: '#9BC3AE', color: 'var(--jade-300)' },
+    { k: 'maybe', label: '不確定', emoji: '❓', cls: 'p-gold', dot: '#C9A961', color: 'var(--gold)' },
+    { k: 'wait', label: '候補', emoji: '⏳', cls: 'p-violet', dot: '#9E8FC0', color: 'var(--amethyst)' }
+  ];
+  var RULES = [
+    '🚫 禁止遲到：我們人本就不多，遲到會浪費場地與時間，再犯團長會調整場次',
+    '🚫 禁止勝負魔人：開心流汗為主，輸贏放輕鬆，殺球前看一下對面是不是新手 🙏',
+    '🚫 禁止換球魔人：球還能打就別一直喊換球',
+    '🏸 換球規則：所有球統一拿到團長平板旁更換，一顆舊球換一顆新球，方便統計用球量與費用，請勿自行從球筒拿新球',
+    '🔄 輪場規則：以平衡強弱或隨機為原則；要自行更動請至平板調整，一律從當前排場最後一組去調整，不要直接往前拉影響球友次序',
+    '⏰ 準時報到：臨時無法到請提早告知，方便結算分攤',
+    '👟 鞋款限制：為了安全請穿羽球鞋，非羽球鞋恕無法上場 🙏',
+    '🗑️ 場館整潔：垃圾請自行分類處理'
+  ];
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  var PATHS = {
+    clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+    pin: '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
+    users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    dollar: '<line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
+    list: '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
+    alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>'
+  };
+  function ic(n, s) {
+    s = s || 13;
+    return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + PATHS[n] + '</svg>';
+  }
+  function dateParts(t) {
+    t = String(t || '').trim();
+    var md = t.match(/(\d{1,2})\s*[\/月]\s*(\d{1,2})/);
+    var wd = t.match(/[（(]\s*([^）)]+?)\s*[）)]/);
+    return { m: md ? md[1] + '月' : '', d: md ? md[2] : (t.slice(0, 2) || '—'), w: wd ? wd[1] : '' };
+  }
+  function parseRule(s) {
+    var t = String(s).trim(), g = '';
+    var m = t.match(/^(\S*[\uD800-\uDBFF][\uDC00-\uDFFF]\S*|[☀-➿]️?)\s*/);
+    if (m) { g = m[1]; t = t.slice(m[0].length); }
+    var i = t.indexOf('：');
+    if (i > 0 && i <= 8) return { g: g, t: t.slice(0, i), b: t.slice(i + 1) };
+    return { g: g, t: '', b: t };
+  }
+  function notesOf(ev) {
+    if (!ev.note) return [];
+    return String(ev.note).split(/[｜|]/).map(function (t) { return t.trim(); }).filter(Boolean);
+  }
+  function flow(v, cap) {
+    var c = Math.max(1, cap), pct = Math.min(100, Math.round((v / c) * 100)), over = v > c;
+    var grad = over ? 'linear-gradient(90deg,#B85446 0%,#E0958A 100%)'
+      : 'linear-gradient(90deg,#3D6555 0%,#6E9E88 42%,#9BC3AE 74%,#C9A961 100%)';
+    var glow = over ? '0 0 12px -3px rgba(208,122,108,.85)'
+      : (pct >= 100 ? '0 0 12px -3px rgba(201,169,97,.85)' : '0 0 12px -4px rgba(155,195,174,.8)');
+    return '<div class="flow"><i style="width:' + pct + '%;background-image:' + grad +
+      ';background-size:' + (pct > 0 ? (10000 / pct) : 100) + '% 100%;box-shadow:' + glow + '"></i></div>';
+  }
+
+  function groupHtml(g, list) {
+    var h = '<div class="grp"><div class="grp-h">' +
+      '<span class="dot" style="background:' + g.dot + '"></span>' +
+      '<span class="name" style="color:' + g.color + '">' + g.emoji + ' ' + g.label + '</span>' +
+      '<span class="pill ' + g.cls + '">' + list.length + '</span></div>';
+    if (!list.length) return h + '<p class="none">目前沒有人</p></div>';
+    h += '<ol class="names">';
+    list.forEach(function (r, i) {
+      var f = r.gender === 'female';
+      h += '<li><span class="i">' + (i + 1) + '</span>' +
+        '<span class="nm">' + esc(r.nickname) + '</span>' +
+        (r.level ? '<span class="pill ' + (f ? 'p-female' : 'p-male') + '">' + esc(r.level) + '</span>' : '') +
+        '</li>';
+    });
+    return h + '</ol></div>';
+  }
+
+  function eventHtml(ev) {
+    var roster = ev.roster || [];
+    var cap = (Number(ev.courts) || 0) * PER_COURT;
+    var groups = {};
+    GROUPS.forEach(function (g) {
+      groups[g.k] = roster.filter(function (r) { return r.status === g.k; });
+    });
+    var going = groups.going.length;
+    var over = going > cap;
+    var pct = Math.min(100, Math.round((going / Math.max(1, cap)) * 100));
+    var male = groups.going.filter(function (r) { return r.gender !== 'female'; }).length;
+    var dp = dateParts(ev.dateText);
+
+    var h = '<section class="card">';
+    h += '<div class="ev-head">' +
+      '<span class="seal"><span class="d">' + esc(dp.d) + '</span><span class="m">' + esc(dp.m) + '</span>' +
+      (dp.w ? '<span class="w">' + esc(dp.w) + '</span>' : '') + '</span>' +
+      '<span style="min-width:0;flex:1">' +
+      '<h2 class="ev-title disp">' + esc(ev.title) + '</h2>' +
+      '<span class="meta">' +
+      '<span>' + ic('clock') + '<span class="num">' + esc(ev.startTime) + '–' + esc(ev.endTime) + '</span></span>' +
+      '<span>' + ic('pin') + esc(ev.place) + '</span>' +
+      '<span>' + ic('dollar') + '<span class="num">$' + esc(ev.fee) + ' / 人</span></span>' +
+      '</span></span>' +
+      '<span class="pill ' + (over ? 'p-red' : 'p-jade') + '">' + ic('users', 11) +
+      '<span class="num">' + going + ' / ' + cap + '</span></span>' +
+      '</div>';
+
+    h += '<div class="stats">' +
+      '<div class="stat-main"' + (over ? ' style="border-color:rgba(208,122,108,.24);background:linear-gradient(150deg,rgba(208,122,108,.10),rgba(228,235,232,.012))"' : '') + '>' +
+      '<div class="l"' + (over ? ' style="color:var(--cinnabar)"' : '') + '>✅ 確認參加</div>' +
+      '<div class="v"><span class="big"' + (over ? ' style="color:var(--cinnabar)"' : '') + '>' + going + '</span>' +
+      '<span class="of">／ ' + cap + ' 人　<span style="font-size:.8rem">男 ' + male + '　女 ' + (going - male) + '</span></span></div>' +
+      '<div class="prog-h" style="margin-top:1.1rem"><span>報名進度</span><span class="num" style="color:' + (over ? 'var(--cinnabar)' : 'var(--jade-300)') + ';font-weight:600">' +
+      (over ? '超出 ' + (going - cap) + ' 人' : pct + '%') + '</span></div>' + flow(going, cap) +
+      '<p class="num" style="margin:.8rem 0 0;font-size:.7rem;color:var(--mist-3)">' + esc(ev.courts) + ' 面場 × ' + PER_COURT + ' 人 ＝ 上限 ' + cap + ' 人</p>' +
+      '</div><div class="stat-side">';
+    GROUPS.slice(1).forEach(function (g) {
+      var n = groups[g.k].length;
+      h += '<div class="stat-row inlay"><span style="color:' + g.color + ';font-size:.78rem;font-weight:600">' +
+        g.emoji + ' ' + g.label + '</span><span class="n" style="color:' + (n > 0 ? g.color : 'var(--mist-3)') + '">' + n + '</span></div>';
+    });
+    h += '</div></div>';
+
+    if (over) {
+      h += '<div class="warn">' + ic('alert', 14) + '確認人數已超過場地上限 ' + (going - cap) + ' 人</div>';
+    }
+
+    var notes = notesOf(ev);
+    h += '<div class="split">' +
+      '<div class="box inlay"><h3>' + ic('pin', 14) + '地點資訊</h3><div class="info">' +
+      '<div class="row"><span class="ic">' + ic('pin', 14) + '</span><span><span class="k">球館地點</span><span class="v">' + esc(ev.place) + '</span></span></div>' +
+      '<div class="row"><span class="ic">' + ic('clock', 14) + '</span><span><span class="k">時間</span><span class="v num">' + esc(ev.startTime) + ' – ' + esc(ev.endTime) + '</span></span></div>' +
+      '<div class="row"><span class="ic">' + ic('users', 14) + '</span><span><span class="k">場地</span><span class="v">' + esc(ev.courts) + ' 面場（上限 ' + cap + ' 人）</span></span></div>' +
+      '<div class="row"><span class="ic">' + ic('dollar', 14) + '</span><span><span class="k">費用</span><span class="v">$' + esc(ev.fee) + ' / 人（均分預估，多補少退）</span></span></div>' +
+      '</div>';
+    if (notes.length) {
+      h += '<ul class="notes"><li class="lbl" style="display:block">補充事項</li>';
+      notes.forEach(function (t) { h += '<li>' + esc(t) + '</li>'; });
+      h += '</ul>';
+    }
+    h += '</div>';
+
+    h += '<div class="box inlay"><h3>' + ic('list', 14) + '團規</h3>';
+    RULES.forEach(function (raw) {
+      var r = parseRule(raw);
+      h += '<div class="rule"><span class="g">' + r.g + '</span><span>' +
+        (r.t ? '<span class="t" style="display:block">' + esc(r.t) + '</span>' : '') +
+        '<span class="b" style="display:block">' + esc(r.b) + '</span></span></div>';
+    });
+    h += '</div></div>';
+
+    if (!roster.length) {
+      h += '<div class="empty">名單還沒開始排，等管理者更新。</div>';
+    } else {
+      h += '<div class="roster-h"><div><span class="eyebrow">出席名單</span>' +
+        '<p class="n">' + roster.length + '<small>人在列</small></p></div>' +
+        '<span style="font-size:.7rem;color:var(--mist-3)">依狀態分組</span></div>';
+      GROUPS.forEach(function (g) { h += groupHtml(g, groups[g.k]); });
+    }
+    return h + '</section>';
+  }
+
+  function render() {
+    var app = document.getElementById('app'), data;
+    try {
+      data = JSON.parse(document.getElementById('snapshot').textContent);
+    } catch (e) {
+      app.innerHTML = '<div class="empty">名單資料讀取失敗，請通知管理者重新產生這一頁。</div>';
+      return;
+    }
+    var stamp = document.getElementById('stamp');
+    try {
+      var d = new Date(data.generatedAt);
+      stamp.textContent = '名單更新於 ' + d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate() +
+        ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+    } catch (e) { stamp.textContent = '名單更新時間未知'; }
+
+    var evs = data.events || [];
+    app.innerHTML = evs.length ? evs.map(eventHtml).join('') : '<div class="empty">目前沒有開團。</div>';
+    app.innerHTML += '<div class="foot"><strong>這是名單的快照頁。</strong>管理者在後台調整後會重新產生這一頁，' +
+      '所以你看到的是上方標示的更新時間當下的名單，不是即時同步。<br>' +
+      '要報名、請假、或想帶朋友來，請直接在 LINE 群組告知管理者。</div>';
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render);
+  else render();
+})();
+</script>

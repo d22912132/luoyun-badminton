@@ -1,0 +1,1994 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>落雲宗羽球團</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@400;500;600;700;900&display=swap">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@1.41.0/dist/umd/lucide.min.js"></script>
+
+<style>
+  /* ================================================================
+     落雲宗 · 墨玉仙境 (Ink Jade)
+     Vibe    : Ethereal Glass → 東方墨玉
+     Layout  : Asymmetrical Bento
+     色票全部集中在此，元件只引用變數
+     ================================================================ */
+  :root{
+    /* 墨玉底 —— 深青藍偏冷，不是純黑 */
+    --ink-0:#0A1013;
+    --ink-1:#0D1519;
+    --ink-2:#111C21;
+
+    /* 霧白 —— 灰階統一帶青綠，不混暖灰 */
+    --mist-1:#E4EBE8;
+    --mist-2:#A3B5AE;
+    --mist-3:#798A84;
+
+    /* 竹青翡翠 —— 冷玉，非螢光 */
+    --jade-100:#D5E7DC;
+    --jade-300:#9BC3AE;
+    --jade-500:#6E9E88;
+    --jade-700:#3D6555;
+    --jade-900:#1B2E27;
+
+    /* 玄金 / 朱砂 / 靈紫 —— 語意色，皆已去飽和以歸為同一家族 */
+    --gold:#C9A961;
+    --gold-dim:#8A7440;
+    --cinnabar:#D07A6C;
+    --cinnabar-dim:#8C4438;
+    --amethyst:#9E8FC0;
+
+    /* 髮絲邊 & 高光 */
+    --hair:rgba(228,235,232,.06);
+    --hair-2:rgba(228,235,232,.11);
+    --sheen:rgba(255,255,255,.055);
+
+    --ease:cubic-bezier(.32,.72,0,1);
+    color-scheme: dark;
+  }
+
+  *{ box-sizing:border-box }
+  html,body{ background:var(--ink-0); }
+  body{
+    margin:0; color:var(--mist-2);
+    font-family:'Noto Sans TC', system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-weight:400; -webkit-font-smoothing:antialiased;
+  }
+
+  /* 雲氣：放射柔光 + 極緩流動。fixed，不影響捲動效能 */
+  body::before{
+    content:""; position:fixed; inset:-28%; z-index:-2; pointer-events:none;
+    background:
+      radial-gradient(52% 38% at 16% 8%,  rgba(110,158,136,.17), transparent 64%),
+      radial-gradient(40% 30% at 86% 4%,  rgba(201,169,97,.10),  transparent 62%),
+      radial-gradient(66% 48% at 54% 102%,rgba(72,116,138,.16),  transparent 66%);
+    animation:drift 52s var(--ease) infinite alternate;
+  }
+  /* 水墨暈染：中央浮起、四角沉入 */
+  body::after{
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:radial-gradient(128% 84% at 50% -4%, transparent 38%, rgba(4,8,10,.78) 100%);
+  }
+  @keyframes drift{
+    from{ transform:translate3d(-2%,-1.5%,0) scale(1) }
+    to  { transform:translate3d(2.5%,2%,0)   scale(1.08) }
+  }
+
+  /* 絹紋顆粒：固定層，破除數位平面感 */
+  .grain{
+    position:fixed; inset:0; z-index:1; pointer-events:none; opacity:.035;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .disp{ font-family:'Noto Serif TC', Georgia, serif; letter-spacing:.012em; }
+  .num{ font-variant-numeric:tabular-nums; }
+
+  /* 眉標：微型膠囊 */
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:.4rem;
+    font-family:'Noto Serif TC', Georgia, serif;
+    font-size:10px; font-weight:600; letter-spacing:.28em;
+    padding:.3rem .7rem .3rem .78rem; border-radius:999px;
+    color:var(--jade-300);
+    background:linear-gradient(180deg, rgba(155,195,174,.09), rgba(155,195,174,.03));
+    border:1px solid rgba(155,195,174,.14);
+  }
+
+  /* ---------- 表面 ----------
+     列表卡：疊層漸層模擬玻璃（無 backdrop-filter，捲動零成本）
+     .glass：真磨砂，只給 sticky / modal / 單張主卡 */
+  .surface{
+    background:linear-gradient(180deg, rgba(228,235,232,.052) 0%, rgba(228,235,232,.022) 100%);
+    border:1px solid var(--hair);
+    box-shadow:inset 0 1px 0 var(--sheen), 0 18px 40px -32px rgba(0,0,0,.9);
+  }
+  .surface-hover{
+    transition:transform .5s var(--ease), border-color .5s var(--ease), box-shadow .5s var(--ease), background .5s var(--ease);
+  }
+  .surface-hover:hover{
+    transform:translateY(-2px);
+    border-color:rgba(155,195,174,.20);
+    background:linear-gradient(180deg, rgba(155,195,174,.07) 0%, rgba(228,235,232,.025) 100%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08),
+               0 0 0 1px rgba(155,195,174,.07),
+               0 26px 52px -34px rgba(110,158,136,.5);
+  }
+  .glass{
+    background:linear-gradient(180deg, rgba(228,235,232,.058), rgba(228,235,232,.024));
+    backdrop-filter:blur(14px) saturate(128%);
+    -webkit-backdrop-filter:blur(14px) saturate(128%);
+    border:1px solid var(--hair);
+    box-shadow:inset 0 1px 0 var(--sheen);
+  }
+  .inlay{
+    background:linear-gradient(180deg, rgba(228,235,232,.03), rgba(228,235,232,.012));
+    border:1px solid var(--hair);
+  }
+
+  /* Double-bezel：外殼 + 內核，同心圓角 */
+  .bezel{
+    padding:6px; border-radius:26px;
+    background:linear-gradient(180deg, rgba(228,235,232,.045), rgba(228,235,232,.015));
+    border:1px solid var(--hair);
+  }
+  .core{ border-radius:20px; }
+
+  /* ---------- 分段選擇器 ---------- */
+  .seg{ display:inline-flex; gap:2px; }
+  .seg > button{
+    border-radius:10px; padding:.42rem .62rem;
+    font-size:11.5px; font-weight:500; color:var(--mist-3);
+    background:transparent; border:1px solid transparent;
+    transition:color .45s var(--ease), background .45s var(--ease), border-color .45s var(--ease), box-shadow .45s var(--ease);
+  }
+  .seg > button:hover{ color:var(--mist-1); background:rgba(228,235,232,.045); }
+  .seg > button[data-on="1"]{
+    color:var(--tone, var(--jade-100));
+    background:linear-gradient(180deg, var(--tone-hi, rgba(155,195,174,.20)), var(--tone-lo, rgba(155,195,174,.07)));
+    border-color:var(--tone-br, rgba(155,195,174,.28));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.14), 0 0 16px -6px var(--tone-gl, rgba(155,195,174,.55));
+  }
+
+  /* ---------- 境界徽章：細邊 + 頂緣反光 ---------- */
+  .tier{
+    display:inline-flex; align-items:center; gap:.3rem;
+    font-family:'Noto Serif TC', Georgia, serif;
+    font-size:11.5px; font-weight:600; letter-spacing:.04em;
+    padding:.16rem .55rem; border-radius:999px;
+    border:1px solid var(--tb, rgba(228,235,232,.14));
+    background:linear-gradient(180deg, var(--th, rgba(228,235,232,.09)), var(--tl, rgba(228,235,232,.025)));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.10);
+    color:var(--tc, var(--mist-2));
+  }
+
+  /* ---------- 靈力槽 ---------- */
+  .flow{ height:4px; border-radius:999px; background:rgba(228,235,232,.055); overflow:hidden; }
+  .flow.slim{ height:3px; }
+  .flow > i{
+    display:block; height:100%; border-radius:999px;
+    background-position:left center;
+    transition:width .9s var(--ease);
+  }
+
+  /* ---------- 門規列 ---------- */
+  .rule{ display:grid; grid-template-columns:26px 1fr; gap:.7rem; padding:.7rem .25rem; }
+  .rule + .rule{ border-top:1px solid var(--hair); }
+  .rule .glyph{
+    width:26px; height:26px; border-radius:9px; display:flex; align-items:center; justify-content:center;
+    font-size:12px; line-height:1;
+    background:linear-gradient(180deg, rgba(228,235,232,.06), rgba(228,235,232,.02));
+    border:1px solid var(--hair); box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+  }
+
+  /* ---------- 按鈕物理感 ---------- */
+  .btn{ transition:transform .45s var(--ease), background .45s var(--ease), border-color .45s var(--ease), box-shadow .45s var(--ease), color .45s var(--ease); }
+  .btn:active:not(:disabled){ transform:scale(.975); }
+  .qi{ position:relative; overflow:hidden; }
+  .qi::after{
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(112deg, transparent 34%, rgba(255,255,255,.16) 50%, transparent 66%);
+    transform:translateX(-140%);
+    transition:transform .95s var(--ease);
+  }
+  .qi:hover::after{ transform:translateX(140%); }
+  /* 按鈕內嵌圓形圖示（button-in-button） */
+  .nub{
+    width:22px; height:22px; border-radius:999px; display:inline-flex; align-items:center; justify-content:center;
+    background:rgba(10,16,19,.18); margin-right:-.35rem;
+    transition:transform .5s var(--ease), background .5s var(--ease);
+  }
+  .group\/btn:hover .nub{ transform:translate(2px,-1px); background:rgba(10,16,19,.3); }
+
+  button:focus-visible, a:focus-visible, [tabindex]:focus-visible{
+    outline:2px solid rgba(155,195,174,.8); outline-offset:2px;
+  }
+
+  input,select,textarea{ color:var(--mist-1); }
+  input::placeholder,textarea::placeholder{ color:var(--mist-3); }
+  input[type="time"]::-webkit-calendar-picker-indicator,
+  input[type="number"]::-webkit-inner-spin-button{ filter:invert(1) opacity(.4); }
+  select option{ background:var(--ink-2); color:var(--mist-1); }
+
+  .scroll-x{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .scroll-x::-webkit-scrollbar{ height:6px }
+  .scroll-x::-webkit-scrollbar-thumb{ background:rgba(228,235,232,.14); border-radius:99px }
+
+  .rise{ animation:rise .42s var(--ease) }
+  @keyframes rise{ from{opacity:0; transform:translateY(12px)} to{opacity:1; transform:none} }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.001ms !important; transition-duration:.001ms !important }
+    body::before{ animation:none }
+    .qi::after{ display:none }
+  }
+</style>
+
+<div class="grain" aria-hidden="true"></div>
+<div id="root" class="relative z-0 min-h-screen"></div>
+
+<script>
+(function () {
+  "use strict";
+  var E = React.createElement;
+  var useState = React.useState, useEffect = React.useEffect, useRef = React.useRef;
+
+  /* D('classes', [props], ...children) — 第二個參數若是純物件則當 props（style / key 等） */
+  function isProps(v) {
+    return v && typeof v === 'object' && !Array.isArray(v) && !v.$$typeof;
+  }
+  function D(cls) {
+    var k = [].slice.call(arguments, 1);
+    var extra = isProps(k[0]) ? k.shift() : null;
+    return E.apply(null, ['div', Object.assign({}, extra, { className: cls })].concat(k));
+  }
+  function S(cls) {
+    var k = [].slice.call(arguments, 1);
+    var extra = isProps(k[0]) ? k.shift() : null;
+    return E.apply(null, ['span', Object.assign({}, extra, { className: cls })].concat(k));
+  }
+
+  /* ---------------- icons：stroke 1.25，取極細精準線條 ---------------- */
+  function Icon(props) {
+    var set = (window.lucide && window.lucide.icons) || {};
+    var n = set[props.name];
+    if (!n) return null;
+    var kids = (Array.isArray(n) && n[0] === 'svg') ? (n[2] || []) : n;
+    if (!kids.length) return null;
+    var size = props.size || 16;
+    var children = kids.map(function (c, i) {
+      var attrs = Object.assign({}, c[1] || {});
+      attrs.key = 't' + i;
+      return E(c[0], attrs);
+    });
+    return E('svg', {
+      width: size, height: size, viewBox: '0 0 24 24', fill: 'none',
+      stroke: 'currentColor', 'stroke-width': props.stroke || 1.25,
+      'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+      className: (props.className || '') + ' shrink-0', 'aria-hidden': 'true'
+    }, children);
+  }
+
+  /* ---------------- constants ---------------- */
+  var LS_KEY = 'badminton-club-local-v1';
+  var PER_COURT = 7;
+  var SECT = '落雲宗';
+
+  var T1 = 'text-[var(--mist-1)]', T2 = 'text-[var(--mist-2)]', T3 = 'text-[var(--mist-3)]';
+  var JADE = 'text-[var(--jade-300)]', GOLD = 'text-[var(--gold)]', CIN = 'text-[var(--cinnabar)]';
+
+  /* 每個狀態帶一組玉石色（seg 選中時用 CSS 變數注入） */
+  var STATUSES = [
+    {
+      k: 'going', label: '已入陣', plain: '確認參加', short: '入陣', emoji: '✅', glyph: '入',
+      tone: JADE, hex: '155,195,174',
+      seg: { '--tone': 'var(--jade-100)', '--tone-hi': 'rgba(155,195,174,.22)', '--tone-lo': 'rgba(155,195,174,.07)', '--tone-br': 'rgba(155,195,174,.30)', '--tone-gl': 'rgba(155,195,174,.6)' }
+    },
+    {
+      k: 'maybe', label: '觀望中', plain: '不確定', short: '觀望', emoji: '❓', glyph: '望',
+      tone: GOLD, hex: '201,169,97',
+      seg: { '--tone': '#F0DDB4', '--tone-hi': 'rgba(201,169,97,.24)', '--tone-lo': 'rgba(201,169,97,.07)', '--tone-br': 'rgba(201,169,97,.32)', '--tone-gl': 'rgba(201,169,97,.6)' }
+    },
+    {
+      k: 'wait', label: '候補', plain: '候補', short: '候補', emoji: '⏳', glyph: '候',
+      tone: 'text-[var(--amethyst)]', hex: '158,143,192',
+      seg: { '--tone': '#DDD5EE', '--tone-hi': 'rgba(158,143,192,.24)', '--tone-lo': 'rgba(158,143,192,.07)', '--tone-br': 'rgba(158,143,192,.32)', '--tone-gl': 'rgba(158,143,192,.6)' }
+    }
+  ];
+  function statusMeta(k) { for (var i = 0; i < STATUSES.length; i++) if (STATUSES[i].k === k) return STATUSES[i]; return STATUSES[0]; }
+
+  /* 修為境界：築基 1–3 ・ 結丹 4–6 ・ 元嬰 7+ */
+  function tierOf(lv) { return lv >= 7 ? 'high' : (lv >= 4 ? 'mid' : 'low'); }
+  var TIER_LABEL = { high: '元嬰', mid: '結丹', low: '築基' };
+  var TIER_STYLE = {
+    high: { '--tc': 'var(--gold)', '--tb': 'rgba(201,169,97,.30)', '--th': 'rgba(201,169,97,.16)', '--tl': 'rgba(201,169,97,.04)' },
+    mid: { '--tc': 'var(--jade-300)', '--tb': 'rgba(155,195,174,.26)', '--th': 'rgba(155,195,174,.13)', '--tl': 'rgba(155,195,174,.03)' },
+    low: { '--tc': 'var(--mist-2)', '--tb': 'rgba(228,235,232,.14)', '--th': 'rgba(228,235,232,.08)', '--tl': 'rgba(228,235,232,.02)' }
+  };
+  var GENDER = {
+    male: { label: '男', style: { '--tc': '#A8CBD8', '--tb': 'rgba(168,203,216,.24)', '--th': 'rgba(168,203,216,.11)', '--tl': 'rgba(168,203,216,.03)' } },
+    female: { label: '女', style: { '--tc': '#DFB4C4', '--tb': 'rgba(223,180,196,.24)', '--th': 'rgba(223,180,196,.11)', '--tl': 'rgba(223,180,196,.03)' } }
+  };
+  function genderMeta(g) { return g === 'female' ? GENDER.female : GENDER.male; }
+  /* 集結名單的道號／性別／境界／備註一律以弟子名冊為準。
+     名單當初存的是點將當下的快照，改名冊不會回頭更新；這裡即時對齊，
+     下一次寫入名單時也會把對齊後的值一併存回。散修（無 memberId）
+     與已除名的弟子則保留原本快照。 */
+  function resolveRoster(roster, members) {
+    var byId = {};
+    (members || []).forEach(function (m) { byId[m.id] = m; });
+    return (roster || []).map(function (r) {
+      var m = r.memberId ? byId[r.memberId] : null;
+      if (!m) return r;
+      return Object.assign({}, r, {
+        nickname: m.nickname,
+        gender: m.gender,
+        level: m.level,
+        referrer: m.referrer || ''
+      });
+    });
+  }
+  /* 傳訊符的名單列：序號. 道號 等級 */
+  function nameLine(r, i) {
+    return (i + 1) + '. ' + r.nickname + (r.level ? ' ' + r.level : '');
+  }
+  /* 名單一律男先女後，同性別內維持原順序（Array.sort 穩定） */
+  function byGender(list) {
+    return list.slice().sort(function (a, b) {
+      return (a.gender === 'female' ? 1 : 0) - (b.gender === 'female' ? 1 : 0);
+    });
+  }
+
+  function capacityOf(courts) { return (Number(courts) || 0) * PER_COURT; }
+  function uid(p) { return p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function nowISO() { return new Date().toISOString(); }
+  function pad2(n) { return ('0' + n).slice(-2); }
+  function todayKey() { var d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+  function fmtTime(iso) {
+    try { var d = new Date(iso); return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes()); }
+    catch (e) { return iso; }
+  }
+  /* 「9/25 (五)」→ { d:'25', m:'9月', w:'五' }，給日期印記用 */
+  function dateParts(s) {
+    var t = String(s || '').trim();
+    var md = t.match(/(\d{1,2})\s*[\/月]\s*(\d{1,2})/);
+    var wd = t.match(/[（(]\s*([^）)]+?)\s*[）)]/);
+    return { m: md ? md[1] + '月' : '', d: md ? md[2] : (t.slice(0, 2) || '—'), w: wd ? wd[1] : '' };
+  }
+  function offlineSeed() {
+    return { members: [], events: [], admins: [{ id: 'a1', account: 'admin', name: '掌門', pin: '1234', seq: 1, superAdmin: true }], logs: [] };
+  }
+  /* 門規：全團共通的 8 條，各場相同 */
+  function rulesOf() {
+    return [
+      '🚫 禁止遲到：我們人本就不多，遲到會浪費場地與時間，再犯團長會調整場次',
+      '🚫 禁止勝負魔人：開心流汗為主，輸贏放輕鬆，殺球前看一下對面是不是新手 🙏',
+      '🚫 禁止換球魔人：球還能打就別一直喊換球',
+      '🏸 換球規則：所有球統一拿到團長平板旁更換，一顆舊球換一顆新球，方便統計用球量與費用，請勿自行從球筒拿新球',
+      '🔄 輪場規則：以平衡強弱或隨機為原則；要自行更動請至平板調整，一律從當前排場最後一組去調整，不要直接往前拉影響球友次序',
+      '⏰ 準時報到：臨時無法到請提早告知，方便結算分攤',
+      '👟 鞋款限制：為了安全請穿羽球鞋，非羽球鞋恕無法上場 🙏',
+      '🗑️ 場館整潔：垃圾請自行分類處理'
+    ];
+  }
+  /* 補充事項：該場專屬（用球、截止、場館提醒、導航），與門規分開 */
+  function notesOf(ev) {
+    if (!ev.note) return [];
+    return String(ev.note).split(/[｜|]/).map(function (t) { return t.trim(); }).filter(Boolean);
+  }
+  /* 拆成 符號 / 標題 / 內文 三層，供門規卡片列建立視覺階層 */
+  function parseRule(s) {
+    var t = String(s).trim();
+    var g = '', m = t.match(/^([\p{Extended_Pictographic}☀-➿][️‍\p{Extended_Pictographic}]*)\s*/u);
+    if (m) { g = m[1]; t = t.slice(m[0].length); }
+    var i = t.indexOf('：');
+    if (i > 0 && i <= 8) return { glyph: g, title: t.slice(0, i), body: t.slice(i + 1) };
+    return { glyph: g, title: '', body: t };
+  }
+  async function copyText(t) {
+    try { await navigator.clipboard.writeText(t); return true; }
+    catch (e) {
+      try {
+        var ta = document.createElement('textarea');
+        ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        var ok = document.execCommand('copy'); ta.remove(); return ok;
+      } catch (e2) { return false; }
+    }
+  }
+
+  /* ---------------- design tokens ---------------- */
+  var CARD = 'surface rounded-[20px]';
+  var CARD_HOVER = 'surface-hover';
+  var SOFT_CARD = 'inlay rounded-[20px]';
+
+  var BTN = 'btn qi inline-flex items-center justify-center gap-2 rounded-full font-medium tracking-wide select-none disabled:opacity-35 disabled:cursor-not-allowed';
+  var BTN_SIZE = { sm: 'text-[12px] px-3 py-1.5', md: 'text-[13px] px-4 py-2', lg: 'text-sm px-5 py-2.5', icon: 'text-[12px] h-9 w-9' };
+  var BTN_VAR = {
+    primary: 'text-[#08120E] font-semibold bg-[linear-gradient(180deg,#A8CFBA_0%,#6E9E88_100%)] shadow-[0_10px_28px_-14px_rgba(110,158,136,.85),inset_0_1px_0_rgba(255,255,255,.35)] hover:shadow-[0_14px_34px_-12px_rgba(110,158,136,1),inset_0_1px_0_rgba(255,255,255,.45)]',
+    outline: 'text-[var(--mist-1)] border border-[var(--hair-2)] bg-[linear-gradient(180deg,rgba(228,235,232,.05),rgba(228,235,232,.018))] hover:border-[rgba(155,195,174,.30)] hover:bg-[linear-gradient(180deg,rgba(155,195,174,.09),rgba(228,235,232,.02))]',
+    ghost: 'text-[var(--mist-3)] hover:text-[var(--mist-1)] hover:bg-[rgba(228,235,232,.05)]',
+    soft: 'text-[var(--gold)] border border-[rgba(201,169,97,.24)] bg-[linear-gradient(180deg,rgba(201,169,97,.13),rgba(201,169,97,.04))] hover:border-[rgba(201,169,97,.4)]',
+    danger: 'text-[var(--cinnabar)] border border-[rgba(208,122,108,.24)] bg-[linear-gradient(180deg,rgba(208,122,108,.12),rgba(208,122,108,.03))] hover:border-[rgba(208,122,108,.42)]',
+    dangerSolid: 'text-[#1A0908] font-semibold bg-[linear-gradient(180deg,#E0958A_0%,#B85446_100%)] shadow-[0_10px_26px_-14px_rgba(208,122,108,.9),inset_0_1px_0_rgba(255,255,255,.3)]'
+  };
+  function Btn(p) {
+    return E('button', {
+      type: 'button', onClick: p.onClick, disabled: p.disabled, title: p.title, 'aria-label': p.ariaLabel,
+      className: 'group/btn ' + BTN + ' ' + BTN_SIZE[p.size || 'md'] + ' ' + BTN_VAR[p.variant || 'outline'] + ' ' + (p.className || '')
+    },
+      p.icon ? E(Icon, { name: p.icon, size: p.size === 'sm' ? 13 : 15, stroke: 1.5 }) : null,
+      p.children,
+      /* button-in-button：主要行動的尾端圖示包在自己的圓形裡 */
+      p.nub ? D('nub', E(Icon, { name: p.nub, size: 12, stroke: 1.6 })) : null);
+  }
+
+  var INPUT = 'w-full rounded-2xl border border-[var(--hair-2)] bg-[rgba(6,10,12,.55)] px-4 py-3 text-sm text-[var(--mist-1)] outline-none transition duration-500 [transition-timing-function:var(--ease)] focus:border-[rgba(155,195,174,.45)] focus:bg-[rgba(6,10,12,.8)] focus:shadow-[0_0_0_4px_rgba(155,195,174,.09)]';
+
+  function Field(p) {
+    return D('flex flex-col gap-2',
+      E('label', { className: 'text-[11.5px] tracking-wide ' + T3 }, p.label), p.children);
+  }
+
+  function PageHead(p) {
+    return D('flex flex-wrap items-end justify-between gap-4 pb-7',
+      D('min-w-0',
+        E('span', { className: 'eyebrow' }, p.eyebrow),
+        E('h2', { className: 'disp mt-3.5 text-[30px] font-bold leading-none ' + T1, style: { textWrap: 'balance' } }, p.title),
+        p.sub ? E('p', { className: 'mt-3 text-[13px] ' + T2 }, p.sub) : null),
+      p.action);
+  }
+
+  function Empty(p) {
+    return D('flex flex-col items-center justify-center gap-3.5 rounded-[20px] border border-dashed border-[var(--hair-2)] px-6 py-20 text-center',
+      D('flex h-14 w-14 items-center justify-center rounded-full inlay ' + T3,
+        E(Icon, { name: p.icon || 'Inbox', size: 22 })),
+      E('p', { className: 'disp text-[16px] font-semibold ' + T1 }, p.title),
+      p.hint ? E('p', { className: 'max-w-sm text-[12.5px] leading-relaxed ' + T3 }, p.hint) : null);
+  }
+
+  function Bubble(p) {
+    return D('flex shrink-0 items-center justify-center rounded-full inlay ' + (p.tone || JADE) + ' ' + (p.size || 'h-11 w-11'),
+      E(Icon, { name: p.name, size: p.icon || 18 }));
+  }
+
+  function LevelBadge(p) {
+    var lv = Number(p.level) || 0, t = tierOf(lv);
+    return E('span', { className: 'tier', style: TIER_STYLE[t] },
+      TIER_LABEL[t], S('num opacity-70', String(lv)));
+  }
+
+  function GenderTag(p) {
+    var g = genderMeta(p.g);
+    return E('span', { className: 'tier', style: g.style }, g.label);
+  }
+
+  /* 宗門印記：落雲宗 → 如意雲紋 */
+  function SectMark(p) {
+    var s = p.size || 20;
+    return E('svg', {
+      width: s, height: s, viewBox: '0 0 24 24', fill: 'none',
+      stroke: 'currentColor', 'stroke-width': p.stroke || 1.35,
+      'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+      className: p.className || '', role: 'img', 'aria-label': '落雲宗'
+    },
+      /* 月映落雲：明珠偏左上，三道雲弧向右漸次落下 */
+      E('circle', { key: 'p', cx: 6.9, cy: 6.1, r: 2.05, fill: 'currentColor', stroke: 'none', opacity: .92 }),
+      E('path', { key: 'c1', d: 'M2.9 14c2-2.5 4.8-3.8 8.2-3.8s6.2 1.3 8.2 3.8' }),
+      E('path', { key: 'c2', d: 'M7 17.9c1.5-1.8 3.4-2.7 5.6-2.7s4.1 1 5.6 2.7', opacity: .74 }),
+      E('path', { key: 'c3', d: 'M11.6 21.2c.7-.8 1.5-1.2 2.4-1.2s1.7.4 2.4 1.2', opacity: .46 }));
+  }
+
+  function Avatar(p) {
+    var name = String(p.name || '?');
+    var g = genderMeta(p.g);
+    return E('span', {
+      className: 'disp flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] text-[15px] font-semibold',
+      style: Object.assign({
+        color: 'var(--tc)',
+        borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--tb)',
+        backgroundImage: 'linear-gradient(180deg, var(--th), var(--tl))',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,.10)'
+      }, g.style)
+    }, name.slice(0, 1));
+  }
+
+  /* 靈力槽：漸層以軌道為基準，顏色代表滿載程度 */
+  function flow(value, cap, slim) {
+    var c = Math.max(1, Number(cap) || 1);
+    var v = Math.max(0, Number(value) || 0);
+    var pct = Math.min(100, Math.round((v / c) * 100));
+    var over = v > c;
+    var grad = over
+      ? 'linear-gradient(90deg,#B85446 0%,#E0958A 100%)'
+      : 'linear-gradient(90deg,#3D6555 0%,#6E9E88 42%,#9BC3AE 74%,#C9A961 100%)';
+    var glow = over ? '0 0 12px -3px rgba(208,122,108,.85)'
+      : (pct >= 100 ? '0 0 12px -3px rgba(201,169,97,.85)' : '0 0 12px -4px rgba(155,195,174,.8)');
+    return D('flow' + (slim ? ' slim' : ''),
+      E('i', {
+        style: {
+          width: pct + '%',
+          backgroundImage: grad,
+          backgroundSize: (pct > 0 ? (10000 / pct) : 100) + '% 100%',
+          boxShadow: glow
+        }
+      }));
+  }
+  function fillPct(value, cap) {
+    var c = Math.max(1, Number(cap) || 1);
+    return Math.min(100, Math.round(((Number(value) || 0) / c) * 100));
+  }
+
+  function CapacityPill(p) {
+    var over = p.value > p.cap, full = !over && p.value >= p.cap;
+    var st = over
+      ? { '--tc': 'var(--cinnabar)', '--tb': 'rgba(208,122,108,.3)', '--th': 'rgba(208,122,108,.15)', '--tl': 'rgba(208,122,108,.04)' }
+      : (full
+        ? { '--tc': 'var(--gold)', '--tb': 'rgba(201,169,97,.3)', '--th': 'rgba(201,169,97,.15)', '--tl': 'rgba(201,169,97,.04)' }
+        : { '--tc': 'var(--jade-300)', '--tb': 'rgba(155,195,174,.26)', '--th': 'rgba(155,195,174,.13)', '--tl': 'rgba(155,195,174,.03)' });
+    return E('span', { className: 'tier', style: st },
+      E(Icon, { name: 'Users', size: 11 }),
+      S('num', String(p.value) + ' / ' + String(p.cap)));
+  }
+
+  /* 日期印記：取代日曆圖示 + 日期膠囊，作為卡片視覺重心 */
+  function DateSeal(p) {
+    var d = dateParts(p.text);
+    return D('relative flex h-[58px] w-[58px] shrink-0 flex-col items-center justify-center rounded-[18px] inlay',
+      E('span', { className: 'disp num text-[24px] font-bold leading-none ' + T1 }, d.d),
+      E('span', { className: 'mt-1 text-[9.5px] tracking-[.18em] ' + T3 }, d.m),
+      d.w ? E('span', {
+        className: 'disp absolute -right-1.5 -top-1.5 flex h-[19px] w-[19px] items-center justify-center rounded-full text-[10px] font-semibold text-[var(--jade-100)]',
+        style: {
+          background: 'linear-gradient(180deg, rgba(155,195,174,.30), rgba(155,195,174,.12))',
+          border: '1px solid rgba(155,195,174,.30)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,.18)'
+        }
+      }, d.w) : null);
+  }
+
+  function InfoRow(p) {
+    return D('flex items-start gap-3',
+      D('flex h-8 w-8 shrink-0 items-center justify-center rounded-[11px] inlay ' + T3, E(Icon, { name: p.icon, size: 14 })),
+      D('min-w-0 pt-0.5',
+        E('p', { className: 'text-[10.5px] tracking-wide ' + T3 }, p.label),
+        E('p', { className: 'mt-1 text-[13.5px] font-medium leading-snug ' + T1 }, p.value)));
+  }
+
+  /* 門規列：符號 / 標題 / 內文 三層 */
+  function RuleRows(p) {
+    return D('',
+      p.rules.map(function (raw, i) {
+        var r = parseRule(raw);
+        return D('rule', { key: i },
+          D('glyph', r.glyph || S('disp text-[11px] ' + T3, String(i + 1))),
+          D('min-w-0',
+            r.title ? E('p', { className: 'disp text-[13px] font-semibold leading-snug ' + T1 }, r.title) : null,
+            E('p', { className: 'text-[12.5px] leading-relaxed ' + (r.title ? 'mt-1 ' : '') + T2, style: { textWrap: 'pretty' } }, r.body)));
+      }));
+  }
+
+  function Modal(p) {
+    useEffect(function () {
+      function esc(ev) { if (ev.key === 'Escape') p.onClose(); }
+      document.addEventListener('keydown', esc);
+      return function () { document.removeEventListener('keydown', esc); };
+    }, [p.onClose]);
+    return D('fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:px-4 sm:py-8',
+      E('div', { className: 'absolute inset-0 bg-[rgba(4,8,10,.72)] backdrop-blur-[6px]', onClick: p.onClose }),
+      D('rise glass relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-[26px] sm:rounded-[26px] ' + (p.wide ? 'sm:max-w-3xl' : 'sm:max-w-lg'),
+        D('flex items-start justify-between gap-4 border-b border-[var(--hair)] px-6 py-5',
+          D('min-w-0',
+            E('h2', { className: 'disp text-[18px] font-bold ' + T1 }, p.title),
+            p.sub ? E('p', { className: 'mt-1.5 text-[12.5px] ' + T3 }, p.sub) : null),
+          E('button', {
+            onClick: p.onClose, 'aria-label': '關閉',
+            className: 'btn rounded-full p-2 ' + T3 + ' hover:bg-[rgba(228,235,232,.06)] hover:text-[var(--mist-1)]'
+          }, E(Icon, { name: 'X', size: 16 }))),
+        D('scroll-x flex-1 overflow-y-auto px-6 py-6', p.children),
+        p.footer ? D('flex items-center justify-end gap-2 border-t border-[var(--hair)] bg-[rgba(6,10,12,.35)] px-6 py-4', p.footer) : null));
+  }
+
+  /* ---------------- app ---------------- */
+  function App() {
+    var a = useState(undefined), dbx = a[0], setDbx = a[1];
+    var b = useState(false), ready = b[0], setReady = b[1];
+    var c = useState([]), members = c[0], setMembers = c[1];
+    var d = useState([]), events = d[0], setEvents = d[1];
+    var e2 = useState([]), admins = e2[0], setAdmins = e2[1];
+    var f = useState([]), logs = f[0], setLogs = f[1];
+    var g = useState('events'), tab = g[0], setTab = g[1];
+    var h = useState(null), openEventId = h[0], setOpenEventId = h[1];
+    var i2 = useState(null), me = i2[0], setMe = i2[1];
+    var j = useState(null), toast = j[0], setToast = j[1];
+    var k = useState(null), modal = k[0], setModal = k[1];
+
+    var isAdmin = !!me;
+
+    function flash(msg, kind) {
+      setToast({ msg: msg, kind: kind || 'ok' });
+      setTimeout(function () { setToast(null); }, 2600);
+    }
+
+    useEffect(function () {
+      var alive = true;
+      (async function () {
+        var conn = null;
+        try { if (window.claude && window.claude.use) conn = await window.claude.use('db'); } catch (err) { conn = null; }
+        if (!alive) return;
+        setDbx(conn || null);
+        if (!conn) {
+          var raw = null;
+          try { raw = localStorage.getItem(LS_KEY); } catch (err2) { }
+          var st = raw ? JSON.parse(raw) : offlineSeed();
+          setMembers(st.members || []); setEvents(st.events || []);
+          setAdmins(st.admins || offlineSeed().admins); setLogs(st.logs || []);
+          setReady(true);
+        }
+      })();
+      return function () { alive = false; };
+    }, []);
+
+    useEffect(function () {
+      if (!dbx) return;
+      var offs = [];
+      function sub(path, setter, done) {
+        try {
+          offs.push(dbx.collection(path).onSnapshot(function (snap) {
+            var rows = snap.docs.map(function (doc) { return Object.assign({ id: doc.id }, doc.data()); });
+            rows.sort(function (x, y) { return (x.seq || 0) - (y.seq || 0) || String(x.id).localeCompare(String(y.id)); });
+            setter(rows);
+            if (done) done();
+          }, function (err) { flash('宗門靈脈中斷（' + err.code + '），請重新整理頁面', 'bad'); }));
+        } catch (err) { }
+      }
+      sub('members', setMembers, function () { setReady(true); });
+      sub('events', setEvents);
+      sub('admins', setAdmins);
+      return function () { offs.forEach(function (fn) { try { fn(); } catch (err) { } }); };
+    }, [dbx]);
+
+    useEffect(function () {
+      if (!ready) return;
+      try {
+        var raw = sessionStorage.getItem('bd-me');
+        if (!raw) return;
+        var saved = JSON.parse(raw);
+        var found = admins.filter(function (x) { return x.id === saved.id; })[0];
+        if (found) setMe({ id: found.id, account: found.account, name: found.name });
+      } catch (err) { }
+    }, [ready]);
+
+    useEffect(function () {
+      if (dbx !== null || !ready) return;
+      try { localStorage.setItem(LS_KEY, JSON.stringify({ members: members, events: events, admins: admins, logs: logs })); } catch (err) { }
+    }, [dbx, ready, members, events, admins, logs]);
+
+    function fail(err) { flash('寫入失敗：' + ((err && err.code) || '未知錯誤'), 'bad'); }
+    function bare(row) { var cp = Object.assign({}, row); delete cp.id; return cp; }
+
+    function putDoc(coll, id, data, localSetter) {
+      if (dbx) { dbx.collection(coll).doc(id).set(data).catch(fail); return; }
+      localSetter(function (rows) {
+        var next = rows.slice();
+        var idx = -1;
+        next.forEach(function (r, n) { if (r.id === id) idx = n; });
+        var row = Object.assign({ id: id }, data);
+        if (idx >= 0) next[idx] = row; else next.push(row);
+        next.sort(function (x, y) { return (x.seq || 0) - (y.seq || 0); });
+        return next;
+      });
+    }
+    function dropDoc(coll, id, localSetter) {
+      if (dbx) { dbx.collection(coll).doc(id).delete().catch(fail); return; }
+      localSetter(function (rows) { return rows.filter(function (r) { return r.id !== id; }); });
+    }
+
+    function appendLog(entry) {
+      if (!dbx) { setLogs(function (l) { return [entry].concat(l).slice(0, 400); }); return; }
+      var key = todayKey();
+      var ref = dbx.doc('logs/' + key);
+      ref.get().then(function (snap) {
+        var prev = (snap.exists && snap.data().entries) || [];
+        return ref.set({ date: key, entries: prev.concat([entry]).slice(-400) });
+      }).catch(function () { });
+    }
+    function logAct(act, target, detail) {
+      appendLog({
+        t: nowISO(), who: me ? me.account : 'unknown', name: me ? me.name : '未知',
+        act: act, target: target || '', detail: detail || ''
+      });
+    }
+    async function loadLogs() {
+      if (!dbx) return;
+      try {
+        var snap = await dbx.collection('logs').orderBy('date', 'desc').limit(14).get();
+        var all = [];
+        snap.docs.forEach(function (doc) { (doc.data().entries || []).forEach(function (en) { all.push(en); }); });
+        all.sort(function (x, y) { return String(y.t).localeCompare(String(x.t)); });
+        setLogs(all.slice(0, 400));
+      } catch (err) { flash('讀取宗門日誌失敗', 'bad'); }
+    }
+
+    function saveMember(row, isNew) {
+      var id = row.id || uid('m');
+      var seq = isNew ? (members.reduce(function (m2, x) { return Math.max(m2, x.seq || 0); }, 0) + 1) : row.seq;
+      var data = {
+        nickname: row.nickname.trim(), gender: row.gender, level: Number(row.level),
+        referrer: (row.referrer || '').trim(), seq: seq,
+        createdAt: row.createdAt || nowISO(), createdBy: row.createdBy || (me ? me.account : ''),
+        updatedAt: nowISO(), updatedBy: me ? me.account : ''
+      };
+      putDoc('members', id, data, setMembers);
+      logAct(isNew ? '收錄弟子' : '修改弟子', data.nickname,
+        TIER_LABEL[tierOf(data.level)] + ' ' + data.level + '・' + (data.gender === 'female' ? '女' : '男') + (data.referrer ? '・' + data.referrer : ''));
+      flash(isNew ? '已收「' + data.nickname + '」入宗門' : '已更新「' + data.nickname + '」');
+    }
+    function removeMember(m) {
+      dropDoc('members', m.id, setMembers);
+      logAct('除名弟子', m.nickname, TIER_LABEL[tierOf(m.level)] + ' ' + m.level);
+      flash('已將「' + m.nickname + '」移出名冊');
+    }
+
+    function saveEvent(row, isNew) {
+      var id = row.id || uid('e');
+      var seq = isNew ? (events.reduce(function (m2, x) { return Math.max(m2, x.seq || 0); }, 0) + 1) : row.seq;
+      var data = {
+        title: row.title.trim(), dateText: row.dateText.trim(),
+        startTime: row.startTime, endTime: row.endTime,
+        place: row.place.trim(), courts: Number(row.courts) || 1, fee: Number(row.fee) || 0,
+        note: (row.note || '').trim(), roster: row.roster || [], seq: seq,
+        createdAt: row.createdAt || nowISO(), createdBy: row.createdBy || (me ? me.account : ''),
+        updatedAt: nowISO(), updatedBy: me ? me.account : ''
+      };
+      putDoc('events', id, data, setEvents);
+      logAct(isNew ? '開壇集結' : '修改集結', data.dateText + ' ' + data.title,
+        data.place + '・' + data.courts + ' 面場・$' + data.fee);
+      flash(isNew ? '已開壇「' + data.title + '」' : '已更新集結');
+      return id;
+    }
+    function removeEvent(ev) {
+      dropDoc('events', ev.id, setEvents);
+      logAct('撤除集結', ev.dateText + ' ' + ev.title, '入陣 ' + (ev.roster || []).length + ' 人');
+      flash('已撤除此次集結');
+    }
+    function writeRoster(ev, roster, act, target, detail) {
+      putDoc('events', ev.id, Object.assign(bare(ev), {
+        roster: roster, updatedAt: nowISO(), updatedBy: me ? me.account : ''
+      }), setEvents);
+      if (act) logAct(act, target, detail);
+    }
+
+    function saveAdmin(row, isNew) {
+      var id = row.id || uid('a');
+      var seq = isNew ? (admins.reduce(function (m2, x) { return Math.max(m2, x.seq || 0); }, 0) + 1) : row.seq;
+      var data = {
+        account: row.account.trim(), name: row.name.trim(), pin: String(row.pin).trim(), seq: seq,
+        superAdmin: !!row.superAdmin,
+        createdAt: row.createdAt || nowISO(), createdBy: row.createdBy || (me ? me.account : ''),
+        updatedAt: nowISO(), updatedBy: me ? me.account : ''
+      };
+      putDoc('admins', id, data, setAdmins);
+      logAct(isNew ? '冊封長老' : '更新長老', data.account, data.name + (data.superAdmin ? '・掌門' : ''));
+      flash(isNew ? '已冊封長老「' + data.account + '」' : '已更新長老資料');
+    }
+    function changePin(row, pin) {
+      putDoc('admins', row.id, Object.assign(bare(row), {
+        pin: String(pin).trim(), updatedAt: nowISO(), updatedBy: me ? me.account : ''
+      }), setAdmins);
+      logAct('變更口令', row.account, '由 ' + (me ? me.account : '?') + ' 變更');
+      flash('已更新 ' + row.account + ' 的口令');
+    }
+    function removeAdmin(row) {
+      dropDoc('admins', row.id, setAdmins);
+      logAct('革除長老', row.account, row.name);
+      flash('已革除長老「' + row.account + '」');
+      if (me && me.id === row.id) { setMe(null); try { sessionStorage.removeItem('bd-me'); } catch (err) { } }
+    }
+
+    function login(account, pin) {
+      var found = admins.filter(function (x) {
+        return String(x.account).toLowerCase() === String(account).trim().toLowerCase() && String(x.pin) === String(pin).trim();
+      })[0];
+      if (!found) { flash('身分或口令不符', 'bad'); return false; }
+      var who = { id: found.id, account: found.account, name: found.name };
+      setMe(who);
+      try { sessionStorage.setItem('bd-me', JSON.stringify(who)); } catch (err) { }
+      appendLog({ t: nowISO(), who: who.account, name: who.name, act: '入殿', target: '', detail: '' });
+      flash('已入殿：' + found.name);
+      return true;
+    }
+    function logout() {
+      if (me) logAct('離殿', '', '');
+      setMe(null);
+      try { sessionStorage.removeItem('bd-me'); } catch (err) { }
+      flash('已回到觀禮模式');
+    }
+    function needAdmin() {
+      if (isAdmin) return true;
+      setModal({ type: 'login' });
+      return false;
+    }
+
+    var openEvent = events.filter(function (x) { return x.id === openEventId; })[0] || null;
+
+    var meRow = me ? admins.filter(function (x) { return x.id === me.id; })[0] : null;
+    var isSuper = !!(meRow && meRow.superAdmin);
+
+    var ctx = {
+      members: members, events: events, admins: admins, logs: logs, me: me, isAdmin: isAdmin, isSuper: isSuper, dbx: dbx,
+      flash: flash, setModal: setModal, needAdmin: needAdmin,
+      saveMember: saveMember, removeMember: removeMember,
+      saveEvent: saveEvent, removeEvent: removeEvent, writeRoster: writeRoster,
+      saveAdmin: saveAdmin, removeAdmin: removeAdmin, changePin: changePin,
+      login: login, logout: logout, loadLogs: loadLogs,
+      setTab: setTab, setOpenEventId: setOpenEventId
+    };
+
+    var body;
+    if (!ready) {
+      body = D('flex flex-col items-center gap-4 py-32 text-center',
+        D('flex h-14 w-14 items-center justify-center rounded-full inlay ' + JADE,
+          E(Icon, { name: 'LoaderCircle', size: 20, className: 'animate-spin' })),
+        E('p', { className: 'disp text-[14px] ' + T2 }, '正在接引宗門靈脈…'));
+    } else if (openEvent) {
+      body = E(EventDetail, Object.assign({ ev: openEvent }, ctx));
+    } else if (tab === 'events') {
+      body = E(EventsList, ctx);
+    } else if (tab === 'members') {
+      body = E(MembersPage, ctx);
+    } else {
+      body = E(AdminPage, ctx);
+    }
+
+    return D('min-h-screen pb-28',
+      E(TopBar, Object.assign({ tab: tab, openEvent: openEvent }, ctx)),
+      E('main', { className: 'mx-auto w-full max-w-5xl px-4 pt-11 sm:px-6' }, body),
+      toast ? D('fixed bottom-7 left-1/2 z-[60] w-[min(92vw,26rem)] -translate-x-1/2',
+        D('rise glass flex items-center gap-3 rounded-2xl px-4 py-3.5 text-sm ' + (toast.kind === 'bad' ? CIN : T1),
+          E(Icon, {
+            name: toast.kind === 'bad' ? 'TriangleAlert' : 'CircleCheck', size: 16,
+            className: toast.kind === 'bad' ? CIN : JADE
+          }),
+          S('flex-1', toast.msg))) : null,
+      modal ? E(Modals, Object.assign({ modal: modal, close: function () { setModal(null); } }, ctx)) : null);
+  }
+
+  /* ---------------- top bar ---------------- */
+  function TopBar(p) {
+    var tabs = [
+      { k: 'events', label: '試煉佈告', icon: 'CalendarDays' },
+      { k: 'members', label: '弟子名冊', icon: 'Users' },
+      { k: 'admin', label: '掌門殿', icon: 'Settings' }
+    ];
+    return E('header', {
+      className: 'sticky top-0 z-40 border-b border-[var(--hair)] bg-[rgba(10,16,19,.72)] backdrop-blur-xl'
+    },
+      D('mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6',
+        D('flex items-center gap-3',
+          D('flex h-10 w-10 items-center justify-center rounded-[14px] text-[var(--jade-100)]',
+            {
+              style: {
+                background: 'linear-gradient(160deg, rgba(155,195,174,.26), rgba(201,169,97,.10))',
+                border: '1px solid rgba(155,195,174,.24)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,.18), 0 10px 24px -16px rgba(110,158,136,.9)'
+              }
+            },
+            E(SectMark, { size: 19 })),
+          D('leading-none',
+            E('p', { className: 'disp text-[17px] font-bold ' + T1 }, SECT + '羽球團'),
+            E('p', { className: 'mt-1.5 text-[10.5px] ' + T3 },
+              p.dbx ? '宗門靈脈・諸位長老即時同步' : '獨修模式・僅存本機'))),
+        p.isAdmin
+          ? D('flex items-center gap-2',
+            D('hidden items-center gap-2 rounded-full px-3.5 py-2 text-[12px] sm:flex',
+              {
+                style: {
+                  color: 'var(--jade-300)',
+                  background: 'linear-gradient(180deg, rgba(155,195,174,.10), rgba(155,195,174,.03))',
+                  border: '1px solid rgba(155,195,174,.18)'
+                }
+              },
+              E(Icon, { name: 'ShieldCheck', size: 13 }),
+              S('font-semibold', p.me.name),
+              S('opacity-50', '@' + p.me.account),
+              p.isSuper ? S('disp rounded-full px-2 py-0.5 text-[10px] font-semibold text-[#12100A] bg-[linear-gradient(180deg,#E0CB94,#C9A961)]', '掌門') : null),
+            E(Btn, { variant: 'ghost', size: 'sm', icon: 'LogOut', onClick: p.logout }, '離殿'))
+          : E(Btn, { variant: 'primary', size: 'sm', icon: 'Shield', onClick: function () { p.setModal({ type: 'login' }); } }, '入殿')),
+      D('mx-auto flex max-w-5xl gap-1 px-4 pb-3 sm:px-6',
+        tabs.map(function (t) {
+          var active = p.tab === t.k && !p.openEvent;
+          return E('button', {
+            key: t.k,
+            onClick: function () { p.setOpenEventId(null); p.setTab(t.k); },
+            className: 'btn inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-medium ' +
+              (active ? 'text-[var(--jade-100)]' : T3 + ' hover:text-[var(--mist-1)] hover:bg-[rgba(228,235,232,.045)]'),
+            style: active ? {
+              background: 'linear-gradient(180deg, rgba(155,195,174,.18), rgba(155,195,174,.05))',
+              border: '1px solid rgba(155,195,174,.24)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,.12)'
+            } : { border: '1px solid transparent' }
+          }, E(Icon, { name: t.icon, size: 14 }), t.label);
+        })));
+  }
+
+  function ReadOnlyHint() {
+    return D('mt-6 flex items-start gap-3 rounded-[20px] inlay px-4 py-3.5 text-[12.5px] leading-relaxed ' + T2,
+      E(Icon, { name: 'Eye', size: 14, className: 'mt-0.5 ' + T3 }),
+      S('', '觀禮模式。點右上「入殿」以身分＋口令登入後才能異動，每筆修改都會記在你名下。'));
+  }
+
+  /* ---------------- members ---------------- */
+  function MembersPage(p) {
+    var a = useState('all'), filter = a[0], setFilter = a[1];
+    var b = useState(''), q = b[0], setQ = b[1];
+
+    var FILTERS = [
+      { k: 'all', label: '全部' }, { k: 'male', label: '男' }, { k: 'female', label: '女' },
+      { k: 'high', label: '元嬰' }, { k: 'mid', label: '結丹' }, { k: 'low', label: '築基' }
+    ];
+    function match(m, kk) {
+      if (kk === 'all') return true;
+      if (kk === 'male' || kk === 'female') return m.gender === kk;
+      return tierOf(m.level) === kk;
+    }
+    function countOf(kk) { return p.members.filter(function (m) { return match(m, kk); }).length; }
+
+    var rows = byGender(p.members.filter(function (m) {
+      if (!match(m, filter)) return false;
+      var t = q.trim().toLowerCase();
+      if (!t) return true;
+      return (m.nickname || '').toLowerCase().indexOf(t) >= 0 || (m.referrer || '').toLowerCase().indexOf(t) >= 0;
+    }));
+
+    return D('',
+      E(PageHead, {
+        eyebrow: '弟子名冊', title: '宗門弟子',
+        sub: '在籍 ' + p.members.length + ' 人・男 ' + countOf('male') + '・女 ' + countOf('female'),
+        action: E(Btn, {
+          variant: 'primary', icon: 'UserPlus', nub: 'ArrowRight',
+          onClick: function () { if (p.needAdmin()) p.setModal({ type: 'member', row: null }); }
+        }, '收錄弟子')
+      }),
+      D('flex flex-col gap-3.5',
+        D('relative',
+          D('pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 ' + T3, E(Icon, { name: 'Search', size: 15 })),
+          E('input', {
+            value: q, onChange: function (ev) { setQ(ev.target.value); },
+            placeholder: '搜尋道號、引薦人／備註…', className: INPUT + ' pl-11'
+          })),
+        D('scroll-x -mx-1 flex gap-1.5 px-1',
+          FILTERS.map(function (ff) {
+            var on = filter === ff.k;
+            return E('button', {
+              key: ff.k, onClick: function () { setFilter(ff.k); },
+              className: 'btn shrink-0 rounded-full px-3.5 py-1.5 text-[12.5px] font-medium ' +
+                (on ? 'text-[var(--jade-100)]' : T3 + ' hover:text-[var(--mist-1)]'),
+              style: on ? {
+                background: 'linear-gradient(180deg, rgba(155,195,174,.20), rgba(155,195,174,.06))',
+                border: '1px solid rgba(155,195,174,.28)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,.12)'
+              } : { border: '1px solid var(--hair)' }
+            }, ff.label, S('num ml-2 text-[11px] opacity-50', String(countOf(ff.k))));
+          }))),
+      rows.length === 0
+        ? D('mt-5', E(Empty, { icon: 'UserSearch', title: '名冊上沒有相符的弟子', hint: '換個條件或關鍵字，或按上方「收錄弟子」建檔。' }))
+        : D('mt-5 grid gap-2.5', rows.map(function (m, idx) {
+          return E(MemberCard, { key: m.id, m: m, idx: idx, p: p });
+        })),
+      p.isAdmin ? null : E(ReadOnlyHint));
+  }
+
+  function MemberCard(props) {
+    var m = props.m, p = props.p;
+    return D(CARD + ' ' + CARD_HOVER + ' flex items-center gap-3.5 px-4 py-3.5',
+      S('num w-5 shrink-0 text-center text-[11.5px] ' + T3, String(props.idx + 1)),
+      E(Avatar, { name: m.nickname, g: m.gender }),
+      D('min-w-0 flex-1',
+        D('flex flex-wrap items-center gap-x-2 gap-y-1.5',
+          S('disp truncate text-[15.5px] font-semibold ' + T1, m.nickname),
+          E(GenderTag, { g: m.gender }),
+          E(LevelBadge, { level: m.level })),
+        E('p', { className: 'mt-1.5 truncate text-[11.5px] ' + T3 },
+          m.referrer ? '引薦人／備註：' + m.referrer : '—')),
+      D('flex shrink-0 items-center gap-1',
+        E(Btn, {
+          variant: 'ghost', size: 'icon', icon: 'Pencil', ariaLabel: '編輯',
+          onClick: function () { if (p.needAdmin()) p.setModal({ type: 'member', row: m }); }
+        }),
+        E(Btn, {
+          variant: 'ghost', size: 'icon', icon: 'Trash2', ariaLabel: '除名',
+          onClick: function () {
+            if (!p.needAdmin()) return;
+            p.setModal({
+              type: 'confirm', title: '除名弟子', danger: true, ok: '除名',
+              body: '確定要將「' + m.nickname + '」移出名冊？此動作無法復原，已入陣的名單不受影響。',
+              run: function () { p.removeMember(m); }
+            });
+          }
+        })));
+  }
+
+  /* ---------------- events list ---------------- */
+  function EventsList(p) {
+    return D('',
+      E(PageHead, {
+        eyebrow: '試煉佈告', title: '宗門集結', sub: '共 ' + p.events.length + ' 場試煉',
+        action: E(Btn, {
+          variant: 'primary', icon: 'Plus', nub: 'ArrowRight',
+          onClick: function () { if (p.needAdmin()) p.setModal({ type: 'event', row: null }); }
+        }, '開壇集結')
+      }),
+      p.events.length === 0
+        ? E(FirstRun, { p: p })
+        : D('grid gap-3.5',
+          p.events.map(function (ev) { return E(EventCard, { key: ev.id, ev: ev, p: p }); })),
+      p.isAdmin ? null : E(ReadOnlyHint));
+  }
+
+  function FirstRun(props) {
+    var p = props.p;
+    var steps = [
+      {
+        n: 1, title: '入殿', done: p.isAdmin,
+        desc: p.isAdmin ? '已入殿：' + p.me.name : '點右上角「入殿」，用身分＋口令登入後才能異動',
+        go: p.isAdmin ? null : function () { p.setModal({ type: 'login' }); }
+      },
+      {
+        n: 2, title: '收錄弟子', done: p.members.length > 0,
+        desc: p.members.length > 0 ? '名冊已有 ' + p.members.length + ' 位弟子' : '先把常來的球友建檔，開壇時就能一鍵點將',
+        go: function () { if (p.needAdmin()) { p.setTab('members'); p.setModal({ type: 'member', row: null }); } }
+      },
+      {
+        n: 3, title: '開壇集結', done: false,
+        desc: '填好日期、場地面數與費用，名單就會自動算上限',
+        go: function () { if (p.needAdmin()) p.setModal({ type: 'event', row: null }); }
+      }
+    ];
+    return D('bezel',
+      D('core surface overflow-hidden',
+        D('px-6 py-6 sm:px-7',
+          E('span', { className: 'eyebrow' }, '宗門初立'),
+          E('h3', { className: 'disp mt-3 text-[21px] font-bold ' + T1 }, '三步開宗'),
+          E('p', { className: 'mt-2 text-[12.5px] ' + T3 }, '佈告欄還空著。照著下面三步走，第一場試煉就能貼進 LINE 群組。')),
+        D('grid gap-px bg-[var(--hair)] sm:grid-cols-3',
+          steps.map(function (s) {
+            return E('button', {
+              key: s.n,
+              onClick: s.go || function () { },
+              disabled: !s.go,
+              className: 'btn group flex flex-col gap-3 bg-[var(--ink-1)] p-6 text-left ' +
+                (s.go ? 'hover:bg-[rgba(155,195,174,.05)]' : 'cursor-default')
+            },
+              D('flex items-center gap-2.5',
+                D('disp flex h-8 w-8 items-center justify-center rounded-full text-[12px] font-semibold ' + (s.done ? 'text-[var(--jade-100)]' : T3),
+                  {
+                    style: s.done
+                      ? { background: 'linear-gradient(180deg,rgba(155,195,174,.24),rgba(155,195,174,.08))', border: '1px solid rgba(155,195,174,.30)' }
+                      : { background: 'rgba(228,235,232,.04)', border: '1px solid var(--hair)' }
+                  },
+                  s.done ? E(Icon, { name: 'Check', size: 14 }) : S('num', String(s.n))),
+                S('disp text-[15.5px] font-semibold ' + (s.done ? JADE : T1), s.title),
+                s.go ? E(Icon, { name: 'ArrowRight', size: 14, className: T3 + ' transition-transform duration-500 [transition-timing-function:var(--ease)] group-hover:translate-x-1' }) : null),
+              E('p', { className: 'text-[12px] leading-relaxed ' + T3 }, s.desc));
+          }))));
+  }
+
+  function metaLine(icon, text) {
+    return D('inline-flex items-center gap-1.5 text-[12.5px] text-[var(--mist-2)]',
+      E(Icon, { name: icon, size: 13, className: 'text-[var(--mist-3)]' }), S('truncate', text));
+  }
+
+  function EventCard(props) {
+    var ev = props.ev, p = props.p;
+    var roster = ev.roster || [];
+    var going = roster.filter(function (r) { return r.status === 'going'; }).length;
+    var cap = capacityOf(ev.courts);
+    var over = going > cap;
+    var pct = fillPct(going, cap);
+
+    return E('button', {
+      onClick: function () { p.setOpenEventId(ev.id); },
+      className: CARD + ' ' + CARD_HOVER + ' group w-full p-5 text-left sm:p-6'
+    },
+      D('flex items-start gap-4',
+        E(DateSeal, { text: ev.dateText }),
+        D('min-w-0 flex-1',
+          E('h3', { className: 'disp truncate text-[19px] font-bold leading-tight ' + T1 }, ev.title),
+          D('mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5',
+            metaLine('Clock', ev.startTime + '–' + ev.endTime),
+            metaLine('MapPin', ev.place),
+            metaLine('DollarSign', '$' + ev.fee + ' / 人'),
+            metaLine('Users', ev.courts + ' 面場'))),
+        D('hidden shrink-0 items-center gap-2.5 sm:flex',
+          E(CapacityPill, { value: going, cap: cap }),
+          E(Icon, {
+            name: 'ChevronRight', size: 18,
+            className: T3 + ' transition-transform duration-500 [transition-timing-function:var(--ease)] group-hover:translate-x-1 group-hover:text-[var(--jade-300)]'
+          }))),
+      D('mt-5',
+        D('mb-2 flex items-center justify-between',
+          D('flex items-center gap-2.5',
+            S('text-[11px] tracking-wide ' + T3, '入陣進度'),
+            D('sm:hidden', E(CapacityPill, { value: going, cap: cap }))),
+          S('num text-[11px] font-medium ' + (over ? CIN : T3),
+            over ? '超出上限 ' + (going - cap) + ' 人' : pct + '%')),
+        flow(going, cap, true)));
+  }
+
+  /* ---------------- event detail ---------------- */
+  function EventDetail(p) {
+    var ev = p.ev;
+    var roster = resolveRoster(ev.roster, p.members);
+    var cap = capacityOf(ev.courts);
+    var going = roster.filter(function (r) { return r.status === 'going'; });
+    var maybe = roster.filter(function (r) { return r.status === 'maybe'; });
+    var wait = roster.filter(function (r) { return r.status === 'wait'; });
+    var goMale = going.filter(function (r) { return r.gender !== 'female'; }).length;
+    var goFemale = going.filter(function (r) { return r.gender === 'female'; }).length;
+    var over = going.length > cap;
+    var pct = fillPct(going.length, cap);
+
+    function setStatus(r, kk) {
+      if (!p.needAdmin() || r.status === kk) return;
+      var next = roster.map(function (x) {
+        return x.rid === r.rid ? Object.assign({}, x, { status: kk, updatedBy: p.me.account, updatedAt: nowISO() }) : x;
+      });
+      p.writeRoster(ev, next, '調整入陣', ev.dateText + '・' + r.nickname, statusMeta(r.status).label + ' → ' + statusMeta(kk).label);
+    }
+    function removeRow(r) {
+      if (!p.needAdmin()) return;
+      p.setModal({
+        type: 'confirm', title: '移出陣列', danger: true, ok: '移出',
+        body: '將「' + r.nickname + '」移出這場集結的名單？弟子名冊不受影響，之後可以再點將回來。',
+        run: function () {
+          p.writeRoster(ev, roster.filter(function (x) { return x.rid !== r.rid; }), '移出陣列', ev.dateText + '・' + r.nickname, '');
+          p.flash('已將「' + r.nickname + '」移出陣列');
+        }
+      });
+    }
+    function lineText() {
+      var L = [];
+      L.push('【' + ev.dateText + ' ' + ev.title + '】');
+      L.push('🕙 時間：' + ev.startTime + '～' + ev.endTime);
+      L.push('📍 地點：' + ev.place);
+      L.push('🏸 場地：' + ev.courts + ' 面場（上限 ' + cap + ' 人）');
+      L.push('💰 費用：$' + ev.fee + ' / 人（均分預估，多補少退，依實際人數結算）');
+      var ns = notesOf(ev);
+      if (ns.length) {
+        L.push(''); L.push('ℹ️ 補充事項');
+        ns.forEach(function (t) { L.push('・' + t); });
+      }
+      L.push('');
+      L.push('✅ 確認參加（' + going.length + '/' + cap + '）');
+      byGender(going).forEach(function (r, i) { L.push(nameLine(r, i)); });
+      if (maybe.length) {
+        L.push(''); L.push('❓ 不確定（' + maybe.length + '）');
+        byGender(maybe).forEach(function (r, i) { L.push(nameLine(r, i)); });
+      }
+      if (wait.length) {
+        L.push(''); L.push('⏳ 候補（' + wait.length + '）');
+        byGender(wait).forEach(function (r, i) { L.push(nameLine(r, i)); });
+      }
+      L.push(''); L.push('【團規】');
+      rulesOf().forEach(function (t) { L.push('・' + t); });
+      return L.join('\n');
+    }
+
+    var side = [
+      { st: STATUSES[1], n: maybe.length },
+      { st: STATUSES[2], n: wait.length }
+    ];
+    /* 名單顯示一律男先女後；寫回資料庫時仍用原陣列，順序不受影響 */
+    var view = byGender(roster);
+
+    return D('',
+      D('flex flex-wrap items-center justify-between gap-2 pb-5',
+        E(Btn, { variant: 'ghost', icon: 'ChevronLeft', onClick: function () { p.setOpenEventId(null); } }, '返回佈告欄'),
+        D('flex items-center gap-1',
+          E(Btn, {
+            variant: 'ghost', size: 'sm', icon: 'Pencil',
+            onClick: function () { if (p.needAdmin()) p.setModal({ type: 'event', row: ev }); }
+          }, '修改集結'),
+          E(Btn, {
+            variant: 'ghost', size: 'sm', icon: 'Trash2',
+            onClick: function () {
+              if (!p.needAdmin()) return;
+              p.setModal({
+                type: 'confirm', title: '撤除集結', danger: true, ok: '撤除整場',
+                body: '將撤除「' + ev.dateText + ' ' + ev.title + '」與其 ' + roster.length + ' 筆入陣名單，無法復原。',
+                run: function () { p.setOpenEventId(null); p.removeEvent(ev); }
+              });
+            }
+          }, '撤除'))),
+
+      /* 主卡：Double-bezel 外殼 + 內核，真磨砂只用在這一張 */
+      D('bezel',
+        D('core glass overflow-hidden p-6 sm:p-8',
+          D('flex flex-wrap items-start justify-between gap-5',
+            D('flex min-w-0 items-start gap-4',
+              E(DateSeal, { text: ev.dateText }),
+              D('min-w-0',
+                E('h2', { className: 'disp text-[27px] font-bold leading-tight ' + T1, style: { textWrap: 'balance' } }, ev.title),
+                D('mt-3 flex flex-wrap items-center gap-x-5 gap-y-2',
+                  metaLine('Clock', ev.startTime + '–' + ev.endTime),
+                  metaLine('MapPin', ev.place),
+                  metaLine('DollarSign', '$' + ev.fee + ' / 人')))),
+            D('shrink-0', E(CapacityPill, { value: going.length, cap: cap }))),
+
+          /* Asymmetrical Bento：已入陣佔主位，其餘三態收成窄欄 */
+          D('mt-7 grid gap-3 md:grid-cols-5',
+            D('md:col-span-3',
+              D('h-full rounded-[18px] inlay p-5',
+                {
+                  style: {
+                    borderColor: over ? 'rgba(208,122,108,.24)' : 'rgba(155,195,174,.18)',
+                    backgroundImage: over
+                      ? 'linear-gradient(150deg, rgba(208,122,108,.10), rgba(228,235,232,.012))'
+                      : 'linear-gradient(150deg, rgba(155,195,174,.10), rgba(228,235,232,.012))'
+                  }
+                },
+                D('flex items-center gap-2 text-[11.5px] font-medium ' + (over ? CIN : JADE),
+                  S('text-[12px] leading-none', '✅'), '已入陣'),
+                D('mt-3 flex items-end gap-3',
+                  E('span', { className: 'disp num text-[54px] font-bold leading-[.85] ' + (over ? CIN : T1) }, String(going.length)),
+                  D('pb-1.5',
+                    S('num block text-[15px] ' + T3, '／ ' + cap + ' 人'),
+                    S('block mt-1 text-[11.5px] ' + T3, '男 ' + goMale + '　女 ' + goFemale))),
+                D('mt-5',
+                  D('mb-2 flex items-center justify-between',
+                    S('text-[11px] tracking-wide ' + T3, '入陣進度'),
+                    S('num text-[11.5px] font-medium ' + (over ? CIN : JADE), over ? '超出 ' + (going.length - cap) + ' 人' : pct + '%')),
+                  flow(going.length, cap)),
+                E('p', { className: 'num mt-3 text-[11px] ' + T3 }, ev.courts + ' 面場 × ' + PER_COURT + ' 人 ＝ 上限 ' + cap + ' 人'))),
+            D('grid content-between gap-3 md:col-span-2',
+              side.map(function (x) {
+                return D('flex items-center justify-between rounded-[16px] inlay px-4 py-3.5', { key: x.st.k },
+                  D('flex items-center gap-2 text-[12px] font-medium ' + x.st.tone,
+                    S('text-[11px] leading-none', x.st.emoji), x.st.label),
+                  E('span', { className: 'disp num text-[24px] font-bold leading-none ' + (x.n > 0 ? x.st.tone : T3) }, String(x.n)));
+              }))),
+
+          over ? D('mt-4 flex items-center gap-2.5 rounded-2xl px-4 py-3 text-[12.5px] font-medium ' + CIN,
+            { style: { background: 'linear-gradient(180deg, rgba(208,122,108,.12), rgba(208,122,108,.04))', border: '1px solid rgba(208,122,108,.22)' } },
+            E(Icon, { name: 'TriangleAlert', size: 14 }),
+            '入陣人數超出場地上限 ' + (going.length - cap) + ' 人，請改列候補或加開場地') : null)),
+
+      /* 地點資訊 + 門規 */
+      D('mt-4 grid items-start gap-3.5 md:grid-cols-2',
+        D(SOFT_CARD + ' p-5',
+          D('mb-4 flex items-center gap-2.5',
+            E(Icon, { name: 'MapPin', size: 14, className: JADE }),
+            E('h3', { className: 'disp text-[15px] font-semibold ' + T1 }, '地點資訊')),
+          D('grid gap-3.5',
+            E(InfoRow, { icon: 'MapPin', label: '球館地點', value: ev.place }),
+            E(InfoRow, { icon: 'Clock', label: '時間', value: ev.startTime + ' – ' + ev.endTime }),
+            E(InfoRow, { icon: 'Users', label: '場地', value: ev.courts + ' 面場（上限 ' + cap + ' 人）' }),
+            E(InfoRow, { icon: 'DollarSign', label: '費用', value: '$' + ev.fee + ' / 人（預估，多補少退）' })),
+          notesOf(ev).length
+            ? D('mt-4 border-t border-[var(--hair)] pt-4',
+              E('p', { className: 'text-[10.5px] tracking-wide ' + T3 }, '補充事項'),
+              E('ul', { className: 'mt-2.5 grid gap-2' },
+                notesOf(ev).map(function (t, i) {
+                  return E('li', { key: i, className: 'flex items-start gap-2.5 text-[12.5px] leading-relaxed ' + T2 },
+                    S('mt-[7px] h-1 w-1 shrink-0 rounded-full bg-[var(--jade-500)]'),
+                    S('min-w-0 break-words', t));
+                })))
+            : null),
+        D(SOFT_CARD + ' p-5',
+          D('mb-3 flex items-center gap-2.5',
+            E(Icon, { name: 'ClipboardList', size: 14, className: GOLD }),
+            E('h3', { className: 'disp text-[15px] font-semibold ' + T1 }, '門規')),
+          E(RuleRows, { rules: rulesOf() }))),
+
+      D('mt-6 flex flex-wrap gap-2.5',
+        E(Btn, {
+          variant: 'primary', icon: 'ListPlus', nub: 'ArrowRight',
+          onClick: function () { if (p.needAdmin()) p.setModal({ type: 'pick', ev: ev }); }
+        }, '自名冊點將'),
+        E(Btn, {
+          variant: 'outline', icon: 'UserPlus',
+          onClick: function () { if (p.needAdmin()) p.setModal({ type: 'guest', ev: ev }); }
+        }, '納入散修'),
+        E(Btn, {
+          variant: 'soft', icon: 'ClipboardList',
+          onClick: function () { p.setModal({ type: 'line', text: lineText() }); }
+        }, '生成傳訊符')),
+
+      D('mt-8 mb-3.5 flex items-end justify-between',
+        D('',
+          E('span', { className: 'eyebrow' }, '入陣弟子'),
+          E('p', { className: 'disp mt-2.5 text-[19px] font-bold ' + T1 },
+            String(roster.length), S('text-[13px] font-normal ' + T3, ' 人在列'))),
+        S('text-[11px] ' + T3, p.isAdmin ? '點右側切換狀態' : '入殿後可切換狀態')),
+
+      roster.length === 0
+        ? E(Empty, {
+          icon: 'Users', title: '陣列尚無一人',
+          hint: '用「自名冊點將」勾選常客，或用「納入散修」加入未建檔的道友。'
+        })
+        : D('grid gap-2.5', view.map(function (r, idx) {
+          return E(RosterCard, { key: r.rid, r: r, idx: idx, setStatus: setStatus, removeRow: removeRow });
+        })),
+      p.isAdmin ? null : E(ReadOnlyHint));
+  }
+
+  function RosterCard(props) {
+    var r = props.r;
+    return D(CARD + ' ' + CARD_HOVER + ' flex flex-wrap items-center gap-x-3.5 gap-y-3 px-4 py-3.5',
+      S('num w-5 shrink-0 text-center text-[11.5px] ' + T3, String(props.idx + 1)),
+      E(Avatar, { name: r.nickname, g: r.gender }),
+      D('min-w-0 flex-1 basis-[150px]',
+        D('flex flex-wrap items-center gap-x-2 gap-y-1.5',
+          S('disp truncate text-[15.5px] font-semibold ' + T1, r.nickname),
+          E(GenderTag, { g: r.gender }),
+          E(LevelBadge, { level: r.level }),
+          r.memberId ? null : E('span', { className: 'tier', style: { '--tc': 'var(--mist-3)', '--tb': 'rgba(228,235,232,.10)', '--th': 'rgba(228,235,232,.05)', '--tl': 'rgba(228,235,232,.015)' } }, '散修')),
+        E('p', { className: 'mt-1.5 truncate text-[11.5px] ' + T3 },
+          r.referrer ? '引薦人／備註：' + r.referrer : '—')),
+      D('ml-auto flex items-center gap-1.5',
+        D('seg',
+          STATUSES.map(function (x) {
+            var on = r.status === x.k;
+            return E('button', {
+              key: x.k,
+              'data-on': on ? '1' : '0',
+              style: on ? x.seg : null,
+              onClick: function () { props.setStatus(r, x.k); },
+              title: x.label
+            }, x.short);
+          })),
+        E(Btn, { variant: 'ghost', size: 'icon', icon: 'X', ariaLabel: '移出陣列', onClick: function () { props.removeRow(r); } })));
+  }
+
+  /* ---------------- admin page ---------------- */
+  function AdminPage(p) {
+    var a = useState('admins'), sub = a[0], setSub = a[1];
+    var b = useState(''), q = b[0], setQ = b[1];
+
+    useEffect(function () { if (sub === 'logs') p.loadLogs(); }, [sub]);
+
+    var logRows = p.logs.filter(function (l) {
+      var t = q.trim().toLowerCase();
+      if (!t) return true;
+      return [l.who, l.name, l.act, l.target, l.detail].join(' ').toLowerCase().indexOf(t) >= 0;
+    });
+
+    function exportCsv() {
+      var head = '時間,身分,長老,動作,對象,細節';
+      var rows = logRows.map(function (l) {
+        return [l.t, l.who, l.name, l.act, l.target, l.detail].map(function (v) {
+          return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+        }).join(',');
+      }).join('\n');
+      copyText(head + '\n' + rows).then(function (ok) {
+        p.flash(ok ? '已複製 ' + logRows.length + ' 筆日誌（CSV）' : '複製失敗，請手動選取', ok ? 'ok' : 'bad');
+      });
+    }
+    function exportSnapshot() {
+      var snap = {
+        generatedAt: nowISO(),
+        events: p.events.map(function (ev) {
+          return {
+            title: ev.title, dateText: ev.dateText, startTime: ev.startTime, endTime: ev.endTime,
+            place: ev.place, courts: ev.courts, fee: ev.fee, note: ev.note || '',
+            roster: byGender(resolveRoster(ev.roster, p.members)).map(function (r) {
+              return { nickname: r.nickname, gender: r.gender, level: r.level, status: r.status };
+            })
+          };
+        })
+      };
+      copyText(JSON.stringify(snap)).then(function (ok) {
+        p.flash(ok ? '已複製佈告資料，貼給 Claude 就能更新公開名單頁' : '複製失敗', ok ? 'ok' : 'bad');
+      });
+    }
+
+    return D('',
+      E(PageHead, { eyebrow: '掌門殿', title: '宗門執事', sub: '長老名冊、口令與全宗操作日誌' }),
+      D('flex gap-1',
+        [['admins', '長老名冊', 'Users'], ['logs', '宗門日誌', 'ScrollText']].map(function (t) {
+          var on = sub === t[0];
+          return E('button', {
+            key: t[0], onClick: function () { setSub(t[0]); },
+            className: 'btn inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-medium ' +
+              (on ? 'text-[var(--jade-100)]' : T3 + ' hover:text-[var(--mist-1)]'),
+            style: on ? {
+              background: 'linear-gradient(180deg, rgba(155,195,174,.18), rgba(155,195,174,.05))',
+              border: '1px solid rgba(155,195,174,.24)'
+            } : { border: '1px solid transparent' }
+          }, E(Icon, { name: t[2], size: 14 }), t[1]);
+        })),
+      !p.isAdmin
+        ? D('mt-6 ' + CARD + ' flex flex-col items-start gap-5 p-8',
+          D('flex items-center gap-3.5',
+            E(Bubble, { name: 'Lock', size: 'h-11 w-11', icon: 16 }),
+            D('', E('p', { className: 'disp text-[16px] font-semibold ' + T1 }, '需長老權限'),
+              E('p', { className: 'mt-1.5 text-[12.5px] ' + T3 }, '入殿後才能檢視長老名冊與宗門日誌'))),
+          E(Btn, { variant: 'primary', icon: 'LogIn', nub: 'ArrowRight', onClick: function () { p.setModal({ type: 'login' }); } }, '入殿'))
+        : (sub === 'admins' ? E(AdminList, { p: p, exportSnapshot: exportSnapshot })
+          : E(LogList, { p: p, q: q, setQ: setQ, rows: logRows, exportCsv: exportCsv })));
+  }
+
+  function AdminList(props) {
+    var p = props.p;
+    return D('mt-6',
+      D('flex flex-wrap items-center justify-between gap-2 pb-4',
+        E('p', { className: 'text-[13px] ' + T2 },
+          '共 ' + p.admins.length + ' 位長老',
+          p.isSuper ? null : S('ml-2 ' + T3, '・你可改自己的口令，冊封與異動請找掌門')),
+        D('flex gap-2',
+          E(Btn, { variant: 'outline', icon: 'Share2', onClick: props.exportSnapshot }, '複製佈告資料'),
+          p.isSuper
+            ? E(Btn, { variant: 'primary', icon: 'UserPlus', onClick: function () { p.setModal({ type: 'admin', row: null }); } }, '冊封長老')
+            : null)),
+      D('grid gap-2.5', p.admins.map(function (ad) {
+        return E(AdminCard, { key: ad.id, ad: ad, p: p });
+      })),
+      D('mt-4 flex items-start gap-3 rounded-[20px] inlay px-4 py-3.5 text-[12.5px] leading-relaxed ' + T2,
+        E(Icon, { name: 'Info', size: 14, className: 'mt-0.5 ' + T3 }),
+        S('', '口令是宗門內部的分工識別碼，用來記錄「是哪位長老做的」，不是資安等級的密碼。能開這個連結的人本來就看得到全部資料，機密請勿放入。')));
+  }
+
+  function AdminCard(props) {
+    var ad = props.ad, p = props.p;
+    var isMe = p.me && p.me.id === ad.id;
+    var canPin = p.isSuper || isMe;
+    return D(CARD + ' ' + CARD_HOVER + ' flex flex-wrap items-center gap-3.5 px-4 py-3.5',
+      D('flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] inlay ' + (ad.superAdmin ? GOLD : T3),
+        {
+          style: ad.superAdmin ? {
+            borderColor: 'rgba(201,169,97,.26)',
+            backgroundImage: 'linear-gradient(180deg, rgba(201,169,97,.14), rgba(201,169,97,.03))'
+          } : null
+        },
+        E(Icon, { name: ad.superAdmin ? 'ShieldCheck' : 'UserCog', size: 16 })),
+      D('min-w-0 flex-1 basis-[160px]',
+        D('flex flex-wrap items-center gap-x-2 gap-y-1.5',
+          S('disp truncate text-[15.5px] font-semibold ' + T1, ad.name),
+          E('span', { className: 'tier', style: { '--tc': 'var(--mist-3)', '--tb': 'rgba(228,235,232,.10)', '--th': 'rgba(228,235,232,.05)', '--tl': 'rgba(228,235,232,.015)' } }, '@' + ad.account),
+          ad.superAdmin ? E('span', { className: 'tier', style: TIER_STYLE.high }, '掌門') : null,
+          isMe ? E('span', { className: 'tier', style: TIER_STYLE.mid }, '目前在殿') : null),
+        E('p', { className: 'num mt-1.5 truncate text-[11.5px] ' + T3 },
+          '口令 ••••　冊封於 ' + (ad.createdAt ? fmtTime(ad.createdAt) : '—'))),
+      D('ml-auto flex shrink-0 items-center gap-1',
+        E(Btn, {
+          variant: 'ghost', size: 'icon', icon: 'KeyRound', ariaLabel: '改口令',
+          disabled: !canPin, title: canPin ? (isMe ? '改自己的口令' : '改口令') : '只有掌門能改別人的口令',
+          onClick: function () { p.setModal({ type: 'pin', row: ad }); }
+        }),
+        p.isSuper ? E(Btn, { variant: 'ghost', size: 'icon', icon: 'Pencil', ariaLabel: '編輯', onClick: function () { p.setModal({ type: 'admin', row: ad }); } }) : null,
+        p.isSuper ? E(Btn, {
+          variant: 'ghost', size: 'icon', icon: 'Trash2', ariaLabel: '革除',
+          disabled: p.admins.length <= 1,
+          title: p.admins.length <= 1 ? '至少要保留一位長老' : '革除長老',
+          onClick: function () {
+            p.setModal({
+              type: 'confirm', title: '革除長老', danger: true, ok: '革除',
+              body: '確定革除「' + ad.account + '（' + ad.name + '）」？' + (isMe ? '這是你目前登入的身分，革除後會立即離殿。' : ''),
+              run: function () { p.removeAdmin(ad); }
+            });
+          }
+        }) : null));
+  }
+
+  function LogList(props) {
+    var p = props.p;
+    return D('mt-6',
+      D('flex flex-wrap items-center justify-between gap-2 pb-4',
+        D('relative min-w-[220px] flex-1',
+          D('pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 ' + T3, E(Icon, { name: 'Search', size: 15 })),
+          E('input', {
+            value: props.q, onChange: function (ev) { props.setQ(ev.target.value); },
+            placeholder: '搜尋身分、動作、對象…', className: INPUT + ' pl-11'
+          })),
+        D('flex gap-2',
+          E(Btn, { variant: 'outline', icon: 'RefreshCw', onClick: p.loadLogs }, '重新載入'),
+          E(Btn, { variant: 'outline', icon: 'Copy', onClick: props.exportCsv }, '複製 CSV'))),
+      props.rows.length === 0
+        ? E(Empty, { icon: 'ScrollText', title: '日誌尚無記載', hint: '任何收錄、修改、撤除與狀態調整都會自動寫入，保留最近 14 天。' })
+        : D(CARD + ' scroll-x overflow-hidden',
+          E('table', { className: 'w-full min-w-[680px] table-fixed border-collapse text-left' },
+            E('colgroup', null,
+              E('col', { style: { width: '96px' } }),
+              E('col', { style: { width: '19%' } }),
+              E('col', { style: { width: '112px' } }),
+              E('col', { style: { width: '24%' } }),
+              E('col', null)),
+            E('thead', null,
+              E('tr', { className: 'border-b border-[var(--hair)]' },
+                E('th', { className: 'px-4 py-3 text-[10.5px] tracking-wide font-medium ' + T3 }, '時間'),
+                E('th', { className: 'px-4 py-3 text-[10.5px] tracking-wide font-medium ' + T3 }, '長老'),
+                E('th', { className: 'px-4 py-3 text-[10.5px] tracking-wide font-medium ' + T3 }, '動作'),
+                E('th', { className: 'px-4 py-3 text-[10.5px] tracking-wide font-medium ' + T3 }, '對象'),
+                E('th', { className: 'px-4 py-3 text-[10.5px] tracking-wide font-medium ' + T3 }, '細節'))),
+            E('tbody', null, props.rows.slice(0, 200).map(function (l, idx) {
+              return E('tr', { key: idx, className: 'border-b border-[var(--hair)] last:border-0 transition-colors hover:bg-[rgba(228,235,232,.03)]' },
+                E('td', { className: 'num px-4 py-3 text-[11.5px] ' + T3 }, fmtTime(l.t)),
+                E('td', { className: 'px-4 py-3' },
+                  D('truncate text-[13px] ' + T2, S('disp font-semibold ' + T1, l.name), S('ml-1.5 text-[11px] ' + T3, '@' + l.who))),
+                E('td', { className: 'px-4 py-3' },
+                  E('span', { className: 'tier', style: { '--tc': 'var(--mist-2)', '--tb': 'rgba(228,235,232,.10)', '--th': 'rgba(228,235,232,.05)', '--tl': 'rgba(228,235,232,.015)' } }, l.act)),
+                E('td', { className: 'px-4 py-3 text-[13px] ' + T2 }, D('truncate', l.target || '—')),
+                E('td', { className: 'px-4 py-3 text-[11.5px] ' + T3 }, D('truncate', l.detail || '—')));
+            })))));
+  }
+
+  /* ---------------- modals ---------------- */
+  function Modals(p) {
+    var t = p.modal.type;
+    if (t === 'login') return E(LoginModal, p);
+    if (t === 'member') return E(MemberModal, p);
+    if (t === 'event') return E(EventModal, p);
+    if (t === 'pick') return E(PickModal, p);
+    if (t === 'guest') return E(GuestModal, p);
+    if (t === 'line') return E(LineModal, p);
+    if (t === 'admin') return E(AdminModal, p);
+    if (t === 'pin') return E(PinModal, p);
+    if (t === 'confirm') return E(ConfirmModal, p);
+    return null;
+  }
+
+  function ConfirmModal(p) {
+    var m = p.modal;
+    return E(Modal, {
+      title: m.title, onClose: p.close,
+      footer: [
+        E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
+        E(Btn, { key: 'o', variant: m.danger ? 'dangerSolid' : 'primary', onClick: function () { m.run(); p.close(); } }, m.ok || '確定')
+      ]
+    }, E('p', { className: 'text-sm leading-relaxed ' + T2 }, m.body));
+  }
+
+  function LoginModal(p) {
+    var a = useState(''), acc = a[0], setAcc = a[1];
+    var b = useState(''), pin = b[0], setPin = b[1];
+    var ref = useRef(null);
+    useEffect(function () { if (ref.current) ref.current.focus(); }, []);
+    function go() { if (p.login(acc, pin)) p.close(); }
+    return E(Modal, {
+      title: '入殿', sub: '之後每一筆修改都會記在你名下', onClose: p.close,
+      footer: [
+        E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
+        E(Btn, { key: 'o', variant: 'primary', icon: 'LogIn', onClick: go, disabled: !acc.trim() || !pin.trim() }, '入殿')
+      ]
+    },
+      E('form', { className: 'flex flex-col gap-5', onSubmit: function (ev) { ev.preventDefault(); go(); } },
+        E(Field, { label: '長老身分' },
+          E('input', {
+            ref: ref, value: acc, onChange: function (ev) { setAcc(ev.target.value); },
+            placeholder: 'admin', autoComplete: 'off', className: INPUT
+          })),
+        E(Field, { label: '口令' },
+          E('input', {
+            value: pin, onChange: function (ev) { setPin(ev.target.value); },
+            type: 'password', inputMode: 'numeric', placeholder: '••••', autoComplete: 'off', className: INPUT
+          })),
+        E('button', { type: 'submit', className: 'hidden' })),
+      D('mt-5 flex items-start gap-3 rounded-2xl inlay px-4 py-3.5 text-[12.5px] leading-relaxed ' + T2,
+        E(Icon, { name: 'Info', size: 14, className: 'mt-0.5 ' + T3 }),
+        S('', '沒有身分請找掌門在「掌門殿 → 長老名冊」幫你冊封一組。')));
+  }
+
+  function GenderPick(props) {
+    return D('grid grid-cols-2 gap-2.5',
+      [['male', '男生'], ['female', '女生']].map(function (g) {
+        var on = props.value === g[0];
+        return E('button', {
+          key: g[0], onClick: function () { props.onPick(g[0]); },
+          className: 'btn rounded-2xl px-3 py-3 text-sm font-medium ' + (on ? 'text-[var(--jade-100)]' : T2),
+          style: on ? {
+            background: 'linear-gradient(180deg, rgba(155,195,174,.20), rgba(155,195,174,.06))',
+            border: '1px solid rgba(155,195,174,.30)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,.12)'
+          } : { border: '1px solid var(--hair-2)' }
+        }, g[1]);
+      }));
+  }
+
+  function LevelPick(props) {
+    var nums = [1, 2, 3, 4, 5, 6, 7, 8];
+    return D('flex flex-col gap-3',
+      D('grid grid-cols-8 gap-1.5', nums.map(function (n) {
+        var on = Number(props.value) === n;
+        return E('button', {
+          key: n, onClick: function () { props.onPick(n); },
+          className: 'btn disp num rounded-xl py-2.5 text-[15px] font-semibold ' + (on ? 'text-[var(--jade-100)]' : T2),
+          style: on ? {
+            background: 'linear-gradient(180deg, rgba(155,195,174,.24), rgba(155,195,174,.07))',
+            border: '1px solid rgba(155,195,174,.34)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,.14), 0 0 16px -6px rgba(155,195,174,.7)'
+          } : { border: '1px solid var(--hair-2)' }
+        }, String(n));
+      })),
+      E('p', { className: 'text-[12px] ' + T3 },
+        '目前境界：', S('disp font-semibold ' + JADE, TIER_LABEL[tierOf(Number(props.value))] + '期'),
+        '　（築基 1–3 ・ 結丹 4–6 ・ 元嬰 7 以上）'));
+  }
+
+  function StatusPick(props) {
+    return D('seg',
+      STATUSES.map(function (x) {
+        var on = props.value === x.k;
+        return E('button', {
+          key: x.k, 'data-on': on ? '1' : '0', style: on ? x.seg : null,
+          onClick: function () { props.onPick(x.k); },
+          className: 'px-3'
+        }, x.emoji + ' ' + x.short);
+      }));
+  }
+
+  function MemberModal(p) {
+    var row = p.modal.row;
+    var isNew = !row;
+    var st = useState(row ? Object.assign({}, row) : { nickname: '', gender: 'male', level: 5, referrer: '' });
+    var f = st[0], setF = st[1];
+    function up(kk, v) { setF(function (x) { var n = Object.assign({}, x); n[kk] = v; return n; }); }
+    var dup = p.members.some(function (m) {
+      return m.id !== (row && row.id) && m.nickname.trim() === f.nickname.trim() && f.nickname.trim();
+    });
+    return E(Modal, {
+      title: isNew ? '收錄弟子' : '修改弟子',
+      sub: isNew ? '建檔後開壇就能一鍵點將' : ('最後更新者：' + (row.updatedBy || row.createdBy || '—')),
+      onClose: p.close,
+      footer: [
+        E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
+        E(Btn, {
+          key: 'o', variant: 'primary', icon: 'Check', disabled: !f.nickname.trim() || dup,
+          onClick: function () { p.saveMember(f, isNew); p.close(); }
+        }, isNew ? '收錄' : '儲存')
+      ]
+    },
+      D('flex flex-col gap-5',
+        E(Field, { label: '道號（暱稱）' },
+          E('input', {
+            value: f.nickname, onChange: function (ev) { up('nickname', ev.target.value); },
+            placeholder: '例如：大友', className: INPUT, autoFocus: true
+          })),
+        dup ? E('p', { className: 'text-[12px] font-medium ' + CIN }, '這個道號已經有人用了，換一個以免點名搞混。') : null,
+        E(Field, { label: '性別' }, E(GenderPick, { value: f.gender, onPick: function (v) { up('gender', v); } })),
+        E(Field, { label: '修為境界（1 – 8）' }, E(LevelPick, { value: f.level, onPick: function (v) { up('level', v); } })),
+        E(Field, { label: '引薦人／備註（選填）' },
+          E('input', {
+            value: f.referrer, onChange: function (ev) { up('referrer', ev.target.value); },
+            placeholder: '例如：大友哥', className: INPUT
+          }))));
+  }
+
+  function EventModal(p) {
+    var row = p.modal.row;
+    var isNew = !row;
+    var st = useState(row ? Object.assign({}, row) : {
+      title: '', dateText: '', startTime: '10:00', endTime: '13:00',
+      place: '亞伯林羽球館－東區振興店', courts: 5, fee: 220, note: '', roster: []
+    });
+    var f = st[0], setF = st[1];
+    function up(kk, v) { setF(function (x) { var n = Object.assign({}, x); n[kk] = v; return n; }); }
+    var ok = f.title.trim() && f.dateText.trim() && f.place.trim();
+    return E(Modal, {
+      title: isNew ? '開壇集結' : '修改集結', wide: true,
+      sub: '場地上限自動以「面數 × 7 人」計算，目前 ' + capacityOf(f.courts) + ' 人',
+      onClose: p.close,
+      footer: [
+        E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
+        E(Btn, {
+          key: 'o', variant: 'primary', icon: 'Check', disabled: !ok,
+          onClick: function () {
+            var id = p.saveEvent(f, isNew);
+            if (isNew) { p.setTab('events'); p.setOpenEventId(id); }
+            p.close();
+          }
+        }, isNew ? '開壇' : '儲存')
+      ]
+    },
+      D('grid grid-cols-1 gap-5 sm:grid-cols-2',
+        D('sm:col-span-2', E(Field, { label: '試煉名稱' },
+          E('input', {
+            value: f.title, onChange: function (ev) { up('title', ev.target.value); },
+            placeholder: '例如：中秋節羽球團', className: INPUT, autoFocus: true
+          }))),
+        E(Field, { label: '日期（顯示文字）' },
+          E('input', {
+            value: f.dateText, onChange: function (ev) { up('dateText', ev.target.value); },
+            placeholder: '例如：9/25 (五)', className: INPUT
+          })),
+        E(Field, { label: '場地面數' },
+          D('flex items-center gap-2.5',
+            E('input', {
+              type: 'number', min: 1, max: 12, value: f.courts,
+              onChange: function (ev) { up('courts', ev.target.value); }, className: INPUT
+            }),
+            E('span', { className: 'tier shrink-0 whitespace-nowrap', style: TIER_STYLE.mid }, '上限 ' + capacityOf(f.courts) + ' 人'))),
+        E(Field, { label: '開始時間' },
+          E('input', { type: 'time', value: f.startTime, onChange: function (ev) { up('startTime', ev.target.value); }, className: INPUT })),
+        E(Field, { label: '結束時間' },
+          E('input', { type: 'time', value: f.endTime, onChange: function (ev) { up('endTime', ev.target.value); }, className: INPUT })),
+        D('sm:col-span-2', E(Field, { label: '地點' },
+          E('input', { value: f.place, onChange: function (ev) { up('place', ev.target.value); }, className: INPUT }))),
+        E(Field, { label: '每人費用（元）' },
+          E('input', { type: 'number', min: 0, step: 10, value: f.fee, onChange: function (ev) { up('fee', ev.target.value); }, className: INPUT })),
+        E(Field, { label: '補充事項（用「｜」可分成多條）' },
+          E('input', {
+            value: f.note, onChange: function (ev) { up('note', ev.target.value); },
+            placeholder: '例如：用球：輝厲2號｜9/23 23:00 前可免費取消', className: INPUT
+          }))));
+  }
+
+  function PickModal(p) {
+    var ev = p.modal.ev;
+    var roster = ev.roster || [];
+    var taken = {};
+    roster.forEach(function (r) { if (r.memberId) taken[r.memberId] = true; });
+    var a = useState({}), sel = a[0], setSel = a[1];
+    var b = useState(''), q = b[0], setQ = b[1];
+    var c = useState('going'), st = c[0], setSt = c[1];
+    var d = useState('all'), tier = d[0], setTier = d[1];
+
+    var pool = byGender(p.members.filter(function (m) {
+      if (taken[m.id]) return false;
+      if (tier !== 'all' && tierOf(m.level) !== tier) return false;
+      var t = q.trim().toLowerCase();
+      if (!t) return true;
+      return (m.nickname || '').toLowerCase().indexOf(t) >= 0 || (m.referrer || '').toLowerCase().indexOf(t) >= 0;
+    }));
+    var selCount = Object.keys(sel).filter(function (kk) { return sel[kk]; }).length;
+
+    function toggle(id) { setSel(function (x) { var n = Object.assign({}, x); n[id] = !n[id]; return n; }); }
+    function selectAll() {
+      setSel(function (x) {
+        var n = Object.assign({}, x);
+        var allOn = pool.every(function (m) { return n[m.id]; });
+        pool.forEach(function (m) { n[m.id] = !allOn; });
+        return n;
+      });
+    }
+    function commit() {
+      var picked = p.members.filter(function (m) { return sel[m.id]; });
+      if (!picked.length) return;
+      var add = picked.map(function (m) {
+        return {
+          rid: uid('r'), memberId: m.id, nickname: m.nickname, gender: m.gender,
+          level: m.level, referrer: m.referrer || '', status: st,
+          addedBy: p.me ? p.me.account : '', addedAt: nowISO()
+        };
+      });
+      p.writeRoster(ev, roster.concat(add), '點將入陣', ev.dateText + '・' + picked.length + ' 人',
+        statusMeta(st).label + '：' + picked.map(function (m) { return m.nickname; }).join('、'));
+      p.flash('已點 ' + picked.length + ' 位弟子入陣（' + statusMeta(st).label + '）');
+      p.close();
+    }
+
+    return E(Modal, {
+      title: '自名冊點將', wide: true,
+      sub: '已在陣列中的弟子不會重複出現', onClose: p.close,
+      footer: [
+        E('span', { key: 'n', className: 'mr-auto text-[12px] ' + T3 },
+          '已點 ', S('disp num text-[16px] font-semibold ' + JADE, String(selCount)), ' 位'),
+        E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
+        E(Btn, { key: 'o', variant: 'primary', icon: 'ListPlus', disabled: !selCount, onClick: commit }, '納入陣列')
+      ]
+    },
+      D('flex flex-col gap-4',
+        D('flex flex-wrap items-center gap-2.5',
+          D('relative min-w-[180px] flex-1',
+            D('pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 ' + T3, E(Icon, { name: 'Search', size: 15 })),
+            E('input', {
+              value: q, onChange: function (ev2) { setQ(ev2.target.value); },
+              placeholder: '搜尋道號、引薦人…', className: INPUT + ' pl-11'
+            })),
+          E(Btn, { variant: 'outline', size: 'sm', icon: 'CheckCheck', onClick: selectAll }, '全選 / 取消')),
+        D('flex flex-wrap gap-1.5',
+          [['all', '全部'], ['high', '元嬰'], ['mid', '結丹'], ['low', '築基']].map(function (t) {
+            var on = tier === t[0];
+            return E('button', {
+              key: t[0], onClick: function () { setTier(t[0]); },
+              className: 'btn rounded-full px-3.5 py-1.5 text-[12px] font-medium ' + (on ? 'text-[var(--jade-100)]' : T3),
+              style: on ? {
+                background: 'linear-gradient(180deg, rgba(155,195,174,.20), rgba(155,195,174,.06))',
+                border: '1px solid rgba(155,195,174,.28)'
+              } : { border: '1px solid var(--hair)' }
+            }, t[1]);
+          })),
+        D('flex flex-wrap items-center gap-3 rounded-2xl inlay px-4 py-3',
+          E('span', { className: 'text-[12px] ' + T3 }, '納入為'),
+          E(StatusPick, { value: st, onPick: setSt })),
+        pool.length === 0
+          ? E(Empty, { icon: 'UserCheck', title: '沒有可點的弟子', hint: '符合條件的人都已經在陣列中了。' })
+          : D('grid grid-cols-1 gap-2 sm:grid-cols-2', pool.map(function (m) {
+            var on = !!sel[m.id];
+            return E('button', {
+              key: m.id, onClick: function () { toggle(m.id); },
+              className: 'btn flex items-center gap-3 rounded-2xl px-3.5 py-3 text-left',
+              style: on ? {
+                background: 'linear-gradient(180deg, rgba(155,195,174,.13), rgba(155,195,174,.03))',
+                border: '1px solid rgba(155,195,174,.32)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,.10)'
+              } : { border: '1px solid var(--hair)', background: 'rgba(228,235,232,.018)' }
+            },
+              E('span', {
+                className: 'flex h-5 w-5 shrink-0 items-center justify-center rounded-[7px]',
+                style: on
+                  ? { background: 'linear-gradient(180deg,#A8CFBA,#6E9E88)', color: '#08120E', border: '1px solid rgba(155,195,174,.5)' }
+                  : { border: '1px solid var(--hair-2)' }
+              }, on ? E(Icon, { name: 'Check', size: 12, stroke: 2 }) : null),
+              S('disp min-w-0 flex-1 truncate text-[14.5px] font-semibold ' + T1, m.nickname),
+              E(GenderTag, { g: m.gender }),
+              E(LevelBadge, { level: m.level }));
+          }))));
+  }
+
+  function GuestModal(p) {
+    var ev = p.modal.ev;
+    var st = useState({ nickname: '', gender: 'male', level: 4, referrer: '', status: 'going', addToDb: false });
+    var f = st[0], setF = st[1];
+    function up(kk, v) { setF(function (x) { var n = Object.assign({}, x); n[kk] = v; return n; }); }
+    function commit() {
+      var name = f.nickname.trim();
+      var memberId = null;
+      if (f.addToDb) {
+        memberId = uid('m');
+        p.saveMember({ id: memberId, nickname: name, gender: f.gender, level: Number(f.level), referrer: f.referrer }, true);
+      }
+      var r = {
+        rid: uid('r'), memberId: memberId, nickname: name, gender: f.gender,
+        level: Number(f.level), referrer: (f.referrer || '').trim(), status: f.status,
+        addedBy: p.me ? p.me.account : '', addedAt: nowISO()
+      };
+      p.writeRoster(ev, (ev.roster || []).concat([r]), '納入散修', ev.dateText + '・' + name,
+        statusMeta(f.status).label + '・' + TIER_LABEL[tierOf(Number(f.level))] + ' ' + f.level + (f.addToDb ? '・同時收錄' : ''));
+      p.flash('已納入「' + name + '」');
+      p.close();
+    }
+    return E(Modal, {
+      title: '納入散修', sub: '只加在這一場，不會自動進弟子名冊', onClose: p.close,
+      footer: [
+        E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
+        E(Btn, { key: 'o', variant: 'primary', icon: 'UserPlus', disabled: !f.nickname.trim(), onClick: commit }, '納入陣列')
+      ]
+    },
+      D('flex flex-col gap-5',
+        E(Field, { label: '道號（暱稱）' },
+          E('input', {
+            value: f.nickname, onChange: function (ev2) { up('nickname', ev2.target.value); },
+            placeholder: '例如：阿凱（阿標道友）', className: INPUT, autoFocus: true
+          })),
+        E(Field, { label: '性別' }, E(GenderPick, { value: f.gender, onPick: function (v) { up('gender', v); } })),
+        E(Field, { label: '修為境界（1 – 8）' }, E(LevelPick, { value: f.level, onPick: function (v) { up('level', v); } })),
+        E(Field, { label: '引薦人／備註' },
+          E('input', {
+            value: f.referrer, onChange: function (ev2) { up('referrer', ev2.target.value); },
+            placeholder: '例如：阿標引薦', className: INPUT
+          })),
+        E(Field, { label: '入陣狀態' }, E(StatusPick, { value: f.status, onPick: function (v) { up('status', v); } })),
+        E('button', {
+          onClick: function () { up('addToDb', !f.addToDb); },
+          className: 'btn flex items-center gap-3 rounded-2xl border border-[var(--hair-2)] px-4 py-3.5 text-left hover:bg-[rgba(228,235,232,.04)]'
+        },
+          E('span', {
+            className: 'flex h-5 w-5 shrink-0 items-center justify-center rounded-[7px]',
+            style: f.addToDb
+              ? { background: 'linear-gradient(180deg,#A8CFBA,#6E9E88)', color: '#08120E' }
+              : { border: '1px solid var(--hair-2)' }
+          }, f.addToDb ? E(Icon, { name: 'Check', size: 12, stroke: 2 }) : null),
+          D('', E('p', { className: 'text-[13px] font-medium ' + T1 }, '同時收錄進弟子名冊'),
+            E('p', { className: 'mt-1 text-[11.5px] ' + T3 }, '之後開壇可以直接點將')))));
+  }
+
+  function LineModal(p) {
+    var text = p.modal.text;
+    var st = useState(false), done = st[0], setDone = st[1];
+    return E(Modal, {
+      title: '傳訊符', wide: true, sub: '已依狀態整理，直接貼進 LINE 群組', onClose: p.close,
+      footer: [
+        E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '關閉'),
+        E(Btn, {
+          key: 'o', variant: 'primary', icon: done ? 'CircleCheck' : 'Copy',
+          onClick: function () {
+            copyText(text).then(function (ok) {
+              setDone(ok);
+              p.flash(ok ? '已複製到剪貼簿，去 LINE 貼上吧' : '複製失敗，請手動選取文字', ok ? 'ok' : 'bad');
+            });
+          }
+        }, done ? '已複製' : '複製全文')
+      ]
+    },
+      E('textarea', {
+        readOnly: true, value: text, rows: Math.min(24, text.split('\n').length + 1),
+        onFocus: function (ev) { ev.target.select(); },
+        className: 'w-full resize-none rounded-2xl border border-[var(--hair-2)] bg-[rgba(6,10,12,.55)] p-4 text-[13px] leading-relaxed ' + T2 + ' outline-none transition focus:border-[rgba(155,195,174,.4)]'
+      }));
+  }
+
+  function AdminModal(p) {
+    var row = p.modal.row;
+    var isNew = !row;
+    var st = useState(row ? Object.assign({}, row) : { account: '', name: '', pin: '', superAdmin: false });
+    var f = st[0], setF = st[1];
+    function up(kk, v) { setF(function (x) { var n = Object.assign({}, x); n[kk] = v; return n; }); }
+    var dup = p.admins.some(function (ad) {
+      return ad.id !== (row && row.id) && String(ad.account).toLowerCase() === f.account.trim().toLowerCase() && f.account.trim();
+    });
+    var pinOk = isNew ? /^\d{4,8}$/.test(String(f.pin).trim()) : true;
+    return E(Modal, {
+      title: isNew ? '冊封長老' : '更新長老',
+      sub: isNew ? '身分會出現在宗門日誌的署名' : '要改口令請用名冊上的鑰匙圖示',
+      onClose: p.close,
+      footer: [
+        E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
+        E(Btn, {
+          key: 'o', variant: 'primary', icon: 'Check',
+          disabled: !f.account.trim() || !f.name.trim() || dup || !pinOk,
+          onClick: function () { p.saveAdmin(f, isNew); p.close(); }
+        }, isNew ? '冊封' : '儲存')
+      ]
+    },
+      D('flex flex-col gap-5',
+        E(Field, { label: '身分（署名用）' },
+          E('input', {
+            value: f.account, onChange: function (ev) { up('account', ev.target.value); },
+            placeholder: 'max', className: INPUT, autoFocus: true
+          })),
+        dup ? E('p', { className: 'text-[12px] font-medium ' + CIN }, '這個身分已存在。') : null,
+        E(Field, { label: '長老名號' },
+          E('input', {
+            value: f.name, onChange: function (ev) { up('name', ev.target.value); },
+            placeholder: '例如：MAX', className: INPUT
+          })),
+        isNew ? E(Field, { label: '初始口令（4–8 位數字）' },
+          E('input', {
+            value: f.pin, onChange: function (ev) { up('pin', ev.target.value.replace(/\D/g, '').slice(0, 8)); },
+            inputMode: 'numeric', placeholder: '1234', className: INPUT
+          })) : null,
+        (isNew && f.pin && !pinOk)
+          ? E('p', { className: 'text-[12px] font-medium ' + CIN }, '口令需為 4–8 位數字。') : null,
+        E('button', {
+          onClick: function () { up('superAdmin', !f.superAdmin); },
+          className: 'btn flex items-center gap-3 rounded-2xl border border-[var(--hair-2)] px-4 py-3.5 text-left hover:bg-[rgba(228,235,232,.04)]'
+        },
+          E('span', {
+            className: 'flex h-5 w-5 shrink-0 items-center justify-center rounded-[7px]',
+            style: f.superAdmin
+              ? { background: 'linear-gradient(180deg,#E0CB94,#C9A961)', color: '#12100A' }
+              : { border: '1px solid var(--hair-2)' }
+          }, f.superAdmin ? E(Icon, { name: 'Check', size: 12, stroke: 2 }) : null),
+          D('', E('p', { className: 'text-[13px] font-medium ' + T1 }, '授予掌門之權'),
+            E('p', { className: 'mt-1 text-[11.5px] ' + T3 }, '可冊封、更新、革除長老與變更他人口令')))));
+  }
+
+  function PinModal(p) {
+    var row = p.modal.row;
+    var a = useState(''), one = a[0], setOne = a[1];
+    var b = useState(''), two = b[0], setTwo = b[1];
+    var okLen = /^\d{4,8}$/.test(one);
+    var match = one && one === two;
+    return E(Modal, {
+      title: '變更口令', sub: row.account + '（' + row.name + '）', onClose: p.close,
+      footer: [
+        E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
+        E(Btn, {
+          key: 'o', variant: 'primary', icon: 'KeyRound', disabled: !okLen || !match,
+          onClick: function () { p.changePin(row, one); p.close(); }
+        }, '更新口令')
+      ]
+    },
+      D('flex flex-col gap-5',
+        E(Field, { label: '新口令（4–8 位數字）' },
+          E('input', {
+            value: one, onChange: function (ev) { setOne(ev.target.value.replace(/\D/g, '').slice(0, 8)); },
+            type: 'password', inputMode: 'numeric', className: INPUT, autoFocus: true
+          })),
+        E(Field, { label: '再輸入一次' },
+          E('input', {
+            value: two, onChange: function (ev) { setTwo(ev.target.value.replace(/\D/g, '').slice(0, 8)); },
+            type: 'password', inputMode: 'numeric', className: INPUT
+          })),
+        (one && !okLen) ? E('p', { className: 'text-[12px] font-medium ' + CIN }, '口令需為 4–8 位數字。') : null,
+        (two && !match) ? E('p', { className: 'text-[12px] font-medium ' + CIN }, '兩次輸入不一致。') : null));
+  }
+
+  function start() { ReactDOM.createRoot(document.getElementById('root')).render(E(App)); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+})();
+</script>
