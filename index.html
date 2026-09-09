@@ -1,7 +1,10 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<meta name="description" content="羽球團出席名單快照，僅供團員查看。">
+<meta name="description" content="羽球開團資訊與出席名單，供團員查看。">
 <title>羽球團出席名單</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -93,6 +96,43 @@
     border:1px solid var(--hair);color:var(--mist-2);font-size:.75rem;font-weight:500;
   }
 
+  /* 宗門玩法：由現有名單即時計算，不另存一份資料 */
+  .cultivation{margin-top:1.2rem}
+  .sect-head{display:flex;align-items:end;justify-content:space-between;gap:1rem;margin-bottom:.8rem}
+  .sect-head h2{margin:.45rem 0 0;color:var(--mist-1);font-size:1.25rem}
+  .sect-head p{margin:0;color:var(--mist-3);font-size:.72rem}
+  .realm-grid{display:grid;gap:.8rem}
+  @media(min-width:680px){.realm-grid{grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)}}
+  .oracle,.rank-card{position:relative;overflow:hidden;padding:1.25rem}
+  .oracle{display:grid;grid-template-columns:4rem 1fr;gap:1rem;align-items:center;min-height:12.5rem;cursor:pointer;text-align:left;color:inherit;font:inherit;width:100%}
+  .oracle::after{content:"";position:absolute;inset:-50%;pointer-events:none;background:linear-gradient(110deg,transparent 40%,rgba(213,231,220,.09) 50%,transparent 60%);transform:translateX(-55%) rotate(8deg);transition:transform .7s var(--ease)}
+  .oracle[aria-expanded="true"]::after{transform:translateX(55%) rotate(8deg)}
+  .oracle:focus-visible,.share:focus-visible{outline:2px solid var(--jade-300);outline-offset:3px}
+  .oracle-seal{width:4rem;height:4rem;border-radius:50%;display:grid;place-items:center;font-family:'Noto Serif TC',serif;font-size:1.55rem;color:var(--gold);border:1px solid rgba(201,169,97,.3);background:radial-gradient(circle at 35% 30%,rgba(201,169,97,.19),rgba(201,169,97,.03) 62%);box-shadow:0 0 2rem rgba(201,169,97,.08)}
+  .oracle .pre{font-size:.72rem;color:var(--mist-3);letter-spacing:.12em}
+  .oracle .prompt{font-family:'Noto Serif TC',serif;color:var(--mist-1);font-size:1.08rem;font-weight:600;margin-top:.35rem}
+  .oracle-result{display:none;margin-top:.65rem}
+  .oracle[aria-expanded="true"] .oracle-result{display:block;animation:reveal .32s var(--ease)}
+  .oracle[aria-expanded="true"] .oracle-prompt{display:none}
+  .oracle-result strong{display:block;color:var(--gold);font-family:'Noto Serif TC',serif;font-size:1rem}
+  .oracle-result span{display:block;margin-top:.3rem;color:var(--mist-2);font-size:.78rem;line-height:1.7}
+  @keyframes reveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .rank-card h3{margin:0;color:var(--mist-1);font-family:'Noto Serif TC',serif;font-size:1rem}
+  .rank-card>p{margin:.35rem 0 .9rem;color:var(--mist-3);font-size:.72rem}
+  .rank-list{list-style:none;margin:0;padding:0;display:grid;gap:.45rem}
+  .rank-row{display:grid;grid-template-columns:1.45rem 2.2rem minmax(0,1fr) auto;align-items:center;gap:.55rem;padding:.55rem;border-radius:13px;background:rgba(228,235,232,.025);border:1px solid var(--hair)}
+  .rank-no{font-family:'Noto Serif TC',serif;text-align:center;font-size:.72rem;color:var(--mist-3)}
+  .rank-avatar{width:2.2rem;height:2.2rem;border-radius:12px;display:grid;place-items:center;color:var(--jade-100);font-family:'Noto Serif TC',serif;background:linear-gradient(160deg,rgba(155,195,174,.18),rgba(201,169,97,.07));border:1px solid rgba(155,195,174,.16)}
+  .rank-name{min-width:0;color:var(--mist-1);font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rank-title{display:block;margin-top:.08rem;color:var(--mist-3);font-size:.65rem;font-weight:400}
+  .rank-value{text-align:right;color:var(--jade-300);font-family:'Noto Serif TC',serif;font-size:.75rem;white-space:nowrap}
+  .sect-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.8rem}
+  .sect-stat{padding:.75rem .55rem;text-align:center}
+  .sect-stat b{display:block;color:var(--mist-1);font-family:'Noto Serif TC',serif;font-size:1.3rem;line-height:1}
+  .sect-stat span{display:block;margin-top:.35rem;color:var(--mist-3);font-size:.65rem}
+  .share{display:inline-flex;align-items:center;gap:.4rem;min-height:44px;margin-top:.85rem;padding:.45rem .8rem;border-radius:999px;border:1px solid var(--hair-2);background:rgba(228,235,232,.025);color:var(--mist-2);font:600 .72rem 'Noto Sans TC',sans-serif;cursor:pointer;transition:border-color .22s var(--ease),color .22s var(--ease),background .22s var(--ease)}
+  .share:hover{color:var(--jade-100);border-color:rgba(155,195,174,.3);background:rgba(155,195,174,.07)}
+
   /* surfaces */
   .card{
     background:linear-gradient(180deg,rgba(228,235,232,.052) 0%,rgba(228,235,232,.022) 100%);
@@ -100,6 +140,7 @@
     box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 18px 40px -32px rgba(0,0,0,.9);
     padding:1.35rem;margin-top:1rem;
   }
+  .event-card{content-visibility:auto;contain-intrinsic-size:780px}
   @media (min-width:640px){.card{padding:1.7rem}}
   .inlay{
     background:linear-gradient(180deg,rgba(228,235,232,.03),rgba(228,235,232,.012));
@@ -213,9 +254,12 @@
     border:1px solid var(--hair);font-size:.79rem;color:var(--mist-3);line-height:1.8}
   .foot strong{color:var(--mist-2)}
 
-  @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}body::before{animation:none}}
+  @media(max-width:480px){.oracle{grid-template-columns:3.35rem 1fr;padding:1rem}.oracle-seal{width:3.35rem;height:3.35rem}.sect-stats{gap:.35rem}.rank-row{grid-template-columns:1.25rem 2rem minmax(0,1fr) auto}.rank-avatar{width:2rem;height:2rem}}
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}body::before{animation:none}.oracle::after{display:none}}
 </style>
 
+</head>
+<body>
 <div class="grain" aria-hidden="true"></div>
 
 <script type="application/json" id="snapshot">
@@ -586,7 +630,7 @@
       <span class="mark" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.9" cy="6.1" r="2.05" fill="currentColor" stroke="none" opacity=".92"/><path d="M2.9 14c2-2.5 4.8-3.8 8.2-3.8s6.2 1.3 8.2 3.8"/><path d="M7 17.9c1.5-1.8 3.4-2.7 5.6-2.7s4.1 1 5.6 2.7" opacity=".74"/><path d="M11.6 21.2c.7-.8 1.5-1.2 2.4-1.2s1.7.4 2.4 1.2" opacity=".46"/></svg></span>
       <span>
         <span class="t disp">羽球團出席名單</span>
-        <span class="s">名單快照・不會即時更新</span>
+        <span class="s">落雲宗羽球團・公開名單</span>
       </span>
     </div>
     <span class="ro"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>唯讀</span>
@@ -602,7 +646,9 @@
   </div>
 </div>
 
+<section class="wrap cultivation" id="cultivation" aria-live="polite"></section>
 <main class="wrap" id="app"></main>
+<footer class="wrap" style="padding-bottom:2rem"><a href="console.html" style="color:var(--mist-2)">管理者登入 →</a></footer>
 
 <script>
 (function () {
@@ -635,7 +681,8 @@
     users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
     dollar: '<line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
     list: '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
-    alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>'
+    alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+    share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/>'
   };
   function ic(n, s) {
     s = s || 13;
@@ -660,6 +707,63 @@
     if (!ev.note) return [];
     return String(ev.note).split(/[｜|]/).map(function (t) { return t.trim(); }).filter(Boolean);
   }
+  var FORTUNES = [
+    ['青雲上籤','心定則拍穩，今日出手會比昨日更俐落。','宜：平抽擋、提早到場'],
+    ['流風上籤','借力而行，不必每一球都用蠻力破陣。','宜：放鬆握拍、觀察空檔'],
+    ['照月中籤','先守住節奏，再等屬於你的那顆機會球。','宜：高遠球、耐心多拍'],
+    ['藏鋒中籤','今日鋒芒宜收三分，搭檔會讓陣法更完整。','宜：溝通補位、稱讚隊友'],
+    ['破境上籤','瓶頸只差一次勇敢嘗試，新的落點會打開局面。','宜：練新球路、挑戰強者'],
+    ['歸元吉籤','呼吸、步伐、擊球歸於一線，手感自然回來。','宜：熱身完整、收操補水']
+  ];
+  function taipeiDay() {
+    var parts = new Intl.DateTimeFormat('en', { timeZone:'Asia/Taipei', year:'numeric', month:'2-digit', day:'2-digit' }).formatToParts(new Date());
+    var out = {}; parts.forEach(function (p) { out[p.type] = p.value; });
+    return out.year + '-' + out.month + '-' + out.day;
+  }
+  function hashOf(s) {
+    var h = 2166136261;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
+  function titleOf(count) {
+    return count >= 8 ? '雲巔真人' : count >= 5 ? '結丹羽客' : count >= 3 ? '御風行者' : count >= 2 ? '凝氣弟子' : '初入雲門';
+  }
+  function activityOf(events) {
+    var people = {};
+    events.forEach(function (ev) {
+      (ev.roster || []).forEach(function (r) {
+        var key = String(r.nickname || '').trim().toLocaleLowerCase('zh-Hant');
+        if (!key) return;
+        var p = people[key] || (people[key] = { nickname:r.nickname, level:Number(r.level) || 0, going:0, score:0 });
+        p.level = Math.max(p.level, Number(r.level) || 0);
+        if (r.status === 'going') { p.going++; p.score += 100; }
+        else if (r.status === 'maybe') p.score += 30;
+        else if (r.status === 'wait') p.score += 10;
+      });
+    });
+    return Object.values(people).sort(function (a,b) { return b.score-a.score || b.level-a.level || a.nickname.localeCompare(b.nickname,'zh-Hant'); });
+  }
+  function cultivationHtml(events) {
+    var ranking = activityOf(events), going = 0, seats = 0;
+    events.forEach(function (ev) {
+      var n = (ev.roster || []).filter(function (r) { return r.status === 'going'; }).length;
+      going += n; seats += Math.max(0, Number(ev.courts || 0) * PER_COURT - n);
+    });
+    var fortune = FORTUNES[hashOf(taipeiDay()) % FORTUNES.length];
+    var rows = ranking.slice(0,5).map(function (p,i) {
+      return '<li class="rank-row"><span class="rank-no">' + (i+1) + '</span><span class="rank-avatar" aria-hidden="true">' + esc(p.nickname.slice(0,1)) + '</span>' +
+        '<span class="rank-name">' + esc(p.nickname) + '<span class="rank-title">' + titleOf(p.going) + '・境界 ' + p.level + '</span></span>' +
+        '<span class="rank-value">' + p.score + '<small> 靈力</small></span></li>';
+    }).join('') || '<li class="none">開團後，宗門活躍榜會在此顯現。</li>';
+    return '<div class="sect-head"><div><span class="eyebrow">宗門洞天</span><h2 class="disp">今日靈脈</h2></div><p>玩法依目前名單自動生成</p></div>' +
+      '<div class="realm-grid"><button type="button" class="oracle inlay" id="oracle" aria-expanded="false">' +
+      '<span class="oracle-seal" aria-hidden="true">籤</span><span><span class="pre">每日一籤・' + esc(taipeiDay()) + '</span>' +
+      '<span class="oracle-prompt"><span class="prompt">輕觸揭開今日羽運</span><span class="pre" style="display:block;margin-top:.45rem">每日固定一籤，不消耗任何資料</span></span>' +
+      '<span class="oracle-result"><strong>' + esc(fortune[0]) + '</strong><span>' + esc(fortune[1]) + '</span><span style="color:var(--jade-300)">' + esc(fortune[2]) + '</span></span></span></button>' +
+      '<section class="rank-card inlay" aria-labelledby="rank-title"><h3 id="rank-title">宗門活躍榜</h3><p>入陣 100、觀望 30、候補 10 靈力</p><ol class="rank-list">' + rows + '</ol></section></div>' +
+      '<div class="sect-stats"><div class="sect-stat inlay"><b>' + ranking.length + '</b><span>現身道友</span></div><div class="sect-stat inlay"><b>' + going + '</b><span>入陣人次</span></div><div class="sect-stat inlay"><b>' + seats + '</b><span>尚餘席位</span></div></div>';
+  }
+  window.__luoyunCultivation = Object.freeze({ activityOf:activityOf, titleOf:titleOf, hashOf:hashOf });
   function flow(v, cap) {
     var c = Math.max(1, cap), pct = Math.min(100, Math.round((v / c) * 100)), over = v > c;
     var grad = over ? 'linear-gradient(90deg,#B85446 0%,#E0958A 100%)'
@@ -687,7 +791,7 @@
     return h + '</ol></div>';
   }
 
-  function eventHtml(ev) {
+  function eventHtml(ev, eventIndex) {
     var roster = ev.roster || [];
     var cap = (Number(ev.courts) || 0) * PER_COURT;
     var groups = {};
@@ -700,7 +804,7 @@
     var male = groups.going.filter(function (r) { return r.gender !== 'female'; }).length;
     var dp = dateParts(ev.dateText);
 
-    var h = '<section class="card">';
+    var h = '<section class="card event-card">';
     h += '<div class="ev-head">' +
       '<span class="seal"><span class="d">' + esc(dp.d) + '</span><span class="m">' + esc(dp.m) + '</span>' +
       (dp.w ? '<span class="w">' + esc(dp.w) + '</span>' : '') + '</span>' +
@@ -714,6 +818,7 @@
       '<span class="pill ' + (over ? 'p-red' : 'p-jade') + '">' + ic('users', 11) +
       '<span class="num">' + going + ' / ' + cap + '</span></span>' +
       '</div>';
+    h += '<button type="button" class="share" data-event="' + eventIndex + '" aria-label="分享 ' + esc(ev.title) + '">' + ic('share', 14) + '<span>分享本場佈告</span></button>';
 
     h += '<div class="stats">' +
       '<div class="stat-main"' + (over ? ' style="border-color:rgba(208,122,108,.24);background:linear-gradient(150deg,rgba(208,122,108,.10),rgba(228,235,232,.012))"' : '') + '>' +
@@ -770,29 +875,51 @@
     return h + '</section>';
   }
 
-  function render() {
-    var app = document.getElementById('app'), data;
+  var lastVersion = null, lastData = null;
+  var live = !!document.querySelector('meta[name="club-live"]');
+  async function render() {
+    if (live && document.hidden && lastData) { setTimeout(render, 5000); return; }
+    var app = document.getElementById('app'), stamp = document.getElementById('stamp'), data;
     try {
-      data = JSON.parse(document.getElementById('snapshot').textContent);
-    } catch (e) {
-      app.innerHTML = '<div class="empty">名單資料讀取失敗，請通知管理者重新產生這一頁。</div>';
-      return;
-    }
-    var stamp = document.getElementById('stamp');
-    try {
+      if (live) {
+        var response = await fetch('/api/public', { cache: 'no-store', signal: AbortSignal.timeout(10000) });
+        if (!response.ok) throw new Error('讀取失敗');
+        data = await response.json();
+      } else data = JSON.parse(document.getElementById('snapshot').textContent);
+      if (!Array.isArray(data.events)) throw new Error('格式不正確');
       var d = new Date(data.generatedAt);
-      stamp.textContent = '名單更新於 ' + d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate() +
-        ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
-    } catch (e) { stamp.textContent = '名單更新時間未知'; }
-
-    var evs = data.events || [];
-    app.innerHTML = evs.length ? evs.map(eventHtml).join('') : '<div class="empty">目前沒有開團。</div>';
-    app.innerHTML += '<div class="foot"><strong>這是名單的快照頁。</strong>管理者在後台調整後會重新產生這一頁，' +
-      '所以你看到的是上方標示的更新時間當下的名單，不是即時同步。<br>' +
-      '要報名、請假、或想帶朋友來，請直接在 LINE 群組告知管理者。</div>';
+      stamp.textContent = '名單更新於 ' + (isNaN(d.getTime()) ? '未知時間' : d.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false })) + (live ? '・每 5 秒同步' : '・歷史快照');
+      if (!lastData || lastVersion !== data.version) {
+        document.getElementById('cultivation').innerHTML = cultivationHtml(data.events);
+        app.innerHTML = data.events.length ? data.events.map(eventHtml).join('') : '<div class="empty">目前沒有開團。</div>';
+        app.innerHTML += '<div class="foot"><strong>' + (live ? '公開名單會自動更新。' : '這是歷史快照，尚未連上共用後端。') + '</strong><br>要報名、請假或帶朋友來，請在 LINE 群組告知管理者。</div>';
+      }
+      lastData = data; lastVersion = data.version;
+    } catch (e) {
+      stamp.textContent = lastData ? '連線中斷，顯示上次載入的名單；正在重試…' : '無法取得最新名單，正在重試…';
+      if (!lastData) app.innerHTML = '<div class="empty" role="alert">名單暫時無法讀取，請稍後再試或聯絡管理者。</div>';
+    } finally { if (live) setTimeout(render, 5000); }
   }
+
+  document.addEventListener('click', async function (ev) {
+    var oracle = ev.target.closest('#oracle');
+    if (oracle) { oracle.setAttribute('aria-expanded', oracle.getAttribute('aria-expanded') !== 'true'); return; }
+    var share = ev.target.closest('[data-event]');
+    if (!share || !lastData) return;
+    var row = lastData.events[Number(share.getAttribute('data-event'))];
+    if (!row) return;
+    var attending = (row.roster || []).filter(function (r) { return r.status === 'going'; }).length;
+    var message = '【' + row.dateText + ' ' + row.title + '】\n' + row.startTime + '–' + row.endTime + '\n' + row.place + '\n$' + row.fee + ' / 人・目前 ' + attending + ' 人\n' + location.href;
+    try {
+      if (navigator.share) await navigator.share({ title:row.title, text:message, url:location.href });
+      else { await navigator.clipboard.writeText(message); share.querySelector('span').textContent = '已複製佈告'; setTimeout(function () { share.querySelector('span').textContent = '分享本場佈告'; }, 2500); }
+    } catch (error) { if (error.name !== 'AbortError') share.querySelector('span').textContent = '請手動複製網址'; }
+  });
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render);
   else render();
 })();
 </script>
+
+</body>
+</html>

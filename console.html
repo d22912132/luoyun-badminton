@@ -1,6 +1,10 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>落雲宗羽球團</title>
+<meta name="robots" content="noindex, nofollow">
+<title>落雲宗羽球團・管理後台</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@400;500;600;700;900&display=swap">
@@ -51,6 +55,8 @@
   }
 
   *{ box-sizing:border-box }
+  button:focus-visible,a:focus-visible{outline:2px solid var(--jade-300);outline-offset:3px}
+  @media(max-width:640px){button,a.btn{min-height:44px} input{font-size:16px!important}}
   html,body{ background:var(--ink-0); }
   body{
     margin:0; color:var(--mist-2);
@@ -226,6 +232,8 @@
   }
 </style>
 
+</head>
+<body>
 <div class="grain" aria-hidden="true"></div>
 <div id="root" class="relative z-0 min-h-screen"></div>
 
@@ -272,7 +280,7 @@
   }
 
   /* ---------------- constants ---------------- */
-  var LS_KEY = 'badminton-club-local-v1';
+  var BusyContext = React.createContext(false);
   var PER_COURT = 7;
   var SECT = '落雲宗';
 
@@ -330,6 +338,14 @@
       });
     });
   }
+  function sectTitleOf(count) {
+    return count >= 8 ? '雲巔真人' : count >= 5 ? '結丹羽客' : count >= 3 ? '御風行者' : count >= 2 ? '凝氣弟子' : '初入雲門';
+  }
+  function appearancesOf(member, events) {
+    return (events || []).reduce(function (sum, ev) {
+      return sum + (ev.roster || []).filter(function (r) { return r.memberId === member.id && r.status === 'going'; }).length;
+    }, 0);
+  }
   /* 傳訊符的名單列：序號. 道號 等級 */
   function nameLine(r, i) {
     return (i + 1) + '. ' + r.nickname + (r.level ? ' ' + r.level : '');
@@ -357,9 +373,7 @@
     var wd = t.match(/[（(]\s*([^）)]+?)\s*[）)]/);
     return { m: md ? md[1] + '月' : '', d: md ? md[2] : (t.slice(0, 2) || '—'), w: wd ? wd[1] : '' };
   }
-  function offlineSeed() {
-    return { members: [], events: [], admins: [{ id: 'a1', account: 'admin', name: '掌門', pin: '1234', seq: 1, superAdmin: true }], logs: [] };
-  }
+
   /* 門規：全團共通的 8 條，各場相同 */
   function rulesOf() {
     return [
@@ -415,12 +429,13 @@
     dangerSolid: 'text-[#1A0908] font-semibold bg-[linear-gradient(180deg,#E0958A_0%,#B85446_100%)] shadow-[0_10px_26px_-14px_rgba(208,122,108,.9),inset_0_1px_0_rgba(255,255,255,.3)]'
   };
   function Btn(p) {
+    var busy = React.useContext(BusyContext);
     return E('button', {
-      type: 'button', onClick: p.onClick, disabled: p.disabled, title: p.title, 'aria-label': p.ariaLabel,
+      type: 'button', onClick: p.onClick, disabled: p.disabled || busy, title: p.title, 'aria-label': p.ariaLabel,
       className: 'group/btn ' + BTN + ' ' + BTN_SIZE[p.size || 'md'] + ' ' + BTN_VAR[p.variant || 'outline'] + ' ' + (p.className || '')
     },
       p.icon ? E(Icon, { name: p.icon, size: p.size === 'sm' ? 13 : 15, stroke: 1.5 }) : null,
-      p.children,
+      busy && p.variant === 'primary' ? '處理中…' : p.children,
       /* button-in-button：主要行動的尾端圖示包在自己的圓形裡 */
       p.nub ? D('nub', E(Icon, { name: p.nub, size: 12, stroke: 1.6 })) : null);
   }
@@ -428,8 +443,11 @@
   var INPUT = 'w-full rounded-2xl border border-[var(--hair-2)] bg-[rgba(6,10,12,.55)] px-4 py-3 text-sm text-[var(--mist-1)] outline-none transition duration-500 [transition-timing-function:var(--ease)] focus:border-[rgba(155,195,174,.45)] focus:bg-[rgba(6,10,12,.8)] focus:shadow-[0_0_0_4px_rgba(155,195,174,.09)]';
 
   function Field(p) {
+    var id = React.useId();
+    var control = React.isValidElement(p.children) && ['input', 'textarea', 'select'].includes(p.children.type);
     return D('flex flex-col gap-2',
-      E('label', { className: 'text-[11.5px] tracking-wide ' + T3 }, p.label), p.children);
+      E('label', { htmlFor: control ? id : undefined, className: 'text-[12px] tracking-wide ' + T3 }, p.label),
+      control ? React.cloneElement(p.children, { id: id }) : p.children);
   }
 
   function PageHead(p) {
@@ -571,14 +589,27 @@
   }
 
   function Modal(p) {
+    var dialog = useRef(null), closer = useRef(p.onClose); closer.current = p.onClose;
     useEffect(function () {
-      function esc(ev) { if (ev.key === 'Escape') p.onClose(); }
-      document.addEventListener('keydown', esc);
-      return function () { document.removeEventListener('keydown', esc); };
-    }, [p.onClose]);
+      var previous = document.activeElement, overflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      function controls() { return Array.from(dialog.current.querySelectorAll('button:not(:disabled),input:not(:disabled),textarea,a[href],[tabindex="0"]')).filter(function (el) { return el.offsetParent !== null; }); }
+      var initial = dialog.current.querySelector('input,textarea') || controls()[0]; if (initial) initial.focus();
+      function key(ev) {
+        if (ev.key === 'Escape') closer.current();
+        if (ev.key !== 'Tab') return;
+        var list = controls(), first = list[0], last = list[list.length - 1];
+        if (!first) { ev.preventDefault(); return; }
+        if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
+        else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
+      }
+      document.addEventListener('keydown', key);
+      return function () { document.removeEventListener('keydown', key); document.body.style.overflow = overflow; if (previous) previous.focus(); };
+    }, []);
     return D('fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:px-4 sm:py-8',
       E('div', { className: 'absolute inset-0 bg-[rgba(4,8,10,.72)] backdrop-blur-[6px]', onClick: p.onClose }),
       D('rise glass relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-[26px] sm:rounded-[26px] ' + (p.wide ? 'sm:max-w-3xl' : 'sm:max-w-lg'),
+        { ref: dialog, role: 'dialog', 'aria-modal': true, 'aria-label': p.title },
         D('flex items-start justify-between gap-4 border-b border-[var(--hair)] px-6 py-5',
           D('min-w-0',
             E('h2', { className: 'disp text-[18px] font-bold ' + T1 }, p.title),
@@ -593,235 +624,106 @@
 
   /* ---------------- app ---------------- */
   function App() {
-    var a = useState(undefined), dbx = a[0], setDbx = a[1];
+    var a = useState({ members: [], events: [], admins: [], logs: [] }), state = a[0], setState = a[1];
     var b = useState(false), ready = b[0], setReady = b[1];
-    var c = useState([]), members = c[0], setMembers = c[1];
-    var d = useState([]), events = d[0], setEvents = d[1];
-    var e2 = useState([]), admins = e2[0], setAdmins = e2[1];
-    var f = useState([]), logs = f[0], setLogs = f[1];
     var g = useState('events'), tab = g[0], setTab = g[1];
     var h = useState(null), openEventId = h[0], setOpenEventId = h[1];
     var i2 = useState(null), me = i2[0], setMe = i2[1];
     var j = useState(null), toast = j[0], setToast = j[1];
-    var k = useState(null), modal = k[0], setModal = k[1];
-
-    var isAdmin = !!me;
+    var k = useState(null), modal = k[0], setModalState = k[1];
+    var setup = useState(false), needsSetup = setup[0], setNeedsSetup = setup[1];
+    var working = useState(false), busy = working[0], setBusy = working[1];
+    var errorState = useState(''), error = errorState[0], setError = errorState[1];
+    var syncState = useState('連線中'), syncLabel = syncState[0], setSyncLabel = syncState[1];
+    var version = useRef(-1), lock = useRef(false), toastTimer = useRef(null), epoch = useRef(0);
+    var members = state.members, events = state.events, admins = state.admins, logs = state.logs;
+    var isAdmin = !!me, isSuper = !!(me && me.superAdmin), dbx = true;
 
     function flash(msg, kind) {
-      setToast({ msg: msg, kind: kind || 'ok' });
-      setTimeout(function () { setToast(null); }, 2600);
+      clearTimeout(toastTimer.current); setToast({ msg: msg, kind: kind || 'ok' });
+      toastTimer.current = setTimeout(function () { setToast(null); }, 4000);
     }
-
+    function setModal(value) {
+      setError(''); setModalState(value ? Object.assign({ version: version.current }, value) : null);
+    }
+    async function api(path, body) {
+      var response = await fetch('/api/' + path, {
+        method: body === undefined ? 'GET' : 'POST', credentials: 'same-origin', cache: 'no-store',
+        headers: body === undefined ? {} : { 'Content-Type': 'application/json' },
+        body: body === undefined ? undefined : JSON.stringify(body), signal: AbortSignal.timeout(12000)
+      });
+      var data = await response.json();
+      if (!response.ok) throw Object.assign(new Error(data.error || '連線失敗'), { status: response.status });
+      return data;
+    }
+    function accept(data) {
+      if (data.version < version.current) return;
+      version.current = data.version; setState(data); setMe(data.me); setSyncLabel('已同步・每 5 秒更新');
+    }
+    async function refresh() {
+      var requestEpoch = epoch.current, session = await api('session');
+      if (requestEpoch !== epoch.current) return;
+      setNeedsSetup(session.needsSetup);
+      if (session.me) {
+        var data = await api('state'); if (requestEpoch === epoch.current) accept(data);
+      } else { version.current = -1; setMe(null); setState({ members: [], events: [], admins: [], logs: [] }); setSyncLabel('請先登入'); }
+    }
     useEffect(function () {
-      var alive = true;
-      (async function () {
-        var conn = null;
-        try { if (window.claude && window.claude.use) conn = await window.claude.use('db'); } catch (err) { conn = null; }
-        if (!alive) return;
-        setDbx(conn || null);
-        if (!conn) {
-          var raw = null;
-          try { raw = localStorage.getItem(LS_KEY); } catch (err2) { }
-          var st = raw ? JSON.parse(raw) : offlineSeed();
-          setMembers(st.members || []); setEvents(st.events || []);
-          setAdmins(st.admins || offlineSeed().admins); setLogs(st.logs || []);
-          setReady(true);
-        }
-      })();
-      return function () { alive = false; };
+      var alive = true, timer;
+      async function tick() {
+        try { if (!lock.current && !document.hidden) { await refresh(); setError(function (old) { return old === '無法連上伺服器，請稍後再試；本機使用時請確認 npm start 已啟動。' ? '' : old; }); } }
+        catch (err) { if (alive) { setSyncLabel('連線中斷，正在重試'); setError('無法連上伺服器，請稍後再試；本機使用時請確認 npm start 已啟動。'); } }
+        finally { if (alive) { setReady(true); timer = setTimeout(tick, 5000); } }
+      }
+      tick(); return function () { alive = false; clearTimeout(timer); clearTimeout(toastTimer.current); };
     }, []);
 
-    useEffect(function () {
-      if (!dbx) return;
-      var offs = [];
-      function sub(path, setter, done) {
-        try {
-          offs.push(dbx.collection(path).onSnapshot(function (snap) {
-            var rows = snap.docs.map(function (doc) { return Object.assign({ id: doc.id }, doc.data()); });
-            rows.sort(function (x, y) { return (x.seq || 0) - (y.seq || 0) || String(x.id).localeCompare(String(y.id)); });
-            setter(rows);
-            if (done) done();
-          }, function (err) { flash('宗門靈脈中斷（' + err.code + '），請重新整理頁面', 'bad'); }));
-        } catch (err) { }
-      }
-      sub('members', setMembers, function () { setReady(true); });
-      sub('events', setEvents);
-      sub('admins', setAdmins);
-      return function () { offs.forEach(function (fn) { try { fn(); } catch (err) { } }); };
-    }, [dbx]);
-
-    useEffect(function () {
-      if (!ready) return;
+    async function action(name, payload) {
+      if (lock.current) return false;
+      lock.current = true; epoch.current++; setBusy(true); setError('');
       try {
-        var raw = sessionStorage.getItem('bd-me');
-        if (!raw) return;
-        var saved = JSON.parse(raw);
-        var found = admins.filter(function (x) { return x.id === saved.id; })[0];
-        if (found) setMe({ id: found.id, account: found.account, name: found.name });
-      } catch (err) { }
-    }, [ready]);
-
-    useEffect(function () {
-      if (dbx !== null || !ready) return;
-      try { localStorage.setItem(LS_KEY, JSON.stringify({ members: members, events: events, admins: admins, logs: logs })); } catch (err) { }
-    }, [dbx, ready, members, events, admins, logs]);
-
-    function fail(err) { flash('寫入失敗：' + ((err && err.code) || '未知錯誤'), 'bad'); }
-    function bare(row) { var cp = Object.assign({}, row); delete cp.id; return cp; }
-
-    function putDoc(coll, id, data, localSetter) {
-      if (dbx) { dbx.collection(coll).doc(id).set(data).catch(fail); return; }
-      localSetter(function (rows) {
-        var next = rows.slice();
-        var idx = -1;
-        next.forEach(function (r, n) { if (r.id === id) idx = n; });
-        var row = Object.assign({ id: id }, data);
-        if (idx >= 0) next[idx] = row; else next.push(row);
-        next.sort(function (x, y) { return (x.seq || 0) - (y.seq || 0); });
-        return next;
-      });
+        var data = await api('action', Object.assign({ action: name, version: modal ? modal.version : version.current }, payload));
+        accept(data); flash('已儲存，公開名單會自動更新'); return data.resultId || true;
+      } catch (err) {
+        setError(err.message); flash(err.message, 'bad');
+        if (err.status === 409 || err.status === 401) { try { await refresh(); } catch (_) {} }
+        return false;
+      } finally { lock.current = false; setBusy(false); }
     }
-    function dropDoc(coll, id, localSetter) {
-      if (dbx) { dbx.collection(coll).doc(id).delete().catch(fail); return; }
-      localSetter(function (rows) { return rows.filter(function (r) { return r.id !== id; }); });
-    }
-
-    function appendLog(entry) {
-      if (!dbx) { setLogs(function (l) { return [entry].concat(l).slice(0, 400); }); return; }
-      var key = todayKey();
-      var ref = dbx.doc('logs/' + key);
-      ref.get().then(function (snap) {
-        var prev = (snap.exists && snap.data().entries) || [];
-        return ref.set({ date: key, entries: prev.concat([entry]).slice(-400) });
-      }).catch(function () { });
-    }
-    function logAct(act, target, detail) {
-      appendLog({
-        t: nowISO(), who: me ? me.account : 'unknown', name: me ? me.name : '未知',
-        act: act, target: target || '', detail: detail || ''
-      });
-    }
-    async function loadLogs() {
-      if (!dbx) return;
+    function saveMember(row, isNew) { return action('saveMember', { id: isNew ? undefined : row.id, row: row }); }
+    function removeMember(row) { return action('removeMember', { id: row.id }); }
+    function saveEvent(row, isNew) { return action('saveEvent', { id: isNew ? undefined : row.id, row: row }); }
+    async function removeEvent(row) { var ok = await action('removeEvent', { id: row.id }); if (ok) setOpenEventId(null); return ok; }
+    function writeRoster(ev, roster) { return action('writeRoster', { id: ev.id, roster: roster }); }
+    function addGuest(ev, row) { return action('addGuest', { id: ev.id, row: row }); }
+    function saveAdmin(row, isNew) { return action('saveAdmin', { id: isNew ? undefined : row.id, row: row }); }
+    function changePin(row, pin, currentPassword) { return action('changePin', { id: row.id, pin: pin, currentPassword: currentPassword }); }
+    function removeAdmin(row) { return action('removeAdmin', { id: row.id }); }
+    async function login(account, pin, name, token) {
+      if (lock.current) return false;
+      lock.current = true; epoch.current++; setBusy(true); setError('');
       try {
-        var snap = await dbx.collection('logs').orderBy('date', 'desc').limit(14).get();
-        var all = [];
-        snap.docs.forEach(function (doc) { (doc.data().entries || []).forEach(function (en) { all.push(en); }); });
-        all.sort(function (x, y) { return String(y.t).localeCompare(String(x.t)); });
-        setLogs(all.slice(0, 400));
-      } catch (err) { flash('讀取宗門日誌失敗', 'bad'); }
+        await api(needsSetup ? 'setup' : 'login', { account: account, pin: pin, name: name, token: token });
+        await refresh(); flash('已登入管理後台'); return true;
+      } catch (err) { setError(err.message); return false; }
+      finally { lock.current = false; setBusy(false); }
     }
-
-    function saveMember(row, isNew) {
-      var id = row.id || uid('m');
-      var seq = isNew ? (members.reduce(function (m2, x) { return Math.max(m2, x.seq || 0); }, 0) + 1) : row.seq;
-      var data = {
-        nickname: row.nickname.trim(), gender: row.gender, level: Number(row.level),
-        referrer: (row.referrer || '').trim(), seq: seq,
-        createdAt: row.createdAt || nowISO(), createdBy: row.createdBy || (me ? me.account : ''),
-        updatedAt: nowISO(), updatedBy: me ? me.account : ''
-      };
-      putDoc('members', id, data, setMembers);
-      logAct(isNew ? '收錄弟子' : '修改弟子', data.nickname,
-        TIER_LABEL[tierOf(data.level)] + ' ' + data.level + '・' + (data.gender === 'female' ? '女' : '男') + (data.referrer ? '・' + data.referrer : ''));
-      flash(isNew ? '已收「' + data.nickname + '」入宗門' : '已更新「' + data.nickname + '」');
+    async function logout() {
+      if (lock.current) return;
+      lock.current = true; epoch.current++; setBusy(true);
+      try { await api('logout', {}); setModal(null); await refresh(); }
+      catch (err) { setError(err.message); }
+      finally { lock.current = false; setBusy(false); }
     }
-    function removeMember(m) {
-      dropDoc('members', m.id, setMembers);
-      logAct('除名弟子', m.nickname, TIER_LABEL[tierOf(m.level)] + ' ' + m.level);
-      flash('已將「' + m.nickname + '」移出名冊');
-    }
-
-    function saveEvent(row, isNew) {
-      var id = row.id || uid('e');
-      var seq = isNew ? (events.reduce(function (m2, x) { return Math.max(m2, x.seq || 0); }, 0) + 1) : row.seq;
-      var data = {
-        title: row.title.trim(), dateText: row.dateText.trim(),
-        startTime: row.startTime, endTime: row.endTime,
-        place: row.place.trim(), courts: Number(row.courts) || 1, fee: Number(row.fee) || 0,
-        note: (row.note || '').trim(), roster: row.roster || [], seq: seq,
-        createdAt: row.createdAt || nowISO(), createdBy: row.createdBy || (me ? me.account : ''),
-        updatedAt: nowISO(), updatedBy: me ? me.account : ''
-      };
-      putDoc('events', id, data, setEvents);
-      logAct(isNew ? '開壇集結' : '修改集結', data.dateText + ' ' + data.title,
-        data.place + '・' + data.courts + ' 面場・$' + data.fee);
-      flash(isNew ? '已開壇「' + data.title + '」' : '已更新集結');
-      return id;
-    }
-    function removeEvent(ev) {
-      dropDoc('events', ev.id, setEvents);
-      logAct('撤除集結', ev.dateText + ' ' + ev.title, '入陣 ' + (ev.roster || []).length + ' 人');
-      flash('已撤除此次集結');
-    }
-    function writeRoster(ev, roster, act, target, detail) {
-      putDoc('events', ev.id, Object.assign(bare(ev), {
-        roster: roster, updatedAt: nowISO(), updatedBy: me ? me.account : ''
-      }), setEvents);
-      if (act) logAct(act, target, detail);
-    }
-
-    function saveAdmin(row, isNew) {
-      var id = row.id || uid('a');
-      var seq = isNew ? (admins.reduce(function (m2, x) { return Math.max(m2, x.seq || 0); }, 0) + 1) : row.seq;
-      var data = {
-        account: row.account.trim(), name: row.name.trim(), pin: String(row.pin).trim(), seq: seq,
-        superAdmin: !!row.superAdmin,
-        createdAt: row.createdAt || nowISO(), createdBy: row.createdBy || (me ? me.account : ''),
-        updatedAt: nowISO(), updatedBy: me ? me.account : ''
-      };
-      putDoc('admins', id, data, setAdmins);
-      logAct(isNew ? '冊封長老' : '更新長老', data.account, data.name + (data.superAdmin ? '・掌門' : ''));
-      flash(isNew ? '已冊封長老「' + data.account + '」' : '已更新長老資料');
-    }
-    function changePin(row, pin) {
-      putDoc('admins', row.id, Object.assign(bare(row), {
-        pin: String(pin).trim(), updatedAt: nowISO(), updatedBy: me ? me.account : ''
-      }), setAdmins);
-      logAct('變更口令', row.account, '由 ' + (me ? me.account : '?') + ' 變更');
-      flash('已更新 ' + row.account + ' 的口令');
-    }
-    function removeAdmin(row) {
-      dropDoc('admins', row.id, setAdmins);
-      logAct('革除長老', row.account, row.name);
-      flash('已革除長老「' + row.account + '」');
-      if (me && me.id === row.id) { setMe(null); try { sessionStorage.removeItem('bd-me'); } catch (err) { } }
-    }
-
-    function login(account, pin) {
-      var found = admins.filter(function (x) {
-        return String(x.account).toLowerCase() === String(account).trim().toLowerCase() && String(x.pin) === String(pin).trim();
-      })[0];
-      if (!found) { flash('身分或口令不符', 'bad'); return false; }
-      var who = { id: found.id, account: found.account, name: found.name };
-      setMe(who);
-      try { sessionStorage.setItem('bd-me', JSON.stringify(who)); } catch (err) { }
-      appendLog({ t: nowISO(), who: who.account, name: who.name, act: '入殿', target: '', detail: '' });
-      flash('已入殿：' + found.name);
-      return true;
-    }
-    function logout() {
-      if (me) logAct('離殿', '', '');
-      setMe(null);
-      try { sessionStorage.removeItem('bd-me'); } catch (err) { }
-      flash('已回到觀禮模式');
-    }
-    function needAdmin() {
-      if (isAdmin) return true;
-      setModal({ type: 'login' });
-      return false;
-    }
-
+    function needAdmin() { if (isAdmin) return true; setModal({ type: 'login' }); return false; }
+    function loadLogs() {} // Logs arrive with the shared state.
     var openEvent = events.filter(function (x) { return x.id === openEventId; })[0] || null;
-
-    var meRow = me ? admins.filter(function (x) { return x.id === me.id; })[0] : null;
-    var isSuper = !!(meRow && meRow.superAdmin);
-
     var ctx = {
       members: members, events: events, admins: admins, logs: logs, me: me, isAdmin: isAdmin, isSuper: isSuper, dbx: dbx,
+      needsSetup: needsSetup, busy: busy, error: error, syncLabel: syncLabel,
       flash: flash, setModal: setModal, needAdmin: needAdmin,
       saveMember: saveMember, removeMember: removeMember,
-      saveEvent: saveEvent, removeEvent: removeEvent, writeRoster: writeRoster,
+      saveEvent: saveEvent, removeEvent: removeEvent, writeRoster: writeRoster, addGuest: addGuest,
       saveAdmin: saveAdmin, removeAdmin: removeAdmin, changePin: changePin,
       login: login, logout: logout, loadLogs: loadLogs,
       setTab: setTab, setOpenEventId: setOpenEventId
@@ -833,6 +735,11 @@
         D('flex h-14 w-14 items-center justify-center rounded-full inlay ' + JADE,
           E(Icon, { name: 'LoaderCircle', size: 20, className: 'animate-spin' })),
         E('p', { className: 'disp text-[14px] ' + T2 }, '正在接引宗門靈脈…'));
+    } else if (!me) {
+      body = D('surface rounded-[20px] p-8',
+        E(PageHead, { eyebrow: '落雲宗', title: needsSetup ? '建立第一位掌門' : '長老入殿', sub: needsSetup ? '輸入主機上的初始化金鑰，建立你的管理帳號。' : '登入後可管理開團、名單與長老，共用資料會自動同步。' }),
+        E(Btn, { variant: 'primary', icon: 'Shield', onClick: function () { setModal({ type: 'login' }); } }, needsSetup ? '開始設定' : '登入管理後台'),
+        E('a', { href: '/', className: 'ml-4 underline text-sm' }, '查看公開名單'));
     } else if (openEvent) {
       body = E(EventDetail, Object.assign({ ev: openEvent }, ctx));
     } else if (tab === 'events') {
@@ -843,17 +750,19 @@
       body = E(AdminPage, ctx);
     }
 
-    return D('min-h-screen pb-28',
+    return E(BusyContext.Provider, { value: busy }, D('min-h-screen pb-28',
       E(TopBar, Object.assign({ tab: tab, openEvent: openEvent }, ctx)),
-      E('main', { className: 'mx-auto w-full max-w-5xl px-4 pt-11 sm:px-6' }, body),
+      E('main', { className: 'mx-auto w-full max-w-5xl px-4 pt-11 sm:px-6' },
+        error && !modal ? E('p', { role: 'alert', className: 'mb-5 rounded-2xl inlay p-4 ' + CIN }, error) : null, body),
       toast ? D('fixed bottom-7 left-1/2 z-[60] w-[min(92vw,26rem)] -translate-x-1/2',
         D('rise glass flex items-center gap-3 rounded-2xl px-4 py-3.5 text-sm ' + (toast.kind === 'bad' ? CIN : T1),
           E(Icon, {
             name: toast.kind === 'bad' ? 'TriangleAlert' : 'CircleCheck', size: 16,
             className: toast.kind === 'bad' ? CIN : JADE
           }),
-          S('flex-1', toast.msg))) : null,
-      modal ? E(Modals, Object.assign({ modal: modal, close: function () { setModal(null); } }, ctx)) : null);
+          E('span', { className: 'flex-1', role: 'status' }, toast.msg))) : null,
+      modal ? E('div', null, E(Modals, Object.assign({ modal: modal, close: function () { if (!lock.current) setModal(null); } }, ctx)),
+        error ? E('p', { role: 'alert', className: 'fixed top-3 left-1/2 z-[70] w-[min(92vw,40rem)] -translate-x-1/2 rounded-2xl glass p-4 ' + CIN }, error) : null) : null));
   }
 
   /* ---------------- top bar ---------------- */
@@ -880,7 +789,7 @@
           D('leading-none',
             E('p', { className: 'disp text-[17px] font-bold ' + T1 }, SECT + '羽球團'),
             E('p', { className: 'mt-1.5 text-[10.5px] ' + T3 },
-              p.dbx ? '宗門靈脈・諸位長老即時同步' : '獨修模式・僅存本機'))),
+              p.syncLabel))),
         p.isAdmin
           ? D('flex items-center gap-2',
             D('hidden items-center gap-2 rounded-full px-3.5 py-2 text-[12px] sm:flex',
@@ -983,6 +892,7 @@
 
   function MemberCard(props) {
     var m = props.m, p = props.p;
+    var appearances = appearancesOf(m, p.events);
     return D(CARD + ' ' + CARD_HOVER + ' flex items-center gap-3.5 px-4 py-3.5',
       S('num w-5 shrink-0 text-center text-[11.5px] ' + T3, String(props.idx + 1)),
       E(Avatar, { name: m.nickname, g: m.gender }),
@@ -992,7 +902,7 @@
           E(GenderTag, { g: m.gender }),
           E(LevelBadge, { level: m.level })),
         E('p', { className: 'mt-1.5 truncate text-[11.5px] ' + T3 },
-          m.referrer ? '引薦人／備註：' + m.referrer : '—')),
+          sectTitleOf(appearances) + '・已入陣 ' + appearances + ' 場' + (m.referrer ? '・' + m.referrer : ''))),
       D('flex shrink-0 items-center gap-1',
         E(Btn, {
           variant: 'ghost', size: 'icon', icon: 'Pencil', ariaLabel: '編輯',
@@ -1005,7 +915,7 @@
             p.setModal({
               type: 'confirm', title: '除名弟子', danger: true, ok: '除名',
               body: '確定要將「' + m.nickname + '」移出名冊？此動作無法復原，已入陣的名單不受影響。',
-              run: function () { p.removeMember(m); }
+              run: function () { return p.removeMember(m); }
             });
           }
         })));
@@ -1013,6 +923,14 @@
 
   /* ---------------- events list ---------------- */
   function EventsList(p) {
+    var going = 0, maybe = 0, capacity = 0, active = {};
+    p.events.forEach(function (ev) {
+      capacity += capacityOf(ev.courts);
+      (ev.roster || []).forEach(function (r) {
+        if (r.status === 'going') { going++; active[r.memberId || String(r.nickname).toLowerCase()] = true; }
+        if (r.status === 'maybe') maybe++;
+      });
+    });
     return D('',
       E(PageHead, {
         eyebrow: '試煉佈告', title: '宗門集結', sub: '共 ' + p.events.length + ' 場試煉',
@@ -1021,6 +939,12 @@
           onClick: function () { if (p.needAdmin()) p.setModal({ type: 'event', row: null }); }
         }, '開壇集結')
       }),
+      p.events.length ? D('mb-5 grid grid-cols-2 gap-2.5 sm:grid-cols-4',
+        [['Sparkles', going, '入陣人次'], ['Users', Object.keys(active).length, '活躍道友'], ['CircleHelp', maybe, '觀望中'], ['Gauge', Math.max(0, capacity - going), '尚餘席位']].map(function (x) {
+          return D('inlay rounded-2xl p-4', { key:x[2] },
+            D('flex items-center gap-2 ' + T3, E(Icon, { name:x[0], size:14 }), S('text-[11px]', x[2])),
+            S('disp num mt-2 block text-[24px] font-semibold ' + T1, String(x[1])));
+        })) : null,
       p.events.length === 0
         ? E(FirstRun, { p: p })
         : D('grid gap-3.5',
@@ -1077,7 +1001,7 @@
   }
 
   function metaLine(icon, text) {
-    return D('inline-flex items-center gap-1.5 text-[12.5px] text-[var(--mist-2)]',
+    return D('inline-flex min-w-0 max-w-full items-center gap-1.5 text-[12.5px] text-[var(--mist-2)]',
       E(Icon, { name: icon, size: 13, className: 'text-[var(--mist-3)]' }), S('truncate', text));
   }
 
@@ -1091,7 +1015,7 @@
 
     return E('button', {
       onClick: function () { p.setOpenEventId(ev.id); },
-      className: CARD + ' ' + CARD_HOVER + ' group w-full p-5 text-left sm:p-6'
+      className: CARD + ' ' + CARD_HOVER + ' group min-w-0 w-full p-5 text-left sm:p-6'
     },
       D('flex items-start gap-4',
         E(DateSeal, { text: ev.dateText }),
@@ -1144,8 +1068,7 @@
         type: 'confirm', title: '移出陣列', danger: true, ok: '移出',
         body: '將「' + r.nickname + '」移出這場集結的名單？弟子名冊不受影響，之後可以再點將回來。',
         run: function () {
-          p.writeRoster(ev, roster.filter(function (x) { return x.rid !== r.rid; }), '移出陣列', ev.dateText + '・' + r.nickname, '');
-          p.flash('已將「' + r.nickname + '」移出陣列');
+          return p.writeRoster(ev, roster.filter(function (x) { return x.rid !== r.rid; }), '移出陣列', ev.dateText + '・' + r.nickname, '');
         }
       });
     }
@@ -1199,7 +1122,7 @@
               p.setModal({
                 type: 'confirm', title: '撤除集結', danger: true, ok: '撤除整場',
                 body: '將撤除「' + ev.dateText + ' ' + ev.title + '」與其 ' + roster.length + ' 筆入陣名單，無法復原。',
-                run: function () { p.setOpenEventId(null); p.removeEvent(ev); }
+                run: function () { return p.removeEvent(ev); }
               });
             }
           }, '撤除'))),
@@ -1381,7 +1304,7 @@
         })
       };
       copyText(JSON.stringify(snap)).then(function (ok) {
-        p.flash(ok ? '已複製佈告資料，貼給 Claude 就能更新公開名單頁' : '複製失敗', ok ? 'ok' : 'bad');
+        p.flash(ok ? '已複製佈告資料；公開名單已自動同步' : '複製失敗', ok ? 'ok' : 'bad');
       });
     }
 
@@ -1418,7 +1341,9 @@
         E('p', { className: 'text-[13px] ' + T2 },
           '共 ' + p.admins.length + ' 位長老',
           p.isSuper ? null : S('ml-2 ' + T3, '・你可改自己的口令，冊封與異動請找掌門')),
-        D('flex gap-2',
+        D('flex flex-wrap gap-2',
+          E('a', { href: '/', target: '_blank', rel: 'noopener', className: BTN + ' ' + BTN_SIZE.md + ' ' + BTN_VAR.outline }, '查看公開名單'),
+          p.isSuper ? E('a', { href: '/api/backup', download: true, className: BTN + ' ' + BTN_SIZE.md + ' ' + BTN_VAR.outline }, '下載資料備份') : null,
           E(Btn, { variant: 'outline', icon: 'Share2', onClick: props.exportSnapshot }, '複製佈告資料'),
           p.isSuper
             ? E(Btn, { variant: 'primary', icon: 'UserPlus', onClick: function () { p.setModal({ type: 'admin', row: null }); } }, '冊封長老')
@@ -1461,13 +1386,13 @@
         p.isSuper ? E(Btn, { variant: 'ghost', size: 'icon', icon: 'Pencil', ariaLabel: '編輯', onClick: function () { p.setModal({ type: 'admin', row: ad }); } }) : null,
         p.isSuper ? E(Btn, {
           variant: 'ghost', size: 'icon', icon: 'Trash2', ariaLabel: '革除',
-          disabled: p.admins.length <= 1,
-          title: p.admins.length <= 1 ? '至少要保留一位長老' : '革除長老',
+          disabled: (ad.superAdmin && p.admins.filter(function (a) { return a.superAdmin; }).length <= 1),
+          title: (ad.superAdmin && p.admins.filter(function (a) { return a.superAdmin; }).length <= 1) ? '至少要保留一位掌門' : '革除長老',
           onClick: function () {
             p.setModal({
               type: 'confirm', title: '革除長老', danger: true, ok: '革除',
               body: '確定革除「' + ad.account + '（' + ad.name + '）」？' + (isMe ? '這是你目前登入的身分，革除後會立即離殿。' : ''),
-              run: function () { p.removeAdmin(ad); }
+              run: function () { return p.removeAdmin(ad); }
             });
           }
         }) : null));
@@ -1536,7 +1461,7 @@
       title: m.title, onClose: p.close,
       footer: [
         E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
-        E(Btn, { key: 'o', variant: m.danger ? 'dangerSolid' : 'primary', onClick: function () { m.run(); p.close(); } }, m.ok || '確定')
+        E(Btn, { key: 'o', variant: m.danger ? 'dangerSolid' : 'primary', onClick: async function () { if (await m.run()) p.close(); } }, m.ok || '確定')
       ]
     }, E('p', { className: 'text-sm leading-relaxed ' + T2 }, m.body));
   }
@@ -1546,24 +1471,28 @@
     var b = useState(''), pin = b[0], setPin = b[1];
     var ref = useRef(null);
     useEffect(function () { if (ref.current) ref.current.focus(); }, []);
-    function go() { if (p.login(acc, pin)) p.close(); }
+    var n = useState(''), name = n[0], setName = n[1];
+    var t = useState(''), token = t[0], setToken = t[1];
+    async function go() { if (await p.login(acc, pin, name, token)) p.close(); }
     return E(Modal, {
-      title: '入殿', sub: '之後每一筆修改都會記在你名下', onClose: p.close,
+      title: p.needsSetup ? '建立掌門帳號' : '入殿', sub: '之後每一筆修改都會記在你名下', onClose: p.close,
       footer: [
         E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
-        E(Btn, { key: 'o', variant: 'primary', icon: 'LogIn', onClick: go, disabled: !acc.trim() || !pin.trim() }, '入殿')
+        E(Btn, { key: 'o', variant: 'primary', icon: 'LogIn', onClick: go, disabled: !acc.trim() || !pin || (p.needsSetup && (!name.trim() || !token.trim() || pin.length < 8)) }, '入殿')
       ]
     },
       E('form', { className: 'flex flex-col gap-5', onSubmit: function (ev) { ev.preventDefault(); go(); } },
+        p.needsSetup ? E(Field, { label: '初始化金鑰（部署時產生，僅需使用一次）' }, E('input', { type: 'password', value: token, onChange: function (ev) { setToken(ev.target.value); }, className: INPUT, autoComplete: 'off' })) : null,
+        p.needsSetup ? E(Field, { label: '掌門名號' }, E('input', { value: name, onChange: function (ev) { setName(ev.target.value); }, className: INPUT })) : null,
         E(Field, { label: '長老身分' },
           E('input', {
             ref: ref, value: acc, onChange: function (ev) { setAcc(ev.target.value); },
-            placeholder: 'admin', autoComplete: 'off', className: INPUT
+            placeholder: '英文字母、數字或 . _ -', autoComplete: 'username', className: INPUT
           })),
-        E(Field, { label: '口令' },
+        E(Field, { label: '密碼' },
           E('input', {
             value: pin, onChange: function (ev) { setPin(ev.target.value); },
-            type: 'password', inputMode: 'numeric', placeholder: '••••', autoComplete: 'off', className: INPUT
+            type: 'password', placeholder: '至少 8 個字元', autoComplete: p.needsSetup ? 'new-password' : 'current-password', className: INPUT
           })),
         E('button', { type: 'submit', className: 'hidden' })),
       D('mt-5 flex items-start gap-3 rounded-2xl inlay px-4 py-3.5 text-[12.5px] leading-relaxed ' + T2,
@@ -1636,7 +1565,7 @@
         E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
         E(Btn, {
           key: 'o', variant: 'primary', icon: 'Check', disabled: !f.nickname.trim() || dup,
-          onClick: function () { p.saveMember(f, isNew); p.close(); }
+          onClick: async function () { if (await p.saveMember(f, isNew)) p.close(); }
         }, isNew ? '收錄' : '儲存')
       ]
     },
@@ -1665,7 +1594,7 @@
     });
     var f = st[0], setF = st[1];
     function up(kk, v) { setF(function (x) { var n = Object.assign({}, x); n[kk] = v; return n; }); }
-    var ok = f.title.trim() && f.dateText.trim() && f.place.trim();
+    var ok = f.title.trim() && f.dateText.trim() && f.place.trim() && f.startTime && f.endTime > f.startTime && Number.isInteger(Number(f.courts)) && Number(f.courts) >= 1 && Number(f.courts) <= 12 && f.fee !== '' && Number.isInteger(Number(f.fee)) && Number(f.fee) >= 0;
     return E(Modal, {
       title: isNew ? '開壇集結' : '修改集結', wide: true,
       sub: '場地上限自動以「面數 × 7 人」計算，目前 ' + capacityOf(f.courts) + ' 人',
@@ -1674,8 +1603,9 @@
         E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
         E(Btn, {
           key: 'o', variant: 'primary', icon: 'Check', disabled: !ok,
-          onClick: function () {
-            var id = p.saveEvent(f, isNew);
+          onClick: async function () {
+            var id = await p.saveEvent(f, isNew);
+            if (!id) return;
             if (isNew) { p.setTab('events'); p.setOpenEventId(id); }
             p.close();
           }
@@ -1702,7 +1632,7 @@
             E('span', { className: 'tier shrink-0 whitespace-nowrap', style: TIER_STYLE.mid }, '上限 ' + capacityOf(f.courts) + ' 人'))),
         E(Field, { label: '開始時間' },
           E('input', { type: 'time', value: f.startTime, onChange: function (ev) { up('startTime', ev.target.value); }, className: INPUT })),
-        E(Field, { label: '結束時間' },
+        E(Field, { label: '結束時間（須晚於開始時間）' },
           E('input', { type: 'time', value: f.endTime, onChange: function (ev) { up('endTime', ev.target.value); }, className: INPUT })),
         D('sm:col-span-2', E(Field, { label: '地點' },
           E('input', { value: f.place, onChange: function (ev) { up('place', ev.target.value); }, className: INPUT }))),
@@ -1743,7 +1673,7 @@
         return n;
       });
     }
-    function commit() {
+    async function commit() {
       var picked = p.members.filter(function (m) { return sel[m.id]; });
       if (!picked.length) return;
       var add = picked.map(function (m) {
@@ -1753,8 +1683,7 @@
           addedBy: p.me ? p.me.account : '', addedAt: nowISO()
         };
       });
-      p.writeRoster(ev, roster.concat(add), '點將入陣', ev.dateText + '・' + picked.length + ' 人',
-        statusMeta(st).label + '：' + picked.map(function (m) { return m.nickname; }).join('、'));
+      if (!await p.writeRoster(ev, roster.concat(add))) return;
       p.flash('已點 ' + picked.length + ' 位弟子入陣（' + statusMeta(st).label + '）');
       p.close();
     }
@@ -1823,22 +1752,8 @@
     var st = useState({ nickname: '', gender: 'male', level: 4, referrer: '', status: 'going', addToDb: false });
     var f = st[0], setF = st[1];
     function up(kk, v) { setF(function (x) { var n = Object.assign({}, x); n[kk] = v; return n; }); }
-    function commit() {
-      var name = f.nickname.trim();
-      var memberId = null;
-      if (f.addToDb) {
-        memberId = uid('m');
-        p.saveMember({ id: memberId, nickname: name, gender: f.gender, level: Number(f.level), referrer: f.referrer }, true);
-      }
-      var r = {
-        rid: uid('r'), memberId: memberId, nickname: name, gender: f.gender,
-        level: Number(f.level), referrer: (f.referrer || '').trim(), status: f.status,
-        addedBy: p.me ? p.me.account : '', addedAt: nowISO()
-      };
-      p.writeRoster(ev, (ev.roster || []).concat([r]), '納入散修', ev.dateText + '・' + name,
-        statusMeta(f.status).label + '・' + TIER_LABEL[tierOf(Number(f.level))] + ' ' + f.level + (f.addToDb ? '・同時收錄' : ''));
-      p.flash('已納入「' + name + '」');
-      p.close();
+    async function commit() {
+      if (await p.addGuest(ev, f)) p.close();
     }
     return E(Modal, {
       title: '納入散修', sub: '只加在這一場，不會自動進弟子名冊', onClose: p.close,
@@ -1909,7 +1824,7 @@
     var dup = p.admins.some(function (ad) {
       return ad.id !== (row && row.id) && String(ad.account).toLowerCase() === f.account.trim().toLowerCase() && f.account.trim();
     });
-    var pinOk = isNew ? /^\d{4,8}$/.test(String(f.pin).trim()) : true;
+    var pinOk = !isNew || (f.pin.length >= 8 && f.pin.length <= 128);
     return E(Modal, {
       title: isNew ? '冊封長老' : '更新長老',
       sub: isNew ? '身分會出現在宗門日誌的署名' : '要改口令請用名冊上的鑰匙圖示',
@@ -1919,7 +1834,7 @@
         E(Btn, {
           key: 'o', variant: 'primary', icon: 'Check',
           disabled: !f.account.trim() || !f.name.trim() || dup || !pinOk,
-          onClick: function () { p.saveAdmin(f, isNew); p.close(); }
+          onClick: async function () { if (await p.saveAdmin(f, isNew)) p.close(); }
         }, isNew ? '冊封' : '儲存')
       ]
     },
@@ -1935,13 +1850,13 @@
             value: f.name, onChange: function (ev) { up('name', ev.target.value); },
             placeholder: '例如：MAX', className: INPUT
           })),
-        isNew ? E(Field, { label: '初始口令（4–8 位數字）' },
+        isNew ? E(Field, { label: '初始口令（8–128 個字元）' },
           E('input', {
-            value: f.pin, onChange: function (ev) { up('pin', ev.target.value.replace(/\D/g, '').slice(0, 8)); },
-            inputMode: 'numeric', placeholder: '1234', className: INPUT
+            value: f.pin, onChange: function (ev) { up('pin', ev.target.value); },
+            type: 'password', autoComplete: 'new-password', placeholder: '至少 8 個字元', className: INPUT
           })) : null,
         (isNew && f.pin && !pinOk)
-          ? E('p', { className: 'text-[12px] font-medium ' + CIN }, '口令需為 4–8 位數字。') : null,
+          ? E('p', { className: 'text-[12px] font-medium ' + CIN }, '口令需為 8–128 個字元。') : null,
         E('button', {
           onClick: function () { up('superAdmin', !f.superAdmin); },
           className: 'btn flex items-center gap-3 rounded-2xl border border-[var(--hair-2)] px-4 py-3.5 text-left hover:bg-[rgba(228,235,232,.04)]'
@@ -1960,30 +1875,33 @@
     var row = p.modal.row;
     var a = useState(''), one = a[0], setOne = a[1];
     var b = useState(''), two = b[0], setTwo = b[1];
-    var okLen = /^\d{4,8}$/.test(one);
+    var current = useState(''), oldPassword = current[0], setOldPassword = current[1];
+    var isMe = p.me.id === row.id;
+    var okLen = one.length >= 8 && one.length <= 128;
     var match = one && one === two;
     return E(Modal, {
       title: '變更口令', sub: row.account + '（' + row.name + '）', onClose: p.close,
       footer: [
         E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
         E(Btn, {
-          key: 'o', variant: 'primary', icon: 'KeyRound', disabled: !okLen || !match,
-          onClick: function () { p.changePin(row, one); p.close(); }
+          key: 'o', variant: 'primary', icon: 'KeyRound', disabled: !okLen || !match || (isMe && !oldPassword),
+          onClick: async function () { if (await p.changePin(row, one, oldPassword)) p.close(); }
         }, '更新口令')
       ]
     },
       D('flex flex-col gap-5',
-        E(Field, { label: '新口令（4–8 位數字）' },
+        isMe ? E(Field, { label: '目前密碼（變更後需重新登入）' }, E('input', { type: 'password', autoComplete: 'current-password', value: oldPassword, onChange: function (ev) { setOldPassword(ev.target.value); }, className: INPUT })) : null,
+        E(Field, { label: '新口令（8–128 個字元）' },
           E('input', {
-            value: one, onChange: function (ev) { setOne(ev.target.value.replace(/\D/g, '').slice(0, 8)); },
-            type: 'password', inputMode: 'numeric', className: INPUT, autoFocus: true
+            value: one, onChange: function (ev) { setOne(ev.target.value); },
+            type: 'password', autoComplete: 'new-password', className: INPUT, autoFocus: true
           })),
         E(Field, { label: '再輸入一次' },
           E('input', {
-            value: two, onChange: function (ev) { setTwo(ev.target.value.replace(/\D/g, '').slice(0, 8)); },
-            type: 'password', inputMode: 'numeric', className: INPUT
+            value: two, onChange: function (ev) { setTwo(ev.target.value); },
+            type: 'password', autoComplete: 'new-password', className: INPUT
           })),
-        (one && !okLen) ? E('p', { className: 'text-[12px] font-medium ' + CIN }, '口令需為 4–8 位數字。') : null,
+        (one && !okLen) ? E('p', { className: 'text-[12px] font-medium ' + CIN }, '口令需為 8–128 個字元。') : null,
         (two && !match) ? E('p', { className: 'text-[12px] font-medium ' + CIN }, '兩次輸入不一致。') : null));
   }
 
@@ -1992,3 +1910,6 @@
   else start();
 })();
 </script>
+
+</body>
+</html>

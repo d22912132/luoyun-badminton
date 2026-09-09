@@ -1,15 +1,18 @@
-# OS
+data/
+node_modules/
+.env
+*.log
+test-results/
+# OS / editors / temporary previews
 Thumbs.db
 ehthumbs.db
 Desktop.ini
 .DS_Store
-
-# 編輯器
 .vscode/
 .idea/
 *.swp
-
-# 暫存
-*.log
 *.tmp
 preview-*.html
+.wrangler/
+.dev.vars*
+dist/
