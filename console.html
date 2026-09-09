@@ -602,8 +602,8 @@
     useEffect(function () {
       var previous = document.activeElement, overflow = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
-      function controls() { return Array.from(dialog.current.querySelectorAll('button:not(:disabled),input:not(:disabled),textarea,a[href],[tabindex="0"]')).filter(function (el) { return el.offsetParent !== null; }); }
-      var initial = dialog.current.querySelector('input,textarea') || controls()[0]; if (initial) initial.focus();
+      function controls() { return Array.from(dialog.current.querySelectorAll('button:not(:disabled),input:not(:disabled),textarea:not(:disabled),select:not(:disabled),a[href],[tabindex="0"]')).filter(function (el) { return el.offsetParent !== null; }); }
+      var initial = dialog.current.querySelector(p.initialSelector || 'input,textarea,select') || controls()[0]; if (initial) initial.focus();
       function key(ev) {
         if (ev.key === 'Escape') closer.current();
         if (ev.key !== 'Tab') return;
@@ -615,11 +615,11 @@
       document.addEventListener('keydown', key);
       return function () { document.removeEventListener('keydown', key); document.body.style.overflow = overflow; if (previous) previous.focus(); };
     }, []);
-    return D('fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:px-4 sm:py-8',
+    return D('fixed inset-0 z-50 flex items-end justify-center p-2 sm:items-center sm:p-6',
       E('div', { className: 'absolute inset-0 bg-[rgba(4,8,10,.72)] backdrop-blur-[6px]', onClick: p.onClose }),
-      D('rise glass relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-[26px] sm:rounded-[26px] ' + (p.wide ? 'sm:max-w-3xl' : 'sm:max-w-lg'),
+      D('rise glass relative flex max-h-[calc(100dvh-1rem)] min-h-0 w-full flex-col overflow-hidden rounded-[26px] shadow-[0_24px_80px_rgba(0,0,0,.52)] sm:max-h-[calc(100dvh-3rem)] ' + (p.wide ? 'sm:max-w-3xl' : 'sm:max-w-lg'),
         { ref: dialog, role: 'dialog', 'aria-modal': true, 'aria-label': p.title },
-        D('flex items-start justify-between gap-4 border-b border-[var(--hair)] px-6 py-5',
+        D('shrink-0 flex items-start justify-between gap-4 border-b border-[var(--hair)] px-5 py-4 sm:px-6 sm:py-5',
           D('min-w-0',
             E('h2', { className: 'disp text-[18px] font-bold ' + T1 }, p.title),
             p.sub ? E('p', { className: 'mt-1.5 text-[12.5px] ' + T3 }, p.sub) : null),
@@ -627,8 +627,8 @@
             onClick: p.onClose, 'aria-label': '關閉',
             className: 'btn rounded-full p-2 ' + T3 + ' hover:bg-[rgba(228,235,232,.06)] hover:text-[var(--mist-1)]'
           }, E(Icon, { name: 'X', size: 16 }))),
-        D('scroll-x flex-1 overflow-y-auto px-6 py-6', p.children),
-        p.footer ? D('flex items-center justify-end gap-2 border-t border-[var(--hair)] bg-[rgba(6,10,12,.35)] px-6 py-4', p.footer) : null));
+        D('scroll-x min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5 sm:px-6 sm:py-6', p.children),
+        p.footer ? D('shrink-0 flex items-center justify-end gap-2 border-t border-[var(--hair)] bg-[rgba(6,10,12,.35)] px-5 py-3.5 sm:px-6 sm:py-4', p.footer) : null));
   }
 
   /* ---------------- app ---------------- */
@@ -1692,8 +1692,9 @@
     function up(kk, v) { setF(function (x) { var n = Object.assign({}, x); n[kk] = v; return n; }); }
     var ok = f.title.trim() && f.dateText.trim() && f.place.trim() && f.startTime && f.endTime > f.startTime && Number.isInteger(Number(f.courts)) && Number(f.courts) >= 1 && Number(f.courts) <= 12 && f.fee !== '' && Number.isInteger(Number(f.fee)) && Number(f.fee) >= 0;
     return E(Modal, {
-      title: isNew ? '開壇集結' : '修改集結', wide: true,
-      sub: '場地上限自動以「面數 × 7 人」計算，目前 ' + capacityOf(f.courts) + ' 人',
+      title: p.modal.duplicate ? '複製開團' : (isNew ? '開壇集結' : '修改集結'), wide: true,
+      sub: p.modal.duplicate ? '已帶入原活動的場地、時間與費用；請設定新的日期，出席名單不會複製。' : '場地上限自動以「面數 × 7 人」計算，目前 ' + capacityOf(f.courts) + ' 人',
+      initialSelector: p.modal.duplicate ? '[data-copy-date]' : undefined,
       onClose: p.close,
       footer: [
         E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
@@ -1705,19 +1706,23 @@
             if (isNew) { p.setTab('events'); p.setOpenEventId(id); }
             p.close();
           }
-        }, isNew ? '開壇' : '儲存')
+        }, p.modal.duplicate ? '建立新活動' : (isNew ? '開壇' : '儲存'))
       ]
     },
       D('grid grid-cols-1 gap-5 sm:grid-cols-2',
+        p.modal.duplicate ? D('sm:col-span-2 flex items-start gap-3 rounded-2xl border border-[rgba(163,204,185,.22)] bg-[rgba(108,160,135,.10)] px-4 py-3 text-[12.5px] leading-5 ' + T2,
+          E(Icon, { name: 'CopyPlus', size: 16, className: 'mt-0.5 shrink-0 text-[var(--jade-3)]' }),
+          D(null, E('strong', { className: T1 }, '建立獨立活動'), E('p', { className: 'mt-0.5 ' + T3 }, '日期與出席名單會保持空白；其他設定可在下方調整。'))
+        ) : null,
         D('sm:col-span-2', E(Field, { label: '試煉名稱' },
           E('input', {
             value: f.title, onChange: function (ev) { up('title', ev.target.value); },
             placeholder: '例如：中秋節羽球團', className: INPUT, autoFocus: true
           }))),
-        E(Field, { label: '日期（顯示文字）' },
+        E(Field, { label: p.modal.duplicate ? '新活動日期（必填）' : '日期（顯示文字）' },
           E('input', {
             value: f.dateText, onChange: function (ev) { up('dateText', ev.target.value); },
-            placeholder: '例如：9/25 (五)', className: INPUT
+            placeholder: '例如：9/25 (五)', className: INPUT, 'data-copy-date': p.modal.duplicate ? 'true' : undefined
           })),
         E(Field, { label: '場地面數' },
           D('flex items-center gap-2.5',
