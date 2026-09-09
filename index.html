@@ -44,6 +44,10 @@
     to{transform:translate3d(2.5%,2%,0) scale(1.08)}
   }
   @keyframes sect-arrive{from{opacity:0;transform:translateY(14px);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
+  @keyframes portal-open{0%{opacity:0;transform:translate(-50%,-50%) scale(.58) rotate(-28deg)}28%{opacity:.92}72%{opacity:.34;transform:translate(-50%,-50%) scale(1.06) rotate(20deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.2) rotate(32deg)}}
+  @keyframes seal-flash{0%{box-shadow:0 0 0 0 rgba(155,195,174,0)}45%{box-shadow:0 0 0 7px rgba(155,195,174,.14),0 0 24px rgba(155,195,174,.28)}100%{box-shadow:0 0 0 15px rgba(155,195,174,0),0 0 0 rgba(155,195,174,0)}}
+  @keyframes scroll-unfurl{from{opacity:0;transform:translateY(22px) scaleY(.9);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
+  @keyframes orbit{to{transform:rotate(360deg)}}
   .grain{
     position:fixed; inset:0; z-index:1; pointer-events:none; opacity:.035;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -96,6 +100,9 @@
     background:linear-gradient(180deg,rgba(228,235,232,.05),rgba(228,235,232,.018));
     border:1px solid var(--hair);color:var(--mist-2);font-size:.75rem;font-weight:500;
   }
+  .stamp.sync-flash{animation:seal-flash .9s var(--ease)}
+  .entry-portal{position:fixed;left:50%;top:42%;z-index:30;width:15rem;height:15rem;pointer-events:none;opacity:0;border:1px solid rgba(155,195,174,.42);border-radius:50%;background:radial-gradient(circle,rgba(201,169,97,.15) 0 2%,rgba(155,195,174,.11) 3% 8%,transparent 9% 26%,rgba(155,195,174,.13) 27% 28%,transparent 29% 43%,rgba(201,169,97,.16) 44% 45%,transparent 46%);box-shadow:0 0 3.5rem rgba(155,195,174,.23),inset 0 0 3rem rgba(201,169,97,.1);animation:portal-open 1.45s var(--ease) both}
+  .entry-portal::before,.entry-portal::after{content:"";position:absolute;border:1px solid rgba(201,169,97,.35);border-radius:50%;inset:1.35rem}.entry-portal::after{inset:3.75rem;border-style:dashed;border-color:rgba(155,195,174,.55);animation:orbit 4.5s linear infinite}
 
   /* 宗門玩法：由現有名單即時計算，不另存一份資料 */
   .cultivation{margin-top:1.2rem}
@@ -259,9 +266,9 @@
     border:1px solid var(--hair);font-size:.79rem;color:var(--mist-3);line-height:1.8}
   .foot strong{color:var(--mist-2)}
 
-  .event-card{transition:opacity .65s var(--ease),transform .65s var(--ease),border-color .3s var(--ease)}
-  .event-card.reveal-wait{opacity:0;transform:translateY(18px)}
-  .event-card.reveal-in{opacity:1;transform:none}
+  .event-card{transition:border-color .3s var(--ease);transform-origin:top}
+  .event-card.reveal-wait{opacity:0;transform:translateY(22px) scaleY(.9);filter:blur(3px)}
+  .event-card.reveal-in{animation:scroll-unfurl .72s var(--ease) both}
   .action-row{display:flex;flex-wrap:wrap;align-items:center;gap:.55rem;margin-top:.85rem}
   .action-row .share{margin-top:0}
   .signup{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:.45rem 1rem;border:0;border-radius:999px;color:#08120e;background:linear-gradient(180deg,#A8CFBA,#6E9E88);font:700 .76rem 'Noto Sans TC',sans-serif;cursor:pointer;box-shadow:0 12px 28px -16px rgba(110,158,136,.9);transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
@@ -271,19 +278,21 @@
   .recruit.closed{color:var(--mist-3);background:rgba(228,235,232,.025)}
   .recruit.urgent{color:var(--cinnabar);border-color:rgba(208,122,108,.24);background:rgba(208,122,108,.06)}
   .qi-ring{position:absolute;right:1rem;top:1rem;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--jade-300) var(--qi),rgba(228,235,232,.065) 0);box-shadow:0 0 26px -12px rgba(155,195,174,.8)}
-  .qi-ring::after{content:"";position:absolute;inset:5px;border-radius:50%;background:var(--ink-1)}
-  .qi-ring span{position:relative;z-index:1;font:600 10px 'Noto Serif TC',serif;color:var(--jade-100)}
+  .qi-ring::before{content:"";position:absolute;inset:-5px;border:1px dashed rgba(201,169,97,.42);border-radius:50%;animation:orbit 9s linear infinite}
+  .qi-ring::after{content:"";position:absolute;z-index:1;inset:5px;border-radius:50%;background:var(--ink-1)}
+  .qi-ring span{position:relative;z-index:2;font:600 10px 'Noto Serif TC',serif;color:var(--jade-100)}
   .stat-main{position:relative}
   .venue-extra{margin-top:.9rem;padding-top:.9rem;border-top:1px solid var(--hair);font-size:.76rem;color:var(--mist-2);line-height:1.8}
   .venue-extra a{color:var(--jade-300);font-weight:600;text-decoration:none}
   .masthead,.cultivation,#app,.foot{animation:sect-arrive .7s var(--ease) both}.cultivation{animation-delay:.12s}#app{animation-delay:.22s}.foot{animation-delay:.32s}
 
   @media(max-width:480px){.oracle{grid-template-columns:3.35rem 1fr;padding:1rem}.oracle-seal{width:3.35rem;height:3.35rem}.sect-stats{gap:.35rem}.rank-row{grid-template-columns:1.25rem 2rem minmax(0,1fr) auto}.rank-avatar{width:2rem;height:2rem}}
-  @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}body::before{animation:none}.oracle::after{display:none}}
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}body::before,.entry-portal,.qi-ring::before{animation:none}.entry-portal{display:none}.oracle::after{display:none}}
 </style>
 
 </head>
 <body>
+<div class="entry-portal" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 
 <script type="application/json" id="snapshot">
@@ -929,6 +938,7 @@
       var d = new Date(data.generatedAt);
       stamp.textContent = '名單更新於 ' + (isNaN(d.getTime()) ? '未知時間' : d.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false })) + (live ? '・每 5 秒同步' : '・歷史快照');
       if (!lastData || lastVersion !== data.version) {
+        stamp.classList.remove('sync-flash'); void stamp.offsetWidth; stamp.classList.add('sync-flash');
         document.getElementById('cultivation').innerHTML = cultivationHtml(data.events);
         app.innerHTML = data.events.length ? data.events.map(eventHtml).join('') : '<div class="empty">目前沒有開團。</div>';
         app.innerHTML += '<div class="foot"><strong>' + (live ? '公開名單會自動更新。' : '這是歷史快照，尚未連上共用後端。') + '</strong><br>名單與活動資訊由長老及管理員統一維護；如需異動請聯絡管理者。</div>';
