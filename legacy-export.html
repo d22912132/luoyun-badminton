@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>落雲宗舊資料匯出</title>
+<style>
+  body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0a1013;color:#e4ebe8;font:16px/1.7 system-ui,sans-serif}
+  main{width:min(34rem,calc(100% - 2rem));padding:2rem;border:1px solid #26332e;border-radius:20px;background:#0d1519}
+  h1{margin:0 0 .75rem;font-size:1.5rem} p{color:#a3b5ae}
+  a{display:inline-flex;margin-top:1rem;padding:.7rem 1rem;border-radius:999px;background:#9bc3ae;color:#08120e;font-weight:700;text-decoration:none}
+  [hidden]{display:none}
+</style>
+</head>
+<body>
+<main>
+  <h1>落雲宗舊資料匯出</h1>
+  <p id="status">正在檢查這個瀏覽器的舊資料…</p>
+  <a id="download" hidden>下載舊資料</a>
+</main>
+<script>
+  const raw = localStorage.getItem('badminton-club-local-v1');
+  const status = document.getElementById('status');
+  const download = document.getElementById('download');
+  if (!raw) {
+    status.textContent = '這個瀏覽器沒有找到舊版資料。';
+  } else {
+    try {
+      const data = JSON.parse(raw);
+      status.textContent = `找到 ${(data.members || []).length} 位弟子、${(data.events || []).length} 場活動、${(data.admins || []).length} 位管理員。`;
+      download.href = URL.createObjectURL(new Blob([raw], { type: 'application/json' }));
+      download.download = 'luoyun-legacy-export.json';
+      download.hidden = false;
+    } catch (error) {
+      status.textContent = '找到舊資料，但格式已損壞，無法匯出。';
+    }
+  }
+</script>
+</body>
+</html>
