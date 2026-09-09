@@ -15,7 +15,8 @@ function number(value, label, min, max) {
   return n;
 }
 function password(value) {
-  if (typeof value !== 'string' || value.length < 8 || value.length > 128) reject('密碼需為 8–128 個字元');
+  const valid = typeof value === 'string' && value.length <= 128 && (/^\d{4,8}$/.test(value) || value.length >= 8);
+  if (!valid) reject('口令需為 4–8 位數 PIN，或 8–128 個字元密碼');
   const salt = randomBytes(16).toString('hex');
   return salt + ':' + scryptSync(value, salt, 64).toString('hex');
 }

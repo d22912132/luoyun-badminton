@@ -43,7 +43,7 @@ test('shared club: authentication, permissions, persistence, validation and conf
   });
   await t.test('first setup requires a secret and secure password; no second setup', async () => {
     assert.equal((await request('/api/setup', { ...owner, token: 'wrong' })).status, 403);
-    assert.equal((await request('/api/setup', { ...owner, pin: '1234' })).status, 400);
+    assert.equal((await request('/api/setup', { ...owner, pin: '123' })).status, 400);
     const res = await request('/api/setup', owner);
     assert.equal(res.status, 200); assert.match(res.cookie, /HttpOnly; SameSite=Strict/);
     ownerCookie = res.cookie.split(';')[0];
@@ -92,14 +92,14 @@ test('shared club: authentication, permissions, persistence, validation and conf
     assert.equal(state.events.find(e => e.id === eventId).roster.length, 2);
   });
   await t.test('elder permissions enforced on server, including own password verification', async () => {
-    elderId = (await act('saveAdmin', { row: { account: 'elder', name: '測試長老', pin: 'Elder-test-982!', superAdmin: false } })).body.resultId;
-    const login = await request('/api/login', { account: 'elder', pin: 'Elder-test-982!' }, '');
+    elderId = (await act('saveAdmin', { row: { account: 'elder', name: '測試長老', pin: '1357', superAdmin: false } })).body.resultId;
+    const login = await request('/api/login', { account: 'elder', pin: '1357' }, '');
     elderCookie = login.cookie.split(';')[0];
     await act('saveAdmin', { row: { account: 'hacker', name: 'H', pin: 'password1', superAdmin: true } }, elderCookie, 403);
     await act('changePin', { id: elderId, pin: 'Changed-982!', currentPassword: 'wrong' }, elderCookie, 403);
     assert.equal((await request('/api/backup', undefined, elderCookie)).status, 403);
     const backup = await request('/api/backup'); assert.equal(backup.status, 200);
-    assert.doesNotMatch(JSON.stringify(backup.body), /Elder-test|"hash"|"pin"/);
+    assert.doesNotMatch(JSON.stringify(backup.body), /1357|"hash"|"pin"/);
   });
   await t.test('last super admin cannot be deleted or demoted; rollback is complete', async () => {
     const ad = state.admins.find(a => a.account === 'owner');
@@ -109,7 +109,7 @@ test('shared club: authentication, permissions, persistence, validation and conf
     const login = await request('/api/login', owner, ''); assert.equal(login.status, 200);
   });
   await t.test('password change revokes existing sessions and old password', async () => {
-    await act('changePin', { id: elderId, pin: 'Changed-982!', currentPassword: 'Elder-test-982!' }, elderCookie);
+    await act('changePin', { id: elderId, pin: 'Changed-982!', currentPassword: '1357' }, elderCookie);
     assert.equal((await request('/api/state', undefined, elderCookie)).status, 401);
     assert.equal((await request('/api/login', { account: 'elder', pin: 'Elder-test-982!' }, '')).status, 401);
     assert.equal((await request('/api/login', { account: 'elder', pin: 'Changed-982!' }, '')).status, 200);

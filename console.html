@@ -286,6 +286,7 @@
 
   var T1 = 'text-[var(--mist-1)]', T2 = 'text-[var(--mist-2)]', T3 = 'text-[var(--mist-3)]';
   var JADE = 'text-[var(--jade-300)]', GOLD = 'text-[var(--gold)]', CIN = 'text-[var(--cinnabar)]';
+  function validPassword(value) { return value.length <= 128 && (/^\d{4,8}$/.test(value) || value.length >= 8); }
 
   /* 每個狀態帶一組玉石色（seg 選中時用 CSS 變數注入） */
   var STATUSES = [
@@ -1478,7 +1479,7 @@
       title: p.needsSetup ? '建立掌門帳號' : '入殿', sub: '之後每一筆修改都會記在你名下', onClose: p.close,
       footer: [
         E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
-        E(Btn, { key: 'o', variant: 'primary', icon: 'LogIn', onClick: go, disabled: !acc.trim() || !pin || (p.needsSetup && (!name.trim() || !token.trim() || pin.length < 8)) }, '入殿')
+        E(Btn, { key: 'o', variant: 'primary', icon: 'LogIn', onClick: go, disabled: !acc.trim() || !pin || (p.needsSetup && (!name.trim() || !token.trim() || !validPassword(pin))) }, '入殿')
       ]
     },
       E('form', { className: 'flex flex-col gap-5', onSubmit: function (ev) { ev.preventDefault(); go(); } },
@@ -1492,7 +1493,7 @@
         E(Field, { label: '密碼' },
           E('input', {
             value: pin, onChange: function (ev) { setPin(ev.target.value); },
-            type: 'password', placeholder: '至少 8 個字元', autoComplete: p.needsSetup ? 'new-password' : 'current-password', className: INPUT
+            type: 'password', placeholder: '4–8 位數 PIN 或至少 8 個字元', autoComplete: p.needsSetup ? 'new-password' : 'current-password', className: INPUT
           })),
         E('button', { type: 'submit', className: 'hidden' })),
       D('mt-5 flex items-start gap-3 rounded-2xl inlay px-4 py-3.5 text-[12.5px] leading-relaxed ' + T2,
@@ -1824,7 +1825,7 @@
     var dup = p.admins.some(function (ad) {
       return ad.id !== (row && row.id) && String(ad.account).toLowerCase() === f.account.trim().toLowerCase() && f.account.trim();
     });
-    var pinOk = !isNew || (f.pin.length >= 8 && f.pin.length <= 128);
+    var pinOk = !isNew || validPassword(f.pin);
     return E(Modal, {
       title: isNew ? '冊封長老' : '更新長老',
       sub: isNew ? '身分會出現在宗門日誌的署名' : '要改口令請用名冊上的鑰匙圖示',
@@ -1850,13 +1851,13 @@
             value: f.name, onChange: function (ev) { up('name', ev.target.value); },
             placeholder: '例如：MAX', className: INPUT
           })),
-        isNew ? E(Field, { label: '初始口令（8–128 個字元）' },
+        isNew ? E(Field, { label: '初始口令' },
           E('input', {
             value: f.pin, onChange: function (ev) { up('pin', ev.target.value); },
-            type: 'password', autoComplete: 'new-password', placeholder: '至少 8 個字元', className: INPUT
+            type: 'password', autoComplete: 'new-password', placeholder: '4–8 位數 PIN 或至少 8 個字元', className: INPUT
           })) : null,
         (isNew && f.pin && !pinOk)
-          ? E('p', { className: 'text-[12px] font-medium ' + CIN }, '口令需為 8–128 個字元。') : null,
+          ? E('p', { className: 'text-[12px] font-medium ' + CIN }, '請輸入 4–8 位數 PIN，或 8–128 個字元密碼。') : null,
         E('button', {
           onClick: function () { up('superAdmin', !f.superAdmin); },
           className: 'btn flex items-center gap-3 rounded-2xl border border-[var(--hair-2)] px-4 py-3.5 text-left hover:bg-[rgba(228,235,232,.04)]'
@@ -1877,7 +1878,7 @@
     var b = useState(''), two = b[0], setTwo = b[1];
     var current = useState(''), oldPassword = current[0], setOldPassword = current[1];
     var isMe = p.me.id === row.id;
-    var okLen = one.length >= 8 && one.length <= 128;
+    var okLen = validPassword(one);
     var match = one && one === two;
     return E(Modal, {
       title: '變更口令', sub: row.account + '（' + row.name + '）', onClose: p.close,
@@ -1891,7 +1892,7 @@
     },
       D('flex flex-col gap-5',
         isMe ? E(Field, { label: '目前密碼（變更後需重新登入）' }, E('input', { type: 'password', autoComplete: 'current-password', value: oldPassword, onChange: function (ev) { setOldPassword(ev.target.value); }, className: INPUT })) : null,
-        E(Field, { label: '新口令（8–128 個字元）' },
+        E(Field, { label: '新口令' },
           E('input', {
             value: one, onChange: function (ev) { setOne(ev.target.value); },
             type: 'password', autoComplete: 'new-password', className: INPUT, autoFocus: true
@@ -1901,7 +1902,7 @@
             value: two, onChange: function (ev) { setTwo(ev.target.value); },
             type: 'password', autoComplete: 'new-password', className: INPUT
           })),
-        (one && !okLen) ? E('p', { className: 'text-[12px] font-medium ' + CIN }, '口令需為 8–128 個字元。') : null,
+        (one && !okLen) ? E('p', { className: 'text-[12px] font-medium ' + CIN }, '請輸入 4–8 位數 PIN，或 8–128 個字元密碼。') : null,
         (two && !match) ? E('p', { className: 'text-[12px] font-medium ' + CIN }, '兩次輸入不一致。') : null));
   }
 
