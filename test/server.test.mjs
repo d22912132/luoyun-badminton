@@ -56,7 +56,7 @@ test('shared club: authentication, permissions, persistence, validation and conf
     assert.equal((await request('/api/login', owner, '', 'https://evil.example')).status, 403);
     assert.equal((await request('/api/login', { account: 'owner', pin: 'wrong' }, '')).status, 401);
   });
-  let memberId, eventId, elderId;
+  let memberId, eventId, elderId, venueId;
   await t.test('member creation, duplicate validation and event limits', async () => {
     memberId = (await act('saveMember', { row: { nickname: '測試弟子', gender: 'female', level: 5, referrer: '私人備註' } })).body.resultId;
     await act('saveMember', { row: { nickname: '測試弟子', gender: 'female', level: 5 } }, ownerCookie, 400);
@@ -66,6 +66,29 @@ test('shared club: authentication, permissions, persistence, validation and conf
     await act('saveEvent', { row: { ...row, courts: 1.5 } }, ownerCookie, 400);
     await act('saveEvent', { row: { ...row, endTime: '09:00' } }, ownerCookie, 400);
     eventId = (await act('saveEvent', { row })).body.resultId;
+  });
+  await t.test('venue presets and moderated public signup intents', async () => {
+    venueId = (await act('saveVenue', { row: { name: '測試仙山球館', address: '測試路 1 號', mapUrl: 'https://maps.google.com/?q=test', parking: '地下停車場', facilities: '飲水機', defaultCourts: 3, defaultFee: 180, note: '二樓集合' } })).body.resultId;
+    const ev = state.events.find(e => e.id === eventId);
+    await act('saveEvent', { id: eventId, row: { ...ev, venueId, place: '測試仙山球館（測試路 1 號）', signupDeadline: '2099-12-31T23:59' } });
+    const signup = { eventId, nickname: '訪客小羽', gender: 'female', level: 3, status: 'maybe', note: '朋友介紹' };
+    assert.equal((await request('/api/intent', signup, '')).status, 200);
+    assert.equal((await request('/api/intent', signup, '')).status, 409);
+    state = (await request('/api/state')).body;
+    assert.equal(state.intents.length, 1);
+    assert.equal(state.events.find(e => e.id === eventId).roster.some(r => r.nickname === '訪客小羽'), false);
+    const pub = (await request('/api/public', undefined, '')).body;
+    const publicEvent = pub.events.find(e => e.id === eventId);
+    assert.equal(publicEvent.pendingCount, 1); assert.equal(publicEvent.venue.address, '測試路 1 號');
+    assert.equal(publicEvent.venue.updatedBy, undefined); assert.equal(pub.intents, undefined);
+    await act('approveIntent', { id: state.intents[0].id });
+    assert.equal(state.intents.length, 0);
+    assert.equal(state.events.find(e => e.id === eventId).roster.find(r => r.nickname === '訪客小羽').status, 'maybe');
+    assert.equal((await request('/api/intent', { ...signup, nickname: '候補訪客', status: 'wait' }, '')).status, 200);
+    state = (await request('/api/state')).body;
+    await act('rejectIntent', { id: state.intents[0].id }); assert.equal(state.intents.length, 0);
+    await act('saveEvent', { id: eventId, row: { ...state.events.find(e => e.id === eventId), signupDeadline: '2020-01-01T00:00' } });
+    assert.equal((await request('/api/intent', { ...signup, nickname: '逾期訪客' }, '')).status, 409);
   });
   await t.test('roster update reaches public output and preserves linked identities', async () => {
     await act('writeRoster', { id: eventId, roster: [{ rid: 'r-test', memberId, nickname: '偽造名稱', gender: 'male', level: 1, status: 'going' }] });

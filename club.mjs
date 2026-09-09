@@ -34,19 +34,80 @@ function event(row) {
   if (!row || typeof row !== 'object') reject('活動資料格式不正確');
   const time = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
   if (!time.test(row.startTime) || !time.test(row.endTime) || row.endTime <= row.startTime) reject('結束時間必須晚於開始時間（同日）');
+  const signupDeadline = text(row.signupDeadline ?? '', '報名截止時間', 40, true);
+  if (signupDeadline && !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(signupDeadline)) reject('報名截止時間格式不正確');
   return { title: text(row.title, '名稱'), dateText: text(row.dateText, '日期', 40),
     startTime: row.startTime, endTime: row.endTime, place: text(row.place, '地點', 300),
     courts: number(row.courts, '場地面數', 1, 12), fee: number(row.fee, '費用', 0, 100000),
-    note: text(row.note ?? '', '補充事項', 4000, true) };
+    note: text(row.note ?? '', '補充事項', 4000, true),
+    venueId: text(row.venueId ?? '', '場館識別碼', 100, true), signupDeadline };
+}
+function venue(row) {
+  if (!row || typeof row !== 'object') reject('場館資料格式不正確');
+  const mapUrl = text(row.mapUrl ?? '', '地圖連結', 1000, true);
+  if (mapUrl && !/^https:\/\//i.test(mapUrl)) reject('地圖連結必須使用 https://');
+  return { name: text(row.name, '場館名稱', 120), address: text(row.address ?? '', '地址', 300, true),
+    mapUrl, parking: text(row.parking ?? '', '停車資訊', 500, true),
+    facilities: text(row.facilities ?? '', '設施資訊', 500, true),
+    defaultCourts: number(row.defaultCourts ?? 1, '預設場地面數', 1, 12),
+    defaultFee: number(row.defaultFee ?? 0, '預設費用', 0, 100000), note: text(row.note ?? '', '場館備註', 1000, true) };
+}
+function intent(row) {
+  if (!row || typeof row !== 'object') reject('報名意願格式不正確');
+  if (!['male', 'female'].includes(row.gender)) reject('請選擇性別');
+  if (!['going', 'maybe', 'wait'].includes(row.status)) reject('報名狀態不正確');
+  return { nickname: text(row.nickname, '暱稱', 80), gender: row.gender,
+    level: number(row.level, '程度', 1, 8), status: row.status,
+    note: text(row.note ?? '', '留言', 300, true) };
 }
 function account(row) {
   const account = text(row.account, '帳號', 40).toLowerCase();
   if (!/^[a-z0-9._-]+$/.test(account)) reject('帳號限英文字母、數字、點、底線與連字號');
   return { account, name: text(row.name, '長老名號', 80), superAdmin: row.superAdmin === true };
 }
+function venueFromPlace(place, i = 0) {
+  const match = String(place || '').match(/^(.+?)[（(]([^）)]+)[）)]$/);
+  const name = (match ? match[1] : place).trim();
+  return { id: 'legacy-' + digest(String(place)).slice(0, 16), seq: i + 1, name,
+    address: match ? match[2].trim() : '', mapUrl: '', parking: '', facilities: '', defaultCourts: 1,
+    defaultFee: 0, note: '', createdAt: now(), updatedAt: now(), updatedBy: 'migration' };
+}
+function deriveVenues(events) {
+  return Array.from(new Set(events.map(ev => ev.place).filter(Boolean))).map((place, i) => {
+    const v = venueFromPlace(place, i), sample = events.find(ev => ev.place === place);
+    v.defaultCourts = Number(sample?.courts) || 1; v.defaultFee = Number(sample?.fee) || 0;
+    const url = String(sample?.note || '').match(/https:\/\/[^｜|\s]+/)?.[0]; if (url) v.mapUrl = url;
+    return v;
+  });
+}
+function normalizeState(raw) {
+  const state = raw && typeof raw === 'object' ? raw : {};
+  state.members = Array.isArray(state.members) ? state.members : [];
+  state.events = Array.isArray(state.events) ? state.events : [];
+  state.admins = Array.isArray(state.admins) ? state.admins : [];
+  state.logs = Array.isArray(state.logs) ? state.logs : [];
+  state.intents = Array.isArray(state.intents) ? state.intents : [];
+  if (!Array.isArray(state.venues)) {
+    state.venues = deriveVenues(state.events);
+  }
+  state.events = state.events.map(ev => {
+    if (ev.venueId || !ev.place) return ev;
+    const found = state.venues.find(v => ev.place === v.name || ev.place === v.name + (v.address ? '（' + v.address + '）' : ''));
+    return found ? { ...ev, venueId: found.id } : ev;
+  });
+  state.version = Number.isInteger(state.version) ? state.version : 0;
+  state.updatedAt = state.updatedAt || now();
+  return state;
+}
+function deadlinePassed(value) {
+  return !!value && Date.now() > Date.parse(value + ':00+08:00');
+}
 function publicData(state) {
-  return { generatedAt: state.updatedAt, version: state.version, events: state.events.map(ev => ({
-    ...event(ev), roster: ev.roster.map(r => {
+  const publicVenue = v => v ? ({ id: v.id, name: v.name, address: v.address, mapUrl: v.mapUrl,
+    parking: v.parking, facilities: v.facilities, note: v.note }) : null;
+  return { generatedAt: state.updatedAt, version: state.version, venues: state.venues.map(publicVenue), events: state.events.map(ev => ({
+    id: ev.id, ...event(ev), pendingCount: state.intents.filter(x => x.eventId === ev.id).length,
+    venue: publicVenue(state.venues.find(v => v.id === ev.venueId)), roster: ev.roster.map(r => {
       const m = state.members.find(m => m.id === r.memberId) || r;
       return { nickname: m.nickname, gender: m.gender, level: m.level, status: r.status };
     })
@@ -61,7 +122,9 @@ export function seed(snapshot) {
       return { ...m, rid: randomUUID(), memberId: m.id, status: r.status };
     })
   }));
-  return { members, events, admins: [], logs: [], version: 0, updatedAt: snapshot.generatedAt };
+  const venues = deriveVenues(events);
+  events.forEach(ev => { const v = venues.find(v => ev.place === v.name || ev.place === v.name + (v.address ? '（' + v.address + '）' : '')); if (v) ev.venueId = v.id; });
+  return { members, events, venues, intents: [], admins: [], logs: [], version: 0, updatedAt: snapshot.generatedAt };
 }
 
 export function createHandler({ db, initialState, setupToken, origin = '', secureCookies = false, readHtml }) {
@@ -70,7 +133,7 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
     CREATE TABLE IF NOT EXISTS sessions (token TEXT PRIMARY KEY, adminId TEXT NOT NULL, expires INTEGER NOT NULL);
     CREATE TABLE IF NOT EXISTS attempts (key TEXT PRIMARY KEY, count INTEGER NOT NULL, until INTEGER NOT NULL);`);
   if (!db.prepare('SELECT id FROM club').get()) db.prepare('INSERT INTO club VALUES (1,?)').run(JSON.stringify(initialState));
-  const getState = () => JSON.parse(db.prepare('SELECT json FROM club WHERE id=1').get().json);
+  const getState = () => normalizeState(JSON.parse(db.prepare('SELECT json FROM club WHERE id=1').get().json));
   const saveState = state => db.prepare('UPDATE club SET json=? WHERE id=1').run(JSON.stringify(state));
   const dummyHash = password(randomBytes(24).toString('hex'));
   function throttle(req, name) {
@@ -107,6 +170,9 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
     const uniqueName = (rows, value, exclude) => {
       if (rows.some(r => r.id !== exclude && r.nickname.toLowerCase() === value.toLowerCase())) reject('這個暱稱已經存在');
     };
+    const uniqueVenue = (value, exclude) => {
+      if (state.venues.some(v => v.id !== exclude && v.name.toLowerCase() === value.toLowerCase())) reject('這個場館已經存在');
+    };
     const upsert = (rows, fields) => {
       const old = id ? find(rows) : null;
       const next = { ...old, ...fields, id: old?.id || randomUUID(), seq: old?.seq || Math.max(0, ...rows.map(r => r.seq || 0)) + 1,
@@ -124,9 +190,30 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
       state.members = state.members.filter(m => m.id !== id);
     } else if (action === 'saveEvent') {
       const fields = event(row);
+      if (fields.venueId && !state.venues.some(v => v.id === fields.venueId)) reject('所選場館已不存在');
       upsert(state.events, { ...fields, roster: id ? find(state.events).roster : [] }); target = fields.title;
     } else if (action === 'removeEvent') {
       target = find(state.events).title; state.events = state.events.filter(ev => ev.id !== id);
+      state.intents = state.intents.filter(x => x.eventId !== id);
+    } else if (action === 'saveVenue') {
+      const fields = venue(row); uniqueVenue(fields.name, id);
+      const saved = upsert(state.venues, fields); target = saved.name;
+    } else if (action === 'removeVenue') {
+      const old = find(state.venues); target = old.name;
+      state.events.forEach(ev => { if (ev.venueId === id) ev.venueId = ''; });
+      state.venues = state.venues.filter(v => v.id !== id);
+    } else if (action === 'approveIntent') {
+      const pending = find(state.intents), ev = state.events.find(x => x.id === pending.eventId);
+      if (!ev) reject('活動已不存在', 404);
+      const existing = state.members.find(m => m.nickname.toLowerCase() === pending.nickname.toLowerCase());
+      if (ev.roster.some(r => (state.members.find(m => m.id === r.memberId) || r).nickname.toLowerCase() === pending.nickname.toLowerCase())) reject('此人已在正式名單');
+      const fields = member(existing || { nickname: pending.nickname, gender: pending.gender, level: pending.level, referrer: pending.note });
+      ev.roster.push({ ...fields, memberId: existing?.id || null, rid: randomUUID(), status: pending.status,
+        addedBy: me.account, addedAt: now() });
+      state.intents = state.intents.filter(x => x.id !== id); target = ev.title + '・' + pending.nickname;
+    } else if (action === 'rejectIntent') {
+      const pending = find(state.intents), ev = state.events.find(x => x.id === pending.eventId);
+      state.intents = state.intents.filter(x => x.id !== id); target = (ev?.title || '已刪除活動') + '・' + pending.nickname;
     } else if (action === 'writeRoster') {
       const ev = find(state.events);
       if (!Array.isArray(body.roster) || body.roster.length > 500) reject('名單格式不正確或超過 500 人');
@@ -175,7 +262,9 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
       }
       if (!state.admins.some(a => a.superAdmin)) reject('至少必須保留一位掌門');
     } else reject('不支援的操作');
-    const labels = { saveMember: '儲存弟子', removeMember: '除名弟子', saveEvent: '儲存集結', removeEvent: '撤除集結', writeRoster: '更新陣列', addGuest: '納入散修', saveAdmin: '更新長老', removeAdmin: '革除長老', changePin: '變更密碼' };
+    const labels = { saveMember: '儲存弟子', removeMember: '除名弟子', saveEvent: '儲存集結', removeEvent: '撤除集結',
+      saveVenue: '儲存場館', removeVenue: '移除場館', approveIntent: '核准意願', rejectIntent: '婉拒意願',
+      writeRoster: '更新陣列', addGuest: '納入散修', saveAdmin: '更新長老', removeAdmin: '革除長老', changePin: '變更密碼' };
     audit(state, me, labels[action], target);
     return resultId;
   }
@@ -212,6 +301,23 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
       let state = getState();
       const me = session(req, state);
       if (req.method === 'GET' && path === '/api/public') return json(publicData(state));
+      if (req.method === 'POST' && path === '/api/intent') {
+        const fields = intent(body), eventId = text(body.eventId, '活動識別碼', 100);
+        throttle(req, 'intent:' + fields.nickname.toLowerCase());
+        db.transaction(() => {
+          state = getState(); const ev = state.events.find(x => x.id === eventId);
+          if (!ev) reject('活動已不存在', 404);
+          if (deadlinePassed(ev.signupDeadline)) reject('這場活動已截止登記', 409);
+          const key = fields.nickname.toLowerCase();
+          if (state.intents.some(x => x.eventId === eventId && x.nickname.toLowerCase() === key)) reject('這場已有相同暱稱的待審意願', 409);
+          if (ev.roster.some(r => (state.members.find(m => m.id === r.memberId) || r).nickname.toLowerCase() === key)) reject('這個暱稱已在正式名單', 409);
+          if (state.intents.length >= 500) reject('待審意願已達上限，請聯絡管理員', 409);
+          state.intents.push({ ...fields, id: randomUUID(), eventId, createdAt: now() });
+          state.logs.unshift({ t: now(), who: 'public', name: fields.nickname, act: '送出意願', target: ev.title, detail: fields.status });
+          state.logs = state.logs.slice(0, 400); state.version++; state.updatedAt = now(); saveState(state);
+        });
+        return json({ ok: true });
+      }
       if (req.method === 'GET' && path === '/api/session') return json({ me, needsSetup: !state.admins.length });
       if (req.method === 'POST' && ['/api/setup', '/api/login'].includes(path)) {
         const name = String(body.account || '').trim().toLowerCase(); throttle(req, name);
