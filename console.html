@@ -372,11 +372,7 @@
   }
   function deadlineInfo(value, going, cap) {
     if (going >= cap) return { label: '已額滿', tone: GOLD, closed: true };
-    if (!value) return { label: '招募中', tone: JADE, closed: false };
-    var d = new Date(value + ':00+08:00'), ms = d.getTime() - Date.now();
-    if (!isFinite(ms) || ms <= 0) return { label: '已截止', tone: T3, closed: true };
-    var hours = Math.ceil(ms / 3600000), label = hours < 24 ? '截止倒數 ' + hours + ' 小時' : '截止倒數 ' + Math.ceil(hours / 24) + ' 天';
-    return { label: label, tone: hours <= 24 ? CIN : JADE, closed: false };
+    return { label: '尚餘 ' + Math.max(0, cap - going) + ' 席', tone: JADE, closed: false };
   }
   function venuePlace(v) { return v ? v.name + (v.address ? '（' + v.address + '）' : '') : ''; }
   /* 「9/25 (五)」→ { d:'25', m:'9月', w:'五' }，給日期印記用 */
@@ -889,12 +885,12 @@
             value: q, onChange: function (ev) { setQ(ev.target.value); },
             placeholder: '搜尋道號、引薦人／備註…', className: INPUT + ' pl-11'
           })),
-        D('scroll-x -mx-1 flex gap-1.5 px-1',
+        D('flex flex-wrap gap-1.5',
           FILTERS.map(function (ff) {
             var on = filter === ff.k;
             return E('button', {
               key: ff.k, onClick: function () { setFilter(ff.k); },
-              className: 'btn shrink-0 rounded-full px-3.5 py-1.5 text-[12.5px] font-medium ' +
+              className: 'btn rounded-full px-3.5 py-1.5 text-[12.5px] font-medium ' +
                 (on ? 'text-[var(--jade-100)]' : T3 + ' hover:text-[var(--mist-1)]'),
               style: on ? {
                 background: 'linear-gradient(180deg, rgba(155,195,174,.20), rgba(155,195,174,.06))',
@@ -954,13 +950,12 @@
     });
     return D('',
       E(PageHead, {
-        eyebrow: '試煉佈告', title: '宗門集結', sub: '共 ' + p.events.length + ' 場試煉・' + p.intents.length + ' 筆意願待審',
+        eyebrow: '試煉佈告', title: '宗門集結', sub: '共 ' + p.events.length + ' 場試煉・名單由長老統一維護',
         action: E(Btn, {
           variant: 'primary', icon: 'Plus', nub: 'ArrowRight',
           onClick: function () { if (p.needAdmin()) p.setModal({ type: 'event', row: null }); }
         }, '開壇集結')
       }),
-      p.intents.length ? E(IntentPanel, { p: p }) : null,
       p.events.length ? D('mb-5 grid grid-cols-2 gap-2.5 sm:grid-cols-4',
         [['Sparkles', going, '入陣人次'], ['Users', Object.keys(active).length, '活躍道友'], ['CircleHelp', maybe, '觀望中'], ['Gauge', Math.max(0, capacity - going), '尚餘席位']].map(function (x) {
           return D('inlay rounded-2xl p-4', { key:x[2] },
@@ -1134,8 +1129,7 @@
       L.push('📍 地點：' + ev.place);
       L.push('🏸 場地：' + ev.courts + ' 面場（上限 ' + cap + ' 人）');
       L.push('💰 費用：$' + ev.fee + ' / 人（均分預估，多補少退，依實際人數結算）');
-      if (ev.signupDeadline) L.push('⏳ 登記截止：' + ev.signupDeadline.replace('T', ' '));
-      L.push('🌐 線上意願：' + location.origin + '/');
+      L.push('ℹ️ 名單異動請聯絡管理長老');
       var ns = notesOf(ev);
       if (ns.length) {
         L.push(''); L.push('ℹ️ 補充事項');
@@ -1170,7 +1164,7 @@
         D('flex items-center gap-1',
           E(Btn, {
             variant: 'ghost', size: 'sm', icon: 'CopyPlus',
-            onClick: function () { var copy = Object.assign({}, ev, { id: undefined, dateText: '', signupDeadline: '', roster: [] }); p.setModal({ type: 'event', row: copy, duplicate: true }); }
+            onClick: function () { var copy = Object.assign({}, ev, { id: undefined, dateText: '', roster: [] }); p.setModal({ type: 'event', row: copy, duplicate: true }); }
           }, '複製開團'),
           E(Btn, {
             variant: 'ghost', size: 'sm', icon: 'Pencil',
@@ -1252,7 +1246,6 @@
             E(InfoRow, { icon: 'Clock', label: '時間', value: ev.startTime + ' – ' + ev.endTime }),
             E(InfoRow, { icon: 'Users', label: '場地', value: ev.courts + ' 面場（上限 ' + cap + ' 人）' }),
             E(InfoRow, { icon: 'DollarSign', label: '費用', value: '$' + ev.fee + ' / 人（預估，多補少退）' }),
-            ev.signupDeadline ? E(InfoRow, { icon: 'Hourglass', label: '意願截止', value: ev.signupDeadline.replace('T', ' ') + '・' + recruitment.label }) : null,
             venueRow && venueRow.mapUrl ? E('a', { href: venueRow.mapUrl, target: '_blank', rel: 'noopener', className: BTN + ' ' + BTN_SIZE.sm + ' ' + BTN_VAR.outline }, '開啟導航') : null),
           notesOf(ev).length
             ? D('mt-4 border-t border-[var(--hair)] pt-4',
@@ -1316,17 +1309,11 @@
         E('p', { className: 'mt-1.5 truncate text-[11.5px] ' + T3 },
           r.referrer ? '引薦人／備註：' + r.referrer : '—')),
       D('ml-auto flex items-center gap-1.5',
-        D('seg',
-          STATUSES.map(function (x) {
-            var on = r.status === x.k;
-            return E('button', {
-              key: x.k,
-              'data-on': on ? '1' : '0',
-              style: on ? x.seg : null,
-              onClick: function () { props.setStatus(r, x.k); },
-              title: x.label
-            }, x.short);
-          })),
+        E('select', {
+          value: r.status, 'aria-label': r.nickname + ' 的出席狀態',
+          onChange: function (ev) { props.setStatus(r, ev.target.value); },
+          className: 'min-h-[40px] rounded-xl border border-[var(--hair-2)] bg-[var(--ink-1)] px-2 text-[12px] font-medium text-[var(--mist-1)] outline-none focus:border-[var(--jade-300)]'
+        }, STATUSES.map(function (x) { return E('option', { key: x.k, value: x.k }, x.short); })),
         E(Btn, { variant: 'ghost', size: 'icon', icon: 'X', ariaLabel: '移出陣列', onClick: function () { props.removeRow(r); } })));
   }
 
@@ -1706,7 +1693,7 @@
       title: '', dateText: '', startTime: '10:00', endTime: '13:00',
       place: venuePlace(firstVenue) || '亞伯林羽球館－東區振興店', venueId: firstVenue ? firstVenue.id : '',
       courts: firstVenue ? firstVenue.defaultCourts : 5, fee: firstVenue ? firstVenue.defaultFee : 220,
-      signupDeadline: '', note: '', roster: []
+      note: '', roster: []
     });
     var f = st[0], setF = st[1];
     function up(kk, v) { setF(function (x) { var n = Object.assign({}, x); n[kk] = v; return n; }); }
@@ -1759,8 +1746,6 @@
           E('input', { value: f.place, onChange: function (ev) { setF(function (old) { return Object.assign({}, old, { place: ev.target.value, venueId: '' }); }); }, className: INPUT }))),
         E(Field, { label: '每人費用（元）' },
           E('input', { type: 'number', min: 0, step: 10, value: f.fee, onChange: function (ev) { up('fee', ev.target.value); }, className: INPUT })),
-        E(Field, { label: '意願登記截止（選填）' },
-          E('input', { type: 'datetime-local', value: f.signupDeadline || '', onChange: function (ev) { up('signupDeadline', ev.target.value); }, className: INPUT })),
         E(Field, { label: '補充事項（用「｜」可分成多條）' },
           E('input', {
             value: f.note, onChange: function (ev) { up('note', ev.target.value); },

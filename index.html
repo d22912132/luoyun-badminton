@@ -230,6 +230,10 @@
     background:linear-gradient(180deg,rgba(228,235,232,.06),rgba(228,235,232,.02));border:1px solid var(--hair)}
   .rule .t{font-family:'Noto Serif TC',Georgia,serif;font-size:.85rem;font-weight:600;color:var(--mist-1);line-height:1.45}
   .rule .b{font-size:.79rem;color:var(--mist-2);line-height:1.7;margin-top:.25rem}
+  .disclosure{margin-top:1rem;border:1px solid var(--hair);border-radius:16px;background:rgba(228,235,232,.022)}
+  .disclosure>summary{display:flex;align-items:center;justify-content:space-between;gap:.75rem;min-height:48px;padding:.7rem .9rem;cursor:pointer;list-style:none;color:var(--mist-1);font-family:'Noto Serif TC',Georgia,serif;font-weight:600;font-size:.9rem}
+  .disclosure>summary::-webkit-details-marker{display:none}.disclosure>summary::after{content:'⌄';color:var(--jade-300);font-family:'Noto Sans TC',sans-serif;transition:transform .22s var(--ease)}.disclosure[open]>summary::after{transform:rotate(180deg)}
+  .disclosure-body{padding:0 1rem 1rem}.disclosure .rule:first-child{border-top:1px solid var(--hair)}
 
   /* roster */
   .roster-h{display:flex;align-items:flex-end;justify-content:space-between;gap:.5rem;margin:2rem 0 .3rem}
@@ -796,12 +800,12 @@
 
 
   function groupHtml(g, list) {
-    var h = '<div class="grp"><div class="grp-h">' +
+    var h = '<details class="grp disclosure"><summary><span class="grp-h">' +
       '<span class="dot" style="background:' + g.dot + '"></span>' +
       '<span class="name" style="color:' + g.color + '">' + g.emoji + ' ' + g.label + '</span>' +
-      '<span class="pill ' + g.cls + '">' + list.length + '</span></div>';
-    if (!list.length) return h + '<p class="none">目前沒有人</p></div>';
-    h += '<ol class="names">';
+      '<span class="pill ' + g.cls + '">' + list.length + '</span></span></summary>';
+    if (!list.length) return h + '<p class="none disclosure-body">目前沒有人</p></details>';
+    h += '<ol class="names disclosure-body">';
     list.forEach(function (r, i) {
       var f = r.gender === 'female';
       h += '<li><span class="i">' + (i + 1) + '</span>' +
@@ -809,7 +813,7 @@
         (r.level ? '<span class="pill ' + (f ? 'p-female' : 'p-male') + '">' + esc(r.level) + '</span>' : '') +
         '</li>';
     });
-    return h + '</ol></div>';
+    return h + '</ol></details>';
   }
 
   function eventHtml(ev, eventIndex) {
@@ -884,14 +888,14 @@
     }
     h += '</div>';
 
-    h += '<div class="box inlay"><h3>' + ic('list', 14) + '團規</h3>';
+    h += '<details class="box inlay disclosure"><summary>' + ic('list', 14) + '團規・展開查看</summary><div class="disclosure-body">';
     RULES.forEach(function (raw) {
       var r = parseRule(raw);
       h += '<div class="rule"><span class="g">' + r.g + '</span><span>' +
         (r.t ? '<span class="t" style="display:block">' + esc(r.t) + '</span>' : '') +
         '<span class="b" style="display:block">' + esc(r.b) + '</span></span></div>';
     });
-    h += '</div></div>';
+    h += '</div></details></div>';
 
     if (!roster.length) {
       h += '<div class="empty">名單還沒開始排，等管理者更新。</div>';
