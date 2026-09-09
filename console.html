@@ -22,14 +22,14 @@
      ================================================================ */
   :root{
     /* 墨玉底 —— 深青藍偏冷，不是純黑 */
-    --ink-0:#0A1013;
-    --ink-1:#0D1519;
-    --ink-2:#111C21;
+    --ink-0:#101A1E;
+    --ink-1:#16242A;
+    --ink-2:#1B2C32;
 
     /* 霧白 —— 灰階統一帶青綠，不混暖灰 */
-    --mist-1:#E4EBE8;
-    --mist-2:#A3B5AE;
-    --mist-3:#798A84;
+    --mist-1:#EEF5F1;
+    --mist-2:#B9CAC3;
+    --mist-3:#91A39B;
 
     /* 竹青翡翠 —— 冷玉，非螢光 */
     --jade-100:#D5E7DC;
@@ -46,8 +46,8 @@
     --amethyst:#9E8FC0;
 
     /* 髮絲邊 & 高光 */
-    --hair:rgba(228,235,232,.06);
-    --hair-2:rgba(228,235,232,.11);
+    --hair:rgba(228,235,232,.10);
+    --hair-2:rgba(228,235,232,.17);
     --sheen:rgba(255,255,255,.055);
 
     --ease:cubic-bezier(.32,.72,0,1);
@@ -68,20 +68,23 @@
   body::before{
     content:""; position:fixed; inset:-28%; z-index:-2; pointer-events:none;
     background:
-      radial-gradient(52% 38% at 16% 8%,  rgba(110,158,136,.17), transparent 64%),
-      radial-gradient(40% 30% at 86% 4%,  rgba(201,169,97,.10),  transparent 62%),
-      radial-gradient(66% 48% at 54% 102%,rgba(72,116,138,.16),  transparent 66%);
+      radial-gradient(52% 38% at 16% 8%,  rgba(110,158,136,.25), transparent 64%),
+      radial-gradient(40% 30% at 86% 4%,  rgba(201,169,97,.15),  transparent 62%),
+      radial-gradient(66% 48% at 54% 102%,rgba(72,116,138,.22),  transparent 66%);
     animation:drift 52s var(--ease) infinite alternate;
   }
   /* 水墨暈染：中央浮起、四角沉入 */
   body::after{
     content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
-    background:radial-gradient(128% 84% at 50% -4%, transparent 38%, rgba(4,8,10,.78) 100%);
+    background:radial-gradient(128% 84% at 50% -4%, transparent 38%, rgba(5,11,13,.52) 100%);
   }
   @keyframes drift{
     from{ transform:translate3d(-2%,-1.5%,0) scale(1) }
     to  { transform:translate3d(2.5%,2%,0)   scale(1.08) }
   }
+  @keyframes sect-arrive{from{opacity:0;transform:translateY(14px);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
+  @keyframes jade-seal{0%{box-shadow:0 0 0 0 rgba(155,195,174,.0)}45%{box-shadow:0 0 0 8px rgba(155,195,174,.16),0 0 26px rgba(155,195,174,.18)}100%{box-shadow:0 0 0 15px rgba(155,195,174,0),0 0 10px rgba(155,195,174,0)}}
+  .sect-enter{animation:sect-arrive .64s var(--ease) both}.seal-toast{animation:jade-seal 1.1s var(--ease) both}
 
   /* 絹紋顆粒：固定層，破除數位平面感 */
   .grain{
@@ -693,7 +696,7 @@
       lock.current = true; epoch.current++; setBusy(true); setError('');
       try {
         var data = await api('action', Object.assign({ action: name, version: modal ? modal.version : version.current }, payload));
-        accept(data); flash('已儲存，公開名單會自動更新'); return data.resultId || true;
+        accept(data); flash('玉印已落・公開名單已同步'); return data.resultId || true;
       } catch (err) {
         setError(err.message); flash(err.message, 'bad');
         if (err.status === 409 || err.status === 401) { try { await refresh(); } catch (_) {} }
@@ -767,12 +770,12 @@
       body = E(AdminPage, ctx);
     }
 
-    return E(BusyContext.Provider, { value: busy }, D('min-h-screen pb-28',
+    return E(BusyContext.Provider, { value: busy }, D('min-h-screen pb-28 sect-enter',
       E(TopBar, Object.assign({ tab: tab, openEvent: openEvent }, ctx)),
       E('main', { className: 'mx-auto w-full max-w-5xl px-4 pt-11 sm:px-6' },
         error && !modal ? E('p', { role: 'alert', className: 'mb-5 rounded-2xl inlay p-4 ' + CIN }, error) : null, body),
       toast ? D('fixed bottom-7 left-1/2 z-[60] w-[min(92vw,26rem)] -translate-x-1/2',
-        D('rise glass flex items-center gap-3 rounded-2xl px-4 py-3.5 text-sm ' + (toast.kind === 'bad' ? CIN : T1),
+        D('rise glass seal-toast flex items-center gap-3 rounded-2xl px-4 py-3.5 text-sm ' + (toast.kind === 'bad' ? CIN : T1),
           E(Icon, {
             name: toast.kind === 'bad' ? 'TriangleAlert' : 'CircleCheck', size: 16,
             className: toast.kind === 'bad' ? CIN : JADE

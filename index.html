@@ -12,11 +12,11 @@
 
 <style>
   :root{
-    --ink-0:#0A1013; --ink-1:#0D1519;
-    --mist-1:#E4EBE8; --mist-2:#A3B5AE; --mist-3:#798A84;
+    --ink-0:#101A1E; --ink-1:#16242A;
+    --mist-1:#EEF5F1; --mist-2:#B9CAC3; --mist-3:#91A39B;
     --jade-100:#D5E7DC; --jade-300:#9BC3AE; --jade-500:#6E9E88; --jade-700:#3D6555;
     --gold:#C9A961; --cinnabar:#D07A6C; --amethyst:#9E8FC0;
-    --hair:rgba(228,235,232,.06); --hair-2:rgba(228,235,232,.11);
+    --hair:rgba(228,235,232,.10); --hair-2:rgba(228,235,232,.17);
     --ease:cubic-bezier(.32,.72,0,1);
     color-scheme:dark;
   }
@@ -30,19 +30,20 @@
   body::before{
     content:""; position:fixed; inset:-28%; z-index:-2; pointer-events:none;
     background:
-      radial-gradient(52% 38% at 16% 8%, rgba(110,158,136,.17), transparent 64%),
-      radial-gradient(40% 30% at 86% 4%, rgba(201,169,97,.10), transparent 62%),
-      radial-gradient(66% 48% at 54% 102%, rgba(72,116,138,.16), transparent 66%);
+      radial-gradient(52% 38% at 16% 8%, rgba(110,158,136,.25), transparent 64%),
+      radial-gradient(40% 30% at 86% 4%, rgba(201,169,97,.15), transparent 62%),
+      radial-gradient(66% 48% at 54% 102%, rgba(72,116,138,.22), transparent 66%);
     animation:drift 52s var(--ease) infinite alternate;
   }
   body::after{
     content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
-    background:radial-gradient(128% 84% at 50% -4%, transparent 38%, rgba(4,8,10,.78) 100%);
+    background:radial-gradient(128% 84% at 50% -4%, transparent 38%, rgba(5,11,13,.52) 100%);
   }
   @keyframes drift{
     from{transform:translate3d(-2%,-1.5%,0) scale(1)}
     to{transform:translate3d(2.5%,2%,0) scale(1.08)}
   }
+  @keyframes sect-arrive{from{opacity:0;transform:translateY(14px);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
   .grain{
     position:fixed; inset:0; z-index:1; pointer-events:none; opacity:.035;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -135,7 +136,7 @@
 
   /* surfaces */
   .card{
-    background:linear-gradient(180deg,rgba(228,235,232,.052) 0%,rgba(228,235,232,.022) 100%);
+    background:linear-gradient(180deg,rgba(228,235,232,.085) 0%,rgba(228,235,232,.035) 100%);
     border:1px solid var(--hair);border-radius:20px;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 18px 40px -32px rgba(0,0,0,.9);
     padding:1.35rem;margin-top:1rem;
@@ -271,13 +272,7 @@
   .stat-main{position:relative}
   .venue-extra{margin-top:.9rem;padding-top:.9rem;border-top:1px solid var(--hair);font-size:.76rem;color:var(--mist-2);line-height:1.8}
   .venue-extra a{color:var(--jade-300);font-weight:600;text-decoration:none}
-  dialog.intent-dialog{width:min(92vw,31rem);border:1px solid rgba(155,195,174,.25);border-radius:24px;padding:0;color:var(--mist-2);background:linear-gradient(180deg,#111c21,#0b1216);box-shadow:0 28px 90px rgba(0,0,0,.65)}
-  dialog.intent-dialog::backdrop{background:rgba(4,8,10,.76);backdrop-filter:blur(6px)}
-  .intent-form{padding:1.4rem}.intent-form h2{margin:0;color:var(--mist-1);font-size:1.25rem}.intent-form .sub{margin:.45rem 0 1.2rem;color:var(--mist-3);font-size:.78rem}
-  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.85rem}.form-grid label{display:grid;gap:.35rem;font-size:.7rem;color:var(--mist-3)}.form-grid .wide{grid-column:1/-1}
-  .form-grid input,.form-grid select{width:100%;border:1px solid var(--hair-2);border-radius:14px;background:rgba(6,10,12,.6);color:var(--mist-1);padding:.72rem .8rem;font:inherit;outline:none}
-  .form-grid input:focus,.form-grid select:focus{border-color:var(--jade-500);box-shadow:0 0 0 3px rgba(155,195,174,.08)}
-  .dialog-actions{display:flex;align-items:center;justify-content:flex-end;gap:.55rem;margin-top:1rem}.cancel{min-height:42px;border:1px solid var(--hair-2);border-radius:999px;padding:.45rem .9rem;background:transparent;color:var(--mist-2);cursor:pointer}.form-msg{margin-right:auto;font-size:.72rem;color:var(--jade-300)}
+  .masthead,.cultivation,#app,.foot{animation:sect-arrive .7s var(--ease) both}.cultivation{animation-delay:.12s}#app{animation-delay:.22s}.foot{animation-delay:.32s}
 
   @media(max-width:480px){.oracle{grid-template-columns:3.35rem 1fr;padding:1rem}.oracle-seal{width:3.35rem;height:3.35rem}.sect-stats{gap:.35rem}.rank-row{grid-template-columns:1.25rem 2rem minmax(0,1fr) auto}.rank-avatar{width:2rem;height:2rem}}
   @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}body::before{animation:none}.oracle::after{display:none}}
@@ -666,7 +661,7 @@
   <div class="wrap">
     <span class="eyebrow">出席名單</span>
     <h1 class="disp">近期開團</h1>
-    <p>查看最新名單與場地資訊，也可以送出參加、觀望或候補意願；管理員確認後會加入正式名單。</p>
+    <p>查看最新名單與場地資訊。活動與出席名單由長老及管理員統一維護。</p>
     <span class="stamp num" id="stamp">名單更新時間載入中…</span>
   </div>
 </div>
@@ -674,22 +669,6 @@
 <section class="wrap cultivation" id="cultivation" aria-live="polite"></section>
 <main class="wrap" id="app"></main>
 <footer class="wrap" style="padding-bottom:2rem"><a href="console.html" style="color:var(--mist-2)">管理者登入 →</a></footer>
-
-<dialog class="intent-dialog" id="intent-dialog">
-  <form class="intent-form" id="intent-form">
-    <h2 class="disp">遞交入陣玉簡</h2>
-    <p class="sub" id="intent-event-title">送出後由管理員確認，正式名單會自動更新。</p>
-    <input type="hidden" name="eventId">
-    <div class="form-grid">
-      <label>暱稱<input name="nickname" maxlength="80" required autocomplete="name" placeholder="大家認得你的稱呼"></label>
-      <label>狀態<select name="status"><option value="going">確認參加</option><option value="maybe">不確定</option><option value="wait">候補</option></select></label>
-      <label>性別<select name="gender"><option value="male">男</option><option value="female">女</option></select></label>
-      <label>程度（1–8）<select name="level"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></label>
-      <label class="wide">留言（選填）<input name="note" maxlength="300" placeholder="例如：阿標邀請、第一次參加"></label>
-    </div>
-    <div class="dialog-actions"><span class="form-msg" id="intent-msg" role="status"></span><button type="button" class="cancel" id="intent-cancel">取消</button><button type="submit" class="signup">送出意願</button></div>
-  </form>
-</dialog>
 
 <script>
 (function () {
@@ -815,14 +794,6 @@
       ';background-size:' + (pct > 0 ? (10000 / pct) : 100) + '% 100%;box-shadow:' + glow + '"></i></div>';
   }
 
-  function recruitmentOf(ev, going, cap) {
-    if (going >= cap) return { label:'已額滿・可登記候補', cls:'closed', closed:false };
-    if (!ev.signupDeadline) return { label:'招募中', cls:'', closed:false };
-    var d = new Date(ev.signupDeadline + ':00+08:00'), ms = d.getTime() - Date.now();
-    if (!isFinite(ms) || ms <= 0) return { label:'已截止登記', cls:'closed', closed:true };
-    var hours = Math.ceil(ms / 3600000);
-    return { label:hours < 24 ? '截止倒數 ' + hours + ' 小時' : '截止倒數 ' + Math.ceil(hours / 24) + ' 天', cls:hours <= 24 ? 'urgent' : '', closed:false };
-  }
 
   function groupHtml(g, list) {
     var h = '<div class="grp"><div class="grp-h">' +
@@ -853,7 +824,6 @@
     var pct = Math.min(100, Math.round((going / Math.max(1, cap)) * 100));
     var male = groups.going.filter(function (r) { return r.gender !== 'female'; }).length;
     var dp = dateParts(ev.dateText);
-    var recruitment = recruitmentOf(ev, going, cap);
 
     var h = '<section class="card event-card">';
     h += '<div class="ev-head">' +
@@ -870,9 +840,7 @@
       '<span class="num">' + going + ' / ' + cap + '</span></span>' +
       '</div>';
     h += '<div class="action-row"><button type="button" class="share" data-event="' + eventIndex + '" aria-label="分享 ' + esc(ev.title) + '">' + ic('share', 14) + '<span>分享本場佈告</span></button>' +
-      '<span class="recruit ' + recruitment.cls + '">◌ ' + esc(recruitment.label) + '</span>' +
-      (!recruitment.closed && live ? '<button type="button" class="signup" data-intent-event="' + esc(ev.id) + '">送出報名意願</button>' : '') +
-      (ev.pendingCount ? '<span class="pill p-gold">' + esc(ev.pendingCount) + ' 筆待確認</span>' : '') + '</div>';
+      '<span class="recruit">◌ 名單由長老統一維護</span></div>';
 
     h += '<div class="stats">' +
       '<div class="stat-main"' + (over ? ' style="border-color:rgba(208,122,108,.24);background:linear-gradient(150deg,rgba(208,122,108,.10),rgba(228,235,232,.012))"' : '') + '>' +
@@ -903,7 +871,6 @@
       '<div class="row"><span class="ic">' + ic('users', 14) + '</span><span><span class="k">場地</span><span class="v">' + esc(ev.courts) + ' 面場（上限 ' + cap + ' 人）</span></span></div>' +
       '<div class="row"><span class="ic">' + ic('dollar', 14) + '</span><span><span class="k">費用</span><span class="v">$' + esc(ev.fee) + ' / 人（均分預估，多補少退）</span></span></div>' +
       '</div>';
-    if (ev.signupDeadline) h += '<div class="venue-extra">意願截止｜' + esc(ev.signupDeadline.replace('T', ' ')) + '</div>';
     if (ev.venue && (ev.venue.address || ev.venue.parking || ev.venue.facilities || ev.venue.mapUrl)) {
       h += '<div class="venue-extra">' + (ev.venue.address ? '<div>地址｜' + esc(ev.venue.address) + '</div>' : '') +
         (ev.venue.parking ? '<div>停車｜' + esc(ev.venue.parking) + '</div>' : '') +
@@ -960,7 +927,7 @@
       if (!lastData || lastVersion !== data.version) {
         document.getElementById('cultivation').innerHTML = cultivationHtml(data.events);
         app.innerHTML = data.events.length ? data.events.map(eventHtml).join('') : '<div class="empty">目前沒有開團。</div>';
-        app.innerHTML += '<div class="foot"><strong>' + (live ? '公開名單會自動更新。' : '這是歷史快照，尚未連上共用後端。') + '</strong><br>' + (live ? '可直接送出報名意願；管理員核准後才會列入正式名單。' : '正式報名請聯絡管理者。') + '</div>';
+        app.innerHTML += '<div class="foot"><strong>' + (live ? '公開名單會自動更新。' : '這是歷史快照，尚未連上共用後端。') + '</strong><br>名單與活動資訊由長老及管理員統一維護；如需異動請聯絡管理者。</div>';
         revealCards();
       }
       lastData = data; lastVersion = data.version;
@@ -973,16 +940,6 @@
   document.addEventListener('click', async function (ev) {
     var oracle = ev.target.closest('#oracle');
     if (oracle) { oracle.setAttribute('aria-expanded', oracle.getAttribute('aria-expanded') !== 'true'); return; }
-    var intentButton = ev.target.closest('[data-intent-event]');
-    if (intentButton && lastData) {
-      var intentEvent = lastData.events.find(function (x) { return x.id === intentButton.getAttribute('data-intent-event'); });
-      if (!intentEvent) return;
-      var dialog = document.getElementById('intent-dialog'), form = document.getElementById('intent-form');
-      var attending = (intentEvent.roster || []).filter(function (r) { return r.status === 'going'; }).length;
-      form.elements.eventId.value = intentEvent.id; form.elements.status.value = attending >= Number(intentEvent.courts || 0) * PER_COURT ? 'wait' : 'going';
-      document.getElementById('intent-event-title').textContent = intentEvent.dateText + '・' + intentEvent.title + '｜送出後由管理員確認。';
-      document.getElementById('intent-msg').textContent = ''; dialog.showModal(); form.elements.nickname.focus(); return;
-    }
     var share = ev.target.closest('[data-event]');
     if (!share || !lastData) return;
     var row = lastData.events[Number(share.getAttribute('data-event'))];
@@ -995,19 +952,6 @@
     } catch (error) { if (error.name !== 'AbortError') share.querySelector('span').textContent = '請手動複製網址'; }
   });
 
-  var intentCancel = document.getElementById('intent-cancel'), intentForm = document.getElementById('intent-form');
-  if (intentCancel && intentCancel.addEventListener) intentCancel.addEventListener('click', function () { document.getElementById('intent-dialog').close(); });
-  if (intentForm && intentForm.addEventListener) intentForm.addEventListener('submit', async function (ev) {
-    ev.preventDefault(); var form = ev.currentTarget, button = form.querySelector('[type="submit"]'), msg = document.getElementById('intent-msg');
-    var data = Object.fromEntries(new FormData(form)); data.level = Number(data.level); button.disabled = true; msg.textContent = '玉簡傳送中…';
-    try {
-      var response = await fetch('/api/intent', { method:'POST', headers:{ 'Content-Type':'application/json' }, body:JSON.stringify(data), credentials:'same-origin' });
-      var result = await response.json(); if (!response.ok) throw new Error(result.error || '送出失敗');
-      msg.textContent = '已送出，等待管理員確認'; var eventId = data.eventId; form.reset(); form.elements.eventId.value = eventId;
-      setTimeout(function () { document.getElementById('intent-dialog').close(); }, 900);
-    } catch (error) { msg.textContent = error.message; }
-    finally { button.disabled = false; }
-  });
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render);
   else render();

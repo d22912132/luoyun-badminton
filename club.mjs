@@ -106,7 +106,7 @@ function publicData(state) {
   const publicVenue = v => v ? ({ id: v.id, name: v.name, address: v.address, mapUrl: v.mapUrl,
     parking: v.parking, facilities: v.facilities, note: v.note }) : null;
   return { generatedAt: state.updatedAt, version: state.version, venues: state.venues.map(publicVenue), events: state.events.map(ev => ({
-    id: ev.id, ...event(ev), pendingCount: state.intents.filter(x => x.eventId === ev.id).length,
+    id: ev.id, ...event(ev),
     venue: publicVenue(state.venues.find(v => v.id === ev.venueId)), roster: ev.roster.map(r => {
       const m = state.members.find(m => m.id === r.memberId) || r;
       return { nickname: m.nickname, gender: m.gender, level: m.level, status: r.status };
@@ -301,22 +301,10 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
       let state = getState();
       const me = session(req, state);
       if (req.method === 'GET' && path === '/api/public') return json(publicData(state));
+      // Public pages are intentionally read-only.  Roster changes belong to elders
+      // and administrators through the authenticated management console only.
       if (req.method === 'POST' && path === '/api/intent') {
-        const fields = intent(body), eventId = text(body.eventId, '活動識別碼', 100);
-        throttle(req, 'intent:' + fields.nickname.toLowerCase());
-        db.transaction(() => {
-          state = getState(); const ev = state.events.find(x => x.id === eventId);
-          if (!ev) reject('活動已不存在', 404);
-          if (deadlinePassed(ev.signupDeadline)) reject('這場活動已截止登記', 409);
-          const key = fields.nickname.toLowerCase();
-          if (state.intents.some(x => x.eventId === eventId && x.nickname.toLowerCase() === key)) reject('這場已有相同暱稱的待審意願', 409);
-          if (ev.roster.some(r => (state.members.find(m => m.id === r.memberId) || r).nickname.toLowerCase() === key)) reject('這個暱稱已在正式名單', 409);
-          if (state.intents.length >= 500) reject('待審意願已達上限，請聯絡管理員', 409);
-          state.intents.push({ ...fields, id: randomUUID(), eventId, createdAt: now() });
-          state.logs.unshift({ t: now(), who: 'public', name: fields.nickname, act: '送出意願', target: ev.title, detail: fields.status });
-          state.logs = state.logs.slice(0, 400); state.version++; state.updatedAt = now(); saveState(state);
-        });
-        return json({ ok: true });
+        return json({ error: '公開頁僅供查看，請聯絡長老或管理員更新名單' }, 403);
       }
       if (req.method === 'GET' && path === '/api/session') return json({ me, needsSetup: !state.admins.length });
       if (req.method === 'POST' && ['/api/setup', '/api/login'].includes(path)) {
