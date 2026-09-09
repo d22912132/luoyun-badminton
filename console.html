@@ -940,14 +940,6 @@
 
   /* ---------------- events list ---------------- */
   function EventsList(p) {
-    var going = 0, maybe = 0, capacity = 0, active = {};
-    p.events.forEach(function (ev) {
-      capacity += capacityOf(ev.courts);
-      (ev.roster || []).forEach(function (r) {
-        if (r.status === 'going') { going++; active[r.memberId || String(r.nickname).toLowerCase()] = true; }
-        if (r.status === 'maybe') maybe++;
-      });
-    });
     return D('',
       E(PageHead, {
         eyebrow: '試煉佈告', title: '宗門集結', sub: '共 ' + p.events.length + ' 場試煉・名單由長老統一維護',
@@ -956,12 +948,6 @@
           onClick: function () { if (p.needAdmin()) p.setModal({ type: 'event', row: null }); }
         }, '開壇集結')
       }),
-      p.events.length ? D('mb-5 grid grid-cols-2 gap-2.5 sm:grid-cols-4',
-        [['Sparkles', going, '入陣人次'], ['Users', Object.keys(active).length, '活躍道友'], ['CircleHelp', maybe, '觀望中'], ['Gauge', Math.max(0, capacity - going), '尚餘席位']].map(function (x) {
-          return D('inlay rounded-2xl p-4', { key:x[2] },
-            D('flex items-center gap-2 ' + T3, E(Icon, { name:x[0], size:14 }), S('text-[11px]', x[2])),
-            S('disp num mt-2 block text-[24px] font-semibold ' + T1, String(x[1])));
-        })) : null,
       p.events.length === 0
         ? E(FirstRun, { p: p })
         : D('grid gap-3.5',
@@ -1053,6 +1039,8 @@
     var ev = props.ev, p = props.p;
     var roster = ev.roster || [];
     var going = roster.filter(function (r) { return r.status === 'going'; }).length;
+    var maybe = roster.filter(function (r) { return r.status === 'maybe'; }).length;
+    var wait = roster.filter(function (r) { return r.status === 'wait'; }).length;
     var cap = capacityOf(ev.courts);
     var over = going > cap;
     var pct = fillPct(going, cap);
@@ -1067,8 +1055,7 @@
         D('min-w-0 flex-1',
           D('flex flex-wrap items-center gap-2',
             E('h3', { className: 'disp truncate text-[19px] font-bold leading-tight ' + T1 }, ev.title),
-            E('span', { className: 'tier ' + status.tone }, status.label),
-            p.intents.filter(function (x) { return x.eventId === ev.id; }).length ? E('span', { className: 'tier', style: TIER_STYLE.high }, p.intents.filter(function (x) { return x.eventId === ev.id; }).length + ' 待審') : null),
+            E('span', { className: 'tier ' + status.tone }, status.label)),
           D('mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5',
             metaLine('Clock', ev.startTime + '–' + ev.endTime),
             metaLine('MapPin', ev.place),
@@ -1080,6 +1067,12 @@
             name: 'ChevronRight', size: 18,
             className: T3 + ' transition-transform duration-500 [transition-timing-function:var(--ease)] group-hover:translate-x-1 group-hover:text-[var(--jade-300)]'
           }))),
+      D('mt-4 grid grid-cols-4 gap-2',
+        [['Check', '入陣', going, JADE], ['CircleHelp', '觀望', maybe, GOLD], ['Hourglass', '候補', wait, 'text-[var(--amethyst)]'], ['Gauge', '尚餘', Math.max(0, cap - going), T1]].map(function (x) {
+          return D('rounded-xl inlay px-2.5 py-2.5', { key: x[1] },
+            D('flex items-center gap-1.5 ' + T3, E(Icon, { name: x[0], size: 12 }), S('text-[10.5px]', x[1])),
+            S('disp num mt-1.5 block text-[19px] font-semibold ' + x[3], String(x[2])));
+        })),
       D('mt-5',
         D('mb-2 flex items-center justify-between',
           D('flex items-center gap-2.5',
