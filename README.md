@@ -103,6 +103,24 @@ Docker 初始化金鑰可在主機執行 `docker exec luoyun cat /app/data/setup
 
 原 Claude Artifact 私有資料庫與各瀏覽器的 localStorage 不會自動搬入；本版已帶入 GitHub 上可取得的兩場快照。如果私有版本有較新的資料，需要另行匯出後再核對遷移。
 
+## 忘記掌門密碼
+
+掌門密碼只存 scrypt 雜湊，**無法反推**。唯一救援路徑是初始化金鑰：帶著金鑰重新呼叫 `/api/setup`，可重設**既有掌門**的密碼，不會新增帳號、不會動到名冊與活動，並且會踢掉該帳號所有舊登入。
+
+金鑰在雲端是 Cloudflare Secret `SETUP_TOKEN`，本機／自備主機則是 `DATA_DIR/setup-token.txt`。忘記或外流時先換一組新的：
+
+```sh
+# Cloudflare：輸入新金鑰
+npx wrangler secret put SETUP_TOKEN
+
+# 重設密碼（account 換成要救的掌門帳號）
+curl -X POST https://<你的網址>/api/setup \
+  -H 'Content-Type: application/json' -H 'Origin: https://<你的網址>' \
+  -d '{"token":"<新金鑰>","account":"master","name":"掌門","pin":"<新密碼>"}'
+```
+
+密碼規則為 4–8 位數 PIN 或 8–128 字元。金鑰等同最高權限，救援完成後建議再 `wrangler secret put SETUP_TOKEN` 換掉。
+
 ## 驗證
 
 ```sh

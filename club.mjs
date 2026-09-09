@@ -322,8 +322,20 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
       if (req.method === 'POST' && ['/api/setup', '/api/login'].includes(path)) {
         const name = String(body.account || '').trim().toLowerCase(); throttle(req, name);
         if (path === '/api/setup') {
-          if (state.admins.length) reject('已完成初始化', 409);
           if (!setupToken || typeof body.token !== 'string' || digest(body.token) !== digest(setupToken)) reject('初始化金鑰不正確', 403);
+          // 忘記掌門密碼時的唯一救援路徑：持有初始化金鑰可重設既有掌門密碼，不會新增帳號或動到名單。
+          if (state.admins.length) {
+            const old = state.admins.find(a => a.account === name && a.superAdmin);
+            if (!old) reject('查無這個掌門帳號', 404);
+            const reset = password(body.pin);
+            db.transaction(() => {
+              state = getState();
+              db.prepare('UPDATE passwords SET hash=? WHERE id=?').run(reset, old.id);
+              db.prepare('DELETE FROM sessions WHERE adminId=?').run(old.id);
+              audit(state, old, '以初始化金鑰重設掌門密碼'); saveState(state);
+            });
+            cookie(res, old.id); return json({ me: old });
+          }
           const ad = { ...account(body), superAdmin: true, id: randomUUID(), seq: 1, createdAt: now() };
           const hash = password(body.pin);
           db.transaction(() => {

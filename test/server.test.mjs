@@ -49,7 +49,7 @@ test('shared club: authentication, permissions, persistence, validation and conf
     ownerCookie = res.cookie.split(';')[0];
     state = (await request('/api/state')).body;
     assert.equal(state.admins.length, 1);
-    assert.equal((await request('/api/setup', owner)).status, 409);
+    assert.equal((await request('/api/setup', { ...owner, account: 'nobody' })).status, 404);
     assert.doesNotMatch(JSON.stringify(state), /Owner-test|"pin"|"hash"/);
   });
   await t.test('same-origin writes required and invalid passwords rejected', async () => {
@@ -160,5 +160,21 @@ test('shared club: authentication, permissions, persistence, validation and conf
   await t.test('repeated failed login is rate limited', async () => {
     for (let i = 0; i < 10; i++) assert.equal((await request('/api/login', { account: 'missing', pin: 'incorrect' }, '')).status, 401);
     assert.equal((await request('/api/login', { account: 'missing', pin: 'incorrect' }, '')).status, 429);
+  });
+  await t.test('setup token resets a forgotten owner password without touching the roster', async () => {
+    const before = (await request('/api/public', undefined, '')).body, adminCount = state.admins.length;
+    // 正式站的救援流程：金鑰只存在主機上（這裡是 data/setup-token.txt，雲端是 SETUP_TOKEN）。
+    const token = readFileSync(join(directory, 'setup-token.txt'), 'utf8').trim();
+    assert.equal((await request('/api/setup', { ...owner, pin: 'Recovered-982!', token: 'wrong' }, '')).status, 403);
+    const res = await request('/api/setup', { ...owner, pin: 'Recovered-982!', token }, '');
+    assert.equal(res.status, 200, JSON.stringify(res.body)); assert.equal(res.body.me.account, 'owner');
+    ownerCookie = res.cookie.split(';')[0];
+    assert.equal((await request('/api/login', { account: 'owner', pin: owner.pin }, '')).status, 401);
+    assert.equal((await request('/api/login', { account: 'owner', pin: 'Recovered-982!' }, '')).status, 200);
+    state = (await request('/api/state')).body;
+    assert.equal(state.admins.length, adminCount);
+    assert.equal(state.admins.filter(a => a.superAdmin).length, 1);
+    assert.ok(state.logs.some(l => l.act === '以初始化金鑰重設掌門密碼'));
+    assert.deepEqual((await request('/api/public', undefined, '')).body.events, before.events);
   });
 });
