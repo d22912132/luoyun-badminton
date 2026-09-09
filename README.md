@@ -2,6 +2,9 @@
 
 保留原本墨玉風格的羽球開團網站，現在可獨立運作，不需要 Claude Artifact。
 
+- **正式公開名單**：<https://luoyun-badminton.luoyun-badminton.workers.dev/>
+- **管理後台**：<https://luoyun-badminton.luoyun-badminton.workers.dev/console.html>
+
 - **公開名單** `/`：任何人可看，每 5 秒讀取最新資料。斷線會標示資料狀態。
 - **管理後台** `/console.html`：登入後開團、維護弟子名冊、加入散修、切換入陣／觀望／候補、複製 LINE 通知。
 - **掌門殿**：管理長老、變更密碼、檢視操作日誌、下載資料備份。
