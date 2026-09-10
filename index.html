@@ -705,7 +705,7 @@
     return String(ev.note).split(/[｜|]/).map(function (t) { return t.trim(); }).filter(Boolean);
   }
   function flow(v, cap) { var c=Math.max(1,cap),pct=Math.min(100,Math.round((v/c)*100)),over=v>c,near=!over&&pct>=80;var grad=over?'linear-gradient(90deg,#B85446 0%,#E0958A 100%)':'linear-gradient(90deg,#3D6555 0%,#6E9E88 42%,#9BC3AE 74%,#C9A961 100%)';var glow=over?'0 0 12px -3px rgba(208,122,108,.85)':(pct>=100?'0 0 12px -3px rgba(201,169,97,.85)':'0 0 12px -4px rgba(155,195,174,.8)');return '<div class="flow'+(near?' is-near':'')+(pct>=100?' is-full':'')+'"><i style="width:'+pct+'%;background-image:'+grad+';background-size:'+(pct>0?(10000/pct):100)+'% 100%;box-shadow:'+glow+'"></i></div>'; }
-  function realmOf(level){var lv=Number(level)||1;return lv>=7?{k:'transcendent',label:'化神'}:lv>=6?{k:'nascent',label:'元嬰'}:lv>=5?{k:'golden',label:'金丹'}:lv>=4?{k:'foundation',label:'築基'}:{k:'qi',label:'練氣'};}
+  function realmOf(level){var lv=Number(level)||1;return lv>=8?{k:'transcendent',label:'化神'}:lv>=7?{k:'nascent',label:'元嬰'}:lv>=5?{k:'golden',label:'結丹'}:lv>=3?{k:'foundation',label:'築基'}:{k:'qi',label:'練氣'};}
   function realmBadge(level){var r=realmOf(level);return '<span class="realm-badge realm-'+r.k+'" aria-label="'+r.label+'，程度 '+Number(level||0)+'">'+r.label+'<span class="num">'+Number(level||0)+'</span></span>';}
   function countup(n){return '<span class="countup" data-count-to="'+Number(n||0)+'">'+Number(n||0)+'</span>';}
 

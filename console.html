@@ -338,12 +338,10 @@
   ];
   function statusMeta(k) { for (var i = 0; i < STATUSES.length; i++) if (STATUSES[i].k === k) return STATUSES[i]; return STATUSES[0]; }
 
-  /* 快速篩選仍用三個範圍；徽章完整呈現程度對應的境界。 */
-  function tierOf(lv) { return lv >= 7 ? 'high' : (lv >= 4 ? 'mid' : 'low'); }
-  var TIER_LABEL = { high: '元嬰', mid: '結丹', low: '築基' };
+  /* 程度 1–8 對應五個境界；8 級採最高境界，避免區間重疊。 */
   var TIER_STYLE = {high:{ '--tc':'var(--gold)','--tb':'rgba(201,169,97,.30)','--th':'rgba(201,169,97,.16)','--tl':'rgba(201,169,97,.04)'},mid:{ '--tc':'var(--jade-300)','--tb':'rgba(155,195,174,.26)','--th':'rgba(155,195,174,.13)','--tl':'rgba(155,195,174,.03)'},low:{ '--tc':'var(--mist-2)','--tb':'rgba(228,235,232,.14)','--th':'rgba(228,235,232,.08)','--tl':'rgba(228,235,232,.02)'}};
-  function realmOf(lv) { lv=Number(lv)||1; return lv>=7?'transcendent':lv>=6?'nascent':lv>=5?'golden':lv>=4?'foundation':'qi'; }
-  var REALM_LABEL={qi:'練氣',foundation:'築基',golden:'金丹',nascent:'元嬰',transcendent:'化神'};
+  function realmOf(lv) { lv=Number(lv)||1; return lv>=8?'transcendent':lv>=7?'nascent':lv>=5?'golden':lv>=3?'foundation':'qi'; }
+  var REALM_LABEL={qi:'練氣',foundation:'築基',golden:'結丹',nascent:'元嬰',transcendent:'化神'};
   var REALM_STYLE={qi:{'--realm-a':'#8FBFAF','--realm-b':'#D5E7DC','--realm-c':'#3D6555','--realm-text':'#CDE9DA','--realm-glow':'rgba(155,195,174,.65)','--realm-speed':'8s'},foundation:{'--realm-a':'#88AEBB','--realm-b':'#C7E2EA','--realm-c':'#3F6875','--realm-text':'#C9E5ED','--realm-glow':'rgba(129,183,200,.65)','--realm-speed':'10s'},golden:{'--realm-a':'#C9A961','--realm-b':'#F1DCA5','--realm-c':'#79602D','--realm-text':'#F3DFAB','--realm-glow':'rgba(201,169,97,.72)','--realm-speed':'14s'},nascent:{'--realm-a':'#9E8FC0','--realm-b':'#D1C7EA','--realm-c':'#57486E','--realm-text':'#DCD2F5','--realm-glow':'rgba(158,143,192,.7)','--realm-speed':'18s'},transcendent:{'--realm-a':'#D6B55E','--realm-b':'#FFF0B7','--realm-c':'#99743B','--realm-text':'#FFF0BA','--realm-glow':'rgba(222,187,93,.85)','--realm-speed':'24s'}};
   var GENDER = {
     male: { label: '男', style: { '--tc': '#A8CBD8', '--tb': 'rgba(168,203,216,.24)', '--th': 'rgba(168,203,216,.11)', '--tl': 'rgba(168,203,216,.03)' } },
@@ -874,12 +872,13 @@
 
     var FILTERS = [
       { k: 'all', label: '全部' }, { k: 'male', label: '男' }, { k: 'female', label: '女' },
-      { k: 'high', label: '元嬰' }, { k: 'mid', label: '結丹' }, { k: 'low', label: '築基' }
+      { k: 'qi', label: '練氣' }, { k: 'foundation', label: '築基' }, { k: 'golden', label: '結丹' },
+      { k: 'nascent', label: '元嬰' }, { k: 'transcendent', label: '化神' }
     ];
     function match(m, kk) {
       if (kk === 'all') return true;
       if (kk === 'male' || kk === 'female') return m.gender === kk;
-      return tierOf(m.level) === kk;
+      return realmOf(m.level) === kk;
     }
     function countOf(kk) { return p.members.filter(function (m) { return match(m, kk); }).length; }
 
@@ -1686,7 +1685,7 @@
       })),
       E('p', { className: 'text-[12px] ' + T3 },
         '目前境界：', S('disp font-semibold ' + JADE, REALM_LABEL[realmOf(Number(props.value))]),
-        '　（1–3 練氣・4 築基・5 金丹・6 元嬰・7–8 化神）'));
+        '　（1–2 練氣・3–4 築基・5–6 結丹・7 元嬰・8 化神）'));
   }
 
   function StatusPick(props) {
@@ -1843,7 +1842,7 @@
 
     var pool = byGender(p.members.filter(function (m) {
       if (taken[m.id]) return false;
-      if (tier !== 'all' && tierOf(m.level) !== tier) return false;
+      if (tier !== 'all' && realmOf(m.level) !== tier) return false;
       var t = q.trim().toLowerCase();
       if (!t) return true;
       return (m.nickname || '').toLowerCase().indexOf(t) >= 0 || (m.referrer || '').toLowerCase().indexOf(t) >= 0;
@@ -1894,7 +1893,7 @@
             })),
           E(Btn, { variant: 'outline', size: 'sm', icon: 'CheckCheck', onClick: selectAll }, '全選 / 取消')),
         D('flex flex-wrap gap-1.5',
-          [['all', '全部'], ['high', '元嬰'], ['mid', '結丹'], ['low', '築基']].map(function (t) {
+          [['all', '全部'], ['qi', '練氣'], ['foundation', '築基'], ['golden', '結丹'], ['nascent', '元嬰'], ['transcendent', '化神']].map(function (t) {
             var on = tier === t[0];
             return E('button', {
               key: t[0], onClick: function () { setTier(t[0]); },
