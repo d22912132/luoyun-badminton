@@ -9,6 +9,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@400;500;600;700&display=swap">
+<script>
+  (function(){try{var t=localStorage.getItem('luoyun-theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='dark';}})();
+</script>
 
 <style>
   :root{
@@ -82,6 +85,7 @@
   .brand .s{display:block;font-size:.7rem;color:var(--mist-3);margin-top:.2rem}
   @media (max-width:520px){.brand .s{display:none}}
   .ro{display:inline-flex;align-items:center;gap:.45rem;padding:.35rem .8rem;border-radius:999px;background:linear-gradient(180deg,rgba(155,195,174,.10),rgba(155,195,174,.03));border:1px solid rgba(155,195,174,.18);color:var(--jade-300);font-size:.74rem;font-weight:600;white-space:nowrap}.ro::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--jade-300);box-shadow:0 0 0 0 rgba(155,195,174,.46);animation:sync-breathe 2.8s ease-out infinite}.ro.sync-pulse::before{animation:sync-flash .72s var(--ease) both}@keyframes sync-breathe{70%{box-shadow:0 0 0 6px rgba(155,195,174,0)}}@keyframes sync-flash{45%{box-shadow:0 0 0 9px rgba(155,195,174,.18),0 0 19px rgba(155,195,174,.45)}100%{box-shadow:0 0 0 13px rgba(155,195,174,0)}}
+  .top-actions{display:flex;align-items:center;gap:.5rem}.theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:.35rem;min-width:40px;height:40px;padding:0 .7rem;border-radius:999px;border:1px solid var(--hair-2);background:rgba(228,235,232,.035);color:var(--mist-2);font:600 .72rem 'Noto Sans TC',sans-serif;cursor:pointer;transition:color .22s var(--ease),border-color .22s var(--ease),background .22s var(--ease),transform .22s var(--ease)}.theme-toggle:hover{color:var(--jade-100);border-color:rgba(155,195,174,.34);background:rgba(155,195,174,.09);transform:translateY(-1px)}.theme-toggle:focus-visible{outline:2px solid var(--jade-300);outline-offset:3px}.theme-icon{font-size:1rem;line-height:1}.theme-label{white-space:nowrap}@media(max-width:600px){.theme-label{display:none}.theme-toggle{padding:0;width:40px}.ro{padding:.35rem .65rem}}
 
   /* masthead */
   .masthead{padding:2.4rem 0 .5rem}
@@ -244,6 +248,20 @@
   .qi-ring{position:absolute;right:1rem;top:1rem;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--jade-300) var(--qi),rgba(228,235,232,.065) 0);box-shadow:0 0 26px -12px rgba(155,195,174,.8)}
   .qi-ring::before{content:"";position:absolute;inset:-5px;border:1px solid rgba(201,169,97,.34);border-radius:50%;box-shadow:0 0 16px -7px rgba(201,169,97,.8);animation:ring-breathe 2.8s ease-in-out infinite}@keyframes ring-breathe{50%{opacity:.45;transform:scale(1.08)}}
   .qi-ring::after{content:"";position:absolute;z-index:1;inset:5px;border-radius:50%;background:var(--ink-1)}
+
+  html[data-theme="light"]{--ink-0:#F2F6F3;--ink-1:#FFFFFF;--mist-1:#142820;--mist-2:#3E5A50;--mist-3:#687E75;--jade-100:#164534;--jade-300:#367B60;--jade-500:#4D8C71;--jade-700:#285C48;--gold:#98731F;--cinnabar:#A84F43;--amethyst:#6F5F9B;--hair:rgba(27,69,52,.12);--hair-2:rgba(27,69,52,.21);color-scheme:light}
+  html[data-theme="light"] body::before{background:radial-gradient(52% 38% at 16% 8%,rgba(110,158,136,.16),transparent 64%),radial-gradient(40% 30% at 86% 4%,rgba(201,169,97,.11),transparent 62%),radial-gradient(66% 48% at 54% 102%,rgba(72,116,138,.11),transparent 66%)}
+  html[data-theme="light"] body::after{background:radial-gradient(128% 84% at 50% -4%,transparent 42%,rgba(177,202,189,.2) 100%)}
+  html[data-theme="light"] .grain{opacity:.018;mix-blend-mode:multiply}
+  html[data-theme="light"] .topbar{background:rgba(247,250,248,.88)}
+  html[data-theme="light"] .mark{background:linear-gradient(160deg,rgba(83,139,111,.18),rgba(201,169,97,.10));box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}
+  html[data-theme="light"] .card{background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(248,251,249,.94));box-shadow:inset 0 1px 0 #fff,0 18px 42px -34px rgba(29,65,51,.35)}
+  html[data-theme="light"] .inlay,html[data-theme="light"] .seal,html[data-theme="light"] .box,html[data-theme="light"] .roster-row{background:linear-gradient(180deg,rgba(255,255,255,.78),rgba(232,241,236,.56))}
+  html[data-theme="light"] .stat-main{background:linear-gradient(150deg,rgba(93,151,122,.13),rgba(255,255,255,.75))}
+  html[data-theme="light"] .share,html[data-theme="light"] .theme-toggle{background:rgba(255,255,255,.72)}
+  html[data-theme="light"] .ro{background:linear-gradient(180deg,rgba(69,127,98,.12),rgba(255,255,255,.62))}
+  html[data-theme="light"] .flow{background:rgba(34,83,62,.1);box-shadow:inset 0 1px 2px rgba(30,70,54,.14)}
+  html[data-theme="light"] .cloud-bank{opacity:.1}
   .qi-ring span{position:relative;z-index:2;font:600 10px 'Noto Serif TC',serif;color:var(--jade-100)}
   .stat-main{position:relative}
   .venue-extra{margin-top:.9rem;padding-top:.9rem;border-top:1px solid var(--hair);font-size:.76rem;color:var(--mist-2);line-height:1.8}
@@ -631,7 +649,10 @@
         <span class="s">落雲宗羽球團・公開名單</span>
       </span>
     </div>
-    <span class="ro" id="sync-indicator">即時同步</span>
+    <div class="top-actions">
+      <button class="theme-toggle" id="theme-toggle" type="button"><span class="theme-icon" aria-hidden="true">☀</span><span class="theme-label">淺色</span></button>
+      <span class="ro" id="sync-indicator">即時同步</span>
+    </div>
   </div>
 </header>
 
@@ -650,6 +671,22 @@
 <script>
 (function () {
   "use strict";
+  var themeToggle = document.getElementById('theme-toggle');
+  function syncThemeControl() {
+    if (!themeToggle) return;
+    var dark = document.documentElement.dataset.theme === 'dark';
+    themeToggle.title = dark ? '切換至淺色模式' : '切換至深色模式';
+    themeToggle.setAttribute('aria-label', themeToggle.title);
+    themeToggle.querySelector('.theme-icon').textContent = dark ? '☀' : '☾';
+    themeToggle.querySelector('.theme-label').textContent = dark ? '淺色' : '深色';
+  }
+  if (themeToggle) themeToggle.addEventListener('click', function () {
+    var next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('luoyun-theme', next); } catch (e) {}
+    syncThemeControl();
+  });
+  syncThemeControl();
   var PER_COURT = 7;
   var GROUPS = [
     { k: 'going', label: '確認參加', emoji: '✅', cls: 'p-jade', dot: '#9BC3AE', color: 'var(--jade-300)' },
