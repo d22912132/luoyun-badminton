@@ -368,14 +368,6 @@
       });
     });
   }
-  function sectTitleOf(count) {
-    return count >= 8 ? '雲巔真人' : count >= 5 ? '結丹羽客' : count >= 3 ? '御風行者' : count >= 2 ? '凝氣弟子' : '初入雲門';
-  }
-  function appearancesOf(member, events) {
-    return (events || []).reduce(function (sum, ev) {
-      return sum + (ev.roster || []).filter(function (r) { return r.memberId === member.id && r.status === 'going'; }).length;
-    }, 0);
-  }
   /* 傳訊符的名單列：序號. 道號 等級 */
   function nameLine(r, i) {
     return (i + 1) + '. ' + r.nickname + (r.level ? ' ' + r.level : '');
@@ -641,7 +633,7 @@
       document.addEventListener('keydown', key);
       return function () { document.removeEventListener('keydown', key); document.body.style.overflow = overflow; if (previous) previous.focus(); };
     }, []);
-    return D('fixed inset-0 z-50 flex items-end justify-center p-2 sm:items-center sm:p-6',
+    return D('fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6',
       E('div', { className: 'absolute inset-0 bg-[rgba(4,8,10,.72)] backdrop-blur-[6px]', onClick: p.onClose }),
       D('rise glass relative flex max-h-[calc(100dvh-1rem)] min-h-0 w-full flex-col overflow-hidden rounded-[26px] shadow-[0_24px_80px_rgba(0,0,0,.52)] sm:max-h-[calc(100dvh-3rem)] ' + (p.wide ? 'sm:max-w-3xl' : 'sm:max-w-lg'),
         { ref: dialog, role: 'dialog', 'aria-modal': true, 'aria-label': p.title },
@@ -979,7 +971,6 @@
 
   function MemberCard(props) {
     var m = props.m, p = props.p;
-    var appearances = appearancesOf(m, p.events);
     return D(CARD + ' ' + CARD_HOVER + ' flex items-center gap-3.5 px-4 py-3.5',
       S('num w-5 shrink-0 text-center text-[11.5px] ' + T3, String(props.idx + 1)),
       E(Avatar, { name: m.nickname, g: m.gender }),
@@ -988,8 +979,7 @@
           S('disp truncate text-[15.5px] font-semibold ' + T1, m.nickname),
           E(GenderTag, { g: m.gender }),
           E(LevelBadge, { level: m.level })),
-        E('p', { className: 'mt-1.5 truncate text-[11.5px] ' + T3 },
-          sectTitleOf(appearances) + '・已入陣 ' + appearances + ' 場' + (m.referrer ? '・' + m.referrer : ''))),
+        m.referrer ? E('p', { className: 'mt-1.5 truncate text-[11.5px] ' + T3 }, '備註：' + m.referrer) : null),
       D('flex shrink-0 items-center gap-1',
         E(Btn, {
           variant: 'ghost', size: 'icon', icon: 'Pencil', ariaLabel: '編輯',
