@@ -633,7 +633,7 @@
       document.addEventListener('keydown', key);
       return function () { document.removeEventListener('keydown', key); document.body.style.overflow = overflow; if (previous) previous.focus(); };
     }, []);
-    return D('fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6',
+    return ReactDOM.createPortal(D('fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6',
       E('div', { className: 'absolute inset-0 bg-[rgba(4,8,10,.72)] backdrop-blur-[6px]', onClick: p.onClose }),
       D('rise glass relative flex max-h-[calc(100dvh-1rem)] min-h-0 w-full flex-col overflow-hidden rounded-[26px] shadow-[0_24px_80px_rgba(0,0,0,.52)] sm:max-h-[calc(100dvh-3rem)] ' + (p.wide ? 'sm:max-w-3xl' : 'sm:max-w-lg'),
         { ref: dialog, role: 'dialog', 'aria-modal': true, 'aria-label': p.title },
@@ -646,7 +646,7 @@
             className: 'btn rounded-full p-2 ' + T3 + ' hover:bg-[rgba(228,235,232,.06)] hover:text-[var(--mist-1)]'
           }, E(Icon, { name: 'X', size: 16 }))),
         D('scroll-x min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5 sm:px-6 sm:py-6', p.children),
-        p.footer ? D('shrink-0 flex items-center justify-end gap-2 border-t border-[var(--hair)] bg-[rgba(6,10,12,.35)] px-5 py-3.5 sm:px-6 sm:py-4', p.footer) : null));
+        p.footer ? D('shrink-0 flex items-center justify-end gap-2 border-t border-[var(--hair)] bg-[rgba(6,10,12,.35)] px-5 py-3.5 sm:px-6 sm:py-4', p.footer) : null)), document.body);
   }
 
   /* ---------------- app ---------------- */
