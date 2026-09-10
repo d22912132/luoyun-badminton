@@ -1370,38 +1370,21 @@
         color: 'var(--tone)', background: 'linear-gradient(180deg,var(--tone-hi),var(--tone-lo))',
         border: '1px solid var(--tone-br)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,.12)'
       })
-    }, S('text-[11px] leading-none', meta.emoji), meta.short);
+    }, E('span', { className: 'h-1.5 w-1.5 rounded-full', style: { background: 'var(--tone)' } }), meta.short);
   }
 
-  function StatusPicker(p) {
-    var s = useState(false), open = s[0], setOpen = s[1];
-    var meta = statusMeta(p.status);
-    function choose(next) { setOpen(false); p.onChange(next); }
-    return D('relative shrink-0',
-      E('button', {
-        type: 'button', 'aria-label': p.name + ' 的出席狀態：' + meta.short, 'aria-haspopup': 'menu', 'aria-expanded': open,
-        onClick: function () { setOpen(!open); }, onKeyDown: function (ev) { if (ev.key === 'Escape') setOpen(false); },
-        className: 'btn inline-flex min-h-[40px] min-w-[92px] items-center justify-between gap-2 rounded-xl px-3 text-[12.5px] font-semibold tracking-wide transition',
-        style: Object.assign({}, meta.seg, {
-          color: 'var(--tone)', background: 'linear-gradient(180deg,var(--tone-hi),var(--tone-lo))',
-          border: '1px solid var(--tone-br)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,.14),0 8px 20px -16px var(--tone-gl)'
-        })
-      }, D('flex items-center gap-1.5', S('text-[11px] leading-none', meta.emoji), meta.short), E(Icon, { name: 'ChevronDown', size: 15, className: 'transition-transform ' + (open ? 'rotate-180' : '') })),
-      open ? D('absolute bottom-full right-0 z-30 mb-2 w-[148px] overflow-hidden rounded-2xl p-1.5 shadow-[0_18px_38px_-18px_rgba(0,0,0,.82)]',
-        { role: 'menu', style: { background: 'rgba(18,31,36,.98)', border: '1px solid rgba(228,235,232,.16)', backdropFilter: 'blur(16px)' } },
-        STATUSES.map(function (x) {
-          var selected = x.k === p.status;
-          return E('button', {
-            key: x.k, type: 'button', role: 'menuitemradio', 'aria-checked': selected,
-            onClick: function () { choose(x.k); },
-            className: 'flex min-h-[42px] w-full items-center gap-2 rounded-xl px-3 text-left text-[12.5px] font-medium transition hover:bg-[rgba(228,235,232,.07)]',
-            style: selected ? Object.assign({}, x.seg, { color: 'var(--tone)', background: 'linear-gradient(90deg,var(--tone-hi),var(--tone-lo))' }) : { color: 'var(--mist-2)' }
-          }, E('span', {
-            className: 'grid h-5 w-5 place-items-center rounded-md text-[11px]',
-            style: selected ? { background: 'var(--tone-lo)', border: '1px solid var(--tone-br)' } : { background: 'rgba(228,235,232,.05)' }
-          }, x.emoji),
-          S('flex-1', x.short), selected ? E(Icon, { name: 'Check', size: 14 }) : null);
-        })) : null);
+  function RosterStatusSwitch(p) {
+    return D('seg shrink-0 rounded-xl border border-[var(--hair)] bg-[rgba(6,10,12,.34)] p-1',
+      { role: 'radiogroup', 'aria-label': p.name + ' 的出席狀態' },
+      STATUSES.map(function (x) {
+        var on = x.k === p.status;
+        return E('button', {
+          key: x.k, type: 'button', role: 'radio', 'aria-checked': on,
+          onClick: function () { p.onChange(x.k); },
+          className: 'min-h-[34px] whitespace-nowrap px-2.5',
+          style: on ? x.seg : null
+        }, on ? E('span', { className: 'mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle', style: { background: 'var(--tone)' } }) : null, x.short);
+      }));
   }
 
   function RosterCard(props) {
@@ -1418,7 +1401,7 @@
         E('p', { className: 'mt-1.5 truncate text-[11.5px] ' + T3 },
           r.referrer ? '引薦人／備註：' + r.referrer : '—')),
       D('ml-auto flex items-center gap-1.5',
-        props.editable ? E(StatusPicker, { status: r.status, name: r.nickname, onChange: function (kk) { props.setStatus(r, kk); } }) : E(StatusBadge, { status: r.status }),
+        props.editable ? E(RosterStatusSwitch, { status: r.status, name: r.nickname, onChange: function (kk) { props.setStatus(r, kk); } }) : E(StatusBadge, { status: r.status }),
         props.editable ? E(Btn, { variant: 'ghost', size: 'icon', icon: 'X', ariaLabel: '移出陣列', onClick: function () { props.removeRow(r); } }) : null));
   }
 
