@@ -109,7 +109,7 @@
   .sect-head{display:flex;align-items:end;justify-content:space-between;gap:1rem;margin-bottom:.8rem}
   .sect-head h2{margin:.45rem 0 0;color:var(--mist-1);font-size:1.25rem}
   .sect-head p{margin:0;color:var(--mist-3);font-size:.72rem}
-  .realm-grid{display:grid;gap:.8rem}
+  .realm-grid{display:grid;align-items:start;gap:.8rem}
   @media(min-width:680px){.realm-grid{grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)}}
   .oracle,.rank-card{position:relative;overflow:hidden;padding:1.25rem}
   .oracle{display:grid;grid-template-columns:4rem 1fr;gap:1rem;align-items:center;min-height:12.5rem;cursor:pointer;text-align:left;color:inherit;font:inherit;width:100%}
@@ -118,7 +118,8 @@
   .oracle:focus-visible,.share:focus-visible{outline:2px solid var(--jade-300);outline-offset:3px}
   .oracle-seal{width:4rem;height:4rem;border-radius:50%;display:grid;place-items:center;font-family:'Noto Serif TC',serif;font-size:1.55rem;color:var(--gold);border:1px solid rgba(201,169,97,.3);background:radial-gradient(circle at 35% 30%,rgba(201,169,97,.19),rgba(201,169,97,.03) 62%);box-shadow:0 0 2rem rgba(201,169,97,.08)}
   .oracle .pre{font-size:.72rem;color:var(--mist-3);letter-spacing:.12em}
-  .oracle .prompt{font-family:'Noto Serif TC',serif;color:var(--mist-1);font-size:1.08rem;font-weight:600;margin-top:.35rem}
+  .oracle-prompt{display:block;margin-top:.45rem}
+  .oracle .prompt{display:block;margin:0;font-family:'Noto Serif TC',serif;color:var(--mist-1);font-size:1.08rem;font-weight:600}
   .oracle-result{display:none;margin-top:.65rem}
   .oracle[aria-expanded="true"] .oracle-result{display:block;animation:reveal .32s var(--ease)}
   .oracle[aria-expanded="true"] .oracle-prompt{display:none}
