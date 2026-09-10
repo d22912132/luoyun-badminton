@@ -7,7 +7,7 @@
 <title>落雲宗羽球團・管理後台</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@400;500;600;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@400;500;600;700;900&display=swap">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
@@ -99,6 +99,9 @@
   }
 
   .disp{ font-family:'Noto Serif TC', Georgia, serif; letter-spacing:.012em; }
+  .brush{ font-family:'LXGW WenKai TC','Noto Serif TC',Georgia,serif; font-synthesis:none; }
+  .brush-title{ position:relative; display:inline-block; isolation:isolate; letter-spacing:.055em; }
+  .brush-title::after{ content:""; position:absolute; z-index:-1; left:.05em; right:-.28em; bottom:-.12em; height:.32em; opacity:.34; transform:skewX(-14deg); clip-path:polygon(0 33%,94% 0,100% 44%,91% 65%,5% 100%); background:linear-gradient(90deg,rgba(61,101,85,.46),rgba(110,158,136,.13),transparent); }
   .num{ font-variant-numeric:tabular-nums; }
 
   /* 眉標：微型膠囊 */
@@ -515,7 +518,7 @@
     return D('flex flex-wrap items-end justify-between gap-4 pb-7',
       D('min-w-0',
         E('span', { className: 'eyebrow' }, p.eyebrow),
-        E('h2', { className: 'disp mt-3.5 text-[30px] font-bold leading-none ' + T1, style: { textWrap: 'balance' } }, p.title),
+        E('h2', { className: 'disp brush brush-title mt-3.5 text-[32px] font-bold leading-none ' + T1, style: { textWrap: 'balance' } }, p.title),
         p.sub ? E('p', { className: 'mt-3 text-[13px] ' + T2 }, p.sub) : null),
       p.action);
   }
@@ -894,7 +897,7 @@
             },
             E(FallingCloudMark, { size: 48 })),
           D('leading-none',
-            E('p', { className: 'disp text-[18px] font-bold tracking-[.08em] ' + T1 }, SECT),
+            E('p', { className: 'disp brush text-[19px] font-bold tracking-[.08em] ' + T1 }, SECT),
             E('p', { className: 'mt-1.5 whitespace-nowrap text-[8.5px] font-semibold tracking-[.16em] ' + T3 },
               'FALLING CLOUD SECT',
               S('hidden tracking-normal sm:inline', ' · ' + p.syncLabel)))),
@@ -1130,7 +1133,7 @@
       D('core surface overflow-hidden',
         D('px-6 py-6 sm:px-7',
           E('span', { className: 'eyebrow' }, '宗門初立'),
-          E('h3', { className: 'disp mt-3 text-[21px] font-bold ' + T1 }, '三步開宗'),
+            E('h3', { className: 'disp brush mt-3 text-[22px] font-bold ' + T1 }, '三步開宗'),
           E('p', { className: 'mt-2 text-[12.5px] ' + T3 }, '佈告欄還空著。照著下面三步走，第一場試煉就能貼進 LINE 群組。')),
         D('grid gap-px bg-[var(--hair)] sm:grid-cols-3',
           steps.map(function (s) {
@@ -1179,7 +1182,7 @@
         E(DateSeal, { text: ev.dateText }),
         D('min-w-0 flex-1',
           D('flex flex-wrap items-center gap-2',
-            E('h3', { className: 'disp truncate text-[19px] font-bold leading-tight ' + T1 }, ev.title),
+            E('h3', { className: 'disp brush truncate text-[20px] font-bold leading-tight ' + T1 }, ev.title),
             E('span', { className: 'tier ' + status.tone }, status.label)),
           D('mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5',
             metaLine('Clock', ev.startTime + '–' + ev.endTime),
@@ -1309,7 +1312,7 @@
             D('flex min-w-0 items-start gap-4',
               E(DateSeal, { text: ev.dateText }),
               D('min-w-0',
-                E('h2', { className: 'disp text-[27px] font-bold leading-tight ' + T1, style: { textWrap: 'balance' } }, ev.title),
+                E('h2', { className: 'disp brush text-[29px] font-bold leading-tight ' + T1, style: { textWrap: 'balance' } }, ev.title),
                 D('mt-3 flex flex-wrap items-center gap-x-5 gap-y-2',
                   metaLine('Clock', ev.startTime + '–' + ev.endTime),
                   metaLine('MapPin', ev.place),

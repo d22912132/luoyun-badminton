@@ -8,7 +8,7 @@
 <title>落雲宗｜FALLING CLOUD SECT</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@400;500;600;700&display=swap">
 <script>
   (function(){try{var t=localStorage.getItem('luoyun-theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='dark';}})();
 </script>
@@ -62,6 +62,9 @@
   }
 
   .disp{font-family:'Noto Serif TC',Georgia,serif;letter-spacing:.012em}
+  .brush{font-family:'LXGW WenKai TC','Noto Serif TC',Georgia,serif;font-synthesis:none}
+  .brush-title{position:relative;display:inline-block;isolation:isolate;letter-spacing:.055em}
+  .brush-title::after{content:"";position:absolute;z-index:-1;left:.05em;right:-.28em;bottom:-.12em;height:.32em;opacity:.34;transform:skewX(-14deg);clip-path:polygon(0 33%,94% 0,100% 44%,91% 65%,5% 100%);background:linear-gradient(90deg,rgba(61,101,85,.46),rgba(110,158,136,.13),transparent)}
   .num{font-variant-numeric:tabular-nums}
   .wrap{max-width:48rem;margin:0 auto;padding:0 1.15rem}
   svg{display:block;flex:none}
@@ -662,7 +665,7 @@
         </svg>
       </span>
       <span>
-        <span class="t disp">落雲宗</span>
+        <span class="t disp brush">落雲宗</span>
         <span class="s">FALLING CLOUD SECT</span>
       </span>
     </div>
@@ -676,7 +679,7 @@
 <div class="masthead">
   <div class="wrap">
     <span class="eyebrow">出席名單</span>
-    <h1 class="disp">近期開團</h1>
+    <h1 class="disp brush brush-title">近期開團</h1>
     <p>查看最新名單與場地資訊。活動與出席名單由長老及管理員統一維護。</p>
     <span class="stamp num" id="stamp">名單更新時間載入中…</span>
   </div>
@@ -796,7 +799,7 @@
       '<span class="seal"><span class="d">' + esc(dp.d) + '</span><span class="m">' + esc(dp.m) + '</span>' +
       (dp.w ? '<span class="w">' + esc(dp.w) + '</span>' : '') + '</span>' +
       '<span style="min-width:0;flex:1">' +
-      '<h2 class="ev-title disp">' + esc(ev.title) + '</h2>' +
+      '<h2 class="ev-title disp brush">' + esc(ev.title) + '</h2>' +
       '<span class="meta">' +
       '<span>' + ic('clock') + '<span class="num">' + esc(ev.startTime) + '–' + esc(ev.endTime) + '</span></span>' +
       '<span>' + ic('pin') + esc(ev.place) + '</span>' +
