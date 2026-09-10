@@ -173,6 +173,8 @@
     color:var(--tc, var(--mist-2));
   }
 
+  .realm-badge{position:relative;isolation:isolate;overflow:hidden;border-color:transparent;color:var(--realm-text);background:linear-gradient(180deg,rgba(16,27,30,.96),rgba(9,17,19,.96)) padding-box,conic-gradient(from 0deg,var(--realm-a),var(--realm-b),var(--realm-c),var(--realm-a)) border-box;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 0 16px -9px var(--realm-glow)}.realm-badge::after{content:"";position:absolute;z-index:-1;inset:-110%;background:conic-gradient(from 0deg,transparent 0 25%,rgba(255,255,255,.3) 31%,transparent 38% 100%);animation:realm-turn var(--realm-speed,12s) linear infinite}@keyframes realm-turn{to{transform:rotate(1turn)}}.realm-qi{--realm-a:#8FBFAF;--realm-b:#D5E7DC;--realm-c:#3D6555;--realm-text:#CDE9DA;--realm-glow:rgba(155,195,174,.65);--realm-speed:8s}.realm-foundation{--realm-a:#88AEBB;--realm-b:#C7E2EA;--realm-c:#3F6875;--realm-text:#C9E5ED;--realm-glow:rgba(129,183,200,.65);--realm-speed:10s}.realm-golden{--realm-a:#C9A961;--realm-b:#F1DCA5;--realm-c:#79602D;--realm-text:#F3DFAB;--realm-glow:rgba(201,169,97,.72);--realm-speed:14s}.realm-nascent{--realm-a:#9E8FC0;--realm-b:#D1C7EA;--realm-c:#57486E;--realm-text:#DCD2F5;--realm-glow:rgba(158,143,192,.7);--realm-speed:18s}.realm-transcendent{--realm-a:#D6B55E;--realm-b:#FFF0B7;--realm-c:#99743B;--realm-text:#FFF0BA;--realm-glow:rgba(222,187,93,.85);--realm-speed:24s}
+
   /* ---------- 靈力槽 ---------- */
   .flow{ height:4px; border-radius:999px; background:rgba(228,235,232,.055); overflow:hidden; }
   .flow.slim{ height:3px; }
@@ -227,8 +229,7 @@
   .scroll-x::-webkit-scrollbar{ height:6px }
   .scroll-x::-webkit-scrollbar-thumb{ background:rgba(228,235,232,.14); border-radius:99px }
 
-  .rise{ animation:rise .42s var(--ease) }
-  @keyframes rise{ from{opacity:0; transform:translateY(12px)} to{opacity:1; transform:none} }
+  .rise{animation:rise .32s var(--ease)}@keyframes rise{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}.toast-stack{position:fixed;right:max(1rem,env(safe-area-inset-right));top:max(1rem,env(safe-area-inset-top));z-index:60;display:grid;gap:.55rem;width:min(24rem,calc(100vw - 2rem));pointer-events:none}.toast-stack>*{pointer-events:auto}.skeleton{position:relative;overflow:hidden;background:rgba(228,235,232,.045)}.skeleton::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(228,235,232,.09),transparent);animation:skeleton-sheen 1.35s ease-in-out infinite}@keyframes skeleton-sheen{to{transform:translateX(100%)}}.login-shake{animation:login-shake .32s ease-in-out}@keyframes login-shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
   .scroll-unfurl{ animation:scroll-unfurl .36s var(--ease) both; }
   @keyframes scroll-unfurl{ from{opacity:0; transform:translateY(10px) scale(.992); clip-path:inset(0 0 12% 0 round 18px)} to{opacity:1; transform:none; clip-path:inset(0 round 18px)} }
   .scroll-unfurl>div>*{ animation:content-rise .34s var(--ease) both; }.scroll-unfurl>div>*:nth-child(2){animation-delay:.04s}.scroll-unfurl>div>*:nth-child(3){animation-delay:.08s}.scroll-unfurl>div>*:nth-child(4){animation-delay:.12s}
@@ -257,7 +258,7 @@
   @media (prefers-reduced-motion: reduce){
     *{ animation-duration:.001ms !important; transition-duration:.001ms !important }
     body::before{ animation:none }
-    .qi::after,.event-card::before,.empty-scroll::before,.empty-scroll::after,.seal-toast::after{ display:none }
+    .qi::after,.event-card::before,.empty-scroll::before,.empty-scroll::after,.seal-toast::after,.realm-badge::after,.skeleton::after{ display:none }
   }
 </style>
 
@@ -337,14 +338,13 @@
   ];
   function statusMeta(k) { for (var i = 0; i < STATUSES.length; i++) if (STATUSES[i].k === k) return STATUSES[i]; return STATUSES[0]; }
 
-  /* 修為境界：築基 1–3 ・ 結丹 4–6 ・ 元嬰 7+ */
+  /* 快速篩選仍用三個範圍；徽章完整呈現程度對應的境界。 */
   function tierOf(lv) { return lv >= 7 ? 'high' : (lv >= 4 ? 'mid' : 'low'); }
   var TIER_LABEL = { high: '元嬰', mid: '結丹', low: '築基' };
-  var TIER_STYLE = {
-    high: { '--tc': 'var(--gold)', '--tb': 'rgba(201,169,97,.30)', '--th': 'rgba(201,169,97,.16)', '--tl': 'rgba(201,169,97,.04)' },
-    mid: { '--tc': 'var(--jade-300)', '--tb': 'rgba(155,195,174,.26)', '--th': 'rgba(155,195,174,.13)', '--tl': 'rgba(155,195,174,.03)' },
-    low: { '--tc': 'var(--mist-2)', '--tb': 'rgba(228,235,232,.14)', '--th': 'rgba(228,235,232,.08)', '--tl': 'rgba(228,235,232,.02)' }
-  };
+  var TIER_STYLE = {high:{ '--tc':'var(--gold)','--tb':'rgba(201,169,97,.30)','--th':'rgba(201,169,97,.16)','--tl':'rgba(201,169,97,.04)'},mid:{ '--tc':'var(--jade-300)','--tb':'rgba(155,195,174,.26)','--th':'rgba(155,195,174,.13)','--tl':'rgba(155,195,174,.03)'},low:{ '--tc':'var(--mist-2)','--tb':'rgba(228,235,232,.14)','--th':'rgba(228,235,232,.08)','--tl':'rgba(228,235,232,.02)'}};
+  function realmOf(lv) { lv=Number(lv)||1; return lv>=7?'transcendent':lv>=6?'nascent':lv>=5?'golden':lv>=4?'foundation':'qi'; }
+  var REALM_LABEL={qi:'練氣',foundation:'築基',golden:'金丹',nascent:'元嬰',transcendent:'化神'};
+  var REALM_STYLE={qi:{'--realm-a':'#8FBFAF','--realm-b':'#D5E7DC','--realm-c':'#3D6555','--realm-text':'#CDE9DA','--realm-glow':'rgba(155,195,174,.65)','--realm-speed':'8s'},foundation:{'--realm-a':'#88AEBB','--realm-b':'#C7E2EA','--realm-c':'#3F6875','--realm-text':'#C9E5ED','--realm-glow':'rgba(129,183,200,.65)','--realm-speed':'10s'},golden:{'--realm-a':'#C9A961','--realm-b':'#F1DCA5','--realm-c':'#79602D','--realm-text':'#F3DFAB','--realm-glow':'rgba(201,169,97,.72)','--realm-speed':'14s'},nascent:{'--realm-a':'#9E8FC0','--realm-b':'#D1C7EA','--realm-c':'#57486E','--realm-text':'#DCD2F5','--realm-glow':'rgba(158,143,192,.7)','--realm-speed':'18s'},transcendent:{'--realm-a':'#D6B55E','--realm-b':'#FFF0B7','--realm-c':'#99743B','--realm-text':'#FFF0BA','--realm-glow':'rgba(222,187,93,.85)','--realm-speed':'24s'}};
   var GENDER = {
     male: { label: '男', style: { '--tc': '#A8CBD8', '--tb': 'rgba(168,203,216,.24)', '--th': 'rgba(168,203,216,.11)', '--tl': 'rgba(168,203,216,.03)' } },
     female: { label: '女', style: { '--tc': '#DFB4C4', '--tb': 'rgba(223,180,196,.24)', '--th': 'rgba(223,180,196,.11)', '--tl': 'rgba(223,180,196,.03)' } }
@@ -499,11 +499,7 @@
       E(Icon, { name: p.name, size: p.icon || 18 }));
   }
 
-  function LevelBadge(p) {
-    var lv = Number(p.level) || 0, t = tierOf(lv);
-    return E('span', { className: 'tier', style: TIER_STYLE[t] },
-      TIER_LABEL[t], S('num opacity-70', String(lv)));
-  }
+  function LevelBadge(p) { var lv=Number(p.level)||0,realm=realmOf(lv); return E('span',{className:'tier realm-badge realm-'+realm,style:REALM_STYLE[realm],'aria-label':REALM_LABEL[realm]+'，程度 '+lv},REALM_LABEL[realm],S('num opacity-70',String(lv))); }
 
   function GenderTag(p) {
     var g = genderMeta(p.g);
@@ -649,6 +645,8 @@
         p.footer ? D('shrink-0 flex items-center justify-end gap-2 border-t border-[var(--hair)] bg-[rgba(6,10,12,.35)] px-5 py-3.5 sm:px-6 sm:py-4', p.footer) : null)), document.body);
   }
 
+  function LoadingSkeleton() { return D('grid gap-4 py-5',{role:'status','aria-label':'正在讀取管理資料'},D('grid gap-3 sm:grid-cols-[1fr_auto]',D('skeleton h-9 w-44 rounded-xl'),D('skeleton h-10 w-28 rounded-full')),D('skeleton h-20 rounded-[20px]'),D('skeleton h-44 rounded-[20px]'),D('grid gap-3 sm:grid-cols-2',D('skeleton h-32 rounded-[20px]'),D('skeleton h-32 rounded-[20px]')),E('p',{className:'mt-2 text-center text-[12px] ' + T3},'正在接引宗門靈脈…')); }
+
   /* ---------------- app ---------------- */
   function App() {
     var a = useState({ members: [], events: [], venues: [], intents: [], admins: [], logs: [] }), state = a[0], setState = a[1];
@@ -656,14 +654,14 @@
     var g = useState('events'), tab = g[0], setTab = g[1];
     var h = useState(null), openEventId = h[0], setOpenEventId = h[1];
     var i2 = useState(null), me = i2[0], setMe = i2[1];
-    var j = useState(null), toast = j[0], setToast = j[1];
+    var j = useState([]), toasts = j[0], setToasts = j[1];
     var k = useState(null), modal = k[0], setModalState = k[1];
     var fxState = useState(null), fx = fxState[0], setFx = fxState[1];
     var setup = useState(false), needsSetup = setup[0], setNeedsSetup = setup[1];
     var working = useState(false), busy = working[0], setBusy = working[1];
     var errorState = useState(''), error = errorState[0], setError = errorState[1];
     var syncState = useState('連線中'), syncLabel = syncState[0], setSyncLabel = syncState[1];
-    var version = useRef(-1), lock = useRef(false), toastTimer = useRef(null), fxTimer = useRef(null), epoch = useRef(0);
+    var version = useRef(-1), lock = useRef(false), toastTimers = useRef([]), fxTimer = useRef(null), epoch = useRef(0);
     var members = state.members || [], events = state.events || [], venues = state.venues || [], intents = state.intents || [], admins = state.admins || [], logs = state.logs || [];
     var isAdmin = !!me, isSuper = !!(me && me.superAdmin), dbx = true;
 
@@ -672,11 +670,7 @@
       clearTimeout(fxTimer.current); setFx({ kind: kind, key: Date.now() });
       fxTimer.current = setTimeout(function () { setFx(null); }, 1150);
     }
-    function flash(msg, kind, fxKind) {
-      clearTimeout(toastTimer.current); setToast({ msg: msg, kind: kind || 'ok', fx: fxKind || '' });
-      invokeFx(fxKind);
-      toastTimer.current = setTimeout(function () { setToast(null); }, 4000);
-    }
+    function flash(msg, kind, fxKind) { var item={id:Date.now()+Math.random(),msg:msg,kind:kind||'ok',fx:fxKind||''}; setToasts(function(old){return old.concat(item).slice(-3);}); invokeFx(fxKind); var timer=setTimeout(function(){setToasts(function(old){return old.filter(function(x){return x.id!==item.id;});});},4000); toastTimers.current.push(timer); }
     function setModal(value) {
       setError(''); setModalState(value ? Object.assign({ version: version.current }, value) : null);
     }
@@ -709,7 +703,7 @@
         catch (err) { if (alive) { setSyncLabel('連線中斷，正在重試'); setError('無法連上伺服器，請稍後再試；本機使用時請確認 npm start 已啟動。'); } }
         finally { if (alive) { setReady(true); timer = setTimeout(tick, 5000); } }
       }
-      tick(); return function () { alive = false; clearTimeout(timer); clearTimeout(toastTimer.current); clearTimeout(fxTimer.current); };
+      tick(); return function () { alive = false; clearTimeout(timer); toastTimers.current.forEach(clearTimeout); clearTimeout(fxTimer.current); };
     }, []);
 
     async function action(name, payload) {
@@ -771,11 +765,7 @@
     };
 
     var body;
-    if (!ready) {
-      body = D('flex flex-col items-center gap-4 py-32 text-center',
-        D('flex h-14 w-14 items-center justify-center rounded-full inlay ' + JADE,
-          E(Icon, { name: 'LoaderCircle', size: 20, className: 'animate-spin' })),
-        E('p', { className: 'disp text-[14px] ' + T2 }, '正在接引宗門靈脈…'));
+    if (!ready) { body = E(LoadingSkeleton);
     } else if (!me) {
       body = D('surface rounded-[20px] p-8',
         E(PageHead, { eyebrow: '落雲宗', title: needsSetup ? '建立第一位掌門' : '長老入殿', sub: needsSetup ? '輸入主機上的初始化金鑰，建立你的管理帳號。' : '登入後可管理開團、名單與長老，共用資料會自動同步。' }),
@@ -798,13 +788,7 @@
       E('main', { className: 'mx-auto w-full max-w-5xl px-4 pt-11 sm:px-6' },
         error && !modal ? E('p', { role: 'alert', className: 'mb-5 rounded-2xl inlay p-4 ' + CIN }, error) : null,
         E('div', { key: (openEvent ? 'event-' + openEvent.id : tab) + '-' + (me ? 'in' : 'out'), className: 'scroll-unfurl' }, body)),
-      toast ? D('fixed bottom-7 left-1/2 z-[60] w-[min(92vw,26rem)] -translate-x-1/2',
-        D('rise glass seal-toast flex items-center gap-3 rounded-2xl px-4 py-3.5 text-sm ' + (toast.kind === 'bad' ? CIN : T1),
-          E(Icon, {
-            name: toast.kind === 'bad' ? 'TriangleAlert' : 'CircleCheck', size: 16,
-            className: toast.kind === 'bad' ? CIN : JADE
-          }),
-          E('span', { className: 'flex-1', role: 'status' }, toast.msg))) : null,
+      toasts.length ? D('toast-stack', { 'aria-live': 'polite' }, toasts.map(function(toast){return D('rise glass seal-toast flex items-center gap-3 rounded-2xl px-4 py-3.5 text-sm ' + (toast.kind === 'bad' ? CIN : T1), {key:toast.id}, E(Icon,{name:toast.kind === 'bad' ? 'TriangleAlert' : 'CircleCheck',size:16,className:toast.kind === 'bad' ? CIN : JADE}), E('span',{className:'flex-1',role:'status'},toast.msg));})) : null,
       modal ? E('div', null, E(Modals, Object.assign({ modal: modal, close: function () { if (!lock.current) setModal(null); } }, ctx)),
         error ? E('p', { role: 'alert', className: 'fixed top-3 left-1/2 z-[70] w-[min(92vw,40rem)] -translate-x-1/2 rounded-2xl glass p-4 ' + CIN }, error) : null) : null,
       fx ? E(SectEffect, { key: fx.key, kind: fx.kind }) : null));
@@ -1641,7 +1625,8 @@
     useEffect(function () { if (ref.current) ref.current.focus(); }, []);
     var n = useState(''), name = n[0], setName = n[1];
     var t = useState(''), token = t[0], setToken = t[1];
-    async function go() { if (await p.login(acc, pin, name, token)) p.close(); }
+    var sh = useState(0), shake = sh[0], setShake = sh[1];
+    async function go() { if (await p.login(acc, pin, name, token)) p.close(); else setShake(function (x) { return x + 1; }); }
     return E(Modal, {
       title: p.needsSetup ? '建立掌門帳號' : '入殿', sub: '之後每一筆修改都會記在你名下', onClose: p.close,
       footer: [
@@ -1649,7 +1634,7 @@
         E(Btn, { key: 'o', variant: 'primary', icon: 'LogIn', onClick: go, disabled: !acc.trim() || !pin || (p.needsSetup && (!name.trim() || !token.trim() || !validPassword(pin))) }, '入殿')
       ]
     },
-      E('form', { className: 'flex flex-col gap-5', onSubmit: function (ev) { ev.preventDefault(); go(); } },
+      E('form', { key: shake, className: 'flex flex-col gap-5 ' + (shake ? 'login-shake' : ''), onSubmit: function (ev) { ev.preventDefault(); go(); } },
         p.needsSetup ? E(Field, { label: '初始化金鑰（部署時產生，僅需使用一次）' }, E('input', { type: 'password', value: token, onChange: function (ev) { setToken(ev.target.value); }, className: INPUT, autoComplete: 'off' })) : null,
         p.needsSetup ? E(Field, { label: '掌門名號' }, E('input', { value: name, onChange: function (ev) { setName(ev.target.value); }, className: INPUT })) : null,
         E(Field, { label: '長老身分' },
@@ -1700,8 +1685,8 @@
         }, String(n));
       })),
       E('p', { className: 'text-[12px] ' + T3 },
-        '目前境界：', S('disp font-semibold ' + JADE, TIER_LABEL[tierOf(Number(props.value))] + '期'),
-        '　（築基 1–3 ・ 結丹 4–6 ・ 元嬰 7 以上）'));
+        '目前境界：', S('disp font-semibold ' + JADE, REALM_LABEL[realmOf(Number(props.value))]),
+        '　（1–3 練氣・4 築基・5 金丹・6 元嬰・7–8 化神）'));
   }
 
   function StatusPick(props) {
