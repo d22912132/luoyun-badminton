@@ -47,6 +47,9 @@
     --cinnabar:#D07A6C;
     --cinnabar-dim:#8C4438;
     --amethyst:#9E8FC0;
+    --logo-emerald:#1F6B55;
+    --logo-cyan:#4BB5BD;
+    --logo-gold:#D2AC55;
 
     /* 髮絲邊 & 高光 */
     --hair:rgba(228,235,232,.10);
@@ -553,6 +556,26 @@
       E('path', { key: 'c3', d: 'M11.6 21.2c.7-.8 1.5-1.2 2.4-1.2s1.7.4 2.4 1.2', opacity: .46 }));
   }
 
+  /* 01 品牌印記：斜向羽球、祥雲與玄金環 */
+  function FallingCloudMark(p) {
+    var s = p.size || 48;
+    return E('svg', {
+      width: s, height: s, viewBox: '0 0 64 64', fill: 'none',
+      className: p.className || '', role: 'img', 'aria-label': '落雲宗標誌'
+    },
+      E('path', { key: 'a1', d: 'M15 51.5C7.3 43.6 7.2 30 14.2 20.7', stroke: 'var(--logo-gold)', strokeWidth: 3.3, strokeLinecap: 'round' }),
+      E('path', { key: 'a2', d: 'M47.8 13.4c8 7.2 10.6 20 6.2 30.1', stroke: 'var(--logo-gold)', strokeWidth: 3.3, strokeLinecap: 'round' }),
+      E('g', { key: 'birdie', transform: 'rotate(-31 33 29)' },
+        E('path', { d: 'M17 8.5 26.7 27h4.7L27.9 6.7Z', fill: 'var(--logo-emerald)' }),
+        E('path', { d: 'M29.7 6.8 33 27h4.6L40 8.2Z', fill: 'var(--logo-emerald)' }),
+        E('path', { d: 'm41.8 9.4-2 17.6h4.5l6.2-13.7Z', fill: 'var(--logo-emerald)' }),
+        E('path', { d: 'M25.8 26.2h19l-1.7 5.5H27.7Z', fill: 'var(--logo-gold)' }),
+        E('path', { d: 'M28.7 32.7h13.5l-1 6c-.7 4.3-4.1 7.2-7.8 7.2s-6.1-3-5.6-7.2Z', fill: 'var(--logo-emerald)' })),
+      E('path', { key: 'c1', d: 'M8.7 45.3c4-5 9.6-6.4 14.7-3.7 3.2-5.1 10-7 15.4-3.8 2 1.1 3.4 2.7 4.2 4.6 5.4-1.9 11.1.9 12.5 5.6', stroke: 'var(--logo-cyan)', strokeWidth: 3.6, strokeLinecap: 'round' }),
+      E('path', { key: 'c2', d: 'M16.5 50.5h26.8c4.2 0 7.6-1.6 9.7-4.2', stroke: 'var(--logo-cyan)', strokeWidth: 3.6, strokeLinecap: 'round' }),
+      E('path', { key: 'c3', d: 'M23 55h15.3c3.1 0 5.7-1.1 7.4-3', stroke: 'var(--logo-cyan)', strokeWidth: 2.8, strokeLinecap: 'round', opacity: .8 }));
+  }
+
   function Avatar(p) {
     var name = String(p.name || '?');
     var g = genderMeta(p.g);
@@ -857,27 +880,24 @@
         E('button', {
           type: 'button',
           title: '前往試煉佈告',
-          'aria-label': '落雲宗羽球團，前往試煉佈告',
+          'aria-label': '落雲宗，前往試煉佈告',
           onClick: function () {
             p.setOpenEventId(null);
             p.setTab('events');
             window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
           },
-          className: 'btn group/brand -m-1 flex items-center gap-3 rounded-[18px] p-1 pr-3 text-left hover:bg-[rgba(155,195,174,.06)]'
+          className: 'btn group/brand -m-1 flex items-center gap-2.5 rounded-[18px] p-1 pr-3 text-left hover:bg-[rgba(155,195,174,.06)]'
         },
-          D('flex h-10 w-10 items-center justify-center rounded-[14px] text-[var(--jade-100)] transition-transform duration-300 group-hover/brand:scale-[1.04]',
+          D('flex h-12 w-12 items-center justify-center transition-transform duration-300 [filter:drop-shadow(0_7px_10px_rgba(9,35,29,.24))] group-hover/brand:scale-[1.05]',
             {
-              style: {
-                background: 'linear-gradient(160deg, rgba(155,195,174,.26), rgba(201,169,97,.10))',
-                border: '1px solid rgba(155,195,174,.24)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,.18), 0 10px 24px -16px rgba(110,158,136,.9)'
-              }
+              style: { flex: '0 0 auto' }
             },
-            E(SectMark, { size: 19 })),
+            E(FallingCloudMark, { size: 48 })),
           D('leading-none',
-            E('p', { className: 'disp text-[17px] font-bold ' + T1 }, SECT + '羽球團'),
-            E('p', { className: 'mt-1.5 text-[10.5px] ' + T3 },
-              p.syncLabel))),
+            E('p', { className: 'disp text-[18px] font-bold tracking-[.08em] ' + T1 }, SECT),
+            E('p', { className: 'mt-1.5 whitespace-nowrap text-[8.5px] font-semibold tracking-[.16em] ' + T3 },
+              'FALLING CLOUD SECT',
+              S('hidden tracking-normal sm:inline', ' · ' + p.syncLabel)))),
         D('flex items-center gap-2',
           E('button', {
             type: 'button', className: 'theme-toggle', onClick: p.toggleTheme,

@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<meta name="description" content="羽球開團資訊與出席名單，供團員查看。">
-<title>羽球團出席名單</title>
+<meta name="description" content="落雲宗羽球團開團資訊與出席名單，供團員查看。">
+<title>落雲宗｜FALLING CLOUD SECT</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@400;500;600;700&display=swap">
@@ -19,6 +19,7 @@
     --mist-1:#EEF5F1; --mist-2:#B9CAC3; --mist-3:#91A39B;
     --jade-100:#D5E7DC; --jade-300:#9BC3AE; --jade-500:#6E9E88; --jade-700:#3D6555;
     --gold:#C9A961; --cinnabar:#D07A6C; --amethyst:#9E8FC0;
+    --logo-emerald:#1F6B55; --logo-cyan:#4BB5BD; --logo-gold:#D2AC55;
     --hair:rgba(228,235,232,.10); --hair-2:rgba(228,235,232,.17);
     --ease:cubic-bezier(.32,.72,0,1);
     color-scheme:dark;
@@ -75,17 +76,17 @@
   .topbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding-top:.85rem;padding-bottom:.85rem}
   .brand{display:flex;align-items:center;gap:.75rem;min-width:0}
   .mark{
-    width:2.5rem;height:2.5rem;border-radius:14px;display:flex;align-items:center;justify-content:center;
-    color:var(--jade-100);
-    background:linear-gradient(160deg,rgba(155,195,174,.26),rgba(201,169,97,.10));
-    border:1px solid rgba(155,195,174,.24);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.18);
+    width:3rem;height:3rem;display:flex;align-items:center;justify-content:center;
+    filter:drop-shadow(0 7px 10px rgba(9,35,29,.25));
   }
-  .brand .t{display:block;font-size:1rem;font-weight:700;color:var(--mist-1);line-height:1.2}
-  .brand .s{display:block;font-size:.7rem;color:var(--mist-3);margin-top:.2rem}
-  @media (max-width:520px){.brand .s{display:none}}
+  .brand-logo{width:100%;height:100%;overflow:visible}
+  .brand .t{display:block;font-size:1.08rem;font-weight:700;color:var(--mist-1);line-height:1.08;letter-spacing:.08em}
+  .brand .s{display:block;font-size:.56rem;font-weight:600;color:var(--mist-3);margin-top:.35rem;letter-spacing:.16em;white-space:nowrap}
+  @media (max-width:520px){.brand{gap:.55rem}.mark{width:2.7rem;height:2.7rem}.brand .s{font-size:.48rem;letter-spacing:.1em}}
+  @media (max-width:340px){.brand .s{font-size:.43rem;letter-spacing:.055em}.mark{width:2.45rem;height:2.45rem}}
   .ro{display:inline-flex;align-items:center;gap:.45rem;padding:.35rem .8rem;border-radius:999px;background:linear-gradient(180deg,rgba(155,195,174,.10),rgba(155,195,174,.03));border:1px solid rgba(155,195,174,.18);color:var(--jade-300);font-size:.74rem;font-weight:600;white-space:nowrap}.ro::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--jade-300);box-shadow:0 0 0 0 rgba(155,195,174,.46);animation:sync-breathe 2.8s ease-out infinite}.ro.sync-pulse::before{animation:sync-flash .72s var(--ease) both}@keyframes sync-breathe{70%{box-shadow:0 0 0 6px rgba(155,195,174,0)}}@keyframes sync-flash{45%{box-shadow:0 0 0 9px rgba(155,195,174,.18),0 0 19px rgba(155,195,174,.45)}100%{box-shadow:0 0 0 13px rgba(155,195,174,0)}}
   .top-actions{display:flex;align-items:center;gap:.5rem}.theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:.35rem;min-width:40px;height:40px;padding:0 .7rem;border-radius:999px;border:1px solid var(--hair-2);background:rgba(228,235,232,.035);color:var(--mist-2);font:600 .72rem 'Noto Sans TC',sans-serif;cursor:pointer;transition:color .22s var(--ease),border-color .22s var(--ease),background .22s var(--ease),transform .22s var(--ease)}.theme-toggle:hover{color:var(--jade-100);border-color:rgba(155,195,174,.34);background:rgba(155,195,174,.09);transform:translateY(-1px)}.theme-toggle:focus-visible{outline:2px solid var(--jade-300);outline-offset:3px}.theme-icon{font-size:1rem;line-height:1}.theme-label{white-space:nowrap}@media(max-width:600px){.theme-label{display:none}.theme-toggle{padding:0;width:40px}.ro{padding:.35rem .65rem}}
+  @media(max-width:340px){.top-actions{gap:.3rem}.theme-toggle{min-width:34px;width:34px;height:34px}.ro{width:32px;height:32px;justify-content:center;padding:0;font-size:0}}
 
   /* masthead */
   .masthead{padding:2.4rem 0 .5rem}
@@ -254,7 +255,7 @@
   html[data-theme="light"] body::after{background:radial-gradient(128% 84% at 50% -4%,transparent 42%,rgba(177,202,189,.2) 100%)}
   html[data-theme="light"] .grain{opacity:.018;mix-blend-mode:multiply}
   html[data-theme="light"] .topbar{background:rgba(247,250,248,.88)}
-  html[data-theme="light"] .mark{background:linear-gradient(160deg,rgba(83,139,111,.18),rgba(201,169,97,.10));box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}
+  html[data-theme="light"] .mark{filter:drop-shadow(0 7px 10px rgba(31,107,85,.16))}
   html[data-theme="light"] .card{background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(248,251,249,.94));box-shadow:inset 0 1px 0 #fff,0 18px 42px -34px rgba(29,65,51,.35)}
   html[data-theme="light"] .inlay,html[data-theme="light"] .seal,html[data-theme="light"] .box,html[data-theme="light"] .roster-row{background:linear-gradient(180deg,rgba(255,255,255,.78),rgba(232,241,236,.56))}
   html[data-theme="light"] .stat-main{background:linear-gradient(150deg,rgba(93,151,122,.13),rgba(255,255,255,.75))}
@@ -643,10 +644,25 @@
 <header class="topbar">
   <div class="wrap">
     <div class="brand">
-      <span class="mark" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.9" cy="6.1" r="2.05" fill="currentColor" stroke="none" opacity=".92"/><path d="M2.9 14c2-2.5 4.8-3.8 8.2-3.8s6.2 1.3 8.2 3.8"/><path d="M7 17.9c1.5-1.8 3.4-2.7 5.6-2.7s4.1 1 5.6 2.7" opacity=".74"/><path d="M11.6 21.2c.7-.8 1.5-1.2 2.4-1.2s1.7.4 2.4 1.2" opacity=".46"/></svg></span>
+      <span class="mark" aria-hidden="true">
+        <svg class="brand-logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15 51.5C7.3 43.6 7.2 30 14.2 20.7" stroke="var(--logo-gold)" stroke-width="3.3" stroke-linecap="round"/>
+          <path d="M47.8 13.4c8 7.2 10.6 20 6.2 30.1" stroke="var(--logo-gold)" stroke-width="3.3" stroke-linecap="round"/>
+          <g transform="rotate(-31 33 29)">
+            <path d="M17 8.5 26.7 27h4.7L27.9 6.7Z" fill="var(--logo-emerald)"/>
+            <path d="M29.7 6.8 33 27h4.6L40 8.2Z" fill="var(--logo-emerald)"/>
+            <path d="m41.8 9.4-2 17.6h4.5l6.2-13.7Z" fill="var(--logo-emerald)"/>
+            <path d="M25.8 26.2h19l-1.7 5.5H27.7Z" fill="var(--logo-gold)"/>
+            <path d="M28.7 32.7h13.5l-1 6c-.7 4.3-4.1 7.2-7.8 7.2s-6.1-3-5.6-7.2Z" fill="var(--logo-emerald)"/>
+          </g>
+          <path d="M8.7 45.3c4-5 9.6-6.4 14.7-3.7 3.2-5.1 10-7 15.4-3.8 2 1.1 3.4 2.7 4.2 4.6 5.4-1.9 11.1.9 12.5 5.6" stroke="var(--logo-cyan)" stroke-width="3.6" stroke-linecap="round"/>
+          <path d="M16.5 50.5h26.8c4.2 0 7.6-1.6 9.7-4.2" stroke="var(--logo-cyan)" stroke-width="3.6" stroke-linecap="round"/>
+          <path d="M23 55h15.3c3.1 0 5.7-1.1 7.4-3" stroke="var(--logo-cyan)" stroke-width="2.8" stroke-linecap="round" opacity=".8"/>
+        </svg>
+      </span>
       <span>
-        <span class="t disp">羽球團出席名單</span>
-        <span class="s">落雲宗羽球團・公開名單</span>
+        <span class="t disp">落雲宗</span>
+        <span class="s">FALLING CLOUD SECT</span>
       </span>
     </div>
     <div class="top-actions">
