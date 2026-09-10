@@ -893,6 +893,8 @@
   function MembersPage(p) {
     var a = useState('all'), filter = a[0], setFilter = a[1];
     var b = useState(''), q = b[0], setQ = b[1];
+    var c = useState(1), memberPage = c[0], setMemberPage = c[1];
+    var memberListTop = useRef(null);
 
     var FILTERS = [
       { k: 'all', label: '全部' }, { k: 'male', label: '男' }, { k: 'female', label: '女' },
@@ -911,6 +913,18 @@
       if (!t) return true;
       return (m.nickname || '').toLowerCase().indexOf(t) >= 0 || (m.referrer || '').toLowerCase().indexOf(t) >= 0;
     }));
+    var pageSize = 10, pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
+    var activePage = Math.min(memberPage, pageCount), startAt = (activePage - 1) * pageSize;
+    var pageRows = rows.slice(startAt, startAt + pageSize);
+    function resetMemberPage() { setMemberPage(1); }
+    function moveMemberPage(next) {
+      setMemberPage(next);
+      setTimeout(function () {
+        if (!memberListTop.current) return;
+        var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        memberListTop.current.scrollIntoView({ block: 'start', behavior: reduced ? 'auto' : 'smooth' });
+      }, 0);
+    }
 
     return D('',
       E(PageHead, {
@@ -925,14 +939,14 @@
         D('relative',
           D('pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 ' + T3, E(Icon, { name: 'Search', size: 15 })),
           E('input', {
-            value: q, onChange: function (ev) { setQ(ev.target.value); },
+            value: q, onChange: function (ev) { setQ(ev.target.value); resetMemberPage(); },
             placeholder: '搜尋道號、引薦人／備註…', className: INPUT + ' pl-11'
           })),
         D('flex flex-wrap gap-1.5',
           FILTERS.map(function (ff) {
             var on = filter === ff.k;
             return E('button', {
-              key: ff.k, onClick: function () { setFilter(ff.k); },
+              key: ff.k, onClick: function () { setFilter(ff.k); resetMemberPage(); },
               className: 'btn rounded-full px-3.5 py-1.5 text-[12.5px] font-medium ' +
                 (on ? 'text-[var(--jade-100)]' : T3 + ' hover:text-[var(--mist-1)]'),
               style: on ? {
@@ -944,9 +958,22 @@
           }))),
       rows.length === 0
         ? D('mt-5', E(Empty, { icon: 'UserSearch', title: '名冊上沒有相符的弟子', hint: '換個條件或關鍵字，或按上方「收錄弟子」建檔。' }))
-        : D('mt-5 grid gap-2.5', rows.map(function (m, idx) {
-          return E(MemberCard, { key: m.id, m: m, idx: idx, p: p });
-        })),
+        : D('mt-5', { ref: memberListTop },
+          D('mb-3 flex items-center justify-between gap-3 px-1',
+            S('num text-[11px] ' + T3, '顯示 ' + (startAt + 1) + '–' + Math.min(startAt + pageSize, rows.length) + '／' + rows.length + ' 人'),
+            pageCount > 1 ? S('text-[11px] ' + T3, '第 ' + activePage + '／' + pageCount + ' 頁') : null),
+          D('grid gap-2.5', pageRows.map(function (m, idx) {
+            return E(MemberCard, { key: m.id, m: m, idx: startAt + idx, p: p });
+          })),
+          pageCount > 1 ? D('mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl inlay px-3 py-2.5 sm:px-4',
+            E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronLeft', disabled: activePage <= 1, onClick: function () { moveMemberPage(activePage - 1); } }, '上一頁'),
+            D('flex items-center gap-1', Array.from({ length: pageCount }, function (_, i) {
+              var n = i + 1, on = n === activePage;
+              return E('button', { key: n, type: 'button', 'aria-label': '第 ' + n + ' 頁', 'aria-current': on ? 'page' : undefined,
+                onClick: function () { moveMemberPage(n); }, className: 'btn min-h-[38px] min-w-[38px] rounded-xl px-2 text-[12px] ' + (on ? JADE : T3),
+                style: on ? { background:'linear-gradient(180deg,rgba(155,195,174,.20),rgba(155,195,174,.06))', border:'1px solid rgba(155,195,174,.28)' } : { border:'1px solid transparent' } }, String(n));
+            })),
+            E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronRight', disabled: activePage >= pageCount, onClick: function () { moveMemberPage(activePage + 1); } }, '下一頁')) : null),
       p.isAdmin ? null : E(ReadOnlyHint));
   }
 
@@ -1130,8 +1157,6 @@
   function EventDetail(p) {
     var ev = p.ev;
     var filterState = useState('all'), rosterFilter = filterState[0], setRosterFilter = filterState[1];
-    var pageState = useState(1), rosterPage = pageState[0], setRosterPage = pageState[1];
-    var rosterTop = useRef(null);
     var roster = resolveRoster(ev.roster, p.members);
     var cap = capacityOf(ev.courts);
     var going = roster.filter(function (r) { return r.status === 'going'; });
@@ -1143,15 +1168,6 @@
     var pct = fillPct(going.length, cap);
     var recruitment = deadlineInfo(ev.signupDeadline, going.length, cap);
     var venueRow = p.venues.find(function (v) { return v.id === ev.venueId; });
-
-    function moveRosterPage(next) {
-      setRosterPage(next);
-      setTimeout(function () {
-        if (!rosterTop.current) return;
-        var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        rosterTop.current.scrollIntoView({ block: 'start', behavior: reduced ? 'auto' : 'smooth' });
-      }, 0);
-    }
 
     function setStatus(r, kk) {
       if (!p.needAdmin() || r.status === kk) return;
@@ -1206,9 +1222,6 @@
     /* 名單顯示一律男先女後；寫回資料庫時仍用原陣列，順序不受影響 */
     var view = byGender(roster);
     var filteredView = rosterFilter === 'all' ? view : view.filter(function (r) { return r.status === rosterFilter; });
-    var pageSize = 10, pageCount = Math.max(1, Math.ceil(filteredView.length / pageSize));
-    var activePage = Math.min(rosterPage, pageCount), startAt = (activePage - 1) * pageSize;
-    var pageRows = filteredView.slice(startAt, startAt + pageSize);
 
     return D('',
       D('flex flex-wrap items-center justify-between gap-2 pb-5',
@@ -1329,7 +1342,7 @@
           onClick: function () { p.setModal({ type: 'line', text: lineText() }); }
         }, '生成傳訊符')),
 
-      D('mt-8 mb-3.5 flex items-end justify-between', { ref: rosterTop },
+      D('mt-8 mb-3.5 flex items-end justify-between',
         D('',
           E('span', { className: 'eyebrow' }, '入陣弟子'),
           E('p', { className: 'disp mt-2.5 text-[19px] font-bold ' + T1 },
@@ -1340,12 +1353,12 @@
         D('flex flex-wrap gap-1.5', [['all', '全部', roster.length], ['going', '入陣', going.length], ['maybe', '觀望', maybe.length], ['wait', '候補', wait.length]].map(function (x) {
           var on = rosterFilter === x[0], meta = x[0] === 'all' ? null : statusMeta(x[0]);
           return E('button', { key: x[0], type: 'button', 'aria-pressed': on,
-            onClick: function () { setRosterFilter(x[0]); moveRosterPage(1); },
+            onClick: function () { setRosterFilter(x[0]); },
             className: 'btn min-h-[38px] rounded-xl px-3 text-[12px] font-medium ' + (on ? (meta ? meta.tone : JADE) : T3),
             style: on ? (meta ? meta.seg : { background:'linear-gradient(180deg,rgba(155,195,174,.20),rgba(155,195,174,.06))', border:'1px solid rgba(155,195,174,.28)' }) : { border:'1px solid transparent' }
           }, x[1] + ' ' + x[2]);
         })),
-        S('num text-[11px] ' + T3, filteredView.length ? '顯示 ' + (startAt + 1) + '–' + Math.min(startAt + pageSize, filteredView.length) + '／' + filteredView.length + ' 人' : '此狀態尚無人')) : null,
+        S('num text-[11px] ' + T3, filteredView.length ? '顯示 ' + filteredView.length + ' 人' : '此狀態尚無人')) : null,
 
       roster.length === 0
         ? E(Empty, {
@@ -1353,18 +1366,9 @@
           hint: '用「自名冊點將」勾選常客，或用「納入散修」加入未建檔的道友。'
         })
         : D('',
-          pageRows.length ? D('grid gap-2.5', pageRows.map(function (r, idx) {
-            return E(RosterCard, { key: r.rid, r: r, idx: startAt + idx, setStatus: setStatus, removeRow: removeRow });
-          })) : E(Empty, { icon: 'FilterX', title: '這個狀態目前無人', hint: '切換其他狀態，或由右側下拉選單調整出席狀態。' }),
-          pageCount > 1 ? D('mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl inlay px-3 py-2.5 sm:px-4',
-            E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronLeft', disabled: activePage <= 1, onClick: function () { moveRosterPage(activePage - 1); } }, '上一頁'),
-            D('flex items-center gap-1', Array.from({ length: pageCount }, function (_, i) {
-              var n = i + 1, on = n === activePage;
-              return E('button', { key: n, type: 'button', 'aria-label': '第 ' + n + ' 頁', 'aria-current': on ? 'page' : undefined,
-                onClick: function () { moveRosterPage(n); }, className: 'btn min-h-[38px] min-w-[38px] rounded-xl px-2 text-[12px] ' + (on ? JADE : T3),
-                style: on ? { background:'linear-gradient(180deg,rgba(155,195,174,.20),rgba(155,195,174,.06))', border:'1px solid rgba(155,195,174,.28)' } : { border:'1px solid transparent' } }, String(n));
-            })),
-            E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronRight', disabled: activePage >= pageCount, onClick: function () { moveRosterPage(activePage + 1); } }, '下一頁')) : null),
+          filteredView.length ? D('grid gap-2.5', filteredView.map(function (r, idx) {
+            return E(RosterCard, { key: r.rid, r: r, idx: idx, setStatus: setStatus, removeRow: removeRow });
+          })) : E(Empty, { icon: 'FilterX', title: '這個狀態目前無人', hint: '切換其他狀態，或由右側下拉選單調整出席狀態。' })),
       p.isAdmin ? null : E(ReadOnlyHint));
   }
 
