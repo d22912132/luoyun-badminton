@@ -816,8 +816,18 @@
       className: 'sticky top-0 z-40 border-b border-[var(--hair)] bg-[rgba(10,16,19,.72)] backdrop-blur-xl'
     },
       D('mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6',
-        D('flex items-center gap-3',
-          D('flex h-10 w-10 items-center justify-center rounded-[14px] text-[var(--jade-100)]',
+        E('button', {
+          type: 'button',
+          title: '前往試煉佈告',
+          'aria-label': '落雲宗羽球團，前往試煉佈告',
+          onClick: function () {
+            p.setOpenEventId(null);
+            p.setTab('events');
+            window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+          },
+          className: 'btn group/brand -m-1 flex items-center gap-3 rounded-[18px] p-1 pr-3 text-left hover:bg-[rgba(155,195,174,.06)]'
+        },
+          D('flex h-10 w-10 items-center justify-center rounded-[14px] text-[var(--jade-100)] transition-transform duration-300 group-hover/brand:scale-[1.04]',
             {
               style: {
                 background: 'linear-gradient(160deg, rgba(155,195,174,.26), rgba(201,169,97,.10))',
