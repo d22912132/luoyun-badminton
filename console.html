@@ -181,6 +181,8 @@
     background-position:left center;
     transition:width .9s var(--ease);
   }
+  .qi-flow > i{ animation:qi-stream 3.6s linear infinite; }
+  @keyframes qi-stream{ to{ background-position:200% center; } }
 
   /* ---------- 門規列 ---------- */
   .rule{ display:grid; grid-template-columns:26px 1fr; gap:.7rem; padding:.7rem .25rem; }
@@ -227,11 +229,35 @@
 
   .rise{ animation:rise .42s var(--ease) }
   @keyframes rise{ from{opacity:0; transform:translateY(12px)} to{opacity:1; transform:none} }
+  .scroll-unfurl{ animation:scroll-unfurl .36s var(--ease) both; }
+  @keyframes scroll-unfurl{ from{opacity:0; transform:translateY(10px) scale(.992); clip-path:inset(0 0 12% 0 round 18px)} to{opacity:1; transform:none; clip-path:inset(0 round 18px)} }
+  .scroll-unfurl>div>*{ animation:content-rise .34s var(--ease) both; }.scroll-unfurl>div>*:nth-child(2){animation-delay:.04s}.scroll-unfurl>div>*:nth-child(3){animation-delay:.08s}.scroll-unfurl>div>*:nth-child(4){animation-delay:.12s}
+  @keyframes content-rise{ from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+  .event-card{ position:relative; overflow:hidden; }
+  .event-card::before{ content:""; position:absolute; inset:0; pointer-events:none; opacity:0; border-radius:inherit; background:linear-gradient(118deg,transparent 22%,rgba(155,195,174,.18) 48%,transparent 70%); transform:translateX(-115%); transition:opacity .25s var(--ease); }
+  .event-card:hover::before{ opacity:1; animation:card-sheen .9s var(--ease); }
+  @keyframes card-sheen{ to{transform:translateX(115%)} }
+  .date-seal{ animation:seal-breathe 4.8s ease-in-out infinite; }
+  @keyframes seal-breathe{ 50%{ box-shadow:0 0 0 1px rgba(155,195,174,.1),0 0 20px -8px rgba(155,195,174,.55),inset 0 1px 0 rgba(255,255,255,.12); } }
+  .empty-scroll{ position:relative; overflow:hidden; isolation:isolate; }
+  .empty-scroll::before,.empty-scroll::after{ content:""; position:absolute; z-index:-1; width:14rem; height:6rem; border-radius:50%; filter:blur(16px); opacity:.34; background:radial-gradient(ellipse,rgba(155,195,174,.17),transparent 68%); animation:mist-pass 11s ease-in-out infinite alternate; }
+  .empty-scroll::before{ left:-3rem; bottom:1rem; }.empty-scroll::after{ right:-4rem; top:1rem; animation-delay:-5s; }
+  @keyframes mist-pass{ to{ transform:translateX(3rem) translateY(-.5rem); opacity:.54; } }
+  .seal-pick{ animation:pick-seal .32s var(--ease); }
+  @keyframes pick-seal{ 50%{ transform:scale(1.018); box-shadow:0 0 0 1px rgba(155,195,174,.35),0 0 22px -7px rgba(155,195,174,.7); } }
+  .fx-layer{ position:fixed; inset:0; z-index:80; pointer-events:none; display:grid; place-items:center; overflow:hidden; }
+  .fx-sigil{ position:relative; display:grid; place-items:center; width:clamp(8rem,28vw,13rem); aspect-ratio:1; border-radius:50%; color:var(--jade-100); background:radial-gradient(circle,rgba(155,195,174,.2),rgba(155,195,174,.025) 58%,transparent 70%); animation:ward-seal 1.05s var(--ease) both; }
+  .fx-sigil::before,.fx-sigil::after{ content:""; position:absolute; border-radius:50%; border:1px solid rgba(155,195,174,.48); }.fx-sigil::before{ inset:10%; animation:ward-spin 1.05s linear both; }.fx-sigil::after{ inset:-12%; border-style:dashed; opacity:.7; animation:ward-spin 1.25s linear reverse both; }
+  .fx-sigil span{ position:absolute; bottom:-1.5rem; font:600 .72rem 'Noto Serif TC',serif; letter-spacing:.24em; color:var(--jade-100); white-space:nowrap; }
+  @keyframes ward-seal{ 0%{opacity:0;transform:scale(.72)} 24%{opacity:1;transform:scale(1)} 100%{opacity:0;transform:scale(1.22)} }
+  @keyframes ward-spin{ to{transform:rotate(1turn)} }
+  .seal-toast{ position:relative; overflow:hidden; }.seal-toast::after{ content:""; position:absolute; inset:0; pointer-events:none; background:radial-gradient(circle at 15% 50%,rgba(155,195,174,.16),transparent 42%); animation:toast-glow .85s var(--ease) both; }
+  @keyframes toast-glow{ from{opacity:0;transform:translateX(-25%)} to{opacity:.8;transform:translateX(10%)} }
 
   @media (prefers-reduced-motion: reduce){
     *{ animation-duration:.001ms !important; transition-duration:.001ms !important }
     body::before{ animation:none }
-    .qi::after{ display:none }
+    .qi::after,.event-card::before,.empty-scroll::before,.empty-scroll::after,.seal-toast::after{ display:none }
   }
 </style>
 
@@ -469,7 +495,7 @@
   }
 
   function Empty(p) {
-    return D('flex flex-col items-center justify-center gap-3.5 rounded-[20px] border border-dashed border-[var(--hair-2)] px-6 py-20 text-center',
+    return D('empty-scroll flex flex-col items-center justify-center gap-3.5 rounded-[20px] border border-dashed border-[var(--hair-2)] px-6 py-20 text-center',
       D('flex h-14 w-14 items-center justify-center rounded-full inlay ' + T3,
         E(Icon, { name: p.icon || 'Inbox', size: 22 })),
       E('p', { className: 'disp text-[16px] font-semibold ' + T1 }, p.title),
@@ -533,7 +559,7 @@
       : 'linear-gradient(90deg,#3D6555 0%,#6E9E88 42%,#9BC3AE 74%,#C9A961 100%)';
     var glow = over ? '0 0 12px -3px rgba(208,122,108,.85)'
       : (pct >= 100 ? '0 0 12px -3px rgba(201,169,97,.85)' : '0 0 12px -4px rgba(155,195,174,.8)');
-    return D('flow' + (slim ? ' slim' : ''),
+    return D('flow qi-flow' + (slim ? ' slim' : ''),
       E('i', {
         style: {
           width: pct + '%',
@@ -563,7 +589,7 @@
   /* 日期印記：取代日曆圖示 + 日期膠囊，作為卡片視覺重心 */
   function DateSeal(p) {
     var d = dateParts(p.text);
-    return D('relative flex h-[58px] w-[58px] shrink-0 flex-col items-center justify-center rounded-[18px] inlay',
+    return D('date-seal relative flex h-[58px] w-[58px] shrink-0 flex-col items-center justify-center rounded-[18px] inlay',
       E('span', { className: 'disp num text-[24px] font-bold leading-none ' + T1 }, d.d),
       E('span', { className: 'mt-1 text-[9.5px] tracking-[.18em] ' + T3 }, d.m),
       d.w ? E('span', {
@@ -640,16 +666,23 @@
     var i2 = useState(null), me = i2[0], setMe = i2[1];
     var j = useState(null), toast = j[0], setToast = j[1];
     var k = useState(null), modal = k[0], setModalState = k[1];
+    var fxState = useState(null), fx = fxState[0], setFx = fxState[1];
     var setup = useState(false), needsSetup = setup[0], setNeedsSetup = setup[1];
     var working = useState(false), busy = working[0], setBusy = working[1];
     var errorState = useState(''), error = errorState[0], setError = errorState[1];
     var syncState = useState('連線中'), syncLabel = syncState[0], setSyncLabel = syncState[1];
-    var version = useRef(-1), lock = useRef(false), toastTimer = useRef(null), epoch = useRef(0);
+    var version = useRef(-1), lock = useRef(false), toastTimer = useRef(null), fxTimer = useRef(null), epoch = useRef(0);
     var members = state.members || [], events = state.events || [], venues = state.venues || [], intents = state.intents || [], admins = state.admins || [], logs = state.logs || [];
     var isAdmin = !!me, isSuper = !!(me && me.superAdmin), dbx = true;
 
-    function flash(msg, kind) {
-      clearTimeout(toastTimer.current); setToast({ msg: msg, kind: kind || 'ok' });
+    function invokeFx(kind) {
+      if (!kind) return;
+      clearTimeout(fxTimer.current); setFx({ kind: kind, key: Date.now() });
+      fxTimer.current = setTimeout(function () { setFx(null); }, 1150);
+    }
+    function flash(msg, kind, fxKind) {
+      clearTimeout(toastTimer.current); setToast({ msg: msg, kind: kind || 'ok', fx: fxKind || '' });
+      invokeFx(fxKind);
       toastTimer.current = setTimeout(function () { setToast(null); }, 4000);
     }
     function setModal(value) {
@@ -684,7 +717,7 @@
         catch (err) { if (alive) { setSyncLabel('連線中斷，正在重試'); setError('無法連上伺服器，請稍後再試；本機使用時請確認 npm start 已啟動。'); } }
         finally { if (alive) { setReady(true); timer = setTimeout(tick, 5000); } }
       }
-      tick(); return function () { alive = false; clearTimeout(timer); clearTimeout(toastTimer.current); };
+      tick(); return function () { alive = false; clearTimeout(timer); clearTimeout(toastTimer.current); clearTimeout(fxTimer.current); };
     }, []);
 
     async function action(name, payload) {
@@ -692,7 +725,9 @@
       lock.current = true; epoch.current++; setBusy(true); setError('');
       try {
         var data = await api('action', Object.assign({ action: name, version: modal ? modal.version : version.current }, payload));
-        accept(data); flash('玉印已落・公開名單已同步'); return data.resultId || true;
+        accept(data);
+        var ritual = { saveMember:'member', saveEvent:'event', writeRoster:'roster', addGuest:'member', saveVenue:'venue', saveAdmin:'seal', changePin:'seal', removeMember:'seal', removeEvent:'seal', removeVenue:'seal', removeAdmin:'seal' }[name] || 'seal';
+        flash('玉印已落・公開名單已同步', 'ok', ritual); return data.resultId || true;
       } catch (err) {
         setError(err.message); flash(err.message, 'bad');
         if (err.status === 409 || err.status === 401) { try { await refresh(); } catch (_) {} }
@@ -717,7 +752,7 @@
       lock.current = true; epoch.current++; setBusy(true); setError('');
       try {
         await api(needsSetup ? 'setup' : 'login', { account: account, pin: pin, name: name, token: token });
-        await refresh(); flash('已登入管理後台'); return true;
+        await refresh(); flash('護山陣已啟・歡迎入殿', 'ok', 'ward'); return true;
       } catch (err) { setError(err.message); return false; }
       finally { lock.current = false; setBusy(false); }
     }
@@ -769,7 +804,8 @@
     return E(BusyContext.Provider, { value: busy }, D('min-h-screen pb-28 sect-enter',
       E(TopBar, Object.assign({ tab: tab, openEvent: openEvent }, ctx)),
       E('main', { className: 'mx-auto w-full max-w-5xl px-4 pt-11 sm:px-6' },
-        error && !modal ? E('p', { role: 'alert', className: 'mb-5 rounded-2xl inlay p-4 ' + CIN }, error) : null, body),
+        error && !modal ? E('p', { role: 'alert', className: 'mb-5 rounded-2xl inlay p-4 ' + CIN }, error) : null,
+        E('div', { key: (openEvent ? 'event-' + openEvent.id : tab) + '-' + (me ? 'in' : 'out'), className: 'scroll-unfurl' }, body)),
       toast ? D('fixed bottom-7 left-1/2 z-[60] w-[min(92vw,26rem)] -translate-x-1/2',
         D('rise glass seal-toast flex items-center gap-3 rounded-2xl px-4 py-3.5 text-sm ' + (toast.kind === 'bad' ? CIN : T1),
           E(Icon, {
@@ -778,7 +814,14 @@
           }),
           E('span', { className: 'flex-1', role: 'status' }, toast.msg))) : null,
       modal ? E('div', null, E(Modals, Object.assign({ modal: modal, close: function () { if (!lock.current) setModal(null); } }, ctx)),
-        error ? E('p', { role: 'alert', className: 'fixed top-3 left-1/2 z-[70] w-[min(92vw,40rem)] -translate-x-1/2 rounded-2xl glass p-4 ' + CIN }, error) : null) : null));
+        error ? E('p', { role: 'alert', className: 'fixed top-3 left-1/2 z-[70] w-[min(92vw,40rem)] -translate-x-1/2 rounded-2xl glass p-4 ' + CIN }, error) : null) : null,
+      fx ? E(SectEffect, { key: fx.key, kind: fx.kind }) : null));
+  }
+
+  function SectEffect(p) {
+    var labels = { ward:'護山陣啟', member:'弟子玉印', event:'開壇靈光', roster:'入陣封錄', venue:'洞府落印', seal:'宗門玉印', line:'傳訊符成' };
+    return D('fx-layer', { 'aria-hidden': 'true' },
+      D('fx-sigil', E(SectMark, { size: 48 }), E('span', null, labels[p.kind] || labels.seal)));
   }
 
   /* ---------------- top bar ---------------- */
@@ -829,7 +872,7 @@
           return E('button', {
             key: t.k,
             onClick: function () { p.setOpenEventId(null); p.setTab(t.k); },
-            className: 'btn inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-medium ' +
+            className: 'btn inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-[13px] font-medium ' +
               (active ? 'text-[var(--jade-100)]' : T3 + ' hover:text-[var(--mist-1)] hover:bg-[rgba(228,235,232,.045)]'),
             style: active ? {
               background: 'linear-gradient(180deg, rgba(155,195,174,.18), rgba(155,195,174,.05))',
@@ -1048,7 +1091,7 @@
 
     return E('button', {
       onClick: function () { p.setOpenEventId(ev.id); },
-      className: CARD + ' ' + CARD_HOVER + ' group min-w-0 w-full p-5 text-left sm:p-6'
+      className: CARD + ' ' + CARD_HOVER + ' event-card group min-w-0 w-full p-5 text-left sm:p-6'
     },
       D('flex items-start gap-4',
         E(DateSeal, { text: ev.dateText }),
@@ -1086,6 +1129,9 @@
   /* ---------------- event detail ---------------- */
   function EventDetail(p) {
     var ev = p.ev;
+    var filterState = useState('all'), rosterFilter = filterState[0], setRosterFilter = filterState[1];
+    var pageState = useState(1), rosterPage = pageState[0], setRosterPage = pageState[1];
+    var rosterTop = useRef(null);
     var roster = resolveRoster(ev.roster, p.members);
     var cap = capacityOf(ev.courts);
     var going = roster.filter(function (r) { return r.status === 'going'; });
@@ -1097,6 +1143,15 @@
     var pct = fillPct(going.length, cap);
     var recruitment = deadlineInfo(ev.signupDeadline, going.length, cap);
     var venueRow = p.venues.find(function (v) { return v.id === ev.venueId; });
+
+    function moveRosterPage(next) {
+      setRosterPage(next);
+      setTimeout(function () {
+        if (!rosterTop.current) return;
+        var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        rosterTop.current.scrollIntoView({ block: 'start', behavior: reduced ? 'auto' : 'smooth' });
+      }, 0);
+    }
 
     function setStatus(r, kk) {
       if (!p.needAdmin() || r.status === kk) return;
@@ -1150,6 +1205,10 @@
     ];
     /* 名單顯示一律男先女後；寫回資料庫時仍用原陣列，順序不受影響 */
     var view = byGender(roster);
+    var filteredView = rosterFilter === 'all' ? view : view.filter(function (r) { return r.status === rosterFilter; });
+    var pageSize = 10, pageCount = Math.max(1, Math.ceil(filteredView.length / pageSize));
+    var activePage = Math.min(rosterPage, pageCount), startAt = (activePage - 1) * pageSize;
+    var pageRows = filteredView.slice(startAt, startAt + pageSize);
 
     return D('',
       D('flex flex-wrap items-center justify-between gap-2 pb-5',
@@ -1270,21 +1329,42 @@
           onClick: function () { p.setModal({ type: 'line', text: lineText() }); }
         }, '生成傳訊符')),
 
-      D('mt-8 mb-3.5 flex items-end justify-between',
+      D('mt-8 mb-3.5 flex items-end justify-between', { ref: rosterTop },
         D('',
           E('span', { className: 'eyebrow' }, '入陣弟子'),
           E('p', { className: 'disp mt-2.5 text-[19px] font-bold ' + T1 },
             String(roster.length), S('text-[13px] font-normal ' + T3, ' 人在列'))),
         S('text-[11px] ' + T3, p.isAdmin ? '點右側切換狀態' : '入殿後可切換狀態')),
 
+      roster.length ? D('mb-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl inlay px-3 py-2.5 sm:px-4',
+        D('flex flex-wrap gap-1.5', [['all', '全部', roster.length], ['going', '入陣', going.length], ['maybe', '觀望', maybe.length], ['wait', '候補', wait.length]].map(function (x) {
+          var on = rosterFilter === x[0], meta = x[0] === 'all' ? null : statusMeta(x[0]);
+          return E('button', { key: x[0], type: 'button', 'aria-pressed': on,
+            onClick: function () { setRosterFilter(x[0]); moveRosterPage(1); },
+            className: 'btn min-h-[38px] rounded-xl px-3 text-[12px] font-medium ' + (on ? (meta ? meta.tone : JADE) : T3),
+            style: on ? (meta ? meta.seg : { background:'linear-gradient(180deg,rgba(155,195,174,.20),rgba(155,195,174,.06))', border:'1px solid rgba(155,195,174,.28)' }) : { border:'1px solid transparent' }
+          }, x[1] + ' ' + x[2]);
+        })),
+        S('num text-[11px] ' + T3, filteredView.length ? '顯示 ' + (startAt + 1) + '–' + Math.min(startAt + pageSize, filteredView.length) + '／' + filteredView.length + ' 人' : '此狀態尚無人')) : null,
+
       roster.length === 0
         ? E(Empty, {
           icon: 'Users', title: '陣列尚無一人',
           hint: '用「自名冊點將」勾選常客，或用「納入散修」加入未建檔的道友。'
         })
-        : D('grid gap-2.5', view.map(function (r, idx) {
-          return E(RosterCard, { key: r.rid, r: r, idx: idx, setStatus: setStatus, removeRow: removeRow });
-        })),
+        : D('',
+          pageRows.length ? D('grid gap-2.5', pageRows.map(function (r, idx) {
+            return E(RosterCard, { key: r.rid, r: r, idx: startAt + idx, setStatus: setStatus, removeRow: removeRow });
+          })) : E(Empty, { icon: 'FilterX', title: '這個狀態目前無人', hint: '切換其他狀態，或由右側下拉選單調整出席狀態。' }),
+          pageCount > 1 ? D('mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl inlay px-3 py-2.5 sm:px-4',
+            E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronLeft', disabled: activePage <= 1, onClick: function () { moveRosterPage(activePage - 1); } }, '上一頁'),
+            D('flex items-center gap-1', Array.from({ length: pageCount }, function (_, i) {
+              var n = i + 1, on = n === activePage;
+              return E('button', { key: n, type: 'button', 'aria-label': '第 ' + n + ' 頁', 'aria-current': on ? 'page' : undefined,
+                onClick: function () { moveRosterPage(n); }, className: 'btn min-h-[38px] min-w-[38px] rounded-xl px-2 text-[12px] ' + (on ? JADE : T3),
+                style: on ? { background:'linear-gradient(180deg,rgba(155,195,174,.20),rgba(155,195,174,.06))', border:'1px solid rgba(155,195,174,.28)' } : { border:'1px solid transparent' } }, String(n));
+            })),
+            E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronRight', disabled: activePage >= pageCount, onClick: function () { moveRosterPage(activePage + 1); } }, '下一頁')) : null),
       p.isAdmin ? null : E(ReadOnlyHint));
   }
 
@@ -1790,7 +1870,7 @@
         };
       });
       if (!await p.writeRoster(ev, roster.concat(add))) return;
-      p.flash('已點 ' + picked.length + ' 位弟子入陣（' + statusMeta(st).label + '）');
+      p.flash('已點 ' + picked.length + ' 位弟子入陣（' + statusMeta(st).label + '）', 'ok', 'roster');
       p.close();
     }
 
@@ -1834,7 +1914,7 @@
             var on = !!sel[m.id];
             return E('button', {
               key: m.id, onClick: function () { toggle(m.id); },
-              className: 'btn flex items-center gap-3 rounded-2xl px-3.5 py-3 text-left',
+              className: 'btn flex items-center gap-3 rounded-2xl px-3.5 py-3 text-left' + (on ? ' seal-pick' : ''),
               style: on ? {
                 background: 'linear-gradient(180deg, rgba(155,195,174,.13), rgba(155,195,174,.03))',
                 border: '1px solid rgba(155,195,174,.32)',
@@ -1908,7 +1988,7 @@
           onClick: function () {
             copyText(text).then(function (ok) {
               setDone(ok);
-              p.flash(ok ? '已複製到剪貼簿，去 LINE 貼上吧' : '複製失敗，請手動選取文字', ok ? 'ok' : 'bad');
+              p.flash(ok ? '已複製到剪貼簿，去 LINE 貼上吧' : '複製失敗，請手動選取文字', ok ? 'ok' : 'bad', ok ? 'line' : '');
             });
           }
         }, done ? '已複製' : '複製全文')
