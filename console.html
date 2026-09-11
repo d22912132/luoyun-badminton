@@ -47,6 +47,9 @@
     --cinnabar:#D07A6C;
     --cinnabar-dim:#8C4438;
     --amethyst:#9E8FC0;
+
+    --male-text:#A8CBD8; --male-border:rgba(168,203,216,.24); --male-high:rgba(168,203,216,.11); --male-low:rgba(168,203,216,.03);
+    --female-text:#DFB4C4; --female-border:rgba(223,180,196,.24); --female-high:rgba(223,180,196,.11); --female-low:rgba(223,180,196,.03);
     --logo-emerald:#1F6B55;
     --logo-cyan:#4BB5BD;
     --logo-gold:#D2AC55;
@@ -196,21 +199,21 @@
 
   .theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;min-width:40px;height:40px;padding:0 .7rem;border-radius:999px;border:1px solid var(--hair-2);background:rgba(228,235,232,.035);color:var(--mist-2);font:600 11.5px 'Noto Sans TC',sans-serif;cursor:pointer;transition:color .24s var(--ease),border-color .24s var(--ease),background .24s var(--ease),transform .24s var(--ease)}.theme-toggle:hover{color:var(--jade-100);border-color:rgba(155,195,174,.34);background:rgba(155,195,174,.09);transform:translateY(-1px)}
 
-  html[data-theme="light"]{--ink-0:#E2E9E4;--ink-1:#EBF0EC;--ink-2:#D7E1DA;--mist-1:#173128;--mist-2:#415C52;--mist-3:#687C73;--jade-100:#164534;--jade-300:#33765C;--jade-500:#4B876E;--jade-700:#285C48;--jade-900:#D5E3DA;--gold:#8E6B1D;--gold-dim:#6F5217;--cinnabar:#A84F43;--cinnabar-dim:#803A31;--amethyst:#6F5F9B;--hair:rgba(27,69,52,.14);--hair-2:rgba(27,69,52,.23);--sheen:rgba(255,255,255,.52);color-scheme:light}
-  html[data-theme="light"] body::before{background:radial-gradient(52% 38% at 16% 8%,rgba(76,132,104,.19),transparent 64%),radial-gradient(40% 30% at 86% 4%,rgba(184,149,72,.12),transparent 62%),radial-gradient(66% 48% at 54% 102%,rgba(70,112,130,.13),transparent 66%)}
-  html[data-theme="light"] body::after{background:radial-gradient(128% 84% at 50% -4%,transparent 38%,rgba(118,150,133,.16) 100%)}
+  html[data-theme="light"]{--ink-0:#E8E0D1;--ink-1:#F3EDE1;--ink-2:#DED4C3;--mist-1:#24382F;--mist-2:#4A6056;--mist-3:#61756C;--jade-100:#174737;--jade-300:#2E7055;--jade-500:#477E65;--jade-700:#285C48;--jade-900:#DBE2D6;--gold:#8C651C;--gold-dim:#6A4B13;--cinnabar:#A64E41;--cinnabar-dim:#7C372E;--amethyst:#66558D;--hair:rgba(76,65,45,.16);--hair-2:rgba(57,82,68,.27);--sheen:rgba(255,252,244,.56);--male-text:#285F73;--male-border:rgba(40,95,115,.28);--male-high:rgba(75,145,167,.18);--male-low:rgba(75,145,167,.07);--female-text:#8B4960;--female-border:rgba(139,73,96,.27);--female-high:rgba(180,104,129,.17);--female-low:rgba(180,104,129,.06);color-scheme:light}
+  html[data-theme="light"] body::before{background:radial-gradient(52% 38% at 16% 8%,rgba(83,128,98,.18),transparent 64%),radial-gradient(42% 32% at 86% 4%,rgba(181,135,52,.17),transparent 62%),radial-gradient(66% 48% at 54% 102%,rgba(135,103,57,.11),transparent 66%)}
+  html[data-theme="light"] body::after{background:radial-gradient(128% 84% at 50% -4%,transparent 38%,rgba(132,105,65,.13) 100%)}
   html[data-theme="light"] .grain{opacity:.018;mix-blend-mode:multiply}
-  html[data-theme="light"] header{background:rgba(230,237,232,.91)!important}
-  html[data-theme="light"] .surface{background:linear-gradient(180deg,rgba(239,244,240,.97),rgba(227,235,229,.96));box-shadow:inset 0 1px 0 rgba(255,255,255,.58),0 18px 42px -34px rgba(29,65,51,.4)}
-  html[data-theme="light"] .surface-hover:hover{background:linear-gradient(180deg,rgba(231,240,234,.99),rgba(239,244,240,.97));box-shadow:inset 0 1px 0 rgba(255,255,255,.62),0 24px 46px -34px rgba(48,103,79,.34)}
-  html[data-theme="light"] .glass{background:linear-gradient(180deg,rgba(237,243,239,.97),rgba(226,234,228,.96))}
-  html[data-theme="light"] .inlay,html[data-theme="light"] .bezel{background:linear-gradient(180deg,rgba(233,239,235,.92),rgba(216,227,219,.76))}
-  html[data-theme="light"] input:not([type="radio"]):not([type="checkbox"]),html[data-theme="light"] select,html[data-theme="light"] textarea{background:rgba(232,239,234,.96)!important;color:var(--mist-1)!important}
-  html[data-theme="light"] select option{background:#E8EFEA;color:var(--mist-1)}
+  html[data-theme="light"] header{background:rgba(239,232,218,.92)!important}
+  html[data-theme="light"] .surface{background:linear-gradient(180deg,rgba(247,242,232,.98),rgba(234,225,208,.97));box-shadow:inset 0 1px 0 rgba(255,253,247,.76),0 18px 42px -34px rgba(79,61,35,.42)}
+  html[data-theme="light"] .surface-hover:hover{background:linear-gradient(180deg,rgba(244,238,226,.99),rgba(239,231,216,.98));box-shadow:inset 0 1px 0 rgba(255,253,247,.82),0 24px 46px -34px rgba(82,63,34,.38)}
+  html[data-theme="light"] .glass{background:linear-gradient(180deg,rgba(246,240,228,.98),rgba(232,222,204,.97))}
+  html[data-theme="light"] .inlay,html[data-theme="light"] .bezel{background:linear-gradient(180deg,rgba(240,233,219,.94),rgba(222,211,191,.80))}
+  html[data-theme="light"] input:not([type="radio"]):not([type="checkbox"]),html[data-theme="light"] select,html[data-theme="light"] textarea{background:rgba(242,235,222,.97)!important;color:var(--mist-1)!important}
+  html[data-theme="light"] select option{background:#F0E8D9;color:var(--mist-1)}
   html[data-theme="light"] input[type="time"]::-webkit-calendar-picker-indicator,html[data-theme="light"] input[type="number"]::-webkit-inner-spin-button{filter:none;opacity:.55}
-  html[data-theme="light"] .theme-toggle{background:rgba(226,235,229,.84)}
+  html[data-theme="light"] .theme-toggle{background:rgba(239,231,215,.88)}
   html[data-theme="light"] .flow{background:rgba(34,83,62,.1);box-shadow:inset 0 1px 2px rgba(30,70,54,.14)}
-  html[data-theme="light"] .modal-footer{background:rgba(218,229,221,.96)!important}
+  html[data-theme="light"] .modal-footer{background:rgba(225,214,195,.97)!important}
 
   /* ---------- 靈力槽 ---------- */
   .flow{height:6px;border-radius:999px;background:rgba(228,235,232,.055);overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.34)}
@@ -383,8 +386,8 @@
   var REALM_LABEL={qi:'練氣',foundation:'築基',golden:'結丹',nascent:'元嬰',transcendent:'化神'};
   var REALM_STYLE={qi:{'--realm-a':'#8FBFAF','--realm-b':'#D5E7DC','--realm-c':'#3D6555','--realm-text':'#CDE9DA','--realm-glow':'rgba(155,195,174,.65)','--realm-speed':'8s'},foundation:{'--realm-a':'#88AEBB','--realm-b':'#C7E2EA','--realm-c':'#3F6875','--realm-text':'#C9E5ED','--realm-glow':'rgba(129,183,200,.65)','--realm-speed':'10s'},golden:{'--realm-a':'#C9A961','--realm-b':'#F1DCA5','--realm-c':'#79602D','--realm-text':'#F3DFAB','--realm-glow':'rgba(201,169,97,.72)','--realm-speed':'14s'},nascent:{'--realm-a':'#9E8FC0','--realm-b':'#D1C7EA','--realm-c':'#57486E','--realm-text':'#DCD2F5','--realm-glow':'rgba(158,143,192,.7)','--realm-speed':'18s'},transcendent:{'--realm-a':'#D6B55E','--realm-b':'#FFF0B7','--realm-c':'#99743B','--realm-text':'#FFF0BA','--realm-glow':'rgba(222,187,93,.85)','--realm-speed':'24s'}};
   var GENDER = {
-    male: { label: '男', style: { '--tc': '#A8CBD8', '--tb': 'rgba(168,203,216,.24)', '--th': 'rgba(168,203,216,.11)', '--tl': 'rgba(168,203,216,.03)' } },
-    female: { label: '女', style: { '--tc': '#DFB4C4', '--tb': 'rgba(223,180,196,.24)', '--th': 'rgba(223,180,196,.11)', '--tl': 'rgba(223,180,196,.03)' } }
+    male: { label: '男', style: { '--tc': 'var(--male-text)', '--tb': 'var(--male-border)', '--th': 'var(--male-high)', '--tl': 'var(--male-low)' } },
+    female: { label: '女', style: { '--tc': 'var(--female-text)', '--tb': 'var(--female-border)', '--th': 'var(--female-high)', '--tl': 'var(--female-low)' } }
   };
   function genderMeta(g) { return g === 'female' ? GENDER.female : GENDER.male; }
   /* 集結名單的道號／性別／境界／備註一律以弟子名冊為準。
