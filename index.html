@@ -202,6 +202,12 @@
   .notes .lbl{font-size:.66rem;color:var(--mist-3);letter-spacing:.02em;margin-bottom:.6rem}
   .notes li{display:flex;align-items:flex-start;gap:.6rem;font-size:.79rem;color:var(--mist-2);line-height:1.7;margin-top:.45rem;word-break:break-word}
   .notes li::before{content:"";width:4px;height:4px;border-radius:999px;background:var(--jade-500);flex:none;margin-top:.62rem}
+  .event-info>summary{display:none}
+  @media (max-width:639px){
+    .event-info>summary{display:flex;align-items:center;justify-content:space-between;gap:.75rem;min-height:48px;cursor:pointer;list-style:none;color:var(--mist-1);font-family:'Noto Serif TC',Georgia,serif;font-size:.92rem;font-weight:600}
+    .event-info>summary::-webkit-details-marker{display:none}.event-info>summary::after{content:'⌄';color:var(--jade-300);font-family:'Noto Sans TC',sans-serif;transition:transform .22s var(--ease)}.event-info[open]>summary::after{transform:rotate(180deg)}
+    .event-info-body{padding-top:1rem;border-top:1px solid var(--hair)}
+  }
 
   /* rules */
   .rule{display:grid;grid-template-columns:26px minmax(0,1fr);align-items:start;gap:.7rem;padding:.75rem .1rem}
@@ -766,8 +772,8 @@
   function realmBadge(level){var r=realmOf(level);return '<span class="realm-badge realm-'+r.k+'" aria-label="'+r.label+'，程度 '+Number(level||0)+'">'+r.label+'<span class="num">'+Number(level||0)+'</span></span>';}
   function countup(n){return '<span class="countup" data-count-to="'+Number(n||0)+'">'+Number(n||0)+'</span>';}
 
-  function groupHtml(g, list) {
-    var h = '<details class="grp disclosure"><summary><span class="grp-h">' +
+  function groupHtml(g, list, eventIndex) {
+    var h = '<details class="grp disclosure" data-disclosure="roster-' + eventIndex + '-' + g.k + '"><summary><span class="grp-h">' +
       '<span class="dot" style="background:' + g.dot + '"></span>' +
       '<span class="name" style="color:' + g.color + '">' + g.emoji + ' ' + g.label + '</span>' +
       '<span class="pill ' + g.cls + '">' + list.length + '</span></span></summary>';
@@ -834,7 +840,7 @@
 
     var notes = notesOf(ev);
     h += '<div class="split">' +
-      '<div class="box inlay"><h3>' + ic('pin', 14) + '地點資訊</h3><div class="info">' +
+      '<details class="box inlay event-info" data-disclosure="info-' + eventIndex + '" open><summary>' + ic('pin', 14) + '地點資訊</summary><div class="event-info-body"><div class="info">' +
       '<div class="row"><span class="ic">' + ic('pin', 14) + '</span><span><span class="k">球館地點</span><span class="v">' + esc(ev.place) + '</span></span></div>' +
       '<div class="row"><span class="ic">' + ic('clock', 14) + '</span><span><span class="k">時間</span><span class="v num">' + esc(ev.startTime) + ' – ' + esc(ev.endTime) + '</span></span></div>' +
       '<div class="row"><span class="ic">' + ic('users', 14) + '</span><span><span class="k">場地</span><span class="v">' + esc(ev.courts) + ' 面場（上限 ' + cap + ' 人）</span></span></div>' +
@@ -851,9 +857,9 @@
       notes.forEach(function (t) { h += '<li>' + esc(t) + '</li>'; });
       h += '</ul>';
     }
-    h += '</div>';
+    h += '</div></div></details>';
 
-    h += '<details class="box inlay disclosure"><summary>' + ic('list', 14) + '團規・展開查看</summary><div class="disclosure-body">';
+    h += '<details class="box inlay disclosure" data-disclosure="rules-' + eventIndex + '"><summary>' + ic('list', 14) + '團規・展開查看</summary><div class="disclosure-body">';
     RULES.forEach(function (raw) {
       var r = parseRule(raw);
       h += '<div class="rule"><span class="g">' + r.g + '</span><span class="copy">' +
@@ -868,7 +874,7 @@
       h += '<div class="roster-h"><div><span class="eyebrow">出席名單</span>' +
         '<p class="n">' + roster.length + '<small>人在列</small></p></div>' +
         '<span style="font-size:.7rem;color:var(--mist-3)">依狀態分組</span></div>';
-      GROUPS.forEach(function (g) { h += groupHtml(g, groups[g.k]); });
+      GROUPS.forEach(function (g) { h += groupHtml(g, groups[g.k], eventIndex); });
     }
     return h + '</section>';
   }
@@ -883,6 +889,8 @@
   }
   function bindCardAura(){if(matchMedia('(prefers-reduced-motion: reduce)').matches||!matchMedia('(hover:hover) and (pointer:fine)').matches)return;document.querySelectorAll('.event-card').forEach(function(card){card.addEventListener('pointermove',function(ev){var b=card.getBoundingClientRect(),x=(ev.clientX-b.left)/b.width,y=(ev.clientY-b.top)/b.height;card.style.setProperty('--mx',(x*100)+'%');card.style.setProperty('--my',(y*100)+'%');card.style.setProperty('--rx',((.5-y)*3.2)+'deg');card.style.setProperty('--ry',((x-.5)*3.2)+'deg');});card.addEventListener('pointerleave',function(){card.style.removeProperty('--rx');card.style.removeProperty('--ry');});});}
   function animateCounters(){var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;document.querySelectorAll('.countup').forEach(function(node){var end=Number(node.dataset.countTo)||0;if(reduce){node.textContent=end;return;}var start=performance.now(),duration=320;function step(now){var t=Math.min(1,(now-start)/duration),eased=1-Math.pow(1-t,3);node.textContent=Math.round(end*eased);if(t<1)requestAnimationFrame(step);}requestAnimationFrame(step);});}
+  function disclosureState(){return Array.from(document.querySelectorAll('[data-disclosure][open]')).map(function(node){return node.getAttribute('data-disclosure');});}
+  function restoreDisclosures(opened){var mobile=matchMedia('(max-width:639px)').matches;document.querySelectorAll('[data-disclosure]').forEach(function(node){var key=node.getAttribute('data-disclosure'), wasOpen=opened.indexOf(key)>=0, shouldOpen=node.classList.contains('event-info')?(!mobile||wasOpen):wasOpen;if(shouldOpen)node.setAttribute('open','');else node.removeAttribute('open');});}
   async function render() {
     if (live && document.hidden && lastData) { setTimeout(render, 5000); return; }
     var app = document.getElementById('app'), stamp = document.getElementById('stamp'), data;
@@ -896,9 +904,11 @@
       var d = new Date(data.generatedAt);
       stamp.textContent = '名單更新於 ' + (isNaN(d.getTime()) ? '未知時間' : d.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false })) + (live ? '・每 5 秒同步' : '・歷史快照');
       if (!lastData || lastVersion !== data.version) {
+        var opened = disclosureState();
         stamp.classList.remove('sync-flash'); void stamp.offsetWidth; stamp.classList.add('sync-flash');
         app.innerHTML = data.events.length ? data.events.map(eventHtml).join('') : '<div class="empty">目前沒有開團。</div>';
         app.innerHTML += '<div class="foot"><strong>' + (live ? '公開名單會自動更新。' : '這是歷史快照，尚未連上共用後端。') + '</strong><br>名單與活動資訊由長老及管理員統一維護；如需異動請聯絡管理者。</div>';
+        restoreDisclosures(opened);
         revealCards(); bindCardAura(); animateCounters();
         var sync=document.getElementById('sync-indicator');if(sync){sync.classList.remove('sync-pulse');void sync.offsetWidth;sync.classList.add('sync-pulse');}
       }

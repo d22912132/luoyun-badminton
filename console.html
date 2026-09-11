@@ -1129,18 +1129,18 @@
     var dataState = useState({}), calendars = dataState[0], setCalendars = dataState[1];
     var errorState = useState(''), calendarError = errorState[0], setCalendarError = errorState[1];
     var loadingState = useState(false), loading = loadingState[0], setLoading = loadingState[1];
-    var openState = useState(true), expanded = openState[0], setExpanded = openState[1];
+    var openState = useState(false), expanded = openState[0], setExpanded = openState[1];
     var parts = monthKey.split('-').map(Number), year = parts[0], month = parts[1];
 
     useEffect(function () {
-      if (calendars[year]) return;
+      if (!expanded || calendars[year]) return;
       var alive = true; setLoading(true); setCalendarError('');
       p.api('calendar?year=' + year).then(function (data) {
         if (alive) setCalendars(function (old) { var next = Object.assign({}, old); next[year] = data; return next; });
       }).catch(function (err) { if (alive) setCalendarError(err.message); })
         .finally(function () { if (alive) setLoading(false); });
       return function () { alive = false; };
-    }, [year]);
+    }, [year, expanded]);
 
     function move(delta) {
       var next = new Date(year, month - 1 + delta, 1), key = next.getFullYear() + '-' + pad2(next.getMonth() + 1);
@@ -1174,7 +1174,7 @@
         D('flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-5',
           D('flex min-w-0 items-center gap-3',
             D('flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] inlay text-[var(--gold)]', E(Icon, { name: 'CalendarDays', size: 18 })),
-            D('min-w-0', E('h3', { className: 'disp brush text-[17px] font-bold ' + T1 }, '試煉行事曆'), E('p', { className: 'mt-1 text-[11px] ' + T3 }, '開團與行政院辦公日曆同覽・點日期可直接開團'))),
+            D('min-w-0', E('h3', { className: 'disp brush text-[17px] font-bold ' + T1 }, '試煉行事曆'), E('p', { className: 'mt-1 text-[12px] ' + T3 }, p.isAdmin ? '開團與行政院辦公日曆同覽・展開後可點日期開團' : '開團與行政院辦公日曆同覽'))),
           D('flex items-center gap-1.5',
             E(Btn, { size: 'icon', variant: 'ghost', icon: 'ChevronLeft', ariaLabel: '上個月', disabled: monthKey === '2026-01', onClick: function () { move(-1); } }),
             E('strong', { className: 'disp num min-w-[88px] text-center text-[15px] ' + T1 }, year + '年 ' + month + '月'),
@@ -1324,6 +1324,8 @@
   function EventDetail(p) {
     var ev = p.ev;
     var filterState = useState('all'), rosterFilter = filterState[0], setRosterFilter = filterState[1];
+    var pageState = useState(1), rosterPage = pageState[0], setRosterPage = pageState[1];
+    var rosterListTop = useRef(null);
     var roster = resolveRoster(ev.roster, p.members);
     var cap = capacityOf(ev.courts);
     var going = roster.filter(function (r) { return r.status === 'going'; });
@@ -1389,6 +1391,14 @@
     /* 名單顯示一律男先女後；寫回資料庫時仍用原陣列，順序不受影響 */
     var view = byGender(roster);
     var filteredView = rosterFilter === 'all' ? view : view.filter(function (r) { return r.status === rosterFilter; });
+    var rosterPageSize = 10, rosterPageCount = Math.max(1, Math.ceil(filteredView.length / rosterPageSize));
+    var activeRosterPage = Math.min(rosterPage, rosterPageCount), rosterStart = (activeRosterPage - 1) * rosterPageSize;
+    var rosterRows = filteredView.slice(rosterStart, rosterStart + rosterPageSize);
+    function chooseRosterFilter(next) { setRosterFilter(next); setRosterPage(1); }
+    function moveRosterPage(next) {
+      setRosterPage(Math.max(1, Math.min(rosterPageCount, next)));
+      if (rosterListTop.current) rosterListTop.current.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    }
 
     return D('',
       D('flex flex-wrap items-center justify-between gap-2 pb-5',
@@ -1516,16 +1526,16 @@
             String(roster.length), S('text-[13px] font-normal ' + T3, ' 人在列'))),
         S('text-[11px] ' + T3, p.isAdmin ? '點右側切換狀態' : '入殿後可切換狀態')),
 
-      roster.length ? D('mb-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl inlay px-3 py-2.5 sm:px-4',
+      roster.length ? D('mb-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl inlay px-3 py-2.5 sm:px-4', { ref: rosterListTop },
         D('flex flex-wrap gap-1.5', [['all', '全部', roster.length], ['going', '入陣', going.length], ['maybe', '觀望', maybe.length], ['wait', '候補', wait.length]].map(function (x) {
           var on = rosterFilter === x[0], meta = x[0] === 'all' ? null : statusMeta(x[0]);
           return E('button', { key: x[0], type: 'button', 'aria-pressed': on,
-            onClick: function () { setRosterFilter(x[0]); },
+            onClick: function () { chooseRosterFilter(x[0]); },
             className: 'btn min-h-[38px] rounded-xl px-3 text-[12px] font-medium ' + (on ? (meta ? meta.tone : JADE) : T3),
             style: on ? (meta ? meta.seg : { background:'linear-gradient(180deg,rgba(155,195,174,.20),rgba(155,195,174,.06))', border:'1px solid rgba(155,195,174,.28)' }) : { border:'1px solid transparent' }
           }, x[1] + ' ' + x[2]);
         })),
-        S('num text-[11px] ' + T3, filteredView.length ? '顯示 ' + filteredView.length + ' 人' : '此狀態尚無人')) : null,
+        S('num text-[12px] ' + T3, filteredView.length ? '顯示 ' + (rosterStart + 1) + '–' + Math.min(rosterStart + rosterPageSize, filteredView.length) + '／' + filteredView.length + ' 人' : '此狀態尚無人')) : null,
 
       roster.length === 0
         ? E(Empty, {
@@ -1533,9 +1543,18 @@
           hint: '用「自名冊點將」勾選常客，或用「納入散修」加入未建檔的道友。'
         })
         : D('',
-          filteredView.length ? D('grid gap-2.5', filteredView.map(function (r, idx) {
-            return E(RosterCard, { key: r.rid, r: r, idx: idx, editable: p.isAdmin, setStatus: setStatus, removeRow: removeRow });
-          })) : E(Empty, { icon: 'FilterX', title: '這個狀態目前無人', hint: '切換其他狀態，或由右側下拉選單調整出席狀態。' })),
+          filteredView.length ? D('',
+            D('grid gap-2.5', rosterRows.map(function (r, idx) {
+              return E(RosterCard, { key: r.rid, r: r, idx: rosterStart + idx, editable: p.isAdmin, setStatus: setStatus, removeRow: removeRow });
+            })),
+            rosterPageCount > 1 ? D('mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl inlay px-3 py-2.5 sm:px-4',
+              E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronLeft', disabled: activeRosterPage <= 1, onClick: function () { moveRosterPage(activeRosterPage - 1); } }, '上一頁'),
+              D('flex items-center gap-1', Array.from({ length: rosterPageCount }, function (_, i) {
+                var n = i + 1, on = n === activeRosterPage;
+                return E('button', { key: n, type: 'button', 'aria-label': '入陣名冊第 ' + n + ' 頁', 'aria-current': on ? 'page' : undefined, onClick: function () { moveRosterPage(n); }, className: 'btn flex h-9 min-w-9 items-center justify-center rounded-xl px-2 text-[12px] font-medium ' + (on ? JADE : T3), style: on ? { background: 'rgba(155,195,174,.12)', border: '1px solid rgba(155,195,174,.25)' } : { border: '1px solid transparent' } }, String(n));
+              })),
+              E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronRight', disabled: activeRosterPage >= rosterPageCount, onClick: function () { moveRosterPage(activeRosterPage + 1); } }, '下一頁')) : null
+          ) : E(Empty, { icon: 'FilterX', title: '這個狀態目前無人', hint: '切換其他狀態，或由右側下拉選單調整出席狀態。' })),
       p.isAdmin ? null : E(ReadOnlyHint));
   }
 
