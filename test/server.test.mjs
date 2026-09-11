@@ -61,11 +61,13 @@ test('shared club: authentication, permissions, persistence, validation and conf
     memberId = (await act('saveMember', { row: { nickname: '測試弟子', gender: 'female', level: 5, referrer: '私人備註' } })).body.resultId;
     await act('saveMember', { row: { nickname: '測試弟子', gender: 'female', level: 5 } }, ownerCookie, 400);
     await act('saveMember', { row: { nickname: 'bad', gender: 'female', level: 9 } }, ownerCookie, 400);
-    const row = { title: '測試活動', dateText: '9/30 (三)', startTime: '10:00', endTime: '12:00', place: '測試場館', courts: 2, fee: 200, note: '' };
+    const row = { title: '測試活動', date: '2026-09-30', dateText: '9/30 (三)', startTime: '10:00', endTime: '12:00', place: '測試場館', courts: 2, fee: 200, note: '' };
     await act('saveEvent', { row: { ...row, courts: -1 } }, ownerCookie, 400);
     await act('saveEvent', { row: { ...row, courts: 1.5 } }, ownerCookie, 400);
     await act('saveEvent', { row: { ...row, endTime: '09:00' } }, ownerCookie, 400);
+    await act('saveEvent', { row: { ...row, date: '2026-02-31' } }, ownerCookie, 400);
     eventId = (await act('saveEvent', { row })).body.resultId;
+    assert.equal(state.events.find(e => e.id === eventId).date, '2026-09-30');
   });
   await t.test('venue presets and the public page remains read-only', async () => {
     venueId = (await act('saveVenue', { row: { name: '測試仙山球館', address: '測試路 1 號', mapUrl: 'https://maps.google.com/?q=test', parking: '地下停車場', facilities: '飲水機', defaultCourts: 3, defaultFee: 180, note: '二樓集合' } })).body.resultId;

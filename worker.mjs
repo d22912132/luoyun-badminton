@@ -1,5 +1,6 @@
 import { DurableObject } from 'cloudflare:workers';
 import { createHandler, seed } from './club.mjs';
+import { getOfficialCalendar, supportedCalendarYears } from './calendar.mjs';
 import indexHtml from './index.html';
 import consoleHtml from './console.html';
 
@@ -56,7 +57,15 @@ export class Club extends DurableObject {
 
 export default {
   async fetch(request, env) {
-    const path = new URL(request.url).pathname;
+    const url = new URL(request.url), path = url.pathname;
+    if (path === '/api/calendar') {
+      if (request.method !== 'GET') return Response.json({ error: '僅支援讀取行事曆' }, { status: 405 });
+      const year = Number(url.searchParams.get('year'));
+      if (!supportedCalendarYears().includes(year)) return Response.json({ error: '此年度的行政院行事曆尚未公布', supportedYears: supportedCalendarYears() }, { status: 404 });
+      try {
+        return Response.json(await getOfficialCalendar(year), { headers: { 'Cache-Control': 'public, max-age=3600', 'X-Content-Type-Options': 'nosniff' } });
+      } catch (error) { return Response.json({ error: error.message }, { status: error.status || 502 }); }
+    }
     if (path.startsWith('/api/')) return env.CLUB.get(env.CLUB.idFromName('luoyun')).fetch(request);
     if (path === '/health') return Response.json({ ok: true });
     if (!['GET', 'HEAD'].includes(request.method)) return new Response('Method not allowed', { status: 405 });

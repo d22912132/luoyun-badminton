@@ -36,7 +36,12 @@ function event(row) {
   if (!time.test(row.startTime) || !time.test(row.endTime) || row.endTime <= row.startTime) reject('結束時間必須晚於開始時間（同日）');
   const signupDeadline = text(row.signupDeadline ?? '', '報名截止時間', 40, true);
   if (signupDeadline && !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(signupDeadline)) reject('報名截止時間格式不正確');
-  return { title: text(row.title, '名稱'), dateText: text(row.dateText, '日期', 40),
+  const date = text(row.date ?? '', '活動日期', 10, true);
+  if (date) {
+    const m = date.match(/^(\d{4})-(\d{2})-(\d{2})$/), d = m && new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])));
+    if (!m || d.getUTCFullYear() !== Number(m[1]) || d.getUTCMonth() !== Number(m[2]) - 1 || d.getUTCDate() !== Number(m[3])) reject('活動日期格式不正確');
+  }
+  return { title: text(row.title, '名稱'), date, dateText: text(row.dateText, '日期', 40),
     startTime: row.startTime, endTime: row.endTime, place: text(row.place, '地點', 300),
     courts: number(row.courts, '場地面數', 1, 12), fee: number(row.fee, '費用', 0, 100000),
     note: text(row.note ?? '', '補充事項', 4000, true),
@@ -90,13 +95,18 @@ function normalizeState(raw) {
   if (!Array.isArray(state.venues)) {
     state.venues = deriveVenues(state.events);
   }
+  state.updatedAt = state.updatedAt || now();
   state.events = state.events.map(ev => {
-    if (ev.venueId || !ev.place) return ev;
+    let next = ev;
+    if (!ev.date) {
+      const md = String(ev.dateText || '').match(/(\d{1,2})\s*[\/月]\s*(\d{1,2})/), year = Number(state.updatedAt.slice(0, 4));
+      if (md) next = { ...next, date: year + '-' + String(md[1]).padStart(2, '0') + '-' + String(md[2]).padStart(2, '0') };
+    }
+    if (next.venueId || !next.place) return next;
     const found = state.venues.find(v => ev.place === v.name || ev.place === v.name + (v.address ? '（' + v.address + '）' : ''));
-    return found ? { ...ev, venueId: found.id } : ev;
+    return found ? { ...next, venueId: found.id } : next;
   });
   state.version = Number.isInteger(state.version) ? state.version : 0;
-  state.updatedAt = state.updatedAt || now();
   return state;
 }
 function deadlinePassed(value) {

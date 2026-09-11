@@ -3,6 +3,7 @@ node_modules/
 .env
 *.log
 test-results/
+.codex-qa-data/
 # OS / editors / temporary previews
 Thumbs.db
 ehthumbs.db

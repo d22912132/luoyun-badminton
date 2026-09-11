@@ -297,6 +297,30 @@
   .seal-toast{ position:relative; overflow:hidden; }.seal-toast::after{ content:""; position:absolute; inset:0; pointer-events:none; background:radial-gradient(circle at 15% 50%,rgba(155,195,174,.16),transparent 42%); animation:toast-glow .85s var(--ease) both; }
   @keyframes toast-glow{ from{opacity:0;transform:translateX(-25%)} to{opacity:.8;transform:translateX(10%)} }
 
+  /* ---------- 試煉行事曆 ---------- */
+  .calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:var(--hair);border-top:1px solid var(--hair)}
+  .calendar-weekday{padding:.65rem .25rem;background:rgba(6,10,12,.16);text-align:center;font-size:10.5px;letter-spacing:.12em;color:var(--mist-3)}
+  .calendar-day{position:relative;min-width:0;min-height:102px;padding:.55rem;background:rgba(16,26,30,.42);transition:background .25s var(--ease)}
+  .calendar-day:hover{background:rgba(155,195,174,.055)}
+  .calendar-day.is-out{opacity:.22;pointer-events:none}
+  .calendar-day.is-weekend{background:rgba(201,169,97,.035)}
+  .calendar-day.is-holiday{box-shadow:inset 0 2px 0 rgba(201,169,97,.52)}
+  .calendar-number{display:flex;height:25px;width:25px;align-items:center;justify-content:center;border-radius:9px;font:600 11.5px 'Noto Serif TC',serif;color:var(--mist-2)}
+  .calendar-day.is-today .calendar-number{color:#08120E;background:var(--jade-300);box-shadow:0 0 16px -5px rgba(155,195,174,.8)}
+  .calendar-note{margin-top:.3rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9.5px;color:var(--gold)}
+  .calendar-event{display:flex;width:100%;align-items:center;gap:.35rem;margin-top:.35rem;padding:.35rem .4rem;border-radius:9px;border:1px solid rgba(155,195,174,.18);background:rgba(110,158,136,.10);color:var(--jade-100);font-size:10px;text-align:left;transition:background .2s var(--ease),border-color .2s var(--ease)}
+  .calendar-event:hover{background:rgba(110,158,136,.19);border-color:rgba(155,195,174,.38)}
+  .calendar-event-dot{width:5px;height:5px;flex:none;border-radius:50%;background:var(--jade-300);box-shadow:0 0 7px rgba(155,195,174,.8)}
+  .calendar-add{position:absolute;right:.4rem;top:.45rem;display:grid;width:26px;height:26px;place-items:center;border-radius:9px;color:var(--mist-3);opacity:0;transition:opacity .2s,background .2s,color .2s}
+  .calendar-day:hover .calendar-add,.calendar-add:focus-visible{opacity:1}.calendar-add:hover{background:rgba(155,195,174,.12);color:var(--jade-100)}
+  html[data-theme="light"] .calendar-weekday{background:rgba(112,83,40,.065)}
+  html[data-theme="light"] .calendar-day{background:rgba(247,242,232,.88)}
+  html[data-theme="light"] .calendar-day.is-weekend{background:rgba(190,145,63,.09)}
+  html[data-theme="light"] .calendar-event{background:rgba(46,112,85,.10)}
+  @media(max-width:640px){
+    .calendar-day{min-height:64px;padding:.35rem .2rem}.calendar-weekday{padding:.5rem .1rem;font-size:9.5px}.calendar-number{height:22px;width:22px;font-size:10.5px}.calendar-note,.calendar-event-title,.calendar-add{display:none}.calendar-event{justify-content:center;padding:.28rem;margin-top:.12rem;border:0;background:transparent}.calendar-event-dot{width:7px;height:7px}
+  }
+
   @media (prefers-reduced-motion: reduce){
     *{ animation-duration:.001ms !important; transition-duration:.001ms !important }
     body::before{ animation:none }
@@ -424,6 +448,12 @@
   function nowISO() { return new Date().toISOString(); }
   function pad2(n) { return ('0' + n).slice(-2); }
   function todayKey() { var d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+  function displayEventDate(iso) {
+    var m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!m) return '';
+    var d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    return Number(m[2]) + '/' + Number(m[3]) + ' (' + ['日','一','二','三','四','五','六'][d.getDay()] + ')';
+  }
   function fmtTime(iso) {
     try { var d = new Date(iso); return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes()); }
     catch (e) { return iso; }
@@ -826,7 +856,7 @@
     var ctx = {
       members: members, events: events, venues: venues, intents: intents, admins: admins, logs: logs, me: me, isAdmin: isAdmin, isSuper: isSuper, dbx: dbx,
       needsSetup: needsSetup, busy: busy, error: error, syncLabel: syncLabel,
-      flash: flash, setModal: setModal, needAdmin: needAdmin,
+      flash: flash, setModal: setModal, needAdmin: needAdmin, api: api,
       saveMember: saveMember, removeMember: removeMember,
       saveEvent: saveEvent, removeEvent: removeEvent, writeRoster: writeRoster, addGuest: addGuest,
       saveAdmin: saveAdmin, removeAdmin: removeAdmin, changePin: changePin,
@@ -1079,6 +1109,7 @@
           onClick: function () { if (p.needAdmin()) p.setModal({ type: 'event', row: null }); }
         }, '開壇集結')
       }),
+      E(TrialCalendar, { p: p }),
       p.events.length === 0
         ? E(FirstRun, { p: p })
         : D('grid gap-3.5',
@@ -1090,6 +1121,81 @@
             S('num shrink-0 ' + T3, fmtTime(l.t)), S('disp font-semibold ' + T1, l.name), S('min-w-0 truncate ' + T2, l.act + '・' + (l.target || '—')));
         })) : null,
       p.isAdmin ? null : E(ReadOnlyHint));
+  }
+
+  function TrialCalendar(props) {
+    var p = props.p, initial = todayKey().slice(0, 7);
+    var monthState = useState(initial < '2026-01' ? '2026-01' : (initial > '2027-12' ? '2027-12' : initial)), monthKey = monthState[0], setMonthKey = monthState[1];
+    var dataState = useState({}), calendars = dataState[0], setCalendars = dataState[1];
+    var errorState = useState(''), calendarError = errorState[0], setCalendarError = errorState[1];
+    var loadingState = useState(false), loading = loadingState[0], setLoading = loadingState[1];
+    var openState = useState(true), expanded = openState[0], setExpanded = openState[1];
+    var parts = monthKey.split('-').map(Number), year = parts[0], month = parts[1];
+
+    useEffect(function () {
+      if (calendars[year]) return;
+      var alive = true; setLoading(true); setCalendarError('');
+      p.api('calendar?year=' + year).then(function (data) {
+        if (alive) setCalendars(function (old) { var next = Object.assign({}, old); next[year] = data; return next; });
+      }).catch(function (err) { if (alive) setCalendarError(err.message); })
+        .finally(function () { if (alive) setLoading(false); });
+      return function () { alive = false; };
+    }, [year]);
+
+    function move(delta) {
+      var next = new Date(year, month - 1 + delta, 1), key = next.getFullYear() + '-' + pad2(next.getMonth() + 1);
+      if (key >= '2026-01' && key <= '2027-12') setMonthKey(key);
+    }
+    function createAt(date) {
+      if (!p.needAdmin()) return;
+      p.setModal({ type: 'event', row: null, prefillDate: date });
+    }
+
+    var official = (calendars[year] && calendars[year].days) || [];
+    var officialByDate = {}; official.forEach(function (d) { officialByDate[d.date] = d; });
+    var eventsByDate = {}; p.events.forEach(function (ev) { if (ev.date) (eventsByDate[ev.date] || (eventsByDate[ev.date] = [])).push(ev); });
+    var first = new Date(year, month - 1, 1), count = new Date(year, month, 0).getDate(), offset = first.getDay(), cells = [];
+    for (var i = 0; i < 42; i++) {
+      var day = i - offset + 1, valid = day >= 1 && day <= count, iso = valid ? year + '-' + pad2(month) + '-' + pad2(day) : '', d = valid ? new Date(year, month - 1, day) : null;
+      var info = officialByDate[iso], evs = eventsByDate[iso] || [], weekend = valid && (d.getDay() === 0 || d.getDay() === 6), holiday = info && info.isHoliday;
+      cells.push(D('calendar-day' + (!valid ? ' is-out' : '') + (weekend ? ' is-weekend' : '') + (holiday ? ' is-holiday' : '') + (iso === todayKey() ? ' is-today' : ''), { key: i },
+        valid ? E('button', { type: 'button', className: 'calendar-number', onClick: function (date) { return function () { createAt(date); }; }(iso), 'aria-label': iso + ' 建立活動' }, String(day)) : null,
+        valid && p.isAdmin ? E('button', { type: 'button', className: 'calendar-add', onClick: function (date) { return function () { createAt(date); }; }(iso), title: '在此日開團', 'aria-label': iso + ' 開團' }, E(Icon, { name: 'Plus', size: 13 })) : null,
+        info && info.note ? E('p', { className: 'calendar-note', title: info.note }, info.note) : null,
+        evs.slice(0, 2).map(function (ev) { return E('button', { type: 'button', key: ev.id, className: 'calendar-event', onClick: function () { p.setOpenEventId(ev.id); }, title: ev.title }, E('i', { className: 'calendar-event-dot' }), E('span', { className: 'calendar-event-title truncate' }, ev.title)); }),
+        evs.length > 2 ? E('span', { className: 'mt-1 block text-center text-[9px] ' + T3 }, '+' + (evs.length - 2)) : null));
+    }
+    var focus = official.filter(function (d) { return d.date.slice(0, 7) === monthKey && d.note; }).map(function (d) { return { date: d.date, label: d.note, holiday: true }; });
+    p.events.filter(function (ev) { return String(ev.date || '').slice(0, 7) === monthKey; }).forEach(function (ev) { focus.push({ date: ev.date, label: ev.title, event: ev }); });
+    focus.sort(function (a, b) { return a.date.localeCompare(b.date) || (a.event ? -1 : 1); });
+
+    return D('bezel mb-6',
+      D('core surface overflow-hidden',
+        D('flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-5',
+          D('flex min-w-0 items-center gap-3',
+            D('flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] inlay text-[var(--gold)]', E(Icon, { name: 'CalendarDays', size: 18 })),
+            D('min-w-0', E('h3', { className: 'disp brush text-[17px] font-bold ' + T1 }, '試煉行事曆'), E('p', { className: 'mt-1 text-[11px] ' + T3 }, '開團與行政院辦公日曆同覽・點日期可直接開團'))),
+          D('flex items-center gap-1.5',
+            E(Btn, { size: 'icon', variant: 'ghost', icon: 'ChevronLeft', ariaLabel: '上個月', disabled: monthKey === '2026-01', onClick: function () { move(-1); } }),
+            E('strong', { className: 'disp num min-w-[88px] text-center text-[15px] ' + T1 }, year + '年 ' + month + '月'),
+            E(Btn, { size: 'icon', variant: 'ghost', icon: 'ChevronRight', ariaLabel: '下個月', disabled: monthKey === '2027-12', onClick: function () { move(1); } }),
+            E(Btn, { size: 'sm', variant: 'ghost', icon: expanded ? 'PanelTopClose' : 'PanelTopOpen', onClick: function () { setExpanded(!expanded); } }, expanded ? '收合' : '展開'))),
+        expanded ? D('',
+          D('flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-[var(--hair)] px-4 py-3 text-[10.5px] ' + T3,
+            D('flex items-center gap-1.5', E('i', { className: 'calendar-event-dot' }), '已開團'),
+            D('flex items-center gap-1.5', E('i', { className: 'h-2 w-5 rounded-sm bg-[rgba(201,169,97,.35)]' }), '政府機關放假日'),
+            D('flex items-center gap-1.5', E('i', { className: 'h-2 w-5 rounded-sm bg-[rgba(201,169,97,.12)]' }), '週末'),
+            loading ? S('ml-auto', '正在接引官方日曆…') : null,
+            calendarError ? S('ml-auto text-[var(--cinnabar)]', calendarError + '，開團日期仍可使用') : null),
+          D('calendar-grid', ['日','一','二','三','四','五','六'].map(function (w) { return D('calendar-weekday', { key: w }, w); }).concat(cells)),
+          D('border-t border-[var(--hair)] px-4 py-4 sm:px-5',
+            D('mb-3 flex items-center justify-between gap-3', E('p', { className: 'disp text-[13px] font-semibold ' + T1 }, month + '月重點'), E('a', { href: 'https://data.gov.tw/dataset/14718', target: '_blank', rel: 'noopener noreferrer', className: 'text-[10.5px] underline underline-offset-4 ' + T3 }, '行政院資料來源')),
+            focus.length ? D('grid gap-2 sm:grid-cols-2', focus.map(function (item, index) {
+              return E(item.event ? 'button' : 'div', { key: item.date + '-' + index, type: item.event ? 'button' : undefined, onClick: item.event ? function () { p.setOpenEventId(item.event.id); } : undefined, className: 'flex min-w-0 items-center gap-3 rounded-xl inlay px-3 py-2.5 text-left' },
+                E('span', { className: 'disp num shrink-0 text-[11.5px] ' + (item.event ? JADE : GOLD) }, Number(item.date.slice(5, 7)) + '/' + Number(item.date.slice(8, 10))),
+                E('span', { className: 'truncate text-[11.5px] ' + T2 }, item.label),
+                item.event ? E(Icon, { name: 'ChevronRight', size: 13, className: 'ml-auto shrink-0 ' + T3 }) : null);
+            })) : E('p', { className: 'text-[11.5px] ' + T3 }, '本月尚無節日註記或開團。點月曆日期即可準備下一場。'))) : null));
   }
 
   function IntentPanel(props) {
@@ -1290,7 +1396,7 @@
         D('flex items-center gap-1',
           E(Btn, {
             variant: 'ghost', size: 'sm', icon: 'CopyPlus',
-            onClick: function () { var copy = Object.assign({}, ev, { id: undefined, dateText: '', roster: [] }); p.setModal({ type: 'event', row: copy, duplicate: true }); }
+            onClick: function () { var copy = Object.assign({}, ev, { id: undefined, date: '', dateText: '', roster: [] }); p.setModal({ type: 'event', row: copy, duplicate: true }); }
           }, '複製開團'),
           E(Btn, {
             variant: 'ghost', size: 'sm', icon: 'Pencil',
@@ -1854,15 +1960,16 @@
     var row = p.modal.row;
     var isNew = !row || !!p.modal.duplicate;
     var firstVenue = p.venues[0] || null;
+    var initialDate = row ? (row.date || '') : (p.modal.prefillDate || '');
     var st = useState(row ? Object.assign({}, row) : {
-      title: '', dateText: '', startTime: '10:00', endTime: '13:00',
+      title: '', date: initialDate, dateText: displayEventDate(initialDate), startTime: '10:00', endTime: '13:00',
       place: venuePlace(firstVenue) || '亞伯林羽球館－東區振興店', venueId: firstVenue ? firstVenue.id : '',
       courts: firstVenue ? firstVenue.defaultCourts : 5, fee: firstVenue ? firstVenue.defaultFee : 220,
       note: '', roster: []
     });
     var f = st[0], setF = st[1];
     function up(kk, v) { setF(function (x) { var n = Object.assign({}, x); n[kk] = v; return n; }); }
-    var ok = f.title.trim() && f.dateText.trim() && f.place.trim() && f.startTime && f.endTime > f.startTime && Number.isInteger(Number(f.courts)) && Number(f.courts) >= 1 && Number(f.courts) <= 12 && f.fee !== '' && Number.isInteger(Number(f.fee)) && Number(f.fee) >= 0;
+    var ok = f.title.trim() && f.date && f.dateText.trim() && f.place.trim() && f.startTime && f.endTime > f.startTime && Number.isInteger(Number(f.courts)) && Number(f.courts) >= 1 && Number(f.courts) <= 12 && f.fee !== '' && Number.isInteger(Number(f.fee)) && Number(f.fee) >= 0;
     return E(Modal, {
       title: p.modal.duplicate ? '複製開團' : (isNew ? '開壇集結' : '修改集結'), wide: true,
       sub: p.modal.duplicate ? '已帶入原活動的場地、時間與費用；請設定新的日期，出席名單不會複製。' : '場地上限自動以「面數 × 7 人」計算，目前 ' + capacityOf(f.courts) + ' 人',
@@ -1891,10 +1998,10 @@
             value: f.title, onChange: function (ev) { up('title', ev.target.value); },
             placeholder: '例如：中秋節羽球團', className: INPUT, autoFocus: true
           }))),
-        E(Field, { label: p.modal.duplicate ? '新活動日期（必填）' : '日期（顯示文字）' },
+        E(Field, { label: p.modal.duplicate ? '新活動日期（必填）' : '活動日期' },
           E('input', {
-            value: f.dateText, onChange: function (ev) { up('dateText', ev.target.value); },
-            placeholder: '例如：9/25 (五)', className: INPUT, 'data-copy-date': p.modal.duplicate ? 'true' : undefined
+            type: 'date', value: f.date || '', onChange: function (ev) { var value = ev.target.value; setF(function (old) { return Object.assign({}, old, { date: value, dateText: displayEventDate(value) }); }); },
+            className: INPUT, 'data-copy-date': p.modal.duplicate ? 'true' : undefined
           })),
         E(Field, { label: '場地面數' },
           D('flex items-center gap-2.5',
