@@ -12,6 +12,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lucide@1.41.0/dist/umd/lucide.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r160/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script>
   (function(){try{var t=localStorage.getItem('luoyun-theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='dark';}})();
 </script>
@@ -307,6 +309,7 @@
   @media(max-width:640px){.enter-sword:nth-child(n+6){display:none}.enter-bolt{width:65vw;opacity:.8}.enter-title strong{letter-spacing:.16em}.enter-stars i:nth-child(n+13){display:none}}
   .seal-toast{ position:relative; overflow:hidden; }.seal-toast::after{ content:""; position:absolute; inset:0; pointer-events:none; background:radial-gradient(circle at 15% 50%,rgba(155,195,174,.16),transparent 42%); animation:toast-glow .85s var(--ease) both; }
   @keyframes toast-glow{ from{opacity:0;transform:translateX(-25%)} to{opacity:.8;transform:translateX(10%)} }
+  .enter-canvas-ritual{position:fixed;inset:0;z-index:90;overflow:hidden;background:#000;isolation:isolate}.enter-canvas-ritual canvas{display:block;width:100%;height:100%;touch-action:none}.ritual-skip{position:fixed;right:max(1.15rem,env(safe-area-inset-right));bottom:max(1.15rem,env(safe-area-inset-bottom));z-index:2;min-height:42px;padding:.65rem 1.05rem;border:1px solid rgba(201,255,224,.55);border-radius:999px;background:rgba(6,16,14,.72);box-shadow:0 0 18px rgba(127,214,160,.2),inset 0 1px 0 rgba(255,255,255,.14);color:#dfffee;font:600 .76rem 'Noto Serif TC',serif;letter-spacing:.18em;backdrop-filter:blur(10px);cursor:pointer;transition:transform .16s ease,background .16s ease}.ritual-skip:hover{background:rgba(39,108,78,.62);transform:translateY(-2px)}.ritual-skip:active{transform:scale(.96)}
 
   /* ---------- 試煉行事曆 ---------- */
   .calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:var(--hair);border-top:1px solid var(--hair)}
@@ -782,7 +785,7 @@
       if (!kind) return;
       if (kind === 'enter' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       clearTimeout(fxTimer.current); setFx({ kind: kind, key: Date.now() });
-      fxTimer.current = setTimeout(function () { setFx(null); }, kind === 'enter' ? 2300 : 1150);
+      fxTimer.current = setTimeout(function () { setFx(null); }, kind === 'enter' ? 1500 : 1150);
     }
     function flash(msg, kind, fxKind) { var item={id:Date.now()+Math.random(),msg:msg,kind:kind||'ok',fx:fxKind||''}; setToasts(function(old){return old.concat(item).slice(-3);}); invokeFx(fxKind); var timer=setTimeout(function(){setToasts(function(old){return old.filter(function(x){return x.id!==item.id;});});},4000); toastTimers.current.push(timer); }
     function setModal(value) {
@@ -916,28 +919,83 @@
   }
 
   function EnterRitual(p) {
+    var canvasRef = useRef(null), doneRef = useRef(p.onSkip);
+    doneRef.current = p.onSkip;
     useEffect(function () {
-      function onKey(event) { if (event.key === 'Escape') p.onSkip(); }
-      window.addEventListener('keydown', onKey);
-      return function () { window.removeEventListener('keydown', onKey); };
-    }, [p.onSkip]);
-    var swords = [-74, -52, -31, -12, 12, 31, 52, 74];
-    var cuts = [-76, -48, -19, 9, 37, 65, 108, 142, 170, 207, 238, 281];
-    var stars = [
-      [-42,-35,-34,-29,.02],[-23,-41,-18,-42,.16],[0,-44,3,-47,.08],[27,-37,25,-40,.23],[45,-23,42,-29,.11],
-      [-46,-5,-48,-2,.28],[-31,18,-39,23,.05],[-10,39,-13,44,.19],[13,40,17,47,.13],[34,23,40,28,.26],[48,5,53,7,.09],[-1,-2,3,4,.31],[-29,-23,-36,-28,.21],[25,-19,32,-23,.35],[-17,8,-25,12,.12],[18,8,26,12,.3]
-    ];
-    return E('button', { type:'button', className:'enter-ritual', onClick:p.onSkip, 'aria-label':'略過入殿動畫' },
-      D('enter-veil'),
-      D('enter-stars', stars.map(function (star, i) { return E('i', { key:i, style:{ left:(50 + star[0]) + '%', top:(50 + star[1]) + '%', '--tx':star[2] + 'vw', '--ty':star[3] + 'vh', '--d':star[4] + 's' } }); })),
-      D('enter-thunder',
-        E('i', { className:'enter-bolt', style:{ '--x':'-24vw', '--r':'-19deg', '--d':'.16s' } }),
-        E('i', { className:'enter-bolt', style:{ '--x':'17vw', '--r':'21deg', '--d':'.37s' } }),
-        E('i', { className:'enter-bolt', style:{ '--x':'-2vw', '--r':'3deg', '--d':'.52s' } })),
-      D('enter-rift', cuts.map(function (angle, i) { return E('i', { className:'rift-cut', key:i, style:{ '--r':angle + 'deg', '--d':(.48 + i * .035) + 's' } }); })),
-      D('enter-swords', swords.map(function (angle, i) { return E('span', { className:'enter-sword', key:i, style:{ '--r':angle + 'deg', '--d':(.08 + i * .07) + 's' } }, E('i')); })),
-      D('enter-title', E('strong', null, '落雲宗・入殿'), E('span', null, '青竹劍陣 · 避邪神雷 · 虛空開門')),
-      S('enter-skip', '點擊畫面或按 Esc 略過'));
+      var canvas = canvasRef.current, Three = window.THREE, Gsap = window.gsap;
+      if (!canvas || !Three || !Gsap) { doneRef.current(); return; }
+      var renderer = new Three.WebGLRenderer({ canvas:canvas, antialias:true, alpha:false, powerPreference:'high-performance' });
+      var scene = new Three.Scene();
+      var camera = new Three.OrthographicCamera(-7, 7, 5, -5, .1, 50);
+      var clock = new Three.Clock(), rafActive = true, settled = false, timeline;
+      var state = { rise:0, whirl:0 };
+      var swordMaterial = new Three.ShaderMaterial({
+        transparent:true, depthWrite:false, blending:Three.AdditiveBlending,
+        uniforms:{ uTime:{ value:0 }, uTint:{ value:new Three.Color('#7FD6A0') } },
+        vertexShader:'varying vec2 vUv; void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
+        fragmentShader:'uniform float uTime; uniform vec3 uTint; varying vec2 vUv; void main(){float grain=.75+.25*sin(vUv.y*38.0+uTime*4.0);float edge=pow(1.0-abs(vUv.x-.5)*2.0,1.7);vec3 color=mix(vec3(.035,.18,.12),uTint,edge)*grain;gl_FragColor=vec4(color,.3+.7*edge);}'
+      });
+      var bladeGeometry = new Three.ConeGeometry(.14, 1.78, 4, 1, false);
+      var hiltGeometry = new Three.CylinderGeometry(.105, .13, .48, 8);
+      var guardGeometry = new Three.CylinderGeometry(.38, .38, .045, 12);
+      var hiltMaterial = new Three.MeshBasicMaterial({ color:'#245E43', transparent:true, opacity:.94 });
+      var guardMaterial = new Three.MeshBasicMaterial({ color:'#D7C46E', transparent:true, opacity:.92 });
+      var swords = [], tip = new Three.Vector3();
+      function makeSword(i) {
+        var group = new Three.Group();
+        var blade = new Three.Mesh(bladeGeometry, swordMaterial); blade.position.y = .72;
+        var hilt = new Three.Mesh(hiltGeometry, hiltMaterial); hilt.position.y = -.38;
+        var guard = new Three.Mesh(guardGeometry, guardMaterial); guard.rotation.z = Math.PI / 2; guard.position.y = -.08;
+        group.add(blade, hilt, guard); scene.add(group);
+        var trailPositions = new Float32Array(18 * 3);
+        var trailGeometry = new Three.BufferGeometry(); trailGeometry.setAttribute('position', new Three.BufferAttribute(trailPositions, 3)); trailGeometry.setDrawRange(0, 18);
+        var trail = new Three.Line(trailGeometry, new Three.LineBasicMaterial({ color:'#7FD6A0', transparent:true, opacity:.52, blending:Three.AdditiveBlending, depthTest:false, depthWrite:false }));
+        scene.add(trail); return { group:group, trail:trail, points:trailPositions, attr:trailGeometry.attributes.position, index:i };
+      }
+      for (var i = 0; i < 5; i++) swords.push(makeSword(i));
+      function resize() {
+        var width = window.innerWidth, height = window.innerHeight, aspect = width / height, size = 5;
+        camera.left = -size * aspect; camera.right = size * aspect; camera.top = size; camera.bottom = -size; camera.updateProjectionMatrix();
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, width < 641 ? 1.25 : 1.75)); renderer.setSize(width, height, false);
+      }
+      function updateTrail(item, visible) {
+        item.group.localToWorld(tip.set(0, 1.62, 0));
+        if (!visible) { item.trail.visible = false; return; }
+        item.trail.visible = true; item.points.copyWithin(3, 0, item.points.length - 3);
+        item.points[0] = tip.x; item.points[1] = tip.y; item.points[2] = tip.z; item.attr.needsUpdate = true;
+      }
+      function render() {
+        if (!rafActive) return;
+        var elapsed = clock.getElapsedTime(), orbit = state.whirl, rise = state.rise;
+        swordMaterial.uniforms.uTime.value = elapsed;
+        swords.forEach(function (item) {
+          var idx = item.index, baseX = (idx - 2) * 1.14, baseY = -2.1 + rise * 3.15;
+          var angle = idx * Math.PI * 2 / 5 + orbit * Math.PI * 5.4;
+          var targetX = Math.cos(angle) * 2.35, targetY = Math.sin(angle) * 1.72;
+          item.group.position.set(Three.MathUtils.lerp(baseX, targetX, orbit), Three.MathUtils.lerp(baseY, targetY, orbit) + Math.sin(elapsed * 4 + idx) * (.045 + (1 - orbit) * .06), 0);
+          item.group.rotation.z = Three.MathUtils.lerp(Math.sin(elapsed * 3 + idx) * .05, angle + Math.PI / 2, orbit);
+          updateTrail(item, orbit > .015);
+        });
+        renderer.render(scene, camera);
+      }
+      function dispose() {
+        if (!rafActive) return; rafActive = false; renderer.setAnimationLoop(null); timeline && timeline.kill();
+        scene.traverse(function (object) { if (object.geometry) object.geometry.dispose(); if (object.material && object.material !== swordMaterial && object.material.dispose) object.material.dispose(); });
+        swordMaterial.dispose(); renderer.dispose(); renderer.forceContextLoss();
+      }
+      function finish() {
+        if (settled) return; settled = true; timeline && timeline.kill();
+        Gsap.to(canvas.parentNode, { autoAlpha:0, duration:.2, ease:'power1.out', onComplete:function () { doneRef.current(); } });
+      }
+      function onKey(event) { if (event.key === 'Escape') finish(); }
+      resize(); window.addEventListener('resize', resize); window.addEventListener('keydown', onKey);
+      timeline = Gsap.timeline({ defaults:{ overwrite:'auto' }, onComplete:finish })
+        .to(state, { rise:1, duration:.6, ease:'power2.out' })
+        .to(state, { whirl:1, duration:.6, ease:'power4.in' });
+      renderer.setAnimationLoop(render);
+      return function () { window.removeEventListener('resize', resize); window.removeEventListener('keydown', onKey); dispose(); };
+    }, []);
+    return D('enter-canvas-ritual', { 'aria-label':'入殿劍陣動畫' }, E('canvas', { ref:canvasRef }), E('button', { type:'button', className:'ritual-skip', onClick:function () { var event = new KeyboardEvent('keydown', { key:'Escape' }); window.dispatchEvent(event); } }, '跳過'));
   }
 
   /* ---------------- top bar ---------------- */
