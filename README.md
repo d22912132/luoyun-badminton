@@ -2,11 +2,11 @@
 
 保留原本墨玉風格的羽球開團網站，現在可獨立運作，不需要 Claude Artifact。
 
-- **正式公開名單**：<https://luoyun-badminton.luoyun-badminton.workers.dev/>
-- **管理後台**：<https://luoyun-badminton.luoyun-badminton.workers.dev/console.html>
+- **網站入口**：<https://luoyun-badminton.luoyun-badminton.workers.dev/>（會直接進入管理介面）
+- **試煉佈告／管理後台**：<https://luoyun-badminton.luoyun-badminton.workers.dev/console.html>
 
-- **公開名單** `/`：任何人可看，每 5 秒讀取最新資料。斷線會標示資料狀態。
-- **管理後台** `/console.html`：登入後開團、維護弟子名冊、加入散修、切換入陣／觀望／候補、複製 LINE 通知。
+- **網站入口** `/`：自動轉到 `/console.html`。
+- **試煉佈告／管理後台** `/console.html`：未登入者只能閱讀試煉佈告與名單；登入後可開團、維護弟子名冊、加入散修、切換入陣／觀望／候補、複製 LINE 通知。
 - **掌門殿**：管理長老、變更密碼、檢視操作日誌、下載資料備份。
 - **多人同步**：所有管理者使用同一個 SQLite 資料庫；衝突時拒絕舊版本寫入，請關閉編輯視窗、依最新資料重做。
 - **修仙玩法**：公開頁每日靈籤、宗門活躍榜、修仙稱號、靈力與席位統計；後台名冊同步顯示弟子稱號與入陣次數。
@@ -21,7 +21,7 @@
 npm start
 ```
 
-打開 [公開名單](http://localhost:3000/) 或 [管理後台](http://localhost:3000/console.html)。
+打開 [網站入口](http://localhost:3000/) 或直接開啟 [試煉佈告／管理後台](http://localhost:3000/console.html)。
 
 第一次啟動會：
 

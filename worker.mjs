@@ -4,10 +4,10 @@ import { getOfficialCalendar, supportedCalendarYears } from './calendar.mjs';
 import indexHtml from './index.html';
 import consoleHtml from './console.html';
 
-const pages = { '/': indexHtml, '/index.html': indexHtml, '/console.html': consoleHtml };
+const pages = { '/console.html': consoleHtml, '/rite.html': indexHtml };
 const snapshot = JSON.parse(indexHtml.match(/id="snapshot">\s*([\s\S]*?)<\/script>/)[1]);
 const headers = { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store',
-  'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'DENY', 'Referrer-Policy': 'same-origin' };
+  'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'SAMEORIGIN', 'Referrer-Policy': 'same-origin' };
 
 export class Club extends DurableObject {
   constructor(ctx, env) {
@@ -69,6 +69,7 @@ export default {
     if (path.startsWith('/api/')) return env.CLUB.get(env.CLUB.idFromName('luoyun')).fetch(request);
     if (path === '/health') return Response.json({ ok: true });
     if (!['GET', 'HEAD'].includes(request.method)) return new Response('Method not allowed', { status: 405 });
+    if (path === '/' || path === '/index.html') return new Response(null, { status: 307, headers: { ...headers, Location: '/console.html' } });
     if (!Object.hasOwn(pages, path)) return new Response('找不到頁面', { status: 404 });
     const html = pages[path].replace('<head>', '<head><meta name="club-live" content="true">')
       .replace(/(<script type="application\/json" id="snapshot">)[\s\S]*?(<\/script>)/, '$1{}$2');

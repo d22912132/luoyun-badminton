@@ -310,6 +310,8 @@
   .seal-toast{ position:relative; overflow:hidden; }.seal-toast::after{ content:""; position:absolute; inset:0; pointer-events:none; background:radial-gradient(circle at 15% 50%,rgba(155,195,174,.16),transparent 42%); animation:toast-glow .85s var(--ease) both; }
   @keyframes toast-glow{ from{opacity:0;transform:translateX(-25%)} to{opacity:.8;transform:translateX(10%)} }
   .enter-canvas-ritual{position:fixed;inset:0;z-index:90;overflow:hidden;background:#000;isolation:isolate}.enter-canvas-ritual canvas{display:block;width:100%;height:100%;touch-action:none}.ritual-skip{position:fixed;right:max(1.15rem,env(safe-area-inset-right));bottom:max(1.15rem,env(safe-area-inset-bottom));z-index:2;min-height:42px;padding:.65rem 1.05rem;border:1px solid rgba(201,255,224,.55);border-radius:999px;background:rgba(6,16,14,.72);box-shadow:0 0 18px rgba(127,214,160,.2),inset 0 1px 0 rgba(255,255,255,.14);color:#dfffee;font:600 .76rem 'Noto Serif TC',serif;letter-spacing:.18em;backdrop-filter:blur(10px);cursor:pointer;transition:transform .16s ease,background .16s ease}.ritual-skip:hover{background:rgba(39,108,78,.62);transform:translateY(-2px)}.ritual-skip:active{transform:scale(.96)}
+  /* 首次進入後台時，覆蓋一層與舊首頁完全相同的入陣禮。 */
+  .console-rite-frame{position:fixed;inset:0;z-index:90;width:100%;height:100%;border:0;background:var(--ink-0)}
 
   /* ---------- 試煉行事曆 ---------- */
   .calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:var(--hair);border-top:1px solid var(--hair)}
@@ -783,9 +785,9 @@
 
     function invokeFx(kind) {
       if (!kind) return;
-      if (kind === 'enter' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if ((kind === 'enter' || kind === 'landing') && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       clearTimeout(fxTimer.current); setFx({ kind: kind, key: Date.now() });
-      fxTimer.current = setTimeout(function () { setFx(null); }, kind === 'enter' ? 1500 : 1150);
+      fxTimer.current = setTimeout(function () { setFx(null); }, kind === 'landing' ? 2400 : (kind === 'enter' ? 1500 : 1150));
     }
     function flash(msg, kind, fxKind) { var item={id:Date.now()+Math.random(),msg:msg,kind:kind||'ok',fx:fxKind||''}; setToasts(function(old){return old.concat(item).slice(-3);}); invokeFx(fxKind); var timer=setTimeout(function(){setToasts(function(old){return old.filter(function(x){return x.id!==item.id;});});},4000); toastTimers.current.push(timer); }
     function setModal(value) {
@@ -811,10 +813,17 @@
       setNeedsSetup(session.needsSetup);
       if (session.me) {
         var data = await api('state'); if (requestEpoch === epoch.current) accept(data);
-      } else { version.current = -1; setMe(null); setState({ members: [], events: [], venues: [], intents: [], admins: [], logs: [] }); setSyncLabel('請先登入'); }
+      } else {
+        var publicData = await api('public');
+        if (requestEpoch !== epoch.current) return;
+        version.current = publicData.version; setMe(null);
+        setState({ members: [], events: publicData.events || [], venues: publicData.venues || [], intents: [], admins: [], logs: [] });
+        setTab('events'); setSyncLabel('公開佈告・每 5 秒更新');
+      }
     }
     useEffect(function () {
       var alive = true, timer;
+      invokeFx('landing');
       async function tick() {
         try { if (!lock.current && !document.hidden) { await refresh(); setError(function (old) { return old === '無法連上伺服器，請稍後再試；本機使用時請確認 npm start 已啟動。' ? '' : old; }); } }
         catch (err) { if (alive) { setSyncLabel('連線中斷，正在重試'); setError('無法連上伺服器，請稍後再試；本機使用時請確認 npm start 已啟動。'); } }
@@ -883,11 +892,6 @@
 
     var body;
     if (!ready) { body = E(LoadingSkeleton);
-    } else if (!me) {
-      body = D('surface rounded-[20px] p-8',
-        E(PageHead, { eyebrow: '落雲宗', title: needsSetup ? '建立第一位掌門' : '長老入殿', sub: needsSetup ? '輸入主機上的初始化金鑰，建立你的管理帳號。' : '登入後可管理開團、名單與長老，共用資料會自動同步。' }),
-        E(Btn, { variant: 'primary', icon: 'Shield', onClick: function () { setModal({ type: 'login' }); } }, needsSetup ? '開始設定' : '登入管理後台'),
-        E('a', { href: '/', className: 'ml-4 underline text-sm' }, '查看公開名單'));
     } else if (openEvent) {
       body = E(EventDetail, Object.assign({ ev: openEvent }, ctx));
     } else if (tab === 'events') {
@@ -912,10 +916,15 @@
   }
 
   function SectEffect(p) {
+    if (p.kind === 'landing') return E(LandingRite);
     if (p.kind === 'enter') return E(EnterRitual, { onSkip: p.onSkip });
     var labels = { ward:'護山陣啟', member:'弟子玉印', event:'開壇靈光', roster:'入陣封錄', venue:'洞府落印', seal:'宗門玉印', line:'傳訊符成' };
     return D('fx-layer', { 'aria-hidden': 'true' },
       D('fx-sigil', E(SectMark, { size: 48 }), E('span', null, labels[p.kind] || labels.seal)));
+  }
+
+  function LandingRite() {
+    return E('iframe', { className: 'console-rite-frame', src: '/rite.html?rite=1', title: '青竹蜂雲劍・入陣禮' });
   }
 
   function EnterRitual(p) {
@@ -1055,7 +1064,7 @@
               E(Btn, { variant: 'ghost', size: 'sm', icon: 'LogOut', onClick: p.logout }, '離殿'))
             : E(Btn, { variant: 'primary', size: 'sm', icon: 'Shield', onClick: function () { p.setModal({ type: 'login' }); } }, '入殿'))),
       D('scroll-x mx-auto flex max-w-5xl gap-1 overflow-x-auto px-4 pb-3 sm:px-6',
-        tabs.map(function (t) {
+        tabs.filter(function (t) { return p.isAdmin || t.k === 'events'; }).map(function (t) {
           var active = p.tab === t.k && !p.openEvent;
           return E('button', {
             key: t.k,
@@ -1201,14 +1210,14 @@
     return D('',
       E(PageHead, {
         eyebrow: '試煉佈告', title: '宗門集結', sub: '共 ' + p.events.length + ' 場試煉・名單由長老統一維護',
-        action: E(Btn, {
+        action: p.isAdmin ? E(Btn, {
           variant: 'primary', icon: 'Plus', nub: 'ArrowRight',
-          onClick: function () { if (p.needAdmin()) p.setModal({ type: 'event', row: null }); }
-        }, '開壇集結')
+          onClick: function () { p.setModal({ type: 'event', row: null }); }
+        }, '開壇集結') : null
       }),
       E(TrialCalendar, { p: p }),
       p.events.length === 0
-        ? E(FirstRun, { p: p })
+        ? (p.isAdmin ? E(FirstRun, { p: p }) : E(Empty, { icon: 'CalendarX2', title: '目前沒有試煉佈告', hint: '請稍後再回來查看最新集結。' }))
         : D('grid gap-3.5',
           p.events.map(function (ev) { return E(EventCard, { key: ev.id, ev: ev, p: p }); })),
       p.logs.length ? D('mt-6 rounded-[20px] inlay p-5',
@@ -1256,7 +1265,9 @@
       var day = i - offset + 1, valid = day >= 1 && day <= count, iso = valid ? year + '-' + pad2(month) + '-' + pad2(day) : '', d = valid ? new Date(year, month - 1, day) : null;
       var info = officialByDate[iso], evs = eventsByDate[iso] || [], weekend = valid && (d.getDay() === 0 || d.getDay() === 6), holiday = info && info.isHoliday;
       cells.push(D('calendar-day' + (!valid ? ' is-out' : '') + (weekend ? ' is-weekend' : '') + (holiday ? ' is-holiday' : '') + (iso === todayKey() ? ' is-today' : ''), { key: i },
-        valid ? E('button', { type: 'button', className: 'calendar-number', onClick: function (date) { return function () { createAt(date); }; }(iso), 'aria-label': iso + ' 建立活動' }, String(day)) : null,
+        valid ? (p.isAdmin
+          ? E('button', { type: 'button', className: 'calendar-number', onClick: function (date) { return function () { createAt(date); }; }(iso), 'aria-label': iso + ' 建立活動' }, String(day))
+          : E('span', { className: 'calendar-number', 'aria-label': iso }, String(day))) : null,
         valid && p.isAdmin ? E('button', { type: 'button', className: 'calendar-add', onClick: function (date) { return function () { createAt(date); }; }(iso), title: '在此日開團', 'aria-label': iso + ' 開團' }, E(Icon, { name: 'Plus', size: 13 })) : null,
         info && info.note ? E('p', { className: 'calendar-note', title: info.note }, info.note) : null,
         evs.slice(0, 2).map(function (ev) { return E('button', { type: 'button', key: ev.id, className: 'calendar-event', onClick: function () { p.setOpenEventId(ev.id); }, title: ev.title }, E('i', { className: 'calendar-event-dot' }), E('span', { className: 'calendar-event-title truncate' }, ev.title)); }),
@@ -1433,7 +1444,7 @@
     var over = going.length > cap;
     var pct = fillPct(going.length, cap);
     var recruitment = deadlineInfo(ev.signupDeadline, going.length, cap);
-    var venueRow = p.venues.find(function (v) { return v.id === ev.venueId; });
+    var venueRow = p.venues.find(function (v) { return v.id === ev.venueId; }) || ev.venue;
 
     function setStatus(r, kk) {
       if (!p.needAdmin() || r.status === kk) return;
@@ -1500,7 +1511,7 @@
     return D('',
       D('flex flex-wrap items-center justify-between gap-2 pb-5',
         E(Btn, { variant: 'ghost', icon: 'ChevronLeft', onClick: function () { p.setOpenEventId(null); } }, '返回佈告欄'),
-        D('flex items-center gap-1',
+        p.isAdmin ? D('flex items-center gap-1',
           E(Btn, {
             variant: 'ghost', size: 'sm', icon: 'CopyPlus',
             onClick: function () { var copy = Object.assign({}, ev, { id: undefined, date: '', dateText: '', roster: [] }); p.setModal({ type: 'event', row: copy, duplicate: true }); }
@@ -1519,7 +1530,7 @@
                 run: function () { return p.removeEvent(ev); }
               });
             }
-          }, '撤除'))),
+          }, '撤除')) : null),
 
       /* 主卡：Double-bezel 外殼 + 內核，真磨砂只用在這一張 */
       D('bezel',
@@ -1602,19 +1613,19 @@
             E('h3', { className: 'disp text-[15px] font-semibold ' + T1 }, '門規')),
           E(RuleRows, { rules: rulesOf() }))),
 
-      D('mt-6 flex flex-wrap gap-2.5',
+      p.isAdmin ? D('mt-6 flex flex-wrap gap-2.5',
         E(Btn, {
           variant: 'primary', icon: 'ListPlus', nub: 'ArrowRight',
-          onClick: function () { if (p.needAdmin()) p.setModal({ type: 'pick', ev: ev }); }
+          onClick: function () { p.setModal({ type: 'pick', ev: ev }); }
         }, '自名冊點將'),
         E(Btn, {
           variant: 'outline', icon: 'UserPlus',
-          onClick: function () { if (p.needAdmin()) p.setModal({ type: 'guest', ev: ev }); }
+          onClick: function () { p.setModal({ type: 'guest', ev: ev }); }
         }, '納入散修'),
         E(Btn, {
           variant: 'soft', icon: 'ClipboardList',
           onClick: function () { p.setModal({ type: 'line', text: lineText() }); }
-        }, '生成傳訊符')),
+        }, '生成傳訊符')) : E('div', { className: 'mt-6' }, E(ReadOnlyHint)),
 
       D('mt-8 mb-3.5 flex items-end justify-between',
         D('',
@@ -1637,12 +1648,12 @@
       roster.length === 0
         ? E(Empty, {
           icon: 'Users', title: '陣列尚無一人',
-          hint: '用「自名冊點將」勾選常客，或用「納入散修」加入未建檔的道友。'
+          hint: p.isAdmin ? '用「自名冊點將」勾選常客，或用「納入散修」加入未建檔的道友。' : '目前尚未公布出席名單。'
         })
         : D('',
           filteredView.length ? D('',
             D('grid gap-2.5', rosterRows.map(function (r, idx) {
-              return E(RosterCard, { key: r.rid, r: r, idx: rosterStart + idx, editable: p.isAdmin, setStatus: setStatus, removeRow: removeRow });
+              return E(RosterCard, { key: r.rid || r.nickname + '-' + (rosterStart + idx), r: r, idx: rosterStart + idx, editable: p.isAdmin, setStatus: setStatus, removeRow: removeRow });
             })),
             rosterPageCount > 1 ? D('mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl inlay px-3 py-2.5 sm:px-4',
               E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronLeft', disabled: activeRosterPage <= 1, onClick: function () { moveRosterPage(activeRosterPage - 1); } }, '上一頁'),
@@ -1651,8 +1662,7 @@
                 return E('button', { key: n, type: 'button', 'aria-label': '入陣名冊第 ' + n + ' 頁', 'aria-current': on ? 'page' : undefined, onClick: function () { moveRosterPage(n); }, className: 'btn flex h-9 min-w-9 items-center justify-center rounded-xl px-2 text-[12px] font-medium ' + (on ? JADE : T3), style: on ? { background: 'rgba(155,195,174,.12)', border: '1px solid rgba(155,195,174,.25)' } : { border: '1px solid transparent' } }, String(n));
               })),
               E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronRight', disabled: activeRosterPage >= rosterPageCount, onClick: function () { moveRosterPage(activeRosterPage + 1); } }, '下一頁')) : null
-          ) : E(Empty, { icon: 'FilterX', title: '這個狀態目前無人', hint: '切換其他狀態，或由右側下拉選單調整出席狀態。' })),
-      p.isAdmin ? null : E(ReadOnlyHint));
+          ) : E(Empty, { icon: 'FilterX', title: '這個狀態目前無人', hint: '切換其他狀態，或由右側下拉選單調整出席狀態。' })));
   }
 
   function StatusBadge(p) {

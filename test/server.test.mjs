@@ -37,7 +37,9 @@ test('shared club: authentication, permissions, persistence, validation and conf
     assert.equal(res.status, 200); assert.ok(res.body.events[0].roster.length > 0);
     for (const row of res.body.events[0].roster) assert.deepEqual(Object.keys(row).sort(), ['gender', 'level', 'nickname', 'status']);
     assert.equal(res.body.admins, undefined); assert.equal(res.body.logs, undefined);
-    const html = await fetch(base + '/'); assert.match(await html.text(), /name="club-live"/);
+    const root = await fetch(base + '/', { redirect: 'manual' });
+    assert.equal(root.status, 307); assert.equal(root.headers.get('location'), '/console.html');
+    const html = await fetch(base + '/console.html'); assert.match(await html.text(), /name="club-live"/);
     assert.equal((await fetch(base + '/data/club.sqlite')).status, 404);
     assert.equal((await fetch(base + '/server.mjs')).status, 404);
   });

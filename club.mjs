@@ -280,7 +280,9 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
   }
   return async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'DENY');
+    // The console embeds the same-origin rite page during its entrance animation.
+    // Cross-site framing remains blocked.
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
     res.setHeader('Referrer-Policy', 'same-origin');
     res.setHeader('Cache-Control', 'no-store');
     const json = (value, status = 200) => { res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' }); res.end(JSON.stringify(value)); };
@@ -288,7 +290,12 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
       const path = new URL(req.url, 'http://localhost').pathname;
       if (!path.startsWith('/api/')) {
         if (!['GET', 'HEAD'].includes(req.method)) reject('不支援的請求', 405);
-        const files = { '/': 'index.html', '/index.html': 'index.html', '/console.html': 'console.html', '/health': null };
+        // The console is now the single visitor entry point.  The original public
+        // page remains available only as the animation source embedded by the console.
+        if (path === '/' || path === '/index.html') {
+          res.writeHead(307, { Location: '/console.html' }); return res.end();
+        }
+        const files = { '/console.html': 'console.html', '/rite.html': 'index.html', '/health': null };
         if (!Object.hasOwn(files, path)) reject('找不到頁面', 404);
         if (path === '/health') return json({ ok: true });
         let html = readHtml(files[path]);
