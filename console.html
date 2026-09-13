@@ -787,7 +787,9 @@
       if (!kind) return;
       if ((kind === 'enter' || kind === 'landing') && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       clearTimeout(fxTimer.current); setFx({ kind: kind, key: Date.now() });
-      fxTimer.current = setTimeout(function () { setFx(null); }, kind === 'landing' ? 2400 : (kind === 'enter' ? 1500 : 1150));
+      // The embedded rite dismisses itself at 2.2s. Remove its frame just before
+      // that point so the old public page can never flash through underneath.
+      fxTimer.current = setTimeout(function () { setFx(null); }, kind === 'landing' ? 2150 : (kind === 'enter' ? 1500 : 1150));
     }
     function flash(msg, kind, fxKind) { var item={id:Date.now()+Math.random(),msg:msg,kind:kind||'ok',fx:fxKind||''}; setToasts(function(old){return old.concat(item).slice(-3);}); invokeFx(fxKind); var timer=setTimeout(function(){setToasts(function(old){return old.filter(function(x){return x.id!==item.id;});});},4000); toastTimers.current.push(timer); }
     function setModal(value) {
