@@ -114,6 +114,10 @@ test('shared club: authentication, permissions, persistence, validation and conf
     const login = await request('/api/login', { account: 'elder', pin: '1357' }, '');
     elderCookie = login.cookie.split(';')[0];
     await act('saveAdmin', { row: { account: 'hacker', name: 'H', pin: 'password1', superAdmin: true } }, elderCookie, 403);
+    await act('changeHonorific', { id: elderId, row: { title: '羽球護法' } }, elderCookie);
+    assert.equal(state.admins.find(a => a.id === elderId).title, '羽球護法');
+    const ownerId = state.admins.find(a => a.account === 'owner').id;
+    await act('changeHonorific', { id: ownerId, row: { title: '越權稱號' } }, elderCookie, 403);
     await act('changePin', { id: elderId, pin: 'Changed-982!', currentPassword: 'wrong' }, elderCookie, 403);
     assert.equal((await request('/api/backup', undefined, elderCookie)).status, 403);
     const backup = await request('/api/backup'); assert.equal(backup.status, 200);

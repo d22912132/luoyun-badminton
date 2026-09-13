@@ -68,7 +68,8 @@ function intent(row) {
 function account(row) {
   const account = text(row.account, '帳號', 40).toLowerCase();
   if (!/^[a-z0-9._-]+$/.test(account)) reject('帳號限英文字母、數字、點、底線與連字號');
-  return { account, name: text(row.name, '長老名號', 80), superAdmin: row.superAdmin === true };
+  return { account, name: text(row.name, '長老名號', 80),
+    title: text(row.title ?? '', '職司稱號', 40, true), superAdmin: row.superAdmin === true };
 }
 function venueFromPlace(place, i = 0) {
   const match = String(place || '').match(/^(.+?)[（(]([^）)]+)[）)]$/);
@@ -253,8 +254,8 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
       }
       ev.roster.push({ ...fields, memberId, rid: randomUUID(), status: row.status, addedBy: me.account, addedAt: now() });
       target = ev.title + '・' + fields.nickname;
-    } else if (['saveAdmin', 'removeAdmin', 'changePin'].includes(action)) {
-      if (!me.superAdmin && !(action === 'changePin' && me.id === id)) reject('需要掌門權限', 403);
+    } else if (['saveAdmin', 'removeAdmin', 'changePin', 'changeHonorific'].includes(action)) {
+      if (!me.superAdmin && !(['changePin', 'changeHonorific'].includes(action) && me.id === id)) reject('需要掌門權限', 403);
       if (action === 'saveAdmin') {
         const fields = account(row);
         if (state.admins.some(a => a.id !== id && a.account === fields.account)) reject('帳號已存在');
@@ -264,17 +265,21 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
         target = find(state.admins).account; state.admins = state.admins.filter(a => a.id !== id);
         db.prepare('DELETE FROM passwords WHERE id=?').run(id);
         db.prepare('DELETE FROM sessions WHERE adminId=?').run(id);
-      } else {
+      } else if (action === 'changePin') {
         target = find(state.admins).account;
         if (me.id === id && !verify(body.currentPassword, db.prepare('SELECT hash FROM passwords WHERE id=?').get(id).hash)) reject('目前密碼不正確', 403);
         db.prepare('UPDATE passwords SET hash=? WHERE id=?').run(password(body.pin), id);
         db.prepare('DELETE FROM sessions WHERE adminId=?').run(id);
+      } else {
+        const ad = find(state.admins);
+        ad.title = text(row.title ?? '', '職司稱號', 40, true); ad.updatedAt = now(); ad.updatedBy = me.account;
+        target = ad.title || (ad.superAdmin ? '落雲宗掌門' : '落雲宗大長老');
       }
       if (!state.admins.some(a => a.superAdmin)) reject('至少必須保留一位掌門');
     } else reject('不支援的操作');
     const labels = { saveMember: '儲存弟子', removeMember: '除名弟子', saveEvent: '儲存集結', removeEvent: '撤除集結',
       saveVenue: '儲存場館', removeVenue: '移除場館', approveIntent: '核准意願', rejectIntent: '婉拒意願',
-      writeRoster: '更新陣列', addGuest: '納入散修', saveAdmin: '更新長老', removeAdmin: '革除長老', changePin: '變更密碼' };
+      writeRoster: '更新陣列', addGuest: '納入散修', saveAdmin: '更新長老', removeAdmin: '革除長老', changePin: '變更口令', changeHonorific: '更換稱號' };
     audit(state, me, labels[action], target);
     return resultId;
   }

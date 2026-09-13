@@ -410,7 +410,9 @@
 
   var T1 = 'text-[var(--mist-1)]', T2 = 'text-[var(--mist-2)]', T3 = 'text-[var(--mist-3)]';
   var JADE = 'text-[var(--jade-300)]', GOLD = 'text-[var(--gold)]', CIN = 'text-[var(--cinnabar)]';
+  var HONORIFICS = ['落雲宗掌門', '雲上宗主', '羽林總教頭', '揪團天尊', '場地總管', '點將使者', '羽球護法', '球筒仙官', '拖地真君', '發球長老', '殺球真人', '補位使者'];
   function validPassword(value) { return value.length <= 128 && (/^\d{4,8}$/.test(value) || value.length >= 8); }
+  function honorificOf(ad) { return ad.title || (ad.superAdmin ? '落雲宗掌門' : '落雲宗大長老'); }
 
   /* 每個狀態帶一組玉石色（seg 選中時用 CSS 變數注入） */
   var STATUSES = [
@@ -867,6 +869,7 @@
     function addGuest(ev, row) { return action('addGuest', { id: ev.id, row: row }); }
     function saveAdmin(row, isNew) { return action('saveAdmin', { id: isNew ? undefined : row.id, row: row }); }
     function changePin(row, pin, currentPassword) { return action('changePin', { id: row.id, pin: pin, currentPassword: currentPassword }); }
+    function changeHonorific(row, title) { return action('changeHonorific', { id: row.id, row: { title: title } }); }
     function removeAdmin(row) { return action('removeAdmin', { id: row.id }); }
     function saveVenue(row, isNew) { return action('saveVenue', { id: isNew ? undefined : row.id, row: row }); }
     function removeVenue(row) { return action('removeVenue', { id: row.id }); }
@@ -897,7 +900,7 @@
       flash: flash, setModal: setModal, needAdmin: needAdmin, api: api,
       saveMember: saveMember, removeMember: removeMember,
       saveEvent: saveEvent, removeEvent: removeEvent, writeRoster: writeRoster, addGuest: addGuest,
-      saveAdmin: saveAdmin, removeAdmin: removeAdmin, changePin: changePin,
+      saveAdmin: saveAdmin, removeAdmin: removeAdmin, changePin: changePin, changeHonorific: changeHonorific,
       saveVenue: saveVenue, removeVenue: removeVenue, approveIntent: approveIntent, rejectIntent: rejectIntent,
       login: login, logout: logout, loadLogs: loadLogs,
       setTab: setTab, setOpenEventId: setOpenEventId, theme: theme, toggleTheme: toggleTheme
@@ -1858,14 +1861,15 @@
           E('span', { className: 'tier', style: { '--tc': 'var(--mist-3)', '--tb': 'rgba(228,235,232,.10)', '--th': 'rgba(228,235,232,.05)', '--tl': 'rgba(228,235,232,.015)' } }, '@' + ad.account),
           E('span', {
             className: 'office-badge ' + (ad.superAdmin ? 'office-master' : 'office-elder'),
-            'aria-label': ad.superAdmin ? '落雲宗掌門' : '落雲宗大長老'
+            'aria-label': honorificOf(ad)
           },
             S('office-sigil', { 'aria-hidden': 'true' }, ad.superAdmin ? '掌' : '長'),
-            S('', ad.superAdmin ? '落雲宗掌門' : '落雲宗大長老')),
+            S('', honorificOf(ad))),
           isMe ? E('span', { className: 'tier', style: TIER_STYLE.mid }, '目前在殿') : null),
         E('p', { className: 'num mt-1.5 truncate text-[11.5px] ' + T3 },
           '口令 ••••　冊封於 ' + (ad.createdAt ? fmtTime(ad.createdAt) : '—'))),
       D('ml-auto flex shrink-0 items-center gap-1',
+        isMe ? E(Btn, { variant: 'ghost', size: 'icon', icon: 'Badge', ariaLabel: '更換稱號', title: '更換自己的稱號', onClick: function () { p.setModal({ type: 'honorific', row: ad }); } }) : null,
         E(Btn, {
           variant: 'ghost', size: 'icon', icon: 'KeyRound', ariaLabel: '改口令',
           disabled: !canPin, title: canPin ? (isMe ? '改自己的口令' : '改口令') : '只有掌門能改別人的口令',
@@ -1940,6 +1944,7 @@
     if (t === 'line') return E(LineModal, p);
     if (t === 'admin') return E(AdminModal, p);
     if (t === 'pin') return E(PinModal, p);
+    if (t === 'honorific') return E(HonorificModal, p);
     if (t === 'confirm') return E(ConfirmModal, p);
     return null;
   }
@@ -2374,6 +2379,10 @@
             value: f.name, onChange: function (ev) { up('name', ev.target.value); },
             placeholder: '例如：MAX', className: INPUT
           })),
+        E(Field, { label: '職司稱號（可選或自行輸入）' },
+          D('',
+            E('input', { list: 'honorific-options', value: f.title || '', onChange: function (ev) { up('title', ev.target.value); }, placeholder: '留白則顯示預設稱號', className: INPUT }),
+            E('datalist', { id: 'honorific-options' }, HONORIFICS.map(function (x) { return E('option', { key: x, value: x }); })))),
         isNew ? E(Field, { label: '初始口令' },
           E('input', {
             value: f.pin, onChange: function (ev) { up('pin', ev.target.value); },
@@ -2393,6 +2402,25 @@
           }, f.superAdmin ? E(Icon, { name: 'Check', size: 12, stroke: 2 }) : null),
           D('', E('p', { className: 'text-[13px] font-medium ' + T1 }, '授予掌門之權'),
             E('p', { className: 'mt-1 text-[11.5px] ' + T3 }, '可冊封、更新、革除長老與變更他人口令')))));
+  }
+
+  function HonorificModal(p) {
+    var row = p.modal.row;
+    var state = useState(row.title || honorificOf(row)), title = state[0], setTitle = state[1];
+    return E(Modal, {
+      title: '更換職司稱號', sub: '選一個喜歡的，或直接輸入自己的稱號', onClose: p.close,
+      footer: [
+        E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
+        E(Btn, { key: 'o', variant: 'primary', icon: 'Check', disabled: title.length > 40, onClick: async function () { if (await p.changeHonorific(row, title)) p.close(); } }, '套用稱號')
+      ]
+    },
+      D('flex flex-col gap-4',
+        E(Field, { label: '你的職司稱號' }, E('input', { value: title, maxLength: 40, onChange: function (ev) { setTitle(ev.target.value); }, className: INPUT, autoFocus: true })),
+        D('flex flex-wrap gap-2', HONORIFICS.map(function (x) {
+          var on = title === x;
+          return E('button', { key: x, type: 'button', onClick: function () { setTitle(x); }, className: 'btn rounded-full px-3 py-1.5 text-[12px] ' + (on ? JADE : T3), style: on ? { background: 'rgba(155,195,174,.14)', border: '1px solid rgba(155,195,174,.30)' } : { border: '1px solid var(--hair)' } }, x);
+        })),
+        S('text-[11.5px] leading-relaxed ' + T3, '想恢復預設時，清空輸入框後儲存即可。')));
   }
 
   function PinModal(p) {
