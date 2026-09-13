@@ -14,7 +14,7 @@
 </script>
 
 <script id="rite-gate">
-  (function(){try{var q=location.search;if(/[?&]rite=0/.test(q))return;var force=/[?&]rite=1/.test(q);var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;var seen=false;try{seen=sessionStorage.getItem('luoyun-rite')==='1';}catch(e){}if(!force&&(reduce||seen))return;document.documentElement.classList.add('rite-on');
+  (function(){try{var q=location.search;if(/[?&]rite=0/.test(q))return;var force=/[?&]rite=1/.test(q),embedded=/[?&]embedded=1/.test(q);var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;var seen=false;try{seen=sessionStorage.getItem('luoyun-rite')==='1';}catch(e){}if(!force&&(reduce||seen))return;document.documentElement.classList.add('rite-on');if(embedded)document.documentElement.classList.add('rite-embed');
   /* 靽蝝ｇ??仿蝳桃?蝔??交畾菜?頝????桃蔗???渲????Ｕ?     ??函????銝?鞈港??Ｖ遙雿?撘Ⅳ嚗??銝摰??桃蔗????*/
   setTimeout(function(){var r=document.getElementById('rite');if(r&&r.parentNode)r.parentNode.removeChild(r);},8000);}catch(e){}})();
 </script>
@@ -291,6 +291,9 @@
 <body>
 <!-- ===== 青竹蜂雲劍 · 入陣禮 ===== -->
 <style id="rite-style">
+  /* 後台內嵌時，這個頁面只充當動畫幕布：不顯示、也不捲動舊前台。 */
+  html.rite-embed,html.rite-embed body{overflow:hidden!important}
+  html.rite-embed body>:not(#rite):not(script):not(style){visibility:hidden!important}
   #rite{
     position:fixed;inset:0;z-index:400;overflow:hidden;cursor:pointer;
     --rite-core:#EDFFF6;--rite-jade:#9BC3AE;--rite-deep:#1F6B55;
