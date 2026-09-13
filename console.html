@@ -208,6 +208,8 @@
   .office-badge>*{position:relative;z-index:1}.office-sigil{display:grid;place-items:center;width:1.45rem;height:1.45rem;border-radius:50%;border:1px solid currentColor;background:rgba(255,255,255,.055);font-size:10px;box-shadow:inset 0 0 8px var(--office-glow)}
   .office-master{--office-a:#80601D;--office-b:#FFF4B6;--office-c:#C79A37;--office-text:#FFE8A0;--office-glow:rgba(238,190,71,.8);--office-speed:15s;--office-sheen:7.5s}
   .office-elder{--office-a:#416F65;--office-b:#D5F5E8;--office-c:#749F8D;--office-text:#D1F0E1;--office-glow:rgba(125,205,170,.72);--office-speed:11s;--office-sheen:6.5s}
+  /* 灰階：同一套三色描邊結構，只是彩度抽掉；轉速與掃光都放慢，低階自然比較沉靜 */
+  .office-stone{--office-a:#49514E;--office-b:#DCE4E0;--office-c:#78837E;--office-text:#CFD8D3;--office-glow:rgba(188,202,195,.55);--office-speed:22s;--office-sheen:11s}
   @keyframes office-border{to{--office-angle:360deg}}@keyframes office-aura{50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 0 24px -5px var(--office-glow)}}@keyframes office-sheen{0%,66%{transform:translateX(-145%);opacity:0}76%{opacity:.76}100%{transform:translateX(145%);opacity:0}}
 
   .theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;min-width:40px;height:40px;padding:0 .7rem;border-radius:999px;border:1px solid var(--hair-2);background:rgba(228,235,232,.035);color:var(--mist-2);font:600 11.5px 'Noto Sans TC',sans-serif;cursor:pointer;transition:color .24s var(--ease),border-color .24s var(--ease),background .24s var(--ease),transform .24s var(--ease)}.theme-toggle:hover{color:var(--jade-100);border-color:rgba(155,195,174,.34);background:rgba(155,195,174,.09);transform:translateY(-1px)}
@@ -410,9 +412,38 @@
 
   var T1 = 'text-[var(--mist-1)]', T2 = 'text-[var(--mist-2)]', T3 = 'text-[var(--mist-3)]';
   var JADE = 'text-[var(--jade-300)]', GOLD = 'text-[var(--gold)]', CIN = 'text-[var(--cinnabar)]';
-  var HONORIFICS = ['落雲宗掌門', '雲上宗主', '羽林總教頭', '揪團天尊', '場地總管', '點將使者', '羽球護法', '球筒仙官', '拖地真君', '發球長老', '殺球真人', '補位使者'];
+  /* 職司階級由高到低；tone 決定徽章配色（金／綠／灰） */
+  var RANKS = [
+    { glyph: '掌', name: '落雲宗掌門', tone: 'gold' },
+    { glyph: '長', name: '落雲宗大長老', tone: 'gold' },
+    { glyph: '老', name: '落雲宗長老', tone: 'jade' },
+    { glyph: '親', name: '掌門親傳', tone: 'jade' },
+    { glyph: '內', name: '內門弟子', tone: 'stone' },
+    { glyph: '外', name: '外門弟子', tone: 'stone' },
+    { glyph: '散', name: '天南散修', tone: 'stone' }
+  ];
+  var OFFICE_CLASS = { gold: 'office-master', jade: 'office-elder', stone: 'office-stone' };
+  /* 宗門狀態，接在職司徽章之後 */
+  var MOODS = [
+    { label: '閉關中', tone: 'mid' }, { label: '正在打坐', tone: 'mid' },
+    { label: '遊歷在外', tone: 'low' }, { label: '坐鎮山門', tone: 'high' },
+    { label: '外出歷練', tone: 'low' }, { label: '渡劫中', tone: 'high' },
+    { label: '走火入魔', tone: 'warn' }
+  ];
   function validPassword(value) { return value.length <= 128 && (/^\d{4,8}$/.test(value) || value.length >= 8); }
-  function honorificOf(ad) { return ad.title || (ad.superAdmin ? '落雲宗掌門' : '落雲宗大長老'); }
+  /* 沒設稱號時，掌門與長老各有預設階級；設了但不在列表上（舊資料或自訂）
+     就保留文字，字與配色沿用該身分的預設階級 */
+  function rankOf(ad) {
+    var t = ad.title || '';
+    for (var i = 0; i < RANKS.length; i++) if (RANKS[i].name === t) return RANKS[i];
+    var base = ad.superAdmin ? RANKS[0] : RANKS[1];
+    return t ? { glyph: base.glyph, name: t, tone: base.tone } : base;
+  }
+  function honorificOf(ad) { return rankOf(ad).name; }
+  function moodStyle(label) {
+    for (var i = 0; i < MOODS.length; i++) if (MOODS[i].label === label) return TIER_STYLE[MOODS[i].tone];
+    return TIER_STYLE.low;
+  }
 
   /* 每個狀態帶一組玉石色（seg 選中時用 CSS 變數注入） */
   var STATUSES = [
@@ -435,7 +466,7 @@
   function statusMeta(k) { for (var i = 0; i < STATUSES.length; i++) if (STATUSES[i].k === k) return STATUSES[i]; return STATUSES[0]; }
 
   /* 程度 1–8 對應五個境界；8 級採最高境界，避免區間重疊。 */
-  var TIER_STYLE = {high:{ '--tc':'var(--gold)','--tb':'rgba(201,169,97,.30)','--th':'rgba(201,169,97,.16)','--tl':'rgba(201,169,97,.04)'},mid:{ '--tc':'var(--jade-300)','--tb':'rgba(155,195,174,.26)','--th':'rgba(155,195,174,.13)','--tl':'rgba(155,195,174,.03)'},low:{ '--tc':'var(--mist-2)','--tb':'rgba(228,235,232,.14)','--th':'rgba(228,235,232,.08)','--tl':'rgba(228,235,232,.02)'}};
+  var TIER_STYLE = {high:{ '--tc':'var(--gold)','--tb':'rgba(201,169,97,.30)','--th':'rgba(201,169,97,.16)','--tl':'rgba(201,169,97,.04)'},mid:{ '--tc':'var(--jade-300)','--tb':'rgba(155,195,174,.26)','--th':'rgba(155,195,174,.13)','--tl':'rgba(155,195,174,.03)'},low:{ '--tc':'var(--mist-2)','--tb':'rgba(228,235,232,.14)','--th':'rgba(228,235,232,.08)','--tl':'rgba(228,235,232,.02)'},warn:{ '--tc':'var(--cinnabar)','--tb':'rgba(208,122,108,.30)','--th':'rgba(208,122,108,.15)','--tl':'rgba(208,122,108,.04)'}};
   function realmOf(lv) { lv=Number(lv)||1; return lv>=8?'transcendent':lv>=7?'nascent':lv>=5?'golden':lv>=3?'foundation':'qi'; }
   var REALM_LABEL={qi:'練氣',foundation:'築基',golden:'結丹',nascent:'元嬰',transcendent:'化神'};
   var REALM_STYLE={qi:{'--realm-a':'#8FBFAF','--realm-b':'#D5E7DC','--realm-c':'#3D6555','--realm-text':'#CDE9DA','--realm-glow':'rgba(155,195,174,.65)','--realm-speed':'8s'},foundation:{'--realm-a':'#88AEBB','--realm-b':'#C7E2EA','--realm-c':'#3F6875','--realm-text':'#C9E5ED','--realm-glow':'rgba(129,183,200,.65)','--realm-speed':'10s'},golden:{'--realm-a':'#C9A961','--realm-b':'#F1DCA5','--realm-c':'#79602D','--realm-text':'#F3DFAB','--realm-glow':'rgba(201,169,97,.72)','--realm-speed':'14s'},nascent:{'--realm-a':'#9E8FC0','--realm-b':'#D1C7EA','--realm-c':'#57486E','--realm-text':'#DCD2F5','--realm-glow':'rgba(158,143,192,.7)','--realm-speed':'18s'},transcendent:{'--realm-a':'#D6B55E','--realm-b':'#FFF0B7','--realm-c':'#99743B','--realm-text':'#FFF0BA','--realm-glow':'rgba(222,187,93,.85)','--realm-speed':'24s'}};
@@ -869,7 +900,7 @@
     function addGuest(ev, row) { return action('addGuest', { id: ev.id, row: row }); }
     function saveAdmin(row, isNew) { return action('saveAdmin', { id: isNew ? undefined : row.id, row: row }); }
     function changePin(row, pin, currentPassword) { return action('changePin', { id: row.id, pin: pin, currentPassword: currentPassword }); }
-    function changeHonorific(row, title) { return action('changeHonorific', { id: row.id, row: { title: title } }); }
+    function changeHonorific(row, title, mood) { return action('changeHonorific', { id: row.id, row: { title: title, mood: mood } }); }
     function removeAdmin(row) { return action('removeAdmin', { id: row.id }); }
     function saveVenue(row, isNew) { return action('saveVenue', { id: isNew ? undefined : row.id, row: row }); }
     function removeVenue(row) { return action('removeVenue', { id: row.id }); }
@@ -1859,13 +1890,14 @@
         D('flex flex-wrap items-center gap-x-2 gap-y-1.5',
           S('disp truncate text-[15.5px] font-semibold ' + T1, ad.name),
           E('span', { className: 'tier', style: { '--tc': 'var(--mist-3)', '--tb': 'rgba(228,235,232,.10)', '--th': 'rgba(228,235,232,.05)', '--tl': 'rgba(228,235,232,.015)' } }, '@' + ad.account),
-          E('span', {
-            className: 'office-badge ' + (ad.superAdmin ? 'office-master' : 'office-elder'),
-            'aria-label': honorificOf(ad)
-          },
-            S('office-sigil', { 'aria-hidden': 'true' }, ad.superAdmin ? '掌' : '長'),
-            S('', honorificOf(ad))),
-          isMe ? E('span', { className: 'tier', style: TIER_STYLE.mid }, '目前在殿') : null),
+          function () {
+            var rank = rankOf(ad);
+            return E('span', { className: 'office-badge ' + OFFICE_CLASS[rank.tone], 'aria-label': rank.name },
+              S('office-sigil', { 'aria-hidden': 'true' }, rank.glyph),
+              S('', rank.name));
+          }(),
+          isMe ? E('span', { className: 'tier', style: TIER_STYLE.mid }, '目前在殿') : null,
+          ad.mood ? E('span', { className: 'tier', style: moodStyle(ad.mood) }, ad.mood) : null),
         E('p', { className: 'num mt-1.5 truncate text-[11.5px] ' + T3 },
           '口令 ••••　冊封於 ' + (ad.createdAt ? fmtTime(ad.createdAt) : '—'))),
       D('ml-auto flex shrink-0 items-center gap-1',
@@ -1978,7 +2010,7 @@
     },
       E('form', { key: shake, className: 'flex flex-col gap-5 ' + (shake ? 'login-shake' : ''), onSubmit: function (ev) { ev.preventDefault(); go(); } },
         p.needsSetup ? E(Field, { label: '初始化金鑰（部署時產生，僅需使用一次）' }, E('input', { type: 'password', value: token, onChange: function (ev) { setToken(ev.target.value); }, className: INPUT, autoComplete: 'off' })) : null,
-        p.needsSetup ? E(Field, { label: '掌門名號' }, E('input', { value: name, onChange: function (ev) { setName(ev.target.value); }, className: INPUT })) : null,
+        p.needsSetup ? E(Field, { label: '掌門名號' }, E('input', { value: name, onChange: function (ev) { setName(ev.target.value); }, placeholder: '你在弟子名冊上的名號', className: INPUT })) : null,
         E(Field, { label: '長老身分' },
           E('input', {
             ref: ref, value: acc, onChange: function (ev) { setAcc(ev.target.value); },
@@ -2354,6 +2386,8 @@
       return ad.id !== (row && row.id) && String(ad.account).toLowerCase() === f.account.trim().toLowerCase() && f.account.trim();
     });
     var pinOk = !isNew || validPassword(f.pin);
+    var needle = f.name.trim().toLowerCase();
+    var mate = needle ? p.members.filter(function (m) { return String(m.nickname).toLowerCase() === needle; })[0] : null;
     return E(Modal, {
       title: isNew ? '冊封長老' : '更新長老',
       sub: isNew ? '身分會出現在宗門日誌的署名' : '要改口令請用名冊上的鑰匙圖示',
@@ -2374,15 +2408,27 @@
             placeholder: 'max', className: INPUT, autoFocus: true
           })),
         dup ? E('p', { className: 'text-[12px] font-medium ' + CIN }, '這個身分已存在。') : null,
-        E(Field, { label: '長老名號' },
-          E('input', {
-            value: f.name, onChange: function (ev) { up('name', ev.target.value); },
-            placeholder: '例如：MAX', className: INPUT
-          })),
+        E(Field, { label: '長老名號（對應弟子名冊）' },
+          D('',
+            E('input', {
+              list: 'member-options', value: f.name,
+              onChange: function (ev) { up('name', ev.target.value); },
+              placeholder: '從名冊挑一位弟子，例如：MAX', className: INPUT
+            }),
+            E('datalist', { id: 'member-options' }, p.members.map(function (m) {
+              return E('option', { key: m.id, value: m.nickname });
+            })),
+            /* 長老一定也是名冊上的弟子，對到誰要看得出來；對不到只提醒不擋 */
+            f.name.trim()
+              ? (mate
+                  ? D('mt-2 flex flex-wrap items-center gap-2 text-[12px] ' + JADE,
+                      S('', '已對應名冊弟子'), E(LevelBadge, { level: mate.level }))
+                  : S('mt-2 block text-[12px] ' + T3, '名冊上找不到這個名號，仍可建立，但建議先在弟子名冊收錄。'))
+              : null)),
         E(Field, { label: '職司稱號（可選或自行輸入）' },
           D('',
             E('input', { list: 'honorific-options', value: f.title || '', onChange: function (ev) { up('title', ev.target.value); }, placeholder: '留白則顯示預設稱號', className: INPUT }),
-            E('datalist', { id: 'honorific-options' }, HONORIFICS.map(function (x) { return E('option', { key: x, value: x }); })))),
+            E('datalist', { id: 'honorific-options' }, RANKS.map(function (r) { return E('option', { key: r.name, value: r.name }); })))),
         isNew ? E(Field, { label: '初始口令' },
           E('input', {
             value: f.pin, onChange: function (ev) { up('pin', ev.target.value); },
@@ -2407,20 +2453,41 @@
   function HonorificModal(p) {
     var row = p.modal.row;
     var state = useState(row.title || honorificOf(row)), title = state[0], setTitle = state[1];
+    var ms = useState(row.mood || ''), mood = ms[0], setMood = ms[1];
+    function chip(label, on, onClick, key) {
+      return E('button', {
+        key: key || label, type: 'button', onClick: onClick,
+        className: 'btn rounded-full px-3 py-1.5 text-[12px] ' + (on ? JADE : T3),
+        style: on ? { background: 'rgba(155,195,174,.14)', border: '1px solid rgba(155,195,174,.30)' } : { border: '1px solid var(--hair)' }
+      }, label);
+    }
     return E(Modal, {
-      title: '更換職司稱號', sub: '選一個喜歡的，或直接輸入自己的稱號', onClose: p.close,
+      title: '更換職司稱號', sub: '選一個階級，或直接輸入自己的稱號', onClose: p.close,
       footer: [
         E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
-        E(Btn, { key: 'o', variant: 'primary', icon: 'Check', disabled: title.length > 40, onClick: async function () { if (await p.changeHonorific(row, title)) p.close(); } }, '套用稱號')
+        E(Btn, { key: 'o', variant: 'primary', icon: 'Check', disabled: title.length > 40 || mood.length > 20, onClick: async function () { if (await p.changeHonorific(row, title, mood)) p.close(); } }, '套用稱號')
       ]
     },
       D('flex flex-col gap-4',
         E(Field, { label: '你的職司稱號' }, E('input', { value: title, maxLength: 40, onChange: function (ev) { setTitle(ev.target.value); }, className: INPUT, autoFocus: true })),
-        D('flex flex-wrap gap-2', HONORIFICS.map(function (x) {
-          var on = title === x;
-          return E('button', { key: x, type: 'button', onClick: function () { setTitle(x); }, className: 'btn rounded-full px-3 py-1.5 text-[12px] ' + (on ? JADE : T3), style: on ? { background: 'rgba(155,195,174,.14)', border: '1px solid rgba(155,195,174,.30)' } : { border: '1px solid var(--hair)' } }, x);
-        })),
-        S('text-[11.5px] leading-relaxed ' + T3, '想恢復預設時，清空輸入框後儲存即可。')));
+        D('flex flex-col gap-2',
+          D('flex flex-wrap gap-2', RANKS.map(function (r) {
+            var on = title === r.name;
+            return E('button', {
+              key: r.name, type: 'button', onClick: function () { setTitle(r.name); },
+              className: 'office-badge ' + OFFICE_CLASS[r.tone] + (on ? '' : ' opacity-60'),
+              /* 選取狀態不只靠亮度，另外圈一道外框，灰階階級才分得出來 */
+              style: on ? { outline: '2px solid rgba(155,195,174,.55)', outlineOffset: '2px' } : null,
+              'aria-pressed': on, 'aria-label': r.name
+            }, S('office-sigil', { 'aria-hidden': 'true' }, r.glyph), S('', r.name));
+          })),
+          S('text-[11.5px] leading-relaxed ' + T3, '由高到低排列；金為掌門與大長老，綠為長老與親傳，灰為門下弟子與散修。')),
+        E(Field, { label: '宗門狀態（選填）' },
+          D('flex flex-wrap gap-2',
+            MOODS.map(function (m) { return chip(m.label, mood === m.label, function () { setMood(mood === m.label ? '' : m.label); }); }).concat([
+              chip('不顯示', !mood, function () { setMood(''); }, '__none')
+            ]))),
+        S('text-[11.5px] leading-relaxed ' + T3, '想恢復預設稱號時，清空輸入框後儲存即可。')));
   }
 
   function PinModal(p) {

@@ -272,7 +272,9 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
         db.prepare('DELETE FROM sessions WHERE adminId=?').run(id);
       } else {
         const ad = find(state.admins);
-        ad.title = text(row.title ?? '', '職司稱號', 40, true); ad.updatedAt = now(); ad.updatedBy = me.account;
+        ad.title = text(row.title ?? '', '職司稱號', 40, true);
+        ad.mood = text(row.mood ?? '', '宗門狀態', 20, true);
+        ad.updatedAt = now(); ad.updatedBy = me.account;
         target = ad.title || (ad.superAdmin ? '落雲宗掌門' : '落雲宗大長老');
       }
       if (!state.admins.some(a => a.superAdmin)) reject('至少必須保留一位掌門');
