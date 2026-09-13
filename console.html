@@ -324,7 +324,8 @@
   @keyframes toast-glow{ from{opacity:0;transform:translateX(-25%)} to{opacity:.8;transform:translateX(10%)} }
   .enter-canvas-ritual{position:fixed;inset:0;z-index:90;overflow:hidden;background:#000;isolation:isolate}.enter-canvas-ritual canvas{display:block;width:100%;height:100%;touch-action:none}.ritual-skip{position:fixed;right:max(1.15rem,env(safe-area-inset-right));bottom:max(1.15rem,env(safe-area-inset-bottom));z-index:2;min-height:42px;padding:.65rem 1.05rem;border:1px solid rgba(201,255,224,.55);border-radius:999px;background:rgba(6,16,14,.72);box-shadow:0 0 18px rgba(127,214,160,.2),inset 0 1px 0 rgba(255,255,255,.14);color:#dfffee;font:600 .76rem 'Noto Serif TC',serif;letter-spacing:.18em;backdrop-filter:blur(10px);cursor:pointer;transition:transform .16s ease,background .16s ease}.ritual-skip:hover{background:rgba(39,108,78,.62);transform:translateY(-2px)}.ritual-skip:active{transform:scale(.96)}
   /* 首次進入後台時，覆蓋一層與舊首頁完全相同的入陣禮。 */
-  .console-rite-frame{position:fixed;inset:0;z-index:90;width:100%;height:100%;border:0;background:var(--ink-0)}
+  /* 背景保持透明，裂縫才會透出底下的後台畫面；幕布由動畫自己鋪滿 */
+  .console-rite-frame{position:fixed;inset:0;z-index:90;width:100%;height:100%;border:0;background:transparent}
 
   /* ---------- 試煉行事曆 ---------- */
   .calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:var(--hair);border-top:1px solid var(--hair)}
@@ -833,9 +834,10 @@
       if (!kind) return;
       if ((kind === 'enter' || kind === 'landing') && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       clearTimeout(fxTimer.current); setFx({ kind: kind, key: Date.now() });
-      // The embedded rite dismisses itself at 2.2s. Remove its frame just before
-      // that point so the old public page can never flash through underneath.
-      fxTimer.current = setTimeout(function () { setFx(null); }, kind === 'landing' ? 2150 : (kind === 'enter' ? 1500 : 1150));
+      // 入陣禮跑在 iframe 裡，要等它自己載入才開始，和這裡的計時器不同步。
+      // 固定時間移除會在碎片還在飛散時硬切畫面，所以改等動畫回報結束，
+      // 計時器只保留成保險，避免 iframe 載入失敗時畫面卡住。
+      fxTimer.current = setTimeout(function () { setFx(null); }, kind === 'landing' ? 6000 : (kind === 'enter' ? 1500 : 1150));
     }
     function flash(msg, kind, fxKind) { var item={id:Date.now()+Math.random(),msg:msg,kind:kind||'ok',fx:fxKind||''}; setToasts(function(old){return old.concat(item).slice(-3);}); invokeFx(fxKind); var timer=setTimeout(function(){setToasts(function(old){return old.filter(function(x){return x.id!==item.id;});});},4000); toastTimers.current.push(timer); }
     function setModal(value) {
@@ -878,6 +880,16 @@
         finally { if (alive) { setReady(true); timer = setTimeout(tick, 5000); } }
       }
       tick(); return function () { alive = false; clearTimeout(timer); toastTimers.current.forEach(clearTimeout); clearTimeout(fxTimer.current); };
+    }, []);
+    // 入陣禮播完會從 iframe 回報，收到才收掉幕布，時間點就不會落在動畫中途
+    useEffect(function () {
+      function onRiteDone(ev) {
+        if (ev.origin !== window.location.origin) return;
+        if (!ev.data || ev.data.rite !== 'done') return;
+        clearTimeout(fxTimer.current); setFx(null);
+      }
+      window.addEventListener('message', onRiteDone);
+      return function () { window.removeEventListener('message', onRiteDone); };
     }, []);
 
     async function action(name, payload) {

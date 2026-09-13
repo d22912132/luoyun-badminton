@@ -291,11 +291,17 @@
 <body>
 <!-- ===== 青竹蜂雲劍 · 入陣禮 ===== -->
 <style id="rite-style">
-  /* 後台內嵌時，這個頁面只充當動畫幕布：不顯示、也不捲動舊前台。 */
-  html.rite-embed,html.rite-embed body{overflow:hidden!important}
+  /* 後台內嵌時，這個頁面只充當動畫幕布：不顯示、也不捲動舊前台。
+     底色一併透明，裂縫才會透出後台畫面，而不是一片黑，結尾也就不需要硬切換。 */
+  html.rite-embed,html.rite-embed body{overflow:hidden!important;background:transparent!important}
   html.rite-embed body>:not(#rite):not(script):not(style){visibility:hidden!important}
+  html.rite-embed body::before,html.rite-embed body::after{display:none!important}
   #rite{
     position:fixed;inset:0;z-index:400;overflow:hidden;cursor:pointer;
+    /* 幕布先鋪在 #rite 自己身上，碎片還沒建好的那幾百毫秒才不會露出底下；
+       開始裂開時撤掉，縫隙才看得到後面 */
+    background-image:var(--rite-veil);background-size:100vw 100vh;
+    background-position:0 0;background-repeat:no-repeat;
     --rite-core:#EDFFF6;--rite-jade:#9BC3AE;--rite-deep:#1F6B55;
     --rite-cyan:#4BB5BD;--rite-gold:#C9A961;--rite-void:#6A52C4;
     --rite-flare:#FFFFFF;
@@ -315,6 +321,7 @@
     transition:opacity .36s var(--ease),visibility .36s var(--ease);
   }
   #rite.is-done{opacity:0;visibility:hidden;pointer-events:none}
+  #rite.parting{background-image:none}
 
   .rite-quake{position:absolute;inset:-26px;will-change:transform}
   #rite.quake .rite-quake{animation:rite-quake .26s cubic-bezier(.3,.05,.2,.98)}
@@ -642,7 +649,17 @@
     root.classList.remove('rite-on');
     rite.classList.add('is-done');
     try { sessionStorage.setItem('luoyun-rite', '1'); } catch (e) {}
-    window.setTimeout(function () { if (rite && rite.parentNode) rite.parentNode.removeChild(rite); rite = null; }, 400);
+    window.setTimeout(function () {
+      if (rite && rite.parentNode) rite.parentNode.removeChild(rite);
+      rite = null;
+      /* 內嵌在後台時回報一聲。兩邊的時鐘不同步（iframe 要先載入才起跑），
+         固定計時器會在碎片還在飛的時候把畫面切掉，所以改由這裡通知。 */
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ rite: 'done' }, location.origin);
+        }
+      } catch (e) {}
+    }, 400);
   }
 
   if (!root.classList.contains('rite-on')) {
@@ -736,10 +753,12 @@
     var len = Math.hypot(vx, vy) || 1;
     var el = document.createElement('div');
     el.className = 'rite-shard';
-    /* 往外多撐 0.7px，避免碎片之間出現髮絲縫 */
+    /* 往外多撐 0.7px，避免碎片之間出現髮絲縫。
+       座標存成百分比：視窗或 iframe 尺寸變動時，碎片與裂縫才會一起縮放而不會錯開 */
     var pts = poly.map(function (p) {
       var ox = p[0] - c[0], oy = p[1] - c[1], d = Math.hypot(ox, oy) || 1;
-      return (p[0] + ox / d * .7).toFixed(2) + 'px ' + (p[1] + oy / d * .7).toFixed(2) + 'px';
+      return ((p[0] + ox / d * .7) / W * 100).toFixed(3) + '% ' +
+             ((p[1] + oy / d * .7) / H * 100).toFixed(3) + '%';
     }).join(',');
     el.style.clipPath = 'polygon(' + pts + ')';
     el.style.setProperty('--tx', (vx / len * reach).toFixed(1) + 'px');
@@ -753,6 +772,9 @@
   cracksSvg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
   cracksSvg.setAttribute('width', W);
   cracksSvg.setAttribute('height', H);
+  /* 預設的 xMidYMid meet 會在長寬比改變時留邊，裂縫就和碎片對不上；
+     改成 none，尺寸變動時一起拉伸，至少保證兩者永遠貼合 */
+  cracksSvg.setAttribute('preserveAspectRatio', 'none');
 
   crackEls = CUTS.map(function (cut, idx) {
     var tMin = -Infinity, tMax = Infinity;
