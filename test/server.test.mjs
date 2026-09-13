@@ -118,6 +118,13 @@ test('shared club: authentication, permissions, persistence, validation and conf
     assert.equal(state.admins.find(a => a.id === elderId).title, '羽球護法');
     const ownerId = state.admins.find(a => a.account === 'owner').id;
     await act('changeHonorific', { id: ownerId, row: { title: '越權稱號' } }, elderCookie, 403);
+    // 掌門稱號必須對應真的掌門權限：長老自己改不動，掌門也不能掛到長老頭上
+    await act('changeHonorific', { id: elderId, row: { title: '落雲宗掌門' } }, elderCookie, 403);
+    await act('changeHonorific', { id: elderId, row: { title: '落雲宗掌門' } }, ownerCookie, 403);
+    assert.equal(state.admins.find(a => a.id === elderId).title, '羽球護法');
+    await act('changeHonorific', { id: ownerId, row: { title: '落雲宗掌門', mood: '坐鎮山門' } }, ownerCookie);
+    assert.equal(state.admins.find(a => a.id === ownerId).title, '落雲宗掌門');
+    assert.equal(state.admins.find(a => a.id === ownerId).mood, '坐鎮山門');
     await act('changePin', { id: elderId, pin: 'Changed-982!', currentPassword: 'wrong' }, elderCookie, 403);
     assert.equal((await request('/api/backup', undefined, elderCookie)).status, 403);
     const backup = await request('/api/backup'); assert.equal(backup.status, 200);

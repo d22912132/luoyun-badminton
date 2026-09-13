@@ -2,6 +2,8 @@ import { randomBytes, randomUUID, scryptSync, timingSafeEqual, createHash } from
 import { Buffer } from 'node:buffer';
 
 const now = () => new Date().toISOString();
+// 「落雲宗掌門」必須對應真的掌門權限，不能只是自己填上去的稱號
+const MASTER_TITLE = '落雲宗掌門';
 const digest = value => createHash('sha256').update(value).digest('hex');
 function reject(message, status = 400) { throw Object.assign(new Error(message), { status }); }
 function text(value, label, max = 160, optional = false) {
@@ -258,6 +260,8 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
       if (!me.superAdmin && !(['changePin', 'changeHonorific'].includes(action) && me.id === id)) reject('需要掌門權限', 403);
       if (action === 'saveAdmin') {
         const fields = account(row);
+        // 革除掌門權限時一併收回掌門稱號，避免名冊上留著一個沒有實權的「掌門」
+        if (fields.title === MASTER_TITLE && !fields.superAdmin) fields.title = '';
         if (state.admins.some(a => a.id !== id && a.account === fields.account)) reject('帳號已存在');
         const ad = upsert(state.admins, fields); target = ad.account;
         if (!id) db.prepare('INSERT INTO passwords VALUES (?,?)').run(ad.id, password(row.pin));
@@ -272,10 +276,12 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
         db.prepare('DELETE FROM sessions WHERE adminId=?').run(id);
       } else {
         const ad = find(state.admins);
-        ad.title = text(row.title ?? '', '職司稱號', 40, true);
+        const wanted = text(row.title ?? '', '職司稱號', 40, true);
+        if (wanted === MASTER_TITLE && !ad.superAdmin) reject('只有掌門能使用「' + MASTER_TITLE + '」這個稱號', 403);
+        ad.title = wanted;
         ad.mood = text(row.mood ?? '', '宗門狀態', 20, true);
         ad.updatedAt = now(); ad.updatedBy = me.account;
-        target = ad.title || (ad.superAdmin ? '落雲宗掌門' : '落雲宗大長老');
+        target = ad.title || (ad.superAdmin ? MASTER_TITLE : '落雲宗大長老');
       }
       if (!state.admins.some(a => a.superAdmin)) reject('至少必須保留一位掌門');
     } else reject('不支援的操作');

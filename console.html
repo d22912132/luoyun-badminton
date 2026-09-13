@@ -412,9 +412,11 @@
 
   var T1 = 'text-[var(--mist-1)]', T2 = 'text-[var(--mist-2)]', T3 = 'text-[var(--mist-3)]';
   var JADE = 'text-[var(--jade-300)]', GOLD = 'text-[var(--gold)]', CIN = 'text-[var(--cinnabar)]';
-  /* 職司階級由高到低；tone 決定徽章配色（金／綠／灰） */
+  /* 職司階級由高到低；tone 決定徽章配色（金／綠／灰）。
+     MASTER_TITLE 必須對應真的掌門權限，伺服器端會擋，這裡同步顯示 */
+  var MASTER_TITLE = '落雲宗掌門';
   var RANKS = [
-    { glyph: '掌', name: '落雲宗掌門', tone: 'gold' },
+    { glyph: '掌', name: MASTER_TITLE, tone: 'gold' },
     { glyph: '長', name: '落雲宗大長老', tone: 'gold' },
     { glyph: '老', name: '落雲宗長老', tone: 'jade' },
     { glyph: '親', name: '掌門親傳', tone: 'jade' },
@@ -2454,6 +2456,9 @@
     var row = p.modal.row;
     var state = useState(row.title || honorificOf(row)), title = state[0], setTitle = state[1];
     var ms = useState(row.mood || ''), mood = ms[0], setMood = ms[1];
+    /* 掌門稱號要對應真的掌門權限；伺服器也會擋，這裡先讓使用者看得出來 */
+    var lockedMaster = !row.superAdmin;
+    var wantsMaster = title.trim() === MASTER_TITLE;
     function chip(label, on, onClick, key) {
       return E('button', {
         key: key || label, type: 'button', onClick: onClick,
@@ -2465,23 +2470,34 @@
       title: '更換職司稱號', sub: '選一個階級，或直接輸入自己的稱號', onClose: p.close,
       footer: [
         E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
-        E(Btn, { key: 'o', variant: 'primary', icon: 'Check', disabled: title.length > 40 || mood.length > 20, onClick: async function () { if (await p.changeHonorific(row, title, mood)) p.close(); } }, '套用稱號')
+        E(Btn, { key: 'o', variant: 'primary', icon: 'Check', disabled: title.length > 40 || mood.length > 20 || (wantsMaster && lockedMaster), onClick: async function () { if (await p.changeHonorific(row, title, mood)) p.close(); } }, '套用稱號')
       ]
     },
       D('flex flex-col gap-4',
         E(Field, { label: '你的職司稱號' }, E('input', { value: title, maxLength: 40, onChange: function (ev) { setTitle(ev.target.value); }, className: INPUT, autoFocus: true })),
+        wantsMaster && lockedMaster
+          ? S('text-[12px] font-medium ' + CIN, '「' + MASTER_TITLE + '」保留給有掌門之權的人，無法套用。')
+          : null,
         D('flex flex-col gap-2',
           D('flex flex-wrap gap-2', RANKS.map(function (r) {
             var on = title === r.name;
+            var locked = r.name === MASTER_TITLE && lockedMaster;
+            /* 淡化與選取框都走行內樣式：同時掛 opacity-60 與 opacity-30 時，
+               Tailwind 的產生順序會讓後者失效，鎖住的徽章就看不出來 */
             return E('button', {
-              key: r.name, type: 'button', onClick: function () { setTitle(r.name); },
-              className: 'office-badge ' + OFFICE_CLASS[r.tone] + (on ? '' : ' opacity-60'),
-              /* 選取狀態不只靠亮度，另外圈一道外框，灰階階級才分得出來 */
-              style: on ? { outline: '2px solid rgba(155,195,174,.55)', outlineOffset: '2px' } : null,
-              'aria-pressed': on, 'aria-label': r.name
+              key: r.name, type: 'button', disabled: locked,
+              onClick: locked ? null : function () { setTitle(r.name); },
+              className: 'office-badge ' + OFFICE_CLASS[r.tone],
+              style: locked
+                ? { opacity: .32, filter: 'grayscale(1)', cursor: 'not-allowed' }
+                : (on ? { outline: '2px solid rgba(155,195,174,.55)', outlineOffset: '2px' } : { opacity: .6 }),
+              'aria-pressed': on, 'aria-disabled': locked,
+              'aria-label': r.name + (locked ? '（需要掌門之權）' : ''),
+              title: locked ? '只有掌門能使用這個稱號' : null
             }, S('office-sigil', { 'aria-hidden': 'true' }, r.glyph), S('', r.name));
           })),
-          S('text-[11.5px] leading-relaxed ' + T3, '由高到低排列；金為掌門與大長老，綠為長老與親傳，灰為門下弟子與散修。')),
+          S('text-[11.5px] leading-relaxed ' + T3, '由高到低排列；金為掌門與大長老，綠為長老與親傳，灰為門下弟子與散修。'
+            + (lockedMaster ? '「' + MASTER_TITLE + '」需要掌門之權。' : ''))),
         E(Field, { label: '宗門狀態（選填）' },
           D('flex flex-wrap gap-2',
             MOODS.map(function (m) { return chip(m.label, mood === m.label, function () { setMood(mood === m.label ? '' : m.label); }); }).concat([
