@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="zh-Hant" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>落雲宗・分頁轉場動效範例展示</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@400;500;600;700;900&display=swap">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@1.41.0/dist/umd/lucide.min.js"></script>
+
+<style>
+  :root {
+    --ink-0: #101A1E;
+    --ink-1: #16242A;
+    --ink-2: #1B2C32;
+    --mist-1: #EEF5F1;
+    --mist-2: #B9CAC3;
+    --mist-3: #91A39B;
+    --jade-100: #D5E7DC;
+    --jade-300: #9BC3AE;
+    --jade-500: #6E9E88;
+    --jade-700: #3D6555;
+    --gold: #C9A961;
+    --gold-dim: #8A7440;
+    --cinnabar: #D07A6C;
+    --amethyst: #9E8FC0;
+    --hair: rgba(228,235,232,.10);
+    --hair-2: rgba(228,235,232,.18);
+    --ease-xianxia: cubic-bezier(0.16, 1, 0.3, 1);
+    --anim-speed: 1;
+    color-scheme: dark;
+  }
+
+  html[data-theme="light"] {
+    --ink-0: #E8E0D1;
+    --ink-1: #F3EDE1;
+    --ink-2: #DED4C3;
+    --mist-1: #24382F;
+    --mist-2: #4A6056;
+    --mist-3: #4F665C;
+    --jade-100: #174737;
+    --jade-300: #2E7055;
+    --jade-500: #477E65;
+    --jade-700: #285C48;
+    --gold: #8C651C;
+    --cinnabar: #A64E41;
+    --amethyst: #66558D;
+    --hair: rgba(76,65,45,.16);
+    --hair-2: rgba(57,82,68,.27);
+    color-scheme: light;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--ink-0);
+    color: var(--mist-2);
+    font-family: 'Noto Sans TC', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background-color .35s var(--ease-xianxia);
+  }
+
+  /* 背景圖層 */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background-size: cover;
+    background-position: center;
+    background-image: url('/assets/yunmeng-dark-v1.jpg');
+    transition: background-image .45s ease;
+  }
+  html[data-theme="light"] body::before {
+    background-image: url('/assets/yunmeng-light-v1.jpg');
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(ellipse at 50% 10%, transparent 40%, rgba(10,16,19,.78) 95%);
+    pointer-events: none;
+  }
+  html[data-theme="light"] body::after {
+    background: radial-gradient(ellipse at 50% 10%, rgba(247,242,231,.45) 30%, rgba(235,229,212,.75) 95%);
+  }
+
+  .disp { font-family: 'Noto Serif TC', serif; }
+  .brush { font-family: 'LXGW WenKai TC', 'Noto Serif TC', serif; }
+  .surface {
+    background: linear-gradient(180deg, rgba(22,36,42,.84), rgba(16,26,30,.88));
+    border: 1px solid var(--hair);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 20px 48px -20px rgba(0,0,0,.65);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+  html[data-theme="light"] .surface {
+    background: linear-gradient(180deg, rgba(247,242,232,.95), rgba(234,225,208,.94));
+    border-color: var(--hair);
+    box-shadow: inset 0 1px 0 rgba(255,253,247,.8), 0 20px 48px -20px rgba(79,61,35,.32);
+  }
+
+  /* ---------------- 四大專屬轉場動畫定義 ---------------- */
+
+  /* 1. 試煉佈告：靈符破空・仙卷展開 */
+  .anim-bulletin {
+    animation: scrollUnfurl calc(0.36s * var(--anim-speed)) var(--ease-xianxia) both;
+    transform-origin: top center;
+  }
+  .anim-bulletin-sword {
+    animation: swordSlash calc(0.48s * var(--anim-speed)) cubic-bezier(0.1, 0.9, 0.2, 1) both;
+  }
+  @keyframes scrollUnfurl {
+    0% {
+      opacity: 0;
+      transform: scaleY(0.92) translateY(18px);
+      filter: blur(4px);
+    }
+    100% {
+      opacity: 1;
+      transform: scaleY(1) translateY(0);
+      filter: blur(0);
+    }
+  }
+  @keyframes swordSlash {
+    0% {
+      opacity: 0;
+      transform: translateX(-60%) scaleX(0.2);
+    }
+    30% {
+      opacity: 0.95;
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(120%) scaleX(1.4);
+    }
+  }
+
+  /* 2. 弟子名冊：萬法玉簡・星宿列陣（階梯微翻牌） */
+  .anim-roster {
+    animation: rosterCardIn calc(0.32s * var(--anim-speed)) var(--ease-xianxia) both;
+  }
+  .stagger-1 { animation-delay: calc(0.04s * var(--anim-speed)); }
+  .stagger-2 { animation-delay: calc(0.08s * var(--anim-speed)); }
+  .stagger-3 { animation-delay: calc(0.12s * var(--anim-speed)); }
+  .stagger-4 { animation-delay: calc(0.16s * var(--anim-speed)); }
+  @keyframes rosterCardIn {
+    0% {
+      opacity: 0;
+      transform: perspective(900px) rotateX(-14deg) translateY(22px);
+    }
+    100% {
+      opacity: 1;
+      transform: perspective(900px) rotateX(0deg) translateY(0);
+    }
+  }
+  .star-pulse {
+    animation: starIgnite calc(0.6s * var(--anim-speed)) ease-out both;
+  }
+  @keyframes starIgnite {
+    0% { box-shadow: 0 0 0 0 rgba(155,195,174,0.8); }
+    50% { box-shadow: 0 0 16px 4px rgba(155,195,174,0.6); }
+    100% { box-shadow: 0 0 0 0 rgba(155,195,174,0); }
+  }
+
+  /* 3. 洞府場館：山海尋龍・洞天啟陣（八卦陣羅盤擴散與波紋升起） */
+  .anim-venues {
+    animation: venueRise calc(0.38s * var(--anim-speed)) var(--ease-xianxia) both;
+  }
+  .anim-bagua {
+    animation: baguaExpand calc(0.55s * var(--anim-speed)) ease-out both;
+  }
+  @keyframes venueRise {
+    0% {
+      opacity: 0;
+      transform: translateY(24px) scale(0.97);
+      filter: blur(3px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+    }
+  }
+  @keyframes baguaExpand {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.4) rotate(0deg);
+    }
+    40% {
+      opacity: 0.65;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(1.6) rotate(60deg);
+    }
+  }
+
+  /* 4. 掌門殿：紫氣東來・金印鎮殿（金印下壓與帝威紫氣） */
+  .anim-admin {
+    animation: adminStamp calc(0.42s * var(--anim-speed)) cubic-bezier(0.18, 0.92, 0.25, 1.08) both;
+  }
+  .anim-purple-qi {
+    animation: purpleQiFlow calc(0.65s * var(--anim-speed)) ease-out both;
+  }
+  .anim-seal-stamp {
+    animation: sealImpact calc(0.4s * var(--anim-speed)) cubic-bezier(0.15, 0.85, 0.35, 1.2) both;
+  }
+  @keyframes adminStamp {
+    0% {
+      opacity: 0;
+      transform: translateY(-20px) scale(1.02);
+      filter: blur(4px);
+    }
+    70% {
+      opacity: 1;
+      transform: translateY(3px) scale(0.995);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+    }
+  }
+  @keyframes purpleQiFlow {
+    0% {
+      opacity: 0;
+      transform: scaleY(0.2);
+    }
+    50% {
+      opacity: 0.35;
+    }
+    100% {
+      opacity: 0;
+      transform: scaleY(1.3);
+    }
+  }
+  @keyframes sealImpact {
+    0% {
+      opacity: 0;
+      transform: translateY(-40px) scale(1.35) rotate(-6deg);
+    }
+    75% {
+      opacity: 1;
+      transform: translateY(0) scale(0.96) rotate(0);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1) rotate(0);
+    }
+  }
+
+  /* 境界徽章外觀 */
+  .badge-qi { border: 1px solid rgba(110,158,136,.4); background: rgba(110,158,136,.12); color: #CDE9DA; }
+  .badge-golden { border: 1px solid rgba(201,169,97,.4); background: rgba(201,169,97,.12); color: #FFE8A0; }
+  .badge-transcendent { border: 1px solid rgba(214,169,61,.5); background: rgba(214,169,61,.18); color: #FFF2B5; box-shadow: 0 0 12px rgba(214,169,61,.3); }
+
+  html[data-theme="light"] .badge-qi { color: #1E5C46; background: rgba(46,112,85,.12); border-color: rgba(46,112,85,.3); }
+  html[data-theme="light"] .badge-golden { color: #785210; background: rgba(140,101,28,.12); border-color: rgba(140,101,28,.3); }
+  html[data-theme="light"] .badge-transcendent { color: #694406; background: rgba(201,146,28,.18); border-color: rgba(201,146,28,.4); }
+</style>
+</head>
+<body class="p-4 sm:p-8">
+
+<div class="mx-auto max-w-4xl">
+  <!-- 頁頂說明與控制列 -->
+  <header class="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-[var(--hair)] pb-5">
+    <div>
+      <div class="inline-flex items-center gap-2 rounded-full border border-[rgba(155,195,174,.25)] bg-[rgba(155,195,174,.08)] px-3 py-1 text-xs font-semibold text-[var(--jade-300)]">
+        <span>仙門動效實驗室</span> · <span>Xianxia Transitions Lab</span>
+      </div>
+      <h1 class="disp mt-2 text-2xl font-bold tracking-wider text-[var(--mist-1)] sm:text-3xl">落雲宗 · 分頁轉場動效預覽</h1>
+      <p class="mt-1 text-xs text-[var(--mist-3)] sm:text-sm">點擊下方四個導覽標籤，即刻體驗專屬的修仙微動畫效果</p>
+    </div>
+
+    <!-- 模式與速度切換控制 -->
+    <div class="flex flex-wrap items-center gap-2">
+      <a href="/console.html" class="flex items-center gap-1.5 rounded-full border border-[var(--hair-2)] bg-[rgba(228,235,232,.06)] px-3 py-1.5 text-xs font-medium text-[var(--mist-1)] transition hover:bg-[rgba(228,235,232,.12)]">
+        <i data-lucide="ArrowLeft" class="h-3.5 w-3.5"></i> 前往後台
+      </a>
+      <button id="btn-replay" class="flex items-center gap-1.5 rounded-full border border-[var(--hair-2)] bg-[rgba(228,235,232,.06)] px-3 py-1.5 text-xs font-medium text-[var(--mist-1)] transition hover:bg-[rgba(228,235,232,.12)]">
+        <i data-lucide="RotateCcw" class="h-3.5 w-3.5"></i> 重播動效
+      </button>
+      <button id="btn-speed" class="flex items-center gap-1.5 rounded-full border border-[var(--hair-2)] bg-[rgba(228,235,232,.06)] px-3 py-1.5 text-xs font-medium text-[var(--mist-1)] transition hover:bg-[rgba(228,235,232,.12)]" title="切換動態速度">
+        <span id="speed-label">速度 1.0x</span>
+      </button>
+      <button id="btn-theme" class="flex items-center gap-1.5 rounded-full border border-[var(--hair-2)] bg-[rgba(228,235,232,.06)] px-3 py-1.5 text-xs font-medium text-[var(--mist-1)] transition hover:bg-[rgba(228,235,232,.12)]">
+        <i data-lucide="SunMedium" class="h-3.5 w-3.5"></i> <span id="theme-label">深色</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 仿正式站導覽列 Tabs -->
+  <nav class="surface relative mb-5 flex gap-2 overflow-x-auto rounded-2xl p-2">
+    <button data-tab="events" class="tab-btn flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition active-tab text-[var(--jade-100)] bg-[rgba(155,195,174,.18)] border border-[rgba(155,195,174,.25)] shadow-inner">
+      <i data-lucide="CalendarDays" class="h-4 w-4"></i> 試煉佈告
+    </button>
+    <button data-tab="members" class="tab-btn flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-[var(--mist-3)] transition hover:text-[var(--mist-1)] hover:bg-[rgba(228,235,232,.05)]">
+      <i data-lucide="Users" class="h-4 w-4"></i> 弟子名冊
+    </button>
+    <button data-tab="venues" class="tab-btn flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-[var(--mist-3)] transition hover:text-[var(--mist-1)] hover:bg-[rgba(228,235,232,.05)]">
+      <i data-lucide="MapPinned" class="h-4 w-4"></i> 洞府場館
+    </button>
+    <button data-tab="admin" class="tab-btn flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-[var(--mist-3)] transition hover:text-[var(--mist-1)] hover:bg-[rgba(228,235,232,.05)]">
+      <i data-lucide="Settings" class="h-4 w-4"></i> 掌門殿
+    </button>
+  </nav>
+
+  <!-- 展演舞台 Stage Container -->
+  <main id="stage" class="relative min-h-[300px]">
+    <!-- 動態注入內容 -->
+  </main>
+
+  <!-- 動效設計理念卡片 -->
+  <footer id="explanation" class="surface mt-5 rounded-2xl p-5 text-xs leading-relaxed text-[var(--mist-2)]">
+    <!-- 動態注入理念說明 -->
+  </footer>
+</div>
+
+<script>
+  lucide.createIcons();
+
+  var currentTab = 'events';
+  var speed = 1.0;
+  var theme = 'dark';
+
+  var tabData = {
+    events: {
+      title: '試煉佈告',
+      badge: '靈符破空 · 仙卷展開',
+      description: '【設計概念】進入佈告時，如同一柄青竹飛劍劃破虛空，卷軸自中央柔和展開（scaleY + fade-in），散發翡翠靈力微光，戰帖內容以水墨暈染姿態登場。',
+      aiPrompt: 'Xianxia UI motion design, an ancient jade talisman martial announcement scroll smoothly unfurling from center, soft green spiritual qi glow, celestial sword light slashing horizontally across the header, elegant ink wash typography revealing, dark jade and gold palette, cinematic 60fps micro-animation.',
+      render: function() {
+        return `
+          <div class="anim-bulletin relative overflow-hidden rounded-[24px] surface p-6 sm:p-8">
+            <!-- 飛劍劃空靈光特效 -->
+            <div class="anim-bulletin-sword absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#9BC3AE] to-transparent shadow-[0_0_12px_#9BC3AE] pointer-events-none"></div>
+
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--hair)] pb-4">
+              <div class="flex items-center gap-3">
+                <span class="disp text-3xl font-black text-[var(--jade-300)]">9/25</span>
+                <div>
+                  <h3 class="disp text-xl font-bold text-[var(--mist-1)]">中秋節仙門羽球大典</h3>
+                  <p class="text-xs text-[var(--mist-3)] mt-0.5">逢佳節集結同門試煉，淬鍊身法與劍術</p>
+                </div>
+              </div>
+              <span class="rounded-full bg-[rgba(201,169,97,.15)] border border-[rgba(201,169,97,.3)] px-3 py-1 text-xs font-semibold text-[var(--gold)]">
+                名額即將額滿 (18/21)
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
+              <div class="rounded-xl border border-[var(--hair)] bg-[rgba(228,235,232,.03)] p-3.5">
+                <span class="text-[11px] text-[var(--mist-3)] block">試煉場地</span>
+                <strong class="text-sm text-[var(--mist-1)] mt-1 block">亞伯林羽球館 · 振興洞府</strong>
+              </div>
+              <div class="rounded-xl border border-[var(--hair)] bg-[rgba(228,235,232,.03)] p-3.5">
+                <span class="text-[11px] text-[var(--mist-3)] block">試煉時辰</span>
+                <strong class="text-sm text-[var(--mist-1)] mt-1 block">10:00 – 13:00（辰時至午時）</strong>
+              </div>
+            </div>
+
+            <div class="mt-5 rounded-xl border border-[var(--hair)] bg-[rgba(228,235,232,.02)] p-4 text-xs text-[var(--mist-2)] leading-relaxed">
+              <span class="text-[var(--gold)] font-bold">ℹ️ 仙門備註：</span> 用球採用輝鷹2號或同級距仙羽；前一日23:00前可免費取消，館內請自備靈水。
+            </div>
+          </div>
+        `;
+      }
+    },
+
+    members: {
+      title: '弟子名冊',
+      badge: '萬法玉簡 · 星宿列陣',
+      description: '【設計概念】名冊卡片以 3D 輕透角速度（perspective 傾角）階梯式依序翻開歸位（Staggered cascade），境界徽章綻放微型呼吸靈光，呈現門人如星宿歸陣的秩序感。',
+      aiPrompt: 'Taoist celestial sect roster interface, bamboo-jade identity slips flipping into place with 3D perspective stagger cascade, glowing cultivation realm badge pulsing with subtle star dust aura, neat constellation matrix alignment, dark ink stone background.',
+      render: function() {
+        return `
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- 弟子卡片 1 -->
+            <div class="anim-roster stagger-1 surface rounded-2xl p-4 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-full flex items-center justify-center bg-[rgba(201,169,97,.15)] border border-[rgba(201,169,97,.3)] text-[var(--gold)] font-bold">
+                  昕
+                </div>
+                <div>
+                  <h4 class="font-bold text-sm text-[var(--mist-1)]">士昕</h4>
+                  <p class="text-[11px] text-[var(--mist-3)]">入陣 42 次 · 宗門長老</p>
+                </div>
+              </div>
+              <span class="badge-transcendent star-pulse rounded-full px-2.5 py-1 text-xs font-bold">
+                化神 8
+              </span>
+            </div>
+
+            <!-- 弟子卡片 2 -->
+            <div class="anim-roster stagger-2 surface rounded-2xl p-4 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-full flex items-center justify-center bg-[rgba(110,158,136,.15)] border border-[rgba(110,158,136,.3)] text-[var(--jade-300)] font-bold">
+                  標
+                </div>
+                <div>
+                  <h4 class="font-bold text-sm text-[var(--mist-1)]">阿標</h4>
+                  <p class="text-[11px] text-[var(--mist-3)]">入陣 35 次 · 執法長老</p>
+                </div>
+              </div>
+              <span class="badge-golden star-pulse rounded-full px-2.5 py-1 text-xs font-bold">
+                結丹 5
+              </span>
+            </div>
+
+            <!-- 弟子卡片 3 -->
+            <div class="anim-roster stagger-3 surface rounded-2xl p-4 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-full flex items-center justify-center bg-[rgba(110,158,136,.15)] border border-[rgba(110,158,136,.3)] text-[var(--jade-300)] font-bold">
+                  Max
+                </div>
+                <div>
+                  <h4 class="font-bold text-sm text-[var(--mist-1)]">Max</h4>
+                  <p class="text-[11px] text-[var(--mist-3)]">入陣 28 次 · 巡山長老</p>
+                </div>
+              </div>
+              <span class="badge-golden star-pulse rounded-full px-2.5 py-1 text-xs font-bold">
+                結丹 6
+              </span>
+            </div>
+
+            <!-- 弟子卡片 4 -->
+            <div class="anim-roster stagger-4 surface rounded-2xl p-4 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-full flex items-center justify-center bg-[rgba(228,235,232,.08)] border border-[var(--hair)] text-[var(--mist-2)] font-bold">
+                  月
+                </div>
+                <div>
+                  <h4 class="font-bold text-sm text-[var(--mist-1)]">月月</h4>
+                  <p class="text-[11px] text-[var(--mist-3)]">入陣 19 次 · 內門真傳</p>
+                </div>
+              </div>
+              <span class="badge-qi star-pulse rounded-full px-2.5 py-1 text-xs font-bold">
+                練氣 2
+              </span>
+            </div>
+          </div>
+        `;
+      }
+    },
+
+    venues: {
+      title: '洞府場館',
+      badge: '山海尋龍 · 洞天啟陣',
+      description: '【設計概念】切換至場館時，中央泛起金絲八卦羅盤投影（旋轉擴散），各場館宛如仙家福地突破雲霧湧現，帶有水波升起與地標定位微震。',
+      aiPrompt: 'Chinese fantasy mystical arena portal, glowing gold trigram Bagua array compass expanding and spinning gently, mist dissipating to reveal floating sacred mountain hall coordinates, golden daoist runes radiating outwards.',
+      render: function() {
+        return `
+          <div class="anim-venues relative overflow-hidden surface rounded-[24px] p-6 sm:p-8">
+            <!-- 八卦虛影擴散光環 -->
+            <div class="anim-bagua absolute top-1/2 left-1/2 w-64 h-64 rounded-full border border-[rgba(201,169,97,.4)] pointer-events-none -translate-x-1/2 -translate-y-1/2 [background:radial-gradient(circle,rgba(201,169,97,.12),transparent_70%)]"></div>
+
+            <div class="relative z-10 flex flex-wrap items-center justify-between gap-4 border-b border-[var(--hair)] pb-4">
+              <div>
+                <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--gold)]">
+                  <i data-lucide="Sparkles" class="h-3.5 w-3.5"></i> 甲級洞天福地
+                </span>
+                <h3 class="disp text-xl font-bold text-[var(--mist-1)] mt-1">亞伯林羽球館 · 東區振興店</h3>
+              </div>
+              <button class="flex items-center gap-1.5 rounded-full border border-[rgba(155,195,174,.3)] bg-[rgba(155,195,174,.12)] px-4 py-2 text-xs font-semibold text-[var(--jade-100)] transition hover:scale-[1.03]">
+                <i data-lucide="Navigation" class="h-3.5 w-3.5"></i> 御劍導航
+              </button>
+            </div>
+
+            <div class="relative z-10 grid grid-cols-1 sm:grid-cols-3 gap-3.5 mt-5">
+              <div class="rounded-xl border border-[var(--hair)] bg-[rgba(228,235,232,.03)] p-3">
+                <span class="text-[11px] text-[var(--mist-3)] block">洞府地址</span>
+                <strong class="text-xs text-[var(--mist-1)] mt-1 block">台中市東區振興路284巷2號</strong>
+              </div>
+              <div class="rounded-xl border border-[var(--hair)] bg-[rgba(228,235,232,.03)] p-3">
+                <span class="text-[11px] text-[var(--mist-3)] block">靈氣面數</span>
+                <strong class="text-xs text-[var(--mist-1)] mt-1 block">預設 5 面場（上限 35 人）</strong>
+              </div>
+              <div class="rounded-xl border border-[var(--hair)] bg-[rgba(228,235,232,.03)] p-3">
+                <span class="text-[11px] text-[var(--mist-3)] block">泊車仙位</span>
+                <strong class="text-xs text-[var(--mist-1)] mt-1 block">館對面附設特約停車場</strong>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    },
+
+    admin: {
+      title: '掌門殿',
+      badge: '紫氣東來 · 金印鎮殿',
+      description: '【設計概念】進入掌門殿時，頂部降下祥雲紫氣，一枚落雲宗玄金古印帶著威嚴的回彈微震（Stamp Effect）凌空下落，突顯掌門執法重器與戒律威嚴。',
+      aiPrompt: 'Majestic sect grandmaster sanctum UI transition, ethereal imperial purple mist cascading down like waterfall clouds, ancient golden square imperial seal dropping with authoritative magnetic impact and subtle shockwave, supreme sacred aura.',
+      render: function() {
+        return `
+          <div class="anim-admin relative overflow-hidden surface rounded-[24px] p-6 sm:p-8 border border-[rgba(201,169,97,.3)] shadow-[0_24px_64px_-16px_rgba(201,169,97,.22)]">
+            <!-- 頂部紫氣降臨動態層 -->
+            <div class="anim-purple-qi absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[rgba(158,143,192,.22)] via-[rgba(201,169,97,.12)] to-transparent pointer-events-none"></div>
+
+            <div class="relative z-10 flex items-center justify-between gap-4 border-b border-[var(--hair)] pb-4">
+              <div class="flex items-center gap-4">
+                <!-- 凌空下壓的落雲大印 -->
+                <div class="anim-seal-stamp h-14 w-14 rounded-2xl bg-gradient-to-br from-[#FFE8A0] via-[#C9A961] to-[#8A6824] flex items-center justify-center text-[#120F08] font-black text-xl shadow-[0_10px_25px_-5px_rgba(201,169,97,.6)]">
+                  落雲
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="disp text-xl font-bold text-[var(--mist-1)]">落雲宗 · 掌門殿</h3>
+                    <span class="rounded-full bg-[rgba(201,169,97,.2)] border border-[rgba(201,169,97,.4)] px-2.5 py-0.5 text-[10px] font-bold text-[var(--gold)]">
+                      至尊執法權限
+                    </span>
+                  </div>
+                  <p class="text-xs text-[var(--mist-3)] mt-0.5">總攬宗門長老冊封、弟子名籍、試煉開壇與門規更易</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+              <div class="rounded-xl border border-[var(--hair)] bg-[rgba(228,235,232,.03)] p-3 text-center">
+                <span class="text-[11px] text-[var(--mist-3)]">冊封執事長老</span>
+                <strong class="text-lg font-bold text-[var(--gold)] mt-1 block">12 位</strong>
+              </div>
+              <div class="rounded-xl border border-[var(--hair)] bg-[rgba(228,235,232,.03)] p-3 text-center">
+                <span class="text-[11px] text-[var(--mist-3)]">總入籍門徒</span>
+                <strong class="text-lg font-bold text-[var(--jade-300)] mt-1 block">84 人</strong>
+              </div>
+              <div class="rounded-xl border border-[var(--hair)] bg-[rgba(228,235,232,.03)] p-3 text-center">
+                <span class="text-[11px] text-[var(--mist-3)]">歷次試煉開壇</span>
+                <strong class="text-lg font-bold text-[var(--mist-1)] mt-1 block">43 場</strong>
+              </div>
+              <div class="rounded-xl border border-[var(--hair)] bg-[rgba(228,235,232,.03)] p-3 text-center">
+                <span class="text-[11px] text-[var(--mist-3)]">宗門靈脈狀態</span>
+                <strong class="text-lg font-bold text-[#A8E6CF] mt-1 block">鼎盛</strong>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+  };
+
+  function copyPromptText() {
+    var prompt = tabData[currentTab].aiPrompt;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(prompt).then(function() {
+        var el = document.getElementById('copy-text');
+        if (el) { el.innerText = '已複製到剪貼簿！'; setTimeout(function(){ el.innerText = '複製 AI 提示詞'; }, 2000); }
+      });
+    }
+  }
+
+  function renderStage(tabKey) {
+    var stage = document.getElementById('stage');
+    var explanation = document.getElementById('explanation');
+    var data = tabData[tabKey];
+
+    stage.innerHTML = data.render();
+    explanation.innerHTML = `
+      <div class="flex items-center gap-2 mb-2">
+        <span class="rounded-md bg-[rgba(155,195,174,.18)] px-2 py-0.5 font-bold text-[var(--jade-300)]">動效解析</span>
+        <strong class="text-sm text-[var(--mist-1)]">${data.title}（${data.badge}）</strong>
+      </div>
+      <p class="leading-relaxed text-[var(--mist-2)]">${data.description}</p>
+      
+      <!-- AI 提示詞一鍵複製面板 -->
+      <div class="mt-3.5 rounded-xl border border-[rgba(201,169,97,.28)] bg-[rgba(201,169,97,.07)] p-3">
+        <div class="flex items-center justify-between gap-2 mb-1.5">
+          <span class="text-[11px] font-bold text-[var(--gold)] flex items-center gap-1.5">
+            <i data-lucide="Sparkles" class="h-3.5 w-3.5"></i> 可提供給 AI 的精準提示詞 (Prompt)
+          </span>
+          <button onclick="copyPromptText()" class="flex items-center gap-1 rounded-lg border border-[rgba(201,169,97,.35)] bg-[rgba(201,169,97,.15)] px-2.5 py-1 text-[11px] font-semibold text-[var(--gold)] transition hover:bg-[rgba(201,169,97,.28)]">
+            <i data-lucide="Copy" class="h-3 w-3"></i> <span id="copy-text">複製 AI 提示詞</span>
+          </button>
+        </div>
+        <p class="font-mono text-[11px] text-[var(--mist-1)] leading-relaxed select-all">${data.aiPrompt}</p>
+      </div>
+
+      <div class="mt-3.5 flex flex-wrap items-center gap-4 text-[11px] text-[var(--mist-3)] border-t border-[var(--hair)] pt-2.5">
+        <span>⏱️ 動態時長：<strong>${(0.35 * speed).toFixed(2)} 秒</strong></span>
+        <span>📈 貝茲曲線：<strong>cubic-bezier(0.16, 1, 0.3, 1)</strong></span>
+        <span>✨ 視覺重點：<strong>${tabKey === 'events' ? '開卷光感 + 飛劍流光' : (tabKey === 'members' ? '3D 階梯翻簡 + 境界星芒' : (tabKey === 'venues' ? '金絲八卦羅盤 + 洞天升起' : '紫氣祥雲 + 玄金大印下壓'))}</strong></span>
+      </div>
+    `;
+
+    lucide.createIcons();
+  }
+
+  // 標籤按鈕切換
+  document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var tab = this.getAttribute('data-tab');
+      if (tab === currentTab) {
+        // 重播當前
+        renderStage(tab);
+        return;
+      }
+      currentTab = tab;
+      document.querySelectorAll('.tab-btn').forEach(function(b) {
+        b.classList.remove('active-tab', 'text-[var(--jade-100)]', 'bg-[rgba(155,195,174,.18)]', 'border-[rgba(155,195,174,.25)]', 'shadow-inner');
+        b.classList.add('text-[var(--mist-3)]');
+      });
+      this.classList.remove('text-[var(--mist-3)]');
+      this.classList.add('active-tab', 'text-[var(--jade-100)]', 'bg-[rgba(155,195,174,.18)]', 'border-[rgba(155,195,174,.25)]', 'shadow-inner');
+      renderStage(tab);
+    });
+  });
+
+  // 重播按鈕
+  document.getElementById('btn-replay').addEventListener('click', function() {
+    renderStage(currentTab);
+  });
+
+  // 速度切換
+  document.getElementById('btn-speed').addEventListener('click', function() {
+    if (speed === 1.0) {
+      speed = 2.0; // 0.5x 慢動作
+      document.getElementById('speed-label').innerText = '慢速 0.5x (細看)';
+    } else {
+      speed = 1.0;
+      document.getElementById('speed-label').innerText = '速度 1.0x (標準)';
+    }
+    document.documentElement.style.setProperty('--anim-speed', speed);
+    renderStage(currentTab);
+  });
+
+  // 深淺色切換
+  document.getElementById('btn-theme').addEventListener('click', function() {
+    theme = theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+    document.getElementById('theme-label').innerText = theme === 'dark' ? '深色' : '淺色';
+    renderStage(currentTab);
+  });
+
+  // 初始化首次渲染
+  renderStage('events');
+</script>
+
+</body>
+</html>
