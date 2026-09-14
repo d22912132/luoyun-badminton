@@ -323,9 +323,11 @@
   .seal-toast{ position:relative; overflow:hidden; }.seal-toast::after{ content:""; position:absolute; inset:0; pointer-events:none; background:radial-gradient(circle at 15% 50%,rgba(155,195,174,.16),transparent 42%); animation:toast-glow .85s var(--ease) both; }
   @keyframes toast-glow{ from{opacity:0;transform:translateX(-25%)} to{opacity:.8;transform:translateX(10%)} }
   .enter-canvas-ritual{position:fixed;inset:0;z-index:90;overflow:hidden;background:#000;isolation:isolate}.enter-canvas-ritual canvas{display:block;width:100%;height:100%;touch-action:none}.ritual-skip{position:fixed;right:max(1.15rem,env(safe-area-inset-right));bottom:max(1.15rem,env(safe-area-inset-bottom));z-index:2;min-height:42px;padding:.65rem 1.05rem;border:1px solid rgba(201,255,224,.55);border-radius:999px;background:rgba(6,16,14,.72);box-shadow:0 0 18px rgba(127,214,160,.2),inset 0 1px 0 rgba(255,255,255,.14);color:#dfffee;font:600 .76rem 'Noto Serif TC',serif;letter-spacing:.18em;backdrop-filter:blur(10px);cursor:pointer;transition:transform .16s ease,background .16s ease}.ritual-skip:hover{background:rgba(39,108,78,.62);transform:translateY(-2px)}.ritual-skip:active{transform:scale(.96)}
-  /* 首次進入後台時，覆蓋一層與舊首頁完全相同的入陣禮。 */
-  /* 背景保持透明，裂縫才會透出底下的後台畫面；幕布由動畫自己鋪滿 */
-  .console-rite-frame{position:fixed;inset:0;z-index:90;width:100%;height:100%;border:0;background:transparent}
+  /* 首次入宗只留一層靜態遮罩與印記，不再載入完整舊頁面的 iframe。 */
+  .landing-rite{position:fixed;inset:0;z-index:90;display:grid;place-items:center;isolation:isolate;overflow:hidden;border:0;padding:0;background:rgba(4,13,16,.82);color:var(--jade-100);cursor:pointer;touch-action:manipulation;animation:landing-veil .82s var(--ease) both}
+  .landing-rite::before{content:"";position:absolute;width:min(62vmin,27rem);aspect-ratio:1;border:1px solid rgba(155,195,174,.42);border-radius:50%;opacity:0;animation:landing-ring .64s var(--ease) both}
+  .landing-rite-mark{position:relative;z-index:1;animation:landing-mark .64s var(--ease) both}.landing-rite-copy{position:absolute;z-index:1;top:calc(50% + min(11vmin,5rem));left:50%;width:max-content;text-align:center;transform:translateX(-50%);animation:landing-copy .58s var(--ease) both}.landing-rite-copy strong{display:block;font:700 clamp(1.15rem,3.2vw,1.8rem) 'Noto Serif TC',serif;letter-spacing:.24em}.landing-rite-copy span{display:block;margin-top:.45rem;font:600 .62rem 'Noto Serif TC',serif;letter-spacing:.28em;opacity:.75}
+  @keyframes landing-veil{0%,72%{opacity:1}100%{opacity:0;visibility:hidden}}@keyframes landing-ring{0%{opacity:0;transform:scale(.45)}35%{opacity:.75}100%{opacity:0;transform:scale(1.28)}}@keyframes landing-mark{0%{opacity:0;transform:scale(.66) translateY(12px)}38%{opacity:1;transform:scale(1) translateY(0)}100%{opacity:0;transform:scale(1.1) translateY(-5px)}}@keyframes landing-copy{0%,30%{opacity:0;transform:translate(-50%,8px)}48%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-4px)}}
 
   /* ---------- 試煉行事曆 ---------- */
   .calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:var(--hair);border-top:1px solid var(--hair)}
@@ -819,7 +821,7 @@
     var errorState = useState(''), error = errorState[0], setError = errorState[1];
     var syncState = useState('連線中'), syncLabel = syncState[0], setSyncLabel = syncState[1];
     var themeState = useState(document.documentElement.dataset.theme || 'dark'), theme = themeState[0], setTheme = themeState[1];
-    var version = useRef(-1), lock = useRef(false), toastTimers = useRef([]), fxTimer = useRef(null), epoch = useRef(0);
+    var version = useRef(-1), lock = useRef(false), toastTimers = useRef([]), fxTimer = useRef(null), epoch = useRef(0), landingPlayed = useRef(false);
     var members = state.members || [], events = state.events || [], venues = state.venues || [], intents = state.intents || [], admins = state.admins || [], logs = state.logs || [];
     var isAdmin = !!me, isSuper = !!(me && me.superAdmin), dbx = true;
 
@@ -834,10 +836,7 @@
       if (!kind) return;
       if ((kind === 'enter' || kind === 'landing') && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       clearTimeout(fxTimer.current); setFx({ kind: kind, key: Date.now() });
-      // 入陣禮跑在 iframe 裡，要等它自己載入才開始，和這裡的計時器不同步。
-      // 固定時間移除會在碎片還在飛散時硬切畫面，所以改等動畫回報結束，
-      // 計時器只保留成保險，避免 iframe 載入失敗時畫面卡住。
-      fxTimer.current = setTimeout(function () { setFx(null); }, kind === 'landing' ? 6000 : (kind === 'enter' ? 1500 : 1150));
+      fxTimer.current = setTimeout(function () { setFx(null); }, kind === 'landing' ? 1100 : (kind === 'enter' ? 1500 : 1150));
     }
     function flash(msg, kind, fxKind) { var item={id:Date.now()+Math.random(),msg:msg,kind:kind||'ok',fx:fxKind||''}; setToasts(function(old){return old.concat(item).slice(-3);}); invokeFx(fxKind); var timer=setTimeout(function(){setToasts(function(old){return old.filter(function(x){return x.id!==item.id;});});},4000); toastTimers.current.push(timer); }
     function setModal(value) {
@@ -873,23 +872,12 @@
     }
     useEffect(function () {
       var alive = true, timer;
-      invokeFx('landing');
       async function tick() {
         try { if (!lock.current && !document.hidden) { await refresh(); setError(function (old) { return old === '無法連上伺服器，請稍後再試；本機使用時請確認 npm start 已啟動。' ? '' : old; }); } }
         catch (err) { if (alive) { setSyncLabel('連線中斷，正在重試'); setError('無法連上伺服器，請稍後再試；本機使用時請確認 npm start 已啟動。'); } }
-        finally { if (alive) { setReady(true); timer = setTimeout(tick, 5000); } }
+        finally { if (alive) { setReady(true); if (!landingPlayed.current) { landingPlayed.current = true; invokeFx('landing'); } timer = setTimeout(tick, 5000); } }
       }
       tick(); return function () { alive = false; clearTimeout(timer); toastTimers.current.forEach(clearTimeout); clearTimeout(fxTimer.current); };
-    }, []);
-    // 入陣禮播完會從 iframe 回報，收到才收掉幕布，時間點就不會落在動畫中途
-    useEffect(function () {
-      function onRiteDone(ev) {
-        if (ev.origin !== window.location.origin) return;
-        if (!ev.data || ev.data.rite !== 'done') return;
-        clearTimeout(fxTimer.current); setFx(null);
-      }
-      window.addEventListener('message', onRiteDone);
-      return function () { window.removeEventListener('message', onRiteDone); };
     }, []);
 
     async function action(name, payload) {
@@ -977,15 +965,18 @@
   }
 
   function SectEffect(p) {
-    if (p.kind === 'landing') return E(LandingRite);
+    if (p.kind === 'landing') return E(LandingRite, { onSkip: p.onSkip });
     if (p.kind === 'enter') return E(EnterRitual, { onSkip: p.onSkip });
     var labels = { ward:'護山陣啟', member:'弟子玉印', event:'開壇靈光', roster:'入陣封錄', venue:'洞府落印', seal:'宗門玉印', line:'傳訊符成' };
     return D('fx-layer', { 'aria-hidden': 'true' },
       D('fx-sigil', E(SectMark, { size: 48 }), E('span', null, labels[p.kind] || labels.seal)));
   }
 
-  function LandingRite() {
-    return E('iframe', { className: 'console-rite-frame', src: '/rite.html?rite=1&embedded=1', scrolling: 'no', title: '青竹流雲拍・入陣禮' });
+  function LandingRite(p) {
+    useEffect(function () { var timer = setTimeout(p.onSkip, 820); return function () { clearTimeout(timer); }; }, []);
+    return D('landing-rite', { role:'button', tabIndex:0, 'aria-label':'略過入宗動畫', onClick:p.onSkip, onKeyDown:function (ev) { if (ev.key === 'Enter' || ev.key === ' ') p.onSkip(); } },
+      E(FallingCloudMark, { size:96, className:'landing-rite-mark' }),
+      D('landing-rite-copy', S('strong', null, '落雲宗'), S('span', null, '入宗雲印')));
   }
 
   function EnterRitual(p) {

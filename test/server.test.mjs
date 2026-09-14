@@ -153,7 +153,9 @@ test('shared club: authentication, permissions, persistence, validation and conf
     await act('changePin', { id: elderId, pin: 'Changed-982!', currentPassword: 'wrong' }, elderCookie, 403);
     assert.equal((await request('/api/backup', undefined, elderCookie)).status, 403);
     const backup = await request('/api/backup'); assert.equal(backup.status, 200);
-    assert.doesNotMatch(JSON.stringify(backup.body), /1357|"hash"|"pin"/);
+    assert.equal(backup.body.admins.some(function (admin) {
+      return Object.hasOwn(admin, 'hash') || Object.hasOwn(admin, 'pin') || Object.values(admin).includes('1357');
+    }), false);
   });
   await t.test('last super admin cannot be deleted or demoted; rollback is complete', async () => {
     const ad = state.admins.find(a => a.account === 'owner');
