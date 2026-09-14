@@ -1819,23 +1819,7 @@
         p.flash(ok ? '已複製 ' + logRows.length + ' 筆日誌（CSV）' : '複製失敗，請手動選取', ok ? 'ok' : 'bad');
       });
     }
-    function exportSnapshot() {
-      var snap = {
-        generatedAt: nowISO(),
-        events: p.events.map(function (ev) {
-          return {
-            title: ev.title, dateText: ev.dateText, startTime: ev.startTime, endTime: ev.endTime,
-            place: ev.place, courts: ev.courts, fee: ev.fee, note: ev.note || '',
-            roster: byGender(resolveRoster(ev.roster, p.members)).map(function (r) {
-              return { nickname: r.nickname, gender: r.gender, level: r.level, status: r.status };
-            })
-          };
-        })
-      };
-      copyText(JSON.stringify(snap)).then(function (ok) {
-        p.flash(ok ? '已複製佈告資料；公開名單已自動同步' : '複製失敗', ok ? 'ok' : 'bad');
-      });
-    }
+
 
     return D('',
       E(PageHead, { eyebrow: '掌門殿', title: '宗門執事', sub: '長老名冊、口令與全宗操作日誌' }),
@@ -1859,7 +1843,7 @@
             D('', E('p', { className: 'disp text-[16px] font-semibold ' + T1 }, '需長老權限'),
               E('p', { className: 'mt-1.5 text-[12.5px] ' + T3 }, '入殿後才能檢視長老名冊與宗門日誌'))),
           E(Btn, { variant: 'primary', icon: 'LogIn', nub: 'ArrowRight', onClick: function () { p.setModal({ type: 'login' }); } }, '入殿'))
-        : (sub === 'admins' ? E(AdminList, { p: p, exportSnapshot: exportSnapshot })
+        : (sub === 'admins' ? E(AdminList, { p: p })
           : E(LogList, { p: p, q: q, setQ: setQ, rows: logRows, exportCsv: exportCsv })));
   }
 
@@ -1871,9 +1855,6 @@
           '共 ' + p.admins.length + ' 位長老',
           p.isSuper ? null : S('ml-2 ' + T3, '・你可改自己的口令，冊封與異動請找掌門')),
         D('flex flex-wrap gap-2',
-          E('a', { href: '/', target: '_blank', rel: 'noopener', className: BTN + ' ' + BTN_SIZE.md + ' ' + BTN_VAR.outline }, '查看公開名單'),
-          p.isSuper ? E('a', { href: '/api/backup', download: true, className: BTN + ' ' + BTN_SIZE.md + ' ' + BTN_VAR.outline }, '下載資料備份') : null,
-          E(Btn, { variant: 'outline', icon: 'Share2', onClick: props.exportSnapshot }, '複製佈告資料'),
           p.isSuper
             ? E(Btn, { variant: 'primary', icon: 'UserPlus', onClick: function () { p.setModal({ type: 'admin', row: null }); } }, '冊封長老')
             : null)),
