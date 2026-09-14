@@ -297,7 +297,7 @@
   html.rite-embed body>:not(#rite):not(script):not(style){display:none!important}
   html.rite-embed body::before,html.rite-embed body::after{display:none!important}
   #rite{
-    position:fixed;inset:0;z-index:400;overflow:hidden;cursor:pointer;
+    position:fixed;inset:0;z-index:400;overflow:hidden;cursor:pointer;contain:layout paint;
     /* 幕布先鋪在 #rite 自己身上，碎片還沒建好的那幾百毫秒才不會露出底下；
        開始裂開時撤掉，縫隙才看得到後面 */
     background-image:var(--rite-veil);background-size:100vw 100vh;
@@ -854,7 +854,9 @@
   });
 
   /* 蜂雲：一群飛出去的小球拍 */
-  var beeCount = W < 560 ? 12 : 18;
+  /* 手機效能較弱時保留所有飛拍與火星，只降低同時繪製的數量。 */
+  var weakDevice = W < 560 && ((navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory && navigator.deviceMemory <= 4));
+  var beeCount = W < 560 ? (weakDevice ? 8 : 12) : 18;
   var far = Math.max(W, H);
   var spread = Math.min(W, H) * .3;
   for (var b = 0; b < beeCount; b++) {
@@ -953,7 +955,7 @@
     at(660, function () { rite.classList.add('burst'); });
 
     /* 三刀節奏越來越快，最後一刀最重 */
-    [[920, 8, false], [1080, 9, false], [1230, 14, true]].forEach(function (S, i) {
+    [[920, weakDevice ? 5 : 8, false], [1080, weakDevice ? 6 : 9, false], [1230, weakDevice ? 9 : 14, true]].forEach(function (S, i) {
       at(S[0], function () {
         var c = crackEls[i];
         c.g.classList.add('cut');
