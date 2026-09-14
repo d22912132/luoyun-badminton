@@ -44,14 +44,22 @@ test('shared club: authentication, permissions, persistence, validation and conf
     assert.equal((await fetch(base + '/server.mjs')).status, 404);
   });
   await t.test('background assets support GET and HEAD without exposing other files', async () => {
-    for (const name of ['yunmeng-mountains-v1.webp', 'yunmeng-mountains-small-v1.webp']) {
+    for (const name of ['yunmeng-mountains-v1.webp', 'yunmeng-mountains-small-v1.webp',
+        'yunmeng-dark-v1.jpg', 'yunmeng-dark-small-v1.jpg',
+        'yunmeng-light-v1.jpg', 'yunmeng-light-small-v1.jpg']) {
       const path = '/assets/' + name;
       const image = await fetch(base + path);
       assert.equal(image.status, 200);
-      assert.equal(image.headers.get('content-type'), 'image/webp');
+      const expectedType = name.endsWith('.webp') ? 'image/webp' : 'image/jpeg';
+      assert.equal(image.headers.get('content-type'), expectedType);
       assert.match(image.headers.get('cache-control'), /immutable/);
       const bytes = Buffer.from(await image.arrayBuffer());
-      assert.equal(bytes.toString('ascii', 8, 12), 'WEBP');
+      if (name.endsWith('.webp')) {
+        assert.equal(bytes.toString('ascii', 8, 12), 'WEBP');
+      } else {
+        assert.equal(bytes[0], 0xFF, 'JPEG SOI marker byte 1');
+        assert.equal(bytes[1], 0xD8, 'JPEG SOI marker byte 2');
+      }
       const head = await fetch(base + path, { method: 'HEAD' });
       assert.equal(head.status, 200);
       assert.equal(Number(head.headers.get('content-length')), bytes.length);

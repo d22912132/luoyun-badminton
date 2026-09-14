@@ -28,8 +28,12 @@ export function createApp({ dataDir = process.env.DATA_DIR || resolve(root, 'dat
   const readHtml = name => readFileSync(resolve(root, name), 'utf8');
   const snapshot = JSON.parse(readHtml('index.html').match(/id="snapshot">\s*([\s\S]*?)<\/script>/)[1]);
   const handler = createHandler({ db: adapter, initialState: seed(snapshot), setupToken, origin, readHtml });
-  const backgrounds = new Map(['yunmeng-mountains-v1.webp', 'yunmeng-mountains-small-v1.webp']
-    .map(name => ['/assets/' + name, readFileSync(resolve(root, 'public/assets', name))]));
+  const bgNames = [
+    'yunmeng-mountains-v1.webp', 'yunmeng-mountains-small-v1.webp',
+    'yunmeng-dark-v1.jpg', 'yunmeng-dark-small-v1.jpg',
+    'yunmeng-light-v1.jpg', 'yunmeng-light-small-v1.jpg'
+  ];
+  const backgrounds = new Map(bgNames.map(name => ['/assets/' + name, readFileSync(resolve(root, 'public/assets', name))]));
   const server = http.createServer(async (req, res) => {
     req.setEncoding('utf8');
     const url = new URL(req.url, 'http://localhost');
@@ -38,7 +42,8 @@ export function createApp({ dataDir = process.env.DATA_DIR || resolve(root, 'dat
         res.writeHead(405, { Allow: 'GET, HEAD' }); return res.end();
       }
       const image = backgrounds.get(url.pathname);
-      res.writeHead(200, { 'Content-Type': 'image/webp', 'Content-Length': image.length,
+      const ct = url.pathname.endsWith('.webp') ? 'image/webp' : 'image/jpeg';
+      res.writeHead(200, { 'Content-Type': ct, 'Content-Length': image.length,
         'Cache-Control': 'public, max-age=31536000, immutable', 'X-Content-Type-Options': 'nosniff' });
       return res.end(req.method === 'HEAD' ? undefined : image);
     }
