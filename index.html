@@ -336,7 +336,8 @@
   #rite.is-done{opacity:0;visibility:hidden;pointer-events:none}
   #rite.parting{background-image:none}
 
-  .rite-quake{position:absolute;inset:-26px;will-change:transform}
+  .rite-quake{position:absolute;inset:-26px}
+  #rite.is-primed .rite-quake{will-change:transform}
   #rite.quake .rite-quake{animation:rite-quake .26s cubic-bezier(.3,.05,.2,.98)}
   #rite.quake-hard .rite-quake{animation:rite-quake-hard .38s cubic-bezier(.3,.05,.2,.98)}
   @keyframes rite-quake{
@@ -361,9 +362,9 @@
   .rite-shard{
     position:absolute;inset:26px;background-image:var(--rite-veil);
     background-size:100vw 100vh;background-position:0 0;background-repeat:no-repeat;
-    will-change:transform,opacity;backface-visibility:hidden;
+    backface-visibility:hidden;
   }
-  .rite-shard.part{animation:rite-part 780ms cubic-bezier(.36,.01,.16,1) forwards;animation-delay:var(--d,0ms)}
+  #rite.is-primed .rite-shard{will-change:transform,opacity}.rite-shard.part{animation:rite-part 780ms cubic-bezier(.36,.01,.16,1) forwards;animation-delay:var(--d,0ms)}
   @keyframes rite-part{
     0%{transform:translate3d(0,0,0) rotate(0);opacity:1}
     12%{transform:translate3d(calc(var(--tx) * .05),calc(var(--ty) * .05),0) rotate(calc(var(--rz) * .05));opacity:1}
@@ -428,7 +429,8 @@
   #rite.ignite .rite-racket-wrap{animation:racket-float 3.4s ease-in-out 600ms infinite}
   @keyframes racket-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
   .rite-racket{height:min(54vh,25rem);width:auto;opacity:0;overflow:visible;
-    filter:drop-shadow(0 0 8px rgba(110,190,150,.45));will-change:transform,opacity}
+    filter:drop-shadow(0 0 8px rgba(110,190,150,.45))}
+  #rite.is-primed .rite-racket{will-change:transform,opacity}
   #rite.ignite .rite-racket{animation:racket-in 500ms cubic-bezier(.2,.8,.24,1) 80ms forwards}
   @keyframes racket-in{
     0%{opacity:0;transform:scale(.8) translateY(18px)}
@@ -451,7 +453,7 @@
   /* --ox/--oy 打散起點、--curve 讓航跡帶弧度：
      分散起點，讓拍陣保留交錯飛行的層次。 */
   .rite-bee{position:absolute;left:0;top:0;width:0;height:0;
-    opacity:0;will-change:transform,opacity;transform-origin:0 0;
+    opacity:0;transform-origin:0 0;
     transform:translate(var(--ox),var(--oy)) rotate(var(--a)) translateY(0) rotate(var(--tilt))}
   /* 靈氣：從握柄往後拉長的錐形尾焰 */
   .rite-bee::before{content:"";position:absolute;
@@ -462,7 +464,7 @@
     transform-origin:50% 100%;transform:scaleY(.06)}
   .rite-bee svg{position:absolute;left:calc(-13px * var(--bs));top:calc(-62px * var(--bs));
     width:calc(26px * var(--bs));height:calc(62px * var(--bs));transform:rotate(180deg);overflow:visible}
-  #rite.burst .rite-bee{animation:bee var(--bd) cubic-bezier(.04,.86,.16,1) var(--bdelay) forwards}
+  #rite.is-primed .rite-bee{will-change:transform,opacity}#rite.burst .rite-bee{animation:bee var(--bd) cubic-bezier(.04,.86,.16,1) var(--bdelay) forwards}
   #rite.burst .rite-bee::before{animation:bee-qi var(--bd) cubic-bezier(.04,.86,.16,1) var(--bdelay) forwards}
   /* 先被炸散到各自的出生點（0→16%），之後各走各的航向。
      兩段位移疊在同一條 transform 鏈上，航跡就會互相交錯而不是收斂成一束 */
@@ -485,16 +487,17 @@
   .rite-spark{position:absolute;width:2.8px;height:13px;margin:-6px 0 0 -1.4px;border-radius:2px;
     background:linear-gradient(180deg,#FFFFFF,#C6F2DC 42%,rgba(155,195,174,0));
     opacity:0;transform-origin:50% 0;
-    animation:spark var(--sd) cubic-bezier(.06,.72,.2,1) var(--sdl) forwards}
+    }
+  .rite-spark.go{animation:spark var(--sd) cubic-bezier(.06,.72,.2,1) var(--sdl) forwards}
   @keyframes spark{
     0%{opacity:0;transform:rotate(var(--sa)) translateY(0) scaleY(.4)}
     10%{opacity:1}
     100%{opacity:0;transform:rotate(var(--sa)) translateY(var(--sr)) scaleY(2.4)}
   }
 
-  .rite-flash{position:absolute;inset:0;opacity:0;
+  .rite-flashes{position:absolute;inset:0;pointer-events:none}.rite-flash{position:absolute;inset:0;opacity:0;
     background:radial-gradient(circle at var(--fx,50%) var(--fy,50%),rgba(237,255,246,.85),rgba(155,195,174,.2) 30%,transparent 62%)}
-  #rite.flash .rite-flash{animation:rite-flash 240ms var(--ease)}
+  .rite-flash.go{animation:rite-flash 240ms var(--ease)}
   @keyframes rite-flash{0%{opacity:0}8%{opacity:1}100%{opacity:0}}
 
   .rite-wash{position:absolute;inset:0;opacity:0;background:var(--rite-wash)}
@@ -590,7 +593,7 @@
     </div>
     <div class="rite-swarm"></div>
   </div>
-  <div class="rite-flash"></div>
+  <div class="rite-flashes"></div>
   <div class="rite-wash"></div>
   <div class="rite-skip">點擊任意處 · 直入宗門</div>
 </div>
@@ -630,12 +633,13 @@
     return;
   }
 
-  var W, H, CUTS, crackEls;
+  var W, H, CUTS, crackEls, sparkEls, flashEls;
   var veils = rite.querySelector('.rite-veils');
   var cracksSvg = rite.querySelector('.rite-cracks');
   var defs = cracksSvg.querySelector('defs');
   var swarm = rite.querySelector('.rite-swarm');
   var sparkBox = rite.querySelector('.rite-sparks');
+  var flashBox = rite.querySelector('.rite-flashes');
   var NS = 'http://www.w3.org/2000/svg';
 
   /* 固定亂數，讓每次進場的裂縫形狀一致可預期 */
@@ -650,7 +654,7 @@
   var rand = rng(20260913);
 
   /* 幾何在版面穩定後才算，寬高才不會少算捲軸 */
-  function build() {
+  function buildCore() {
   /* 量遮罩本身而不是 window.innerWidth，才不會把捲軸寬度算進去 */
   var box = rite.getBoundingClientRect();
   W = Math.round(box.width) || window.innerWidth;
@@ -866,7 +870,11 @@
     };
   });
 
-  /* 蜂雲：完整保留一群飛出去的小球拍。 */
+  flashEls = crackEls.map(makeFlash);
+  }
+
+  /* 蜂雲：完整保留一群飛出去的小球拍。第二個 frame 才建立，避免與 SVG 幾何搶主執行緒。 */
+  function buildSwarm() {
   var beeCount = W < 560 ? 12 : 18;
   var far = Math.max(W, H);
   var spread = Math.min(W, H) * .3;
@@ -900,10 +908,12 @@
     bee.style.setProperty('--bdelay', (Math.pow(rand(), 1.4) * 230).toFixed(0) + 'ms');
     swarm.appendChild(bee);
   }
+  sparkEls = [[8], [9], [14]].map(function (S, i) { return sparks(crackEls[i], S[0]); });
   }
 
-  /* 命中時沿刀口迸出的火星 */
+  /* 命中時沿刀口迸出的火星，預先建立，命中時只啟動既有動畫。 */
   function sparks(c, count) {
+    var nodes = [];
     var nAng = Math.atan2(c.n[1], c.n[0]) * 180 / Math.PI;
     for (var i = 0; i < count; i++) {
       var u = .18 + rand() * .64;
@@ -917,12 +927,23 @@
       el.style.setProperty('--sd', (300 + rand() * 220).toFixed(0) + 'ms');
       el.style.setProperty('--sdl', (rand() * 70).toFixed(0) + 'ms');
       sparkBox.appendChild(el);
+      nodes.push(el);
     }
+    return nodes;
+  }
+
+  function makeFlash(c) {
+    var el = document.createElement('div');
+    el.className = 'rite-flash';
+    el.style.setProperty('--fx', (c.mid[0] / W * 100).toFixed(1) + '%');
+    el.style.setProperty('--fy', (c.mid[1] / H * 100).toFixed(1) + '%');
+    flashBox.appendChild(el);
+    return el;
   }
 
   function pulse(cls) {
     if (rite.classList.contains(cls)) {
-      var target = rite.querySelector(cls === 'flash' ? '.rite-flash' : cls === 'wash' ? '.rite-wash' : '.rite-quake');
+      var target = rite.querySelector(cls === 'wash' ? '.rite-wash' : '.rite-quake');
       target.getAnimations().forEach(function (animation) { animation.currentTime = 0; });
     } else {
       rite.classList.add(cls);
@@ -945,13 +966,6 @@
   /* 頁面很大，內嵌腳本會比首次繪製早跑；統一等真正畫出第一幀再起算，
      CSS 與 JS 的時間軸才不會錯開。 */
   function run() {
-    try {
-      build();
-    } catch (err) {
-      /* 幾何算壞了就直接放行，不要讓遮罩卡住整頁 */
-      dismiss();
-      return;
-    }
     rite.classList.add('ignite');
 
     var fm = /[?&]frame=(\d+)/.exec(location.search);
@@ -971,10 +985,8 @@
         var c = crackEls[i];
         c.g.classList.add('cut');
         c.sweep.classList.add('go');
-        sparks(c, S[1]);
-        rite.style.setProperty('--fx', (c.mid[0] / W * 100).toFixed(1) + '%');
-        rite.style.setProperty('--fy', (c.mid[1] / H * 100).toFixed(1) + '%');
-        pulse('flash');
+        sparkEls[i].forEach(function (el) { el.classList.add('go'); });
+        flashEls[i].classList.add('go');
         pulse(S[2] ? 'quake-hard' : 'quake');
         if (S[2]) pulse('wash');
       });
@@ -988,18 +1000,26 @@
     at(2200, dismiss);
   }
 
-  var started = false;
-  function go() { if (started || !rite || rite.classList.contains('is-done')) return; started = true; run(); }
+  var started = false, prepared = false, hold = /[?&]hold=1(?:&|$)/.test(location.search);
+  function tellReady() { try { if (window.parent && window.parent !== window) window.parent.postMessage({ rite:'ready' }, location.origin); } catch (e) {} }
+  function go() { if (started || !prepared || !rite || rite.classList.contains('is-done')) return; started = true; run(); }
+  function prepare() {
+    if (prepared || !rite || rite.classList.contains('is-done')) return;
+    rite.classList.add('is-primed');
+    try { buildCore(); } catch (err) { dismiss(); return; }
+    requestAnimationFrame(function () { try { buildSwarm(); prepared = true; tellReady(); if (!hold) go(); } catch (err) { dismiss(); } });
+  }
   function kick() {
-    requestAnimationFrame(function () { requestAnimationFrame(go); });
+    requestAnimationFrame(function () { requestAnimationFrame(prepare); });
     /* 背景分頁不會觸發 rAF，用計時器保底，否則遮罩會一直蓋住頁面 */
-    window.setTimeout(go, 500);
+    window.setTimeout(prepare, 500);
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', kick, { once: true });
   } else {
     kick();
   }
+  window.addEventListener('message', function (ev) { if (ev.origin === location.origin && ev.data && ev.data.rite === 'start') go(); });
   /* 最後的保險：無論發生什麼事，六秒後一定放行 */
   if (!/[?&]frame=/.test(location.search)) {
     window.setTimeout(function () { if (rite) dismiss(); }, 6000);
