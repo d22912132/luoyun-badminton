@@ -6,9 +6,22 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="description" content="落雲宗羽球團開團資訊與出席名單，供團員查看。">
 <title>落雲宗｜FALLING CLOUD SECT</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@400;500;600;700&display=swap">
+<script id="public-font-loader">
+  (function () {
+    /* 入陣禮嵌入後台時，整段動畫只使用系統 fallback，不能等待遠端字型。 */
+    if (/[?&]embedded=1(?:&|$)/.test(location.search)) return;
+    function add(rel, href, crossOrigin) {
+      var link = document.createElement('link');
+      link.rel = rel; link.href = href;
+      if (crossOrigin) link.crossOrigin = 'anonymous';
+      document.head.appendChild(link);
+    }
+    add('preconnect', 'https://fonts.googleapis.com');
+    add('preconnect', 'https://fonts.gstatic.com', true);
+    add('stylesheet', 'https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@700&display=swap');
+    add('stylesheet', 'https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@400;600;700&display=swap');
+  }());
+</script>
 <script>
   (function(){try{var t=localStorage.getItem('luoyun-theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='dark';}})();
 </script>
