@@ -289,12 +289,12 @@
 
 </head>
 <body>
-<!-- ===== 青竹蜂雲劍 · 入陣禮 ===== -->
+<!-- ===== 青竹流雲拍 · 入陣禮 ===== -->
 <style id="rite-style">
   /* 後台內嵌時，這個頁面只充當動畫幕布：不顯示、也不捲動舊前台。
      底色一併透明，裂縫才會透出後台畫面，而不是一片黑，結尾也就不需要硬切換。 */
   html.rite-embed,html.rite-embed body{overflow:hidden!important;background:transparent!important}
-  html.rite-embed body>:not(#rite):not(script):not(style){visibility:hidden!important}
+  html.rite-embed body>:not(#rite):not(script):not(style){display:none!important}
   html.rite-embed body::before,html.rite-embed body::after{display:none!important}
   #rite{
     position:fixed;inset:0;z-index:400;overflow:hidden;cursor:pointer;
@@ -308,7 +308,7 @@
     --rite-wash:rgba(237,255,246,.2);
     /* 空間裂縫：裂口本身是暗的，靠鋒緣發光撐出形狀 */
     --rite-tear:#07031A;--rite-rim:#E4FDF0;--rite-rim-glow:#5FC79A;
-    /* 劍的配色走 CSS 變數，兩種主題才能各自調到看得清楚 */
+    /* 球拍的配色走 CSS 變數，兩種主題才能各自調到看得清楚 */
     --blade-1:#0C3226;--blade-2:#3E8D6C;--blade-3:#E6FCF0;--blade-4:#5CB289;--blade-5:#0A2C21;
     --grip-1:#0F2A21;--grip-2:#2E6049;--grip-3:#0B241C;
     --leaf-1:#1B5442;--leaf-2:#57A882;--leaf-hi:#8FD3B1;
@@ -348,29 +348,29 @@
   .rite-shard{
     position:absolute;inset:26px;background-image:var(--rite-veil);
     background-size:100vw 100vh;background-position:0 0;background-repeat:no-repeat;
-    will-change:transform,opacity,filter;backface-visibility:hidden;
+    will-change:transform,opacity;backface-visibility:hidden;
   }
   .rite-shard.part{animation:rite-part 780ms cubic-bezier(.36,.01,.16,1) forwards;animation-delay:var(--d,0ms)}
   @keyframes rite-part{
-    0%{transform:translate3d(0,0,0) rotate(0);opacity:1;filter:blur(0)}
+    0%{transform:translate3d(0,0,0) rotate(0);opacity:1}
     12%{transform:translate3d(calc(var(--tx) * .05),calc(var(--ty) * .05),0) rotate(calc(var(--rz) * .05));opacity:1}
     70%{opacity:.5}
-    100%{transform:translate3d(var(--tx),var(--ty),0) rotate(var(--rz));opacity:0;filter:blur(6px)}
+    100%{transform:translate3d(var(--tx),var(--ty),0) rotate(var(--rz));opacity:0}
   }
 
   /* 劍痕是填色的紡錘形，不是等寬線條：中段最寬、兩端收尖，
      這是它看起來像刀口而不是霓虹燈管的主因 */
   .rite-cracks{position:absolute;inset:26px;overflow:visible}
-  .crack .aura{fill:var(--rite-deep);opacity:0;filter:blur(26px)}
+  .crack .aura{fill:var(--rite-deep);opacity:0;fill-opacity:.18}
   .crack .tear{fill:var(--rite-tear);opacity:0}
-  .crack .rift{fill:var(--rite-void);opacity:0;filter:blur(12px)}
+  .crack .rift{fill:var(--rite-void);opacity:0;fill-opacity:.5}
   /* 鋒緣：描同一條紡錘的外框，自然就是裂口上下兩道發光的邊 */
-  .crack .rimglow{fill:none;stroke:var(--rite-rim-glow);stroke-width:6;opacity:0;filter:blur(5px)}
+  .crack .rimglow{fill:none;stroke:var(--rite-rim-glow);stroke-width:10;opacity:0;stroke-opacity:.3}
   .crack .rim{fill:none;stroke:var(--rite-rim);stroke-width:1.7;opacity:0;
-    filter:drop-shadow(0 0 7px var(--rite-rim-glow))}
-  .crack .flare{fill:var(--rite-flare);opacity:0;filter:blur(7px)}
+    stroke-opacity:.95}
+  .crack .flare{fill:var(--rite-flare);opacity:0;fill-opacity:.7}
   .crack .spur{fill:none;stroke:var(--rite-rim);stroke-width:1.1;stroke-linecap:round;
-    stroke-linejoin:round;opacity:0;filter:drop-shadow(0 0 5px var(--rite-rim-glow))}
+    stroke-linejoin:round;opacity:0;stroke-opacity:.8}
 
   /* 用 animation 而非 transition：背景分頁或慢速裝置上 transition 會卡在起始值，裂縫就畫不出來 */
   .rite-cracks .sweep{transform-box:fill-box;transform-origin:0 50%;
@@ -394,7 +394,7 @@
   #rite.parting .crack .rift{animation:tear-open 620ms var(--ease) forwards}
   @keyframes tear-open{to{opacity:0}}
 
-  /* 劍成的法陣 */
+  /* 球拍凝聚的法陣 */
   .rite-stage{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
     display:grid;place-items:center;pointer-events:none}
   .rite-ring,.rite-ring2,.rite-bloom{position:absolute;border-radius:50%;grid-area:1/1}
@@ -410,60 +410,45 @@
   #rite.ignite .rite-bloom{animation:bloom-in 1s var(--ease) 60ms forwards}
   @keyframes bloom-in{0%{opacity:0;transform:scale(.6)}100%{opacity:1;transform:scale(1)}}
 
-  /* 青竹蜂雲劍 */
-  .rite-sword-wrap{grid-area:1/1;display:grid;place-items:center}
-  #rite.ignite .rite-sword-wrap{animation:sword-float 3.4s ease-in-out 600ms infinite}
-  @keyframes sword-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-  .rite-sword{height:min(54vh,25rem);width:auto;opacity:0;overflow:visible;
-    filter:drop-shadow(0 0 26px rgba(110,190,150,.55)) drop-shadow(0 0 3px rgba(237,255,246,.75))}
-  #rite.ignite .rite-sword{animation:sword-in 500ms cubic-bezier(.2,.8,.24,1) 80ms forwards}
-  @keyframes sword-in{
-    0%{opacity:0;transform:scale(.8) translateY(18px);filter:drop-shadow(0 0 0 rgba(110,190,150,0)) blur(8px)}
-    58%{opacity:1;filter:drop-shadow(0 0 30px rgba(110,190,150,.65)) blur(0)}
+  /* 青竹流雲拍 */
+  .rite-racket-wrap{grid-area:1/1;display:grid;place-items:center}
+  #rite.ignite .rite-racket-wrap{animation:racket-float 3.4s ease-in-out 600ms infinite}
+  @keyframes racket-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  .rite-racket{height:min(54vh,25rem);width:auto;opacity:0;overflow:visible;
+    filter:drop-shadow(0 0 8px rgba(110,190,150,.45));will-change:transform,opacity}
+  #rite.ignite .rite-racket{animation:racket-in 500ms cubic-bezier(.2,.8,.24,1) 80ms forwards}
+  @keyframes racket-in{
+    0%{opacity:0;transform:scale(.8) translateY(18px)}
+    58%{opacity:1}
     100%{opacity:1;transform:scale(1) translateY(0)}
   }
-  #rite.ignite .rite-sword .sheen{animation:sheen 820ms var(--ease) 340ms 1 both}
-  @keyframes sheen{0%{transform:translateY(-300px);opacity:0}18%{opacity:.9}100%{transform:translateY(330px);opacity:0}}
-  #rite.burst .rite-sword{animation:sword-burst 280ms cubic-bezier(.34,.02,.2,1) forwards}
-  #rite.burst .rite-sword-wrap{animation:none}
-  @keyframes sword-burst{
+  #rite.burst .rite-racket{animation:racket-burst 280ms cubic-bezier(.34,.02,.2,1) forwards}
+  #rite.burst .rite-racket-wrap{animation:none}
+  @keyframes racket-burst{
     0%{opacity:1;transform:scale(1)}
-    22%{opacity:1;transform:scale(1.2);filter:drop-shadow(0 0 54px rgba(232,255,244,1)) brightness(3.2)}
-    100%{opacity:0;transform:scale(.34);filter:brightness(3.6)}
+    22%{opacity:1;transform:scale(1.2)}
+    100%{opacity:0;transform:scale(.34)}
   }
   #rite.burst .rite-ring,#rite.burst .rite-ring2,#rite.burst .rite-bloom{
     animation:ring-out 380ms var(--ease) forwards}
   @keyframes ring-out{to{opacity:0;transform:scale(1.55)}}
 
-  /* 蜂雲：碎成一群小劍。先炸開懸停成雲，再streak 竄出去，
-     中間那段懸停是讓眼睛真的「看到」它們的關鍵 */
-  /* 蜂雲：劍身炸開後化成一群飛劍，直接爆射出去，不停留。
-     每把劍後面拖一道劍氣，劍氣才是視覺上真正看得到的東西 */
+  /* 球拍化成流雲拍陣，沿交錯航線飛散，握柄後拖出翠玉尾光。 */
   .rite-swarm{position:absolute;left:50%;top:50%;width:0;height:0}
   /* --ox/--oy 打散起點、--curve 讓航跡帶弧度：
-     全部從同一點筆直放射會變成星際跳躍的速度線，不是御劍 */
+     分散起點，讓拍陣保留交錯飛行的層次。 */
   .rite-bee{position:absolute;left:0;top:0;width:0;height:0;
     opacity:0;will-change:transform,opacity;transform-origin:0 0;
     transform:translate(var(--ox),var(--oy)) rotate(var(--a)) translateY(0) rotate(var(--tilt))}
-  /* 劍氣：從劍柄往後拉長的錐形尾焰 */
+  /* 靈氣：從握柄往後拉長的錐形尾焰 */
   .rite-bee::before{content:"";position:absolute;
-    left:calc(-5px * var(--bs));top:calc(-1 * var(--qi));
+    left:calc(-5px * var(--bs));top:calc(-1 * var(--qi) - 62px * var(--bs));
     width:calc(10px * var(--bs));height:var(--qi);
     clip-path:polygon(50% 0,100% 100%,0 100%);
     background:linear-gradient(180deg,rgba(85,201,154,0) 0%,rgba(85,201,154,.45) 50%,rgba(214,249,231,.9) 92%,rgba(244,231,154,.95) 100%);
-    filter:blur(3px);transform-origin:50% 100%;transform:scaleY(.06)}
-  /* 劍身：要看得出是一把劍——尖鋒、金色劍格、劍柄與劍首 */
-    /* 劍身走翠玉色，金黃色的鋒緣靠兩層短距 drop-shadow 打出來，
-       再加一層綠色外暈——這是參考圖裡飛劍的樣子 */
-  .rite-bee::after{content:"";position:absolute;
-    left:calc(-6.5px * var(--bs));top:calc(-52px * var(--bs));
-    width:calc(13px * var(--bs));height:calc(52px * var(--bs));
-    clip-path:polygon(50% 100%,76% 64%,70% 36%,100% 31%,100% 25%,62% 25%,62% 8%,
-      74% 2%,26% 2%,38% 8%,38% 25%,0 25%,0 31%,30% 36%,24% 64%);
-    background:linear-gradient(180deg,#E3C877 0%,#A8863A 7%,#1C4E3A 9%,#27714F 24%,
-      #F0DC86 26%,#FFF7C6 31%,#3EBE8C 35%,#6FE0B0 58%,#B7F5D8 82%,#EAFFF6 100%);
-    filter:drop-shadow(0 0 1.2px #FFF3A8) drop-shadow(0 0 4px rgba(226,197,106,1))
-      drop-shadow(0 0 15px rgba(110,240,180,.95))}
+    transform-origin:50% 100%;transform:scaleY(.06)}
+  .rite-bee svg{position:absolute;left:calc(-13px * var(--bs));top:calc(-62px * var(--bs));
+    width:calc(26px * var(--bs));height:calc(62px * var(--bs));transform:rotate(180deg);overflow:visible}
   #rite.burst .rite-bee{animation:bee var(--bd) cubic-bezier(.04,.86,.16,1) var(--bdelay) forwards}
   #rite.burst .rite-bee::before{animation:bee-qi var(--bd) cubic-bezier(.04,.86,.16,1) var(--bdelay) forwards}
   /* 先被炸散到各自的出生點（0→16%），之後各走各的航向。
@@ -482,13 +467,11 @@
     78%{transform:scaleY(1);opacity:.95}
     100%{transform:scaleY(.45);opacity:0}
   }
-
   /* 命中時沿刀口迸出的火星 */
   .rite-sparks{position:absolute;inset:26px;pointer-events:none}
   .rite-spark{position:absolute;width:2.8px;height:13px;margin:-6px 0 0 -1.4px;border-radius:2px;
     background:linear-gradient(180deg,#FFFFFF,#C6F2DC 42%,rgba(155,195,174,0));
     opacity:0;transform-origin:50% 0;
-    filter:drop-shadow(0 0 6px rgba(207,243,224,.95));
     animation:spark var(--sd) cubic-bezier(.06,.72,.2,1) var(--sdl) forwards}
   @keyframes spark{
     0%{opacity:0;transform:rotate(var(--sa)) translateY(0) scaleY(.4)}
@@ -496,7 +479,7 @@
     100%{opacity:0;transform:rotate(var(--sa)) translateY(var(--sr)) scaleY(2.4)}
   }
 
-  .rite-flash{position:absolute;inset:0;opacity:0;mix-blend-mode:screen;
+  .rite-flash{position:absolute;inset:0;opacity:0;
     background:radial-gradient(circle at var(--fx,50%) var(--fy,50%),rgba(237,255,246,.85),rgba(155,195,174,.2) 30%,transparent 62%)}
   #rite.flash .rite-flash{animation:rite-flash 240ms var(--ease)}
   @keyframes rite-flash{0%{opacity:0}8%{opacity:1}100%{opacity:0}}
@@ -512,7 +495,7 @@
   @keyframes skip-in{to{opacity:1}}
 
   /* ── 淺色主題：整組反過來配 ──
-     幕比頁面更亮（宣紙），裂縫是「深色的口 + 白熱的鋒」，劍身加深、光暈換成落影，
+     幕比頁面更亮（宣紙），裂縫是「深色的口 + 白熱的鋒」，拍框加深、光暈換成落影，
      否則翠綠色的光打在淺底上只會糊成一團灰綠 */
   html[data-theme="light"] #rite{
     --rite-flare:#0E3A2C;
@@ -528,24 +511,18 @@
       radial-gradient(42% 32% at 86% 4%, rgba(205,170,96,.24), transparent 62%),
       linear-gradient(178deg,#FCF8EF 0%,#F4EDDF 58%,#EBE2D1 100%);
   }
-  html[data-theme="light"] .rite-sword{
-    filter:drop-shadow(0 12px 26px rgba(18,52,42,.34)) drop-shadow(0 0 16px rgba(46,112,85,.26))}
+  html[data-theme="light"] .rite-racket{
+    filter:drop-shadow(0 5px 8px rgba(18,52,42,.28))}
   html[data-theme="light"] .rite-ring{border-color:rgba(140,101,28,.55)}
   html[data-theme="light"] .rite-ring2{border-color:rgba(40,102,78,.45)}
   html[data-theme="light"] .rite-bloom{
     background:radial-gradient(circle,rgba(46,112,85,.17),rgba(140,101,28,.08) 42%,transparent 70%)}
   html[data-theme="light"] .rite-bee::before{
     background:linear-gradient(180deg,rgba(31,107,85,0) 0%,rgba(31,107,85,.42) 46%,rgba(12,52,39,.9) 100%)}
-  html[data-theme="light"] .rite-bee::after{
-    background:linear-gradient(180deg,#8C651C 0%,#6B4E14 7%,#07231B 9%,#0C3427 25%,
-      #8C651C 27%,#B7913C 31%,#124836 34%,#1F6B55 56%,#0E3A2C 78%,#051C14 100%);
-    filter:drop-shadow(0 0 7px rgba(255,255,255,.95)) drop-shadow(0 2px 4px rgba(18,52,42,.45))}
   html[data-theme="light"] .rite-spark{
-    background:linear-gradient(180deg,#0C3427,#2E7055 42%,rgba(46,112,85,0));
-    filter:drop-shadow(0 0 6px rgba(255,255,255,.95))}
-  html[data-theme="light"] .crack .aura{fill:#4E6B5C;opacity:.18;filter:blur(24px)}
-  html[data-theme="light"] .crack .rift{fill:#6B4FA8;filter:blur(8px)}
-  html[data-theme="light"] .crack .flare{filter:blur(6px)}
+    background:linear-gradient(180deg,#0C3427,#2E7055 42%,rgba(46,112,85,0))}
+  html[data-theme="light"] .crack .aura{fill:#4E6B5C;opacity:.18;fill-opacity:.18}
+  html[data-theme="light"] .crack .rift{fill:#6B4FA8;fill-opacity:.5}
   html[data-theme="light"] .crack.cut .aura{opacity:.18}
   html[data-theme="light"] .crack.cut .flare{animation:flare-hit-light 300ms cubic-bezier(.15,.75,.25,1) forwards}
   @keyframes flare-hit-light{0%{opacity:.85}22%{opacity:.6}100%{opacity:0}}
@@ -566,69 +543,36 @@
     <div class="rite-bloom"></div>
     <div class="rite-ring"></div>
     <div class="rite-ring2"></div>
-    <div class="rite-sword-wrap">
-      <svg class="rite-sword" viewBox="0 0 80 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <div class="rite-racket-wrap">
+      <svg class="rite-racket" viewBox="0 0 160 380" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <linearGradient id="riteBlade" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stop-color="var(--blade-1)"/>
-            <stop offset=".2" stop-color="var(--blade-2)"/>
-            <stop offset=".44" stop-color="var(--blade-3)"/>
-            <stop offset=".6" stop-color="var(--blade-4)"/>
+          <linearGradient id="riteFrame" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="var(--blade-1)"/><stop offset=".2" stop-color="var(--blade-2)"/>
+            <stop offset=".44" stop-color="var(--blade-3)"/><stop offset=".6" stop-color="var(--blade-4)"/>
             <stop offset="1" stop-color="var(--blade-5)"/>
-          </linearGradient>
-          <linearGradient id="riteTip" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="var(--blade-3)" stop-opacity=".95"/>
-            <stop offset=".24" stop-color="var(--blade-3)" stop-opacity="0"/>
           </linearGradient>
           <linearGradient id="riteGrip" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0" stop-color="var(--grip-1)"/><stop offset=".5" stop-color="var(--grip-2)"/><stop offset="1" stop-color="var(--grip-3)"/>
           </linearGradient>
-          <linearGradient id="riteLeaf" x1="0" y1="1" x2="1" y2="0">
-            <stop offset="0" stop-color="var(--leaf-1)"/><stop offset="1" stop-color="var(--leaf-2)"/>
-          </linearGradient>
-          <linearGradient id="riteSheen" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/>
-            <stop offset=".5" stop-color="#FFFFFF" stop-opacity=".85"/>
-            <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
-          </linearGradient>
-          <clipPath id="riteBladeClip"><path d="M40 4 49 40 48 230 32 230 31 40Z"/></clipPath>
+          <pattern id="riteStrings" width="10" height="10" patternUnits="userSpaceOnUse">
+            <path d="M0 10V0H10" stroke="var(--rite-jade)" stroke-width=".8" stroke-opacity=".8"/>
+          </pattern>
+          <symbol id="riteRacket" viewBox="0 0 160 380" fill="none">
+            <!-- 橢圓拍框與透空編織線床，沿用翠玉、竹青和金色。 -->
+            <ellipse cx="80" cy="101" rx="62" ry="87" fill="url(#riteStrings)"/>
+            <ellipse cx="80" cy="101" rx="66" ry="91" stroke="url(#riteFrame)" stroke-width="9"/>
+            <ellipse cx="80" cy="101" rx="61" ry="86" stroke="var(--rite-gold)" stroke-width="1.5"/>
+            <path d="M32 39Q80-13 128 39" stroke="var(--blade-3)" stroke-opacity=".75" stroke-width="2" stroke-linecap="round"/>
+            <path d="M72 192L76 282H84L88 192Z" fill="url(#riteFrame)"/>
+            <path d="M80 197V279" stroke="var(--ridge)" stroke-opacity=".6"/>
+            <rect x="73" y="276" width="14" height="9" rx="3" fill="var(--rite-gold)"/>
+            <rect x="70" y="284" width="20" height="78" rx="6" fill="url(#riteGrip)" stroke="var(--leaf-2)"/>
+            <path d="M71 294L89 289M71 306L89 301M71 318L89 313M71 330L89 325M71 342L89 337M72 354L89 349" stroke="var(--leaf-hi)" stroke-opacity=".55" stroke-width="2"/>
+            <rect x="68" y="359" width="24" height="8" rx="3" fill="var(--rite-gold)"/>
+            <path d="M71 361H89" stroke="#F0DDA2" stroke-width="1.5"/>
+          </symbol>
         </defs>
-
-        <!-- 劍身：青竹節 -->
-        <path d="M40 4 49 40 48 230 32 230 31 40Z" fill="url(#riteBlade)"/>
-        <path d="M40 4 49 40 48 230 32 230 31 40Z" fill="url(#riteTip)"/>
-        <path d="M40 9V228" stroke="var(--ridge)" stroke-opacity=".45" stroke-width="1"/>
-        <g stroke="var(--node)" stroke-opacity=".6" stroke-width="1.7" stroke-linecap="round">
-          <path d="M32.2 72q7.8 5.2 15.6 0"/>
-          <path d="M32.1 113q7.9 5.2 15.8 0"/>
-          <path d="M32.1 154q7.9 5.2 15.8 0"/>
-          <path d="M32 195q8 5.2 16 0"/>
-        </g>
-        <g stroke="var(--node-hi)" stroke-opacity=".3" stroke-width=".9" stroke-linecap="round">
-          <path d="M32.2 69.4q7.8 5.2 15.6 0"/>
-          <path d="M32.1 110.4q7.9 5.2 15.8 0"/>
-          <path d="M32.1 151.4q7.9 5.2 15.8 0"/>
-          <path d="M32 192.4q8 5.2 16 0"/>
-        </g>
-        <g clip-path="url(#riteBladeClip)">
-          <rect class="sheen" x="28" y="0" width="24" height="66" fill="url(#riteSheen)"/>
-        </g>
-
-        <!-- 護手：兩片竹葉 -->
-        <path d="M38.5 232c-9-1-19-6-26.5-15.5 4 12.5 14.5 21 26.5 22Z" fill="url(#riteLeaf)"/>
-        <path d="M41.5 232c9-1 19-6 26.5-15.5-4 12.5-14.5 21-26.5 22Z" fill="url(#riteLeaf)"/>
-        <path d="M38.5 232c-9-1-19-6-26.5-15.5 8 7.5 17 12.5 26.5 14.2Z" fill="var(--leaf-hi)" fill-opacity=".45"/>
-        <path d="M41.5 232c9-1 19-6 26.5-15.5-8 7.5-17 12.5-26.5 14.2Z" fill="var(--leaf-hi)" fill-opacity=".45"/>
-        <rect x="26" y="232" width="28" height="8" rx="4" fill="#C9A961"/>
-        <rect x="26" y="232" width="28" height="3.2" rx="1.6" fill="#F0DDA2" fill-opacity=".75"/>
-
-        <!-- 劍柄 -->
-        <rect x="33.5" y="239" width="13" height="90" rx="5.5" fill="url(#riteGrip)"/>
-        <g stroke="var(--node)" stroke-opacity=".7" stroke-width="1.5">
-          <path d="M33.5 253h13M33.5 267h13M33.5 281h13M33.5 295h13M33.5 309h13"/>
-        </g>
-        <circle cx="40" cy="337" r="9.5" fill="var(--grip-1)" stroke="#C9A961" stroke-width="2.3"/>
-        <circle cx="40" cy="337" r="3.4" fill="#C9A961"/>
+        <use href="#riteRacket"/>
       </svg>
     </div>
     <div class="rite-swarm"></div>
@@ -645,7 +589,9 @@
   if (!rite) return;
 
   function dismiss() {
-    if (!rite) return;
+    if (!rite || rite.classList.contains('is-done')) return;
+    (timers || []).forEach(clearTimeout);
+    clearInterval(speedTimer);
     root.classList.remove('rite-on');
     rite.classList.add('is-done');
     try { sessionStorage.setItem('luoyun-rite', '1'); } catch (e) {}
@@ -664,6 +610,10 @@
 
   if (!root.classList.contains('rite-on')) {
     if (rite.parentNode) rite.parentNode.removeChild(rite);
+    return;
+  }
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    dismiss();
     return;
   }
 
@@ -903,13 +853,19 @@
     };
   });
 
-  /* 蜂雲：一群飛出去的小劍 */
-  var beeCount = W < 560 ? 20 : 30;
+  /* 蜂雲：一群飛出去的小球拍 */
+  var beeCount = W < 560 ? 12 : 18;
   var far = Math.max(W, H);
   var spread = Math.min(W, H) * .3;
   for (var b = 0; b < beeCount; b++) {
     var bee = document.createElement('div');
     bee.className = 'rite-bee';
+    var racket = document.createElementNS(NS, 'svg');
+    var use = document.createElementNS(NS, 'use');
+    use.setAttribute('href', '#riteRacket');
+    racket.setAttribute('viewBox', '0 0 160 380');
+    racket.appendChild(use);
+    bee.appendChild(racket);
     /* 出生點：黃金角鋪開、距離大幅拉開，先散成一片再談飛行 */
     var base = (b * 137.508) % 360;
     var oa = (base + (rand() - .5) * 40) * Math.PI / 180;
@@ -952,16 +908,20 @@
   }
 
   function pulse(cls) {
-    rite.classList.remove(cls);
-    void rite.offsetWidth;
-    rite.classList.add(cls);
+    if (rite.classList.contains(cls)) {
+      var target = rite.querySelector(cls === 'flash' ? '.rite-flash' : cls === 'wash' ? '.rite-wash' : '.rite-quake');
+      target.getAnimations().forEach(function (animation) { animation.currentTime = 0; });
+    } else {
+      rite.classList.add(cls);
+    }
   }
 
   /* 預覽用：?speed=N 放慢；?frame=N 在第 N 毫秒凍結畫面 */
+  var speedTimer;
   var SPEED = 1, sm = /[?&]speed=([\d.]+)/.exec(location.search);
   if (sm) SPEED = parseFloat(sm[1]) || 1;
   if (SPEED !== 1 && document.getAnimations) {
-    window.setInterval(function () {
+    speedTimer = window.setInterval(function () {
       document.getAnimations().forEach(function (a) { a.playbackRate = 1 / SPEED; });
     }, 60);
   }
@@ -1016,7 +976,7 @@
   }
 
   var started = false;
-  function go() { if (started) return; started = true; run(); }
+  function go() { if (started || !rite || rite.classList.contains('is-done')) return; started = true; run(); }
   function kick() {
     requestAnimationFrame(function () { requestAnimationFrame(go); });
     /* 背景分頁不會觸發 rAF，用計時器保底，否則遮罩會一直蓋住頁面 */
@@ -1458,6 +1418,7 @@
 <script>
 (function () {
   "use strict";
+  if (/[?&]embedded=1(?:&|$)/.test(location.search)) return;
   var themeToggle = document.getElementById('theme-toggle');
   function syncThemeControl() {
     if (!themeToggle) return;
