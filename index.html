@@ -853,10 +853,8 @@
     };
   });
 
-  /* 蜂雲：一群飛出去的小球拍 */
-  /* 手機效能較弱時保留所有飛拍與火星，只降低同時繪製的數量。 */
-  var weakDevice = W < 560 && ((navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory && navigator.deviceMemory <= 4));
-  var beeCount = W < 560 ? (weakDevice ? 8 : 12) : 18;
+  /* 蜂雲：完整保留一群飛出去的小球拍。 */
+  var beeCount = W < 560 ? 12 : 18;
   var far = Math.max(W, H);
   var spread = Math.min(W, H) * .3;
   for (var b = 0; b < beeCount; b++) {
@@ -955,7 +953,7 @@
     at(660, function () { rite.classList.add('burst'); });
 
     /* 三刀節奏越來越快，最後一刀最重 */
-    [[920, weakDevice ? 5 : 8, false], [1080, weakDevice ? 6 : 9, false], [1230, weakDevice ? 9 : 14, true]].forEach(function (S, i) {
+    [[920, 8, false], [1080, 9, false], [1230, 14, true]].forEach(function (S, i) {
       at(S[0], function () {
         var c = crackEls[i];
         c.g.classList.add('cut');
