@@ -551,7 +551,7 @@
   /* 補充事項：該場專屬（用球、截止、場館提醒、導航），與門規分開 */
   function notesOf(ev) {
     if (!ev.note) return [];
-    return String(ev.note).split(/[｜|]/).map(function (t) { return t.trim(); }).filter(Boolean);
+    return String(ev.note).split(/[｜|\r?\n]/).map(function (t) { return t.trim(); }).filter(Boolean);
   }
   /* 拆成 符號 / 標題 / 內文 三層，供門規卡片列建立視覺階層 */
   function parseRule(s) {
@@ -2194,10 +2194,12 @@
           E('input', { value: f.place, onChange: function (ev) { setF(function (old) { return Object.assign({}, old, { place: ev.target.value, venueId: '' }); }); }, className: INPUT }))),
         E(Field, { label: '每人費用（元）' },
           E('input', { type: 'number', min: 0, step: 10, value: f.fee, onChange: function (ev) { up('fee', ev.target.value); }, className: INPUT })),
-        E(Field, { label: '補充事項（用「｜」可分成多條）' },
-          E('input', {
+        D('sm:col-span-2', E(Field, { label: '補充事項（可換行或用「｜」分成多條）' },
+          E('textarea', {
+            rows: 3,
             value: f.note, onChange: function (ev) { up('note', ev.target.value); },
-            placeholder: '例如：用球：輝厲2號｜9/23 23:00 前可免費取消', className: INPUT
+            placeholder: '例如：\n用球：輝鷹2號或同級距球款\n9/23 (三) 23:00 前可免費取消',
+            className: INPUT + ' min-h-[5.5rem] resize-y leading-relaxed'
           }))));
   }
 
