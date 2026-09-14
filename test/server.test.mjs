@@ -43,6 +43,23 @@ test('shared club: authentication, permissions, persistence, validation and conf
     assert.equal((await fetch(base + '/data/club.sqlite')).status, 404);
     assert.equal((await fetch(base + '/server.mjs')).status, 404);
   });
+  await t.test('background assets support GET and HEAD without exposing other files', async () => {
+    for (const name of ['yunmeng-mountains-v1.webp', 'yunmeng-mountains-small-v1.webp']) {
+      const path = '/assets/' + name;
+      const image = await fetch(base + path);
+      assert.equal(image.status, 200);
+      assert.equal(image.headers.get('content-type'), 'image/webp');
+      assert.match(image.headers.get('cache-control'), /immutable/);
+      const bytes = Buffer.from(await image.arrayBuffer());
+      assert.equal(bytes.toString('ascii', 8, 12), 'WEBP');
+      const head = await fetch(base + path, { method: 'HEAD' });
+      assert.equal(head.status, 200);
+      assert.equal(Number(head.headers.get('content-length')), bytes.length);
+      assert.equal((await head.arrayBuffer()).byteLength, 0);
+      assert.equal((await fetch(base + path, { method: 'POST' })).status, 405);
+    }
+    assert.equal((await fetch(base + '/assets/server.mjs')).status, 404);
+  });
   await t.test('first setup requires a secret and secure password; no second setup', async () => {
     assert.equal((await request('/api/setup', { ...owner, token: 'wrong' })).status, 403);
     assert.equal((await request('/api/setup', { ...owner, pin: '123' })).status, 400);

@@ -3,5 +3,8 @@
 !package.json
 !server.mjs
 !club.mjs
+!calendar.mjs
 !index.html
 !console.html
+!public/
+!public/**

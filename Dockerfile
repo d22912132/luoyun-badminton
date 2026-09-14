@@ -1,6 +1,7 @@
 FROM node:22-bookworm-slim
 WORKDIR /app
-COPY --chown=node:node package.json server.mjs club.mjs index.html console.html ./
+COPY --chown=node:node package.json server.mjs club.mjs calendar.mjs index.html console.html ./
+COPY --chown=node:node public ./public
 RUN mkdir -p /app/data && chown node:node /app/data
 USER node
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000 DATA_DIR=/app/data
