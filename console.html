@@ -211,12 +211,12 @@
 
   .theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;min-width:40px;height:40px;padding:0 .7rem;border-radius:999px;border:1px solid var(--hair-2);background:rgba(228,235,232,.035);color:var(--mist-2);font:600 11.5px 'Noto Sans TC',sans-serif;cursor:pointer;transition:color .24s var(--ease),border-color .24s var(--ease),background .24s var(--ease),transform .24s var(--ease)}.theme-toggle:hover{color:var(--jade-100);border-color:rgba(155,195,174,.34);background:rgba(155,195,174,.09);transform:translateY(-1px)}
 
-  html[data-theme="light"]{--ink-0:#E8E0D1;--ink-1:#F3EDE1;--ink-2:#DED4C3;--mist-1:#24382F;--mist-2:#4A6056;--mist-3:#61756C;--jade-100:#174737;--jade-300:#2E7055;--jade-500:#477E65;--jade-700:#285C48;--jade-900:#DBE2D6;--gold:#8C651C;--gold-dim:#6A4B13;--cinnabar:#A64E41;--cinnabar-dim:#7C372E;--amethyst:#66558D;--hair:rgba(76,65,45,.16);--hair-2:rgba(57,82,68,.27);--sheen:rgba(255,252,244,.56);--male-text:#285F73;--male-border:rgba(40,95,115,.28);--male-high:rgba(75,145,167,.18);--male-low:rgba(75,145,167,.07);--female-text:#8B4960;--female-border:rgba(139,73,96,.27);--female-high:rgba(180,104,129,.17);--female-low:rgba(180,104,129,.06);color-scheme:light}
+  html[data-theme="light"]{--ink-0:#E8E0D1;--ink-1:#F3EDE1;--ink-2:#DED4C3;--mist-1:#24382F;--mist-2:#4A6056;--mist-3:#4F665C;--jade-100:#174737;--jade-300:#2E7055;--jade-500:#477E65;--jade-700:#285C48;--jade-900:#DBE2D6;--gold:#8C651C;--gold-dim:#6A4B13;--cinnabar:#A64E41;--cinnabar-dim:#7C372E;--amethyst:#66558D;--hair:rgba(76,65,45,.16);--hair-2:rgba(57,82,68,.27);--sheen:rgba(255,252,244,.56);--male-text:#285F73;--male-border:rgba(40,95,115,.28);--male-high:rgba(75,145,167,.18);--male-low:rgba(75,145,167,.07);--female-text:#8B4960;--female-border:rgba(139,73,96,.27);--female-high:rgba(180,104,129,.17);--female-low:rgba(180,104,129,.06);color-scheme:light}
   html[data-theme="light"] body::before{background-image:url('/assets/yunmeng-light-v1.jpg')}
   html[data-theme="light"] body::after{background:linear-gradient(180deg,rgba(243,237,224,.28),rgba(235,229,212,.45)),radial-gradient(ellipse at 50% 48%,rgba(247,242,231,.66),transparent 80%)}
   @media(max-width:640px){html[data-theme="light"] body::before{background-image:url('/assets/yunmeng-light-small-v1.jpg');background-position:22% center}}
   html[data-theme="light"] .grain{opacity:.018;mix-blend-mode:multiply}
-  html[data-theme="light"] header{background:rgba(239,232,218,.92)!important}
+  html[data-theme="light"] header{background:rgba(246,240,228,.97)!important}
   html[data-theme="light"] .surface{background:linear-gradient(180deg,rgba(247,242,232,.98),rgba(234,225,208,.97));box-shadow:inset 0 1px 0 rgba(255,253,247,.76),0 18px 42px -34px rgba(79,61,35,.42)}
   html[data-theme="light"] .surface-hover:hover{background:linear-gradient(180deg,rgba(244,238,226,.99),rgba(239,231,216,.98));box-shadow:inset 0 1px 0 rgba(255,253,247,.82),0 24px 46px -34px rgba(82,63,34,.38)}
   html[data-theme="light"] .glass{background:linear-gradient(180deg,rgba(246,240,228,.98),rgba(232,222,204,.97))}
@@ -226,7 +226,9 @@
   html[data-theme="light"] input[type="time"]::-webkit-calendar-picker-indicator,html[data-theme="light"] input[type="number"]::-webkit-inner-spin-button{filter:none;opacity:.55}
   html[data-theme="light"] .theme-toggle{background:rgba(239,231,215,.88)}
   html[data-theme="light"] .flow{background:rgba(34,83,62,.1);box-shadow:inset 0 1px 2px rgba(30,70,54,.14)}
-  html[data-theme="light"] .modal-footer{background:rgba(225,214,195,.97)!important}
+  html[data-theme="light"] .modal-footer{background:rgba(226,216,198,.98)!important}
+  html[data-theme="light"] .modal-footer .btn:not([class*="primary"]):not([class*="dangerSolid"]){color:var(--mist-1)!important;font-weight:600}
+  html[data-theme="light"] .modal-footer .btn:not([class*="primary"]):not([class*="dangerSolid"]):hover{color:var(--jade-300)!important;background:rgba(61,101,85,.08)!important}
 
   /* ---------- 靈力槽 ---------- */
   .flow{height:6px;border-radius:999px;background:rgba(228,235,232,.055);overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.34)}
@@ -327,7 +329,7 @@
 
   /* ---------- 試煉行事曆 ---------- */
   .calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:var(--hair);border-top:1px solid var(--hair)}
-  .calendar-weekday{padding:.65rem .25rem;background:rgba(6,10,12,.16);text-align:center;font-size:10.5px;letter-spacing:.12em;color:var(--mist-3)}
+  .calendar-weekday{padding:.65rem .25rem;background:rgba(6,10,12,.32);text-align:center;font-size:11px;font-weight:500;letter-spacing:.12em;color:var(--mist-2)}
   .calendar-day{position:relative;min-width:0;min-height:102px;padding:.55rem;background:rgba(16,26,30,.42);transition:background .25s var(--ease)}
   .calendar-day:hover{background:rgba(155,195,174,.055)}
   .calendar-day.is-out{opacity:.22;pointer-events:none}
@@ -341,7 +343,7 @@
   .calendar-event-dot{width:5px;height:5px;flex:none;border-radius:50%;background:var(--jade-300);box-shadow:0 0 7px rgba(155,195,174,.8)}
   .calendar-add{position:absolute;right:.4rem;top:.45rem;display:grid;width:26px;height:26px;place-items:center;border-radius:9px;color:var(--mist-3);opacity:0;transition:opacity .2s,background .2s,color .2s}
   .calendar-day:hover .calendar-add,.calendar-add:focus-visible{opacity:1}.calendar-add:hover{background:rgba(155,195,174,.12);color:var(--jade-100)}
-  html[data-theme="light"] .calendar-weekday{background:rgba(112,83,40,.065)}
+  html[data-theme="light"] .calendar-weekday{background:rgba(112,83,40,.09);color:var(--mist-1);font-weight:600}
   html[data-theme="light"] .calendar-day{background:rgba(247,242,232,.88)}
   html[data-theme="light"] .calendar-day.is-weekend{background:rgba(190,145,63,.09)}
   html[data-theme="light"] .calendar-event{background:rgba(46,112,85,.10)}
@@ -577,7 +579,7 @@
   var CARD_HOVER = 'surface-hover';
   var SOFT_CARD = 'inlay rounded-[20px]';
 
-  var BTN = 'btn qi inline-flex items-center justify-center gap-2 rounded-full font-medium tracking-wide select-none disabled:opacity-35 disabled:cursor-not-allowed';
+  var BTN = 'btn qi inline-flex items-center justify-center gap-2 rounded-full font-medium tracking-wide select-none disabled:opacity-55 disabled:cursor-not-allowed';
   var BTN_SIZE = { sm: 'text-[12px] px-3 py-1.5', md: 'text-[13px] px-4 py-2', lg: 'text-sm px-5 py-2.5', icon: 'text-[12px] h-9 w-9' };
   var BTN_VAR = {
     primary: 'text-[#08120E] font-semibold bg-[linear-gradient(180deg,#A8CFBA_0%,#6E9E88_100%)] shadow-[0_10px_28px_-14px_rgba(110,158,136,.85),inset_0_1px_0_rgba(255,255,255,.35)] hover:shadow-[0_14px_34px_-12px_rgba(110,158,136,1),inset_0_1px_0_rgba(255,255,255,.45)]',
@@ -1075,7 +1077,7 @@
       { k: 'admin', label: '掌門殿', icon: 'Settings' }
     ];
     return E('header', {
-      className: 'sticky top-0 z-40 border-b border-[var(--hair)] bg-[rgba(10,16,19,.72)] backdrop-blur-xl'
+      className: 'sticky top-0 z-40 border-b border-[var(--hair)] bg-[rgba(10,18,21,.94)] backdrop-blur-xl'
     },
       D('mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6',
         E('button', {
