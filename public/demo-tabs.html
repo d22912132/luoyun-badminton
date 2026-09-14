@@ -102,155 +102,163 @@
     border-color: var(--hair);
     box-shadow: inset 0 1px 0 rgba(255,253,247,.8), 0 20px 48px -20px rgba(79,61,35,.32);
   }
-
-  /* ---------------- 四大專屬轉場動畫定義 ---------------- */
-
-  /* 1. 試煉佈告：靈符破空・仙卷展開 */
-  .anim-bulletin {
-    animation: scrollUnfurl calc(0.36s * var(--anim-speed)) var(--ease-xianxia) both;
-    transform-origin: top center;
-  }
-  .anim-bulletin-sword {
-    animation: swordSlash calc(0.48s * var(--anim-speed)) cubic-bezier(0.1, 0.9, 0.2, 1) both;
-  }
-  @keyframes scrollUnfurl {
-    0% {
-      opacity: 0;
-      transform: scaleY(0.92) translateY(18px);
-      filter: blur(4px);
-    }
-    100% {
-      opacity: 1;
-      transform: scaleY(1) translateY(0);
-      filter: blur(0);
-    }
-  }
-  @keyframes swordSlash {
-    0% {
-      opacity: 0;
-      transform: translateX(-60%) scaleX(0.2);
-    }
-    30% {
-      opacity: 0.95;
-    }
-    100% {
-      opacity: 0;
-      transform: translateX(120%) scaleX(1.4);
-    }
+  /* ---------------- 全螢幕獨立法術特效層 (Cinematic FX) ---------------- */
+  #cinematic-fx {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    overflow: hidden;
   }
 
-  /* 2. 弟子名冊：萬法玉簡・星宿列陣（階梯微翻牌） */
-  .anim-roster {
-    animation: rosterCardIn calc(0.32s * var(--anim-speed)) var(--ease-xianxia) both;
+  /* 震屏效果 */
+  body.screen-shake {
+    animation: screenShake calc(0.38s * var(--anim-speed)) ease-out both;
   }
-  .stagger-1 { animation-delay: calc(0.04s * var(--anim-speed)); }
-  .stagger-2 { animation-delay: calc(0.08s * var(--anim-speed)); }
-  .stagger-3 { animation-delay: calc(0.12s * var(--anim-speed)); }
-  .stagger-4 { animation-delay: calc(0.16s * var(--anim-speed)); }
-  @keyframes rosterCardIn {
-    0% {
-      opacity: 0;
-      transform: perspective(900px) rotateX(-14deg) translateY(22px);
-    }
-    100% {
-      opacity: 1;
-      transform: perspective(900px) rotateX(0deg) translateY(0);
-    }
-  }
-  .star-pulse {
-    animation: starIgnite calc(0.6s * var(--anim-speed)) ease-out both;
-  }
-  @keyframes starIgnite {
-    0% { box-shadow: 0 0 0 0 rgba(155,195,174,0.8); }
-    50% { box-shadow: 0 0 16px 4px rgba(155,195,174,0.6); }
-    100% { box-shadow: 0 0 0 0 rgba(155,195,174,0); }
+  @keyframes screenShake {
+    0% { transform: translate(0, 0); }
+    20% { transform: translate(-5px, 6px); }
+    40% { transform: translate(6px, -4px); }
+    60% { transform: translate(-3px, 3px); }
+    80% { transform: translate(3px, -2px); }
+    100% { transform: translate(0, 0); }
   }
 
-  /* 3. 洞府場館：山海尋龍・洞天啟陣（八卦陣羅盤擴散與波紋升起） */
-  .anim-venues {
-    animation: venueRise calc(0.38s * var(--anim-speed)) var(--ease-xianxia) both;
+  /* 1. 試煉佈告：青竹飛劍凌空破空 */
+  .fx-sword-fly-1 {
+    position: absolute;
+    top: 75vh;
+    left: -15vw;
+    animation: flySwordAcross1 calc(0.55s * var(--anim-speed)) cubic-bezier(0.12, 0.9, 0.2, 1) both;
+    filter: drop-shadow(0 0 16px rgba(127,214,160,0.95)) drop-shadow(0 0 35px #3D6555);
   }
-  .anim-bagua {
-    animation: baguaExpand calc(0.55s * var(--anim-speed)) ease-out both;
+  .fx-sword-fly-2 {
+    position: absolute;
+    top: 58vh;
+    left: -20vw;
+    animation: flySwordAcross2 calc(0.58s * var(--anim-speed)) cubic-bezier(0.15, 0.92, 0.22, 1) calc(0.06s * var(--anim-speed)) both;
+    filter: drop-shadow(0 0 20px rgba(155,195,174,1)) drop-shadow(0 0 45px #6E9E88);
   }
-  @keyframes venueRise {
-    0% {
-      opacity: 0;
-      transform: translateY(24px) scale(0.97);
-      filter: blur(3px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-      filter: blur(0);
-    }
+  .fx-sword-fly-3 {
+    position: absolute;
+    top: 85vh;
+    left: -15vw;
+    animation: flySwordAcross3 calc(0.52s * var(--anim-speed)) cubic-bezier(0.1, 0.88, 0.18, 1) calc(0.12s * var(--anim-speed)) both;
+    filter: drop-shadow(0 0 14px rgba(201,255,224,0.85));
   }
-  @keyframes baguaExpand {
-    0% {
-      opacity: 0;
-      transform: translate(-50%, -50%) scale(0.4) rotate(0deg);
-    }
-    40% {
-      opacity: 0.65;
-    }
-    100% {
-      opacity: 0;
-      transform: translate(-50%, -50%) scale(1.6) rotate(60deg);
-    }
+  @keyframes flySwordAcross1 {
+    0% { transform: translate(0, 0) rotate(-32deg); opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { transform: translate(130vw, -85vh) rotate(-32deg); opacity: 0; }
+  }
+  @keyframes flySwordAcross2 {
+    0% { transform: translate(0, 0) rotate(-28deg) scale(1.25); opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { transform: translate(135vw, -80vh) rotate(-28deg) scale(1.25); opacity: 0; }
+  }
+  @keyframes flySwordAcross3 {
+    0% { transform: translate(0, 0) rotate(-36deg) scale(0.85); opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { transform: translate(125vw, -90vh) rotate(-36deg) scale(0.85); opacity: 0; }
   }
 
-  /* 4. 掌門殿：紫氣東來・金印鎮殿（金印下壓與帝威紫氣） */
-  .anim-admin {
-    animation: adminStamp calc(0.42s * var(--anim-speed)) cubic-bezier(0.18, 0.92, 0.25, 1.08) both;
+  /* 劍氣破空裂隙 */
+  .fx-sword-rift {
+    position: absolute;
+    top: 48%;
+    left: -10%;
+    width: 120%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent 5%, rgba(127,214,160,0.2) 20%, #E8FFF2 50%, rgba(127,214,160,0.9) 75%, transparent 95%);
+    box-shadow: 0 0 25px rgba(127,214,160,0.95), 0 0 50px rgba(78,135,110,0.8);
+    transform: rotate(-30deg);
+    animation: slashRift calc(0.5s * var(--anim-speed)) ease-out both;
+    transform-origin: center;
   }
-  .anim-purple-qi {
-    animation: purpleQiFlow calc(0.65s * var(--anim-speed)) ease-out both;
+  @keyframes slashRift {
+    0% { opacity: 0; transform: rotate(-30deg) scaleX(0.05); }
+    30% { opacity: 1; transform: rotate(-30deg) scaleX(1.15); }
+    70% { opacity: 0.85; transform: rotate(-30deg) scaleX(1.3); }
+    100% { opacity: 0; transform: rotate(-30deg) scaleX(1.5); }
   }
-  .anim-seal-stamp {
-    animation: sealImpact calc(0.4s * var(--anim-speed)) cubic-bezier(0.15, 0.85, 0.35, 1.2) both;
+
+  /* 2. 弟子名冊：萬劍星宿列陣 */
+  .fx-constellation-sword {
+    position: absolute;
+    top: -20vh;
+    animation: swordDropToOrbit calc(0.68s * var(--anim-speed)) cubic-bezier(0.16, 1, 0.3, 1) both;
+    filter: drop-shadow(0 0 18px rgba(155,195,174,0.95));
   }
-  @keyframes adminStamp {
-    0% {
-      opacity: 0;
-      transform: translateY(-20px) scale(1.02);
-      filter: blur(4px);
-    }
-    70% {
-      opacity: 1;
-      transform: translateY(3px) scale(0.995);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-      filter: blur(0);
-    }
+  @keyframes swordDropToOrbit {
+    0% { opacity: 0; transform: translate(var(--startX), 0) rotate(var(--rot)) scale(0.6); }
+    35% { opacity: 1; }
+    75% { opacity: 1; transform: translate(var(--endX), var(--endY)) rotate(var(--endRot)) scale(1); }
+    100% { opacity: 0; transform: translate(var(--endX), calc(var(--endY) - 30px)) rotate(var(--endRot)) scale(1.1); }
   }
-  @keyframes purpleQiFlow {
-    0% {
-      opacity: 0;
-      transform: scaleY(0.2);
-    }
-    50% {
-      opacity: 0.35;
-    }
-    100% {
-      opacity: 0;
-      transform: scaleY(1.3);
-    }
+
+  /* 3. 洞府場館：乾坤八卦陣 */
+  .fx-bagua-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: min(88vmin, 38rem);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    animation: baguaBurst calc(0.72s * var(--anim-speed)) cubic-bezier(0.12, 0.9, 0.25, 1) both;
   }
-  @keyframes sealImpact {
-    0% {
-      opacity: 0;
-      transform: translateY(-40px) scale(1.35) rotate(-6deg);
-    }
-    75% {
-      opacity: 1;
-      transform: translateY(0) scale(0.96) rotate(0);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0) scale(1) rotate(0);
-    }
+  @keyframes baguaBurst {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.15) rotate(0deg); }
+    35% { opacity: 0.95; }
+    75% { opacity: 0.85; transform: translate(-50%, -50%) scale(1.15) rotate(75deg); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.65) rotate(120deg); }
+  }
+
+  /* 4. 掌門殿：玄金古印鎮天 */
+  .fx-seal-drop {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: imperialSealCrash calc(0.6s * var(--anim-speed)) cubic-bezier(0.18, 0.9, 0.28, 1.15) both;
+  }
+  @keyframes imperialSealCrash {
+    0% { opacity: 0; transform: translate(-50%, -85vh) scale(1.8) rotate(-12deg); }
+    65% { opacity: 1; transform: translate(-50%, -50%) scale(0.92) rotate(0deg); }
+    80% { transform: translate(-50%, -53%) scale(1.04) rotate(0deg); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.12) rotate(0deg); }
+  }
+  .fx-seal-wave {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: min(92vmin, 40rem);
+    aspect-ratio: 1;
+    border: 3px solid rgba(201,169,97,0.9);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: shockwaveExpand calc(0.58s * var(--anim-speed)) ease-out calc(0.32s * var(--anim-speed)) both;
+  }
+  @keyframes shockwaveExpand {
+    0% { opacity: 0.95; transform: translate(-50%, -50%) scale(0.25); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.8); }
+  }
+
+  /* 仙印古篆徽標 */
+  .fx-sigil-badge {
+    position: absolute;
+    top: calc(50% + min(16vmin, 7.5rem));
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: sigilBadgeIn calc(0.62s * var(--anim-speed)) cubic-bezier(0.16, 1, 0.3, 1) calc(0.12s * var(--anim-speed)) both;
+  }
+  @keyframes sigilBadgeIn {
+    0% { opacity: 0; transform: translate(-50%, -30%) scale(0.7); filter: blur(6px); }
+    38% { opacity: 1; transform: translate(-50%, -50%) scale(1); filter: blur(0); }
+    82% { opacity: 0.95; }
+    100% { opacity: 0; transform: translate(-50%, -60%) scale(1.08); filter: blur(4px); }
   }
 
   /* 境界徽章外觀 */
@@ -265,15 +273,18 @@
 </head>
 <body class="p-4 sm:p-8">
 
+<!-- 全螢幕獨立飛劍與法術特效層 (像重新整理時的入殿劍陣) -->
+<div id="cinematic-fx"></div>
+
 <div class="mx-auto max-w-4xl">
   <!-- 頁頂說明與控制列 -->
   <header class="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-[var(--hair)] pb-5">
     <div>
       <div class="inline-flex items-center gap-2 rounded-full border border-[rgba(155,195,174,.25)] bg-[rgba(155,195,174,.08)] px-3 py-1 text-xs font-semibold text-[var(--jade-300)]">
-        <span>仙門動效實驗室</span> · <span>Xianxia Transitions Lab</span>
+        <span>仙門法術動效實驗室</span> · <span>Cinematic Xianxia FX</span>
       </div>
-      <h1 class="disp mt-2 text-2xl font-bold tracking-wider text-[var(--mist-1)] sm:text-3xl">落雲宗 · 分頁轉場動效預覽</h1>
-      <p class="mt-1 text-xs text-[var(--mist-3)] sm:text-sm">點擊下方四個導覽標籤，即刻體驗專屬的修仙微動畫效果</p>
+      <h1 class="disp mt-2 text-2xl font-bold tracking-wider text-[var(--mist-1)] sm:text-3xl">落雲宗 · 獨立飛劍法術過場預覽</h1>
+      <p class="mt-1 text-xs text-[var(--mist-3)] sm:text-sm">點擊下方標籤，立即體驗獨立於網頁之外、凌空破空的飛劍法陣全螢幕視覺特效！</p>
     </div>
 
     <!-- 模式與速度切換控制 -->
@@ -281,8 +292,11 @@
       <a href="/console.html" class="flex items-center gap-1.5 rounded-full border border-[var(--hair-2)] bg-[rgba(228,235,232,.06)] px-3 py-1.5 text-xs font-medium text-[var(--mist-1)] transition hover:bg-[rgba(228,235,232,.12)]">
         <i data-lucide="ArrowLeft" class="h-3.5 w-3.5"></i> 前往後台
       </a>
+      <button id="btn-fx-toggle" class="flex items-center gap-1.5 rounded-full border border-[rgba(155,195,174,.4)] bg-[rgba(155,195,174,.15)] px-3 py-1.5 text-xs font-semibold text-[var(--jade-100)] transition hover:bg-[rgba(155,195,174,.25)]" title="切換獨立全螢幕法術動效">
+        <i data-lucide="Sparkles" class="h-3.5 w-3.5"></i> <span id="fx-toggle-label">飛劍法術：已開啟</span>
+      </button>
       <button id="btn-replay" class="flex items-center gap-1.5 rounded-full border border-[var(--hair-2)] bg-[rgba(228,235,232,.06)] px-3 py-1.5 text-xs font-medium text-[var(--mist-1)] transition hover:bg-[rgba(228,235,232,.12)]">
-        <i data-lucide="RotateCcw" class="h-3.5 w-3.5"></i> 重播動效
+        <i data-lucide="RotateCcw" class="h-3.5 w-3.5"></i> 重播法術
       </button>
       <button id="btn-speed" class="flex items-center gap-1.5 rounded-full border border-[var(--hair-2)] bg-[rgba(228,235,232,.06)] px-3 py-1.5 text-xs font-medium text-[var(--mist-1)] transition hover:bg-[rgba(228,235,232,.12)]" title="切換動態速度">
         <span id="speed-label">速度 1.0x</span>
@@ -326,19 +340,133 @@
   var currentTab = 'events';
   var speed = 1.0;
   var theme = 'dark';
+  var fxEnabled = true;
+
+  function getSwordSvg() {
+    return `
+      <svg class="w-10 sm:w-12 h-56 sm:h-64 drop-shadow-[0_0_20px_rgba(127,214,160,0.95)]" viewBox="0 0 40 220" fill="none">
+        <path d="M20 0 L27 35 L25 155 L20 160 L15 155 L13 35 Z" fill="url(#bladeG)" />
+        <path d="M20 5 L20 155" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" opacity="0.95"/>
+        <rect x="7" y="157" width="26" height="8" rx="3" fill="url(#goldG)" stroke="#FFE8A0" stroke-width="1"/>
+        <circle cx="20" cy="161" r="3.5" fill="#1B4D3E" stroke="#FFE8A0" stroke-width="1"/>
+        <rect x="17" y="165" width="6" height="34" rx="2" fill="#11241D" stroke="#3D6555" stroke-width="1.2"/>
+        <circle cx="20" cy="202" r="5" fill="url(#goldG)"/>
+        <path d="M20 206 Q14 217 21 228" stroke="#9BC3AE" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M20 206 Q26 218 19 228" stroke="#C9A961" stroke-width="2" stroke-linecap="round"/>
+        <defs>
+          <linearGradient id="bladeG" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#3D735C"/>
+            <stop offset="50%" stop-color="#E2F8EE"/>
+            <stop offset="100%" stop-color="#3D735C"/>
+          </linearGradient>
+          <linearGradient id="goldG" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#FFEBB0"/>
+            <stop offset="50%" stop-color="#C9A961"/>
+            <stop offset="100%" stop-color="#7A5B18"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    `;
+  }
+
+  function playCinematicRitual(tabKey) {
+    if (!fxEnabled) return;
+    var overlay = document.getElementById('cinematic-fx');
+    if (!overlay) return;
+    overlay.innerHTML = '';
+    document.body.classList.remove('screen-shake');
+
+    if (tabKey === 'events') {
+      // 1. 試煉佈告：青竹飛劍凌空破空 + 虛空裂隙
+      overlay.innerHTML = `
+        <div class="fx-sword-rift"></div>
+        <div class="fx-sword-fly-1">${getSwordSvg()}</div>
+        <div class="fx-sword-fly-2">${getSwordSvg()}</div>
+        <div class="fx-sword-fly-3">${getSwordSvg()}</div>
+        <div class="fx-sigil-badge pointer-events-none rounded-2xl border border-[rgba(155,195,174,.45)] bg-[rgba(8,18,15,.9)] px-6 py-3 text-center shadow-[0_0_40px_rgba(127,214,160,.45)] backdrop-blur-md">
+          <span class="disp text-lg sm:text-xl font-black tracking-widest text-[#D7F7E6]">落雲宗 · 試煉戰帖</span>
+          <span class="block text-[10px] sm:text-xs tracking-[.35em] text-[var(--jade-300)] mt-0.5">青竹飛劍 · 破空開壇</span>
+        </div>
+      `;
+    } else if (tabKey === 'members') {
+      // 2. 弟子名冊：萬劍星宿列陣
+      var swordsHtml = '';
+      var pos = [
+        { sx: '-35vw', ex: '-18vw', ey: '48vh', rot: '-20deg', erot: '12deg', del: '0s' },
+        { sx: '-16vw', ex: '-9vw', ey: '42vh', rot: '-10deg', erot: '25deg', del: '0.04s' },
+        { sx: '0vw', ex: '0vw', ey: '38vh', rot: '0deg', erot: '0deg', del: '0.08s' },
+        { sx: '16vw', ex: '9vw', ey: '42vh', rot: '10deg', erot: '-25deg', del: '0.05s' },
+        { sx: '35vw', ex: '18vw', ey: '48vh', rot: '20deg', erot: '-12deg', del: '0.02s' }
+      ];
+      pos.forEach(function(p) {
+        swordsHtml += `
+          <div class="fx-constellation-sword" style="left:50%; --startX:${p.sx}; --endX:${p.ex}; --endY:${p.ey}; --rot:${p.rot}; --endRot:${p.erot}; animation-delay:calc(${p.del} * var(--anim-speed));">
+            ${getSwordSvg()}
+          </div>
+        `;
+      });
+      overlay.innerHTML = `
+        ${swordsHtml}
+        <div class="fx-sigil-badge pointer-events-none rounded-2xl border border-[rgba(155,195,174,.45)] bg-[rgba(8,18,15,.9)] px-6 py-3 text-center shadow-[0_0_40px_rgba(127,214,160,.45)] backdrop-blur-md">
+          <span class="disp text-lg sm:text-xl font-black tracking-widest text-[#D7F7E6]">萬法玉簡 · 星宿列陣</span>
+          <span class="block text-[10px] sm:text-xs tracking-[.35em] text-[var(--jade-300)] mt-0.5">弟子名籍 · 諸星歸位</span>
+        </div>
+      `;
+    } else if (tabKey === 'venues') {
+      // 3. 洞府場館：金色八卦太極陣圖旋轉炸裂
+      overlay.innerHTML = `
+        <div class="fx-bagua-circle flex items-center justify-center pointer-events-none">
+          <svg class="w-full h-full text-[var(--gold)] drop-shadow-[0_0_45px_rgba(201,169,97,0.85)]" viewBox="0 0 400 400" fill="none">
+            <circle cx="200" cy="200" r="185" stroke="currentColor" stroke-width="2.5" stroke-dasharray="8 6"/>
+            <circle cx="200" cy="200" r="160" stroke="currentColor" stroke-width="1.8"/>
+            <circle cx="200" cy="200" r="115" stroke="currentColor" stroke-width="2"/>
+            <path d="M200 15 L200 40 M200 360 L200 385 M15 200 L40 200 M360 200 L385 200" stroke="currentColor" stroke-width="3"/>
+            <path d="M200 85 A57.5 57.5 0 0 1 200 200 A57.5 57.5 0 0 0 200 315 A115 115 0 0 1 200 85 Z" fill="currentColor" opacity="0.3"/>
+            <circle cx="200" cy="142.5" r="12" fill="currentColor" opacity="0.85"/>
+            <circle cx="200" cy="257.5" r="12" stroke="currentColor" stroke-width="3"/>
+          </svg>
+        </div>
+        <div class="fx-sigil-badge pointer-events-none rounded-2xl border border-[rgba(201,169,97,.45)] bg-[rgba(22,18,10,.9)] px-6 py-3 text-center shadow-[0_0_40px_rgba(201,169,97,.45)] backdrop-blur-md">
+          <span class="disp text-lg sm:text-xl font-black tracking-widest text-[#FFF2CC]">洞天福地 · 乾坤八卦</span>
+          <span class="block text-[10px] sm:text-xs tracking-[.35em] text-[var(--gold)] mt-0.5">尋龍定穴 · 洞府陣啟</span>
+        </div>
+      `;
+    } else if (tabKey === 'admin') {
+      // 4. 掌門殿：天降巨型玄金大印砸落 + 震屏衝擊波
+      document.body.classList.add('screen-shake');
+      setTimeout(function(){ document.body.classList.remove('screen-shake'); }, 380 * speed);
+      overlay.innerHTML = `
+        <div class="fixed inset-0 bg-gradient-to-b from-[rgba(158,143,192,.35)] via-[rgba(201,169,97,.15)] to-transparent pointer-events-none animate-pulse"></div>
+        <div class="fx-seal-drop pointer-events-none">
+          <div class="h-28 w-28 sm:h-32 sm:w-32 rounded-3xl bg-gradient-to-br from-[#FFEBA0] via-[#C9A961] to-[#684C10] p-1 shadow-[0_0_60px_rgba(201,169,97,.9)] flex items-center justify-center border-2 border-[#FFF2CC]">
+            <div class="h-full w-full rounded-[22px] border-2 border-[rgba(0,0,0,.3)] flex flex-col items-center justify-center text-[#1A1305]">
+              <span class="disp text-3xl sm:text-4xl font-black tracking-widest">落雲</span>
+              <span class="disp text-xs font-bold tracking-[.35em] mt-1">掌門之印</span>
+            </div>
+          </div>
+        </div>
+        <div class="fx-seal-wave pointer-events-none"></div>
+        <div class="fx-sigil-badge pointer-events-none rounded-2xl border border-[rgba(201,169,97,.55)] bg-[rgba(26,18,8,.94)] px-6 py-3 text-center shadow-[0_0_45px_rgba(201,169,97,.55)] backdrop-blur-md">
+          <span class="disp text-lg sm:text-xl font-black tracking-widest text-[#FFF3D1]">掌門至尊 · 金印鎮天</span>
+          <span class="block text-[10px] sm:text-xs tracking-[.35em] text-[var(--gold)] mt-0.5">紫氣浩蕩 · 萬法歸宗</span>
+        </div>
+      `;
+    }
+
+    setTimeout(function() {
+      if (overlay.innerHTML) overlay.innerHTML = '';
+    }, 1100 * speed);
+  }
 
   var tabData = {
     events: {
       title: '試煉佈告',
-      badge: '靈符破空 · 仙卷展開',
-      description: '【設計概念】進入佈告時，如同一柄青竹飛劍劃破虛空，卷軸自中央柔和展開（scaleY + fade-in），散發翡翠靈力微光，戰帖內容以水墨暈染姿態登場。',
-      aiPrompt: 'Xianxia UI motion design, an ancient jade talisman martial announcement scroll smoothly unfurling from center, soft green spiritual qi glow, celestial sword light slashing horizontally across the header, elegant ink wash typography revealing, dark jade and gold palette, cinematic 60fps micro-animation.',
+      badge: '青竹飛劍凌空破空 · 虛空開壇',
+      description: '【獨立全螢幕法術視覺】有別於普通網頁排版，點擊時三柄青竹仙劍化作耀眼翠綠流光，自左下角凌空橫越整個螢幕！劃開一道空間裂隙劍芒與「落雲宗 · 試煉戰帖」古篆仙印，宛如飛劍下達戰帖。',
+      aiPrompt: 'Epic Xianxia game transition effect, 3 glowing jade celestial flying swords streaking across the entire screen from bottom-left to top-right at lightning speed, vibrant emerald sword ray trail, spatial slash rift cut glowing across the screen, ancient daoist martial announcement sigil seal floating at center, cinematic visual VFX overlay, transparent background, Unreal Engine 5 stylized particle FX.',
       render: function() {
         return `
-          <div class="anim-bulletin relative overflow-hidden rounded-[24px] surface p-6 sm:p-8">
-            <!-- 飛劍劃空靈光特效 -->
-            <div class="anim-bulletin-sword absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#9BC3AE] to-transparent shadow-[0_0_12px_#9BC3AE] pointer-events-none"></div>
-
+          <div class="relative overflow-hidden rounded-[24px] surface p-6 sm:p-8">
             <div class="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--hair)] pb-4">
               <div class="flex items-center gap-3">
                 <span class="disp text-3xl font-black text-[var(--jade-300)]">9/25</span>
@@ -373,14 +501,13 @@
 
     members: {
       title: '弟子名冊',
-      badge: '萬法玉簡 · 星宿列陣',
-      description: '【設計概念】名冊卡片以 3D 輕透角速度（perspective 傾角）階梯式依序翻開歸位（Staggered cascade），境界徽章綻放微型呼吸靈光，呈現門人如星宿歸陣的秩序感。',
-      aiPrompt: 'Taoist celestial sect roster interface, bamboo-jade identity slips flipping into place with 3D perspective stagger cascade, glowing cultivation realm badge pulsing with subtle star dust aura, neat constellation matrix alignment, dark ink stone background.',
+      badge: '萬劍星宿列陣 · 玉簡歸位',
+      description: '【獨立全螢幕法術視覺】多柄青玉靈劍自天外穹頂呼嘯俯衝，於螢幕中央懸停旋轉列成星宿劍陣圓環，隨後星光散去，弟子名籍玉簡歸位。',
+      aiPrompt: 'Cinematic Taoist sword array summoning transition, multiple glowing cyan flying swords descending from above into an orbiting celestial constellation circle, stardust shockwave bursting outward, ancient jade slip tally seal manifesting in mid-air, full screen visual spell overlay.',
       render: function() {
         return `
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- 弟子卡片 1 -->
-            <div class="anim-roster stagger-1 surface rounded-2xl p-4 flex items-center justify-between">
+            <div class="surface rounded-2xl p-4 flex items-center justify-between">
               <div class="flex items-center gap-3">
                 <div class="h-10 w-10 rounded-full flex items-center justify-center bg-[rgba(201,169,97,.15)] border border-[rgba(201,169,97,.3)] text-[var(--gold)] font-bold">
                   昕
@@ -390,13 +517,12 @@
                   <p class="text-[11px] text-[var(--mist-3)]">入陣 42 次 · 宗門長老</p>
                 </div>
               </div>
-              <span class="badge-transcendent star-pulse rounded-full px-2.5 py-1 text-xs font-bold">
+              <span class="badge-transcendent rounded-full px-2.5 py-1 text-xs font-bold">
                 化神 8
               </span>
             </div>
 
-            <!-- 弟子卡片 2 -->
-            <div class="anim-roster stagger-2 surface rounded-2xl p-4 flex items-center justify-between">
+            <div class="surface rounded-2xl p-4 flex items-center justify-between">
               <div class="flex items-center gap-3">
                 <div class="h-10 w-10 rounded-full flex items-center justify-center bg-[rgba(110,158,136,.15)] border border-[rgba(110,158,136,.3)] text-[var(--jade-300)] font-bold">
                   標
@@ -406,13 +532,12 @@
                   <p class="text-[11px] text-[var(--mist-3)]">入陣 35 次 · 執法長老</p>
                 </div>
               </div>
-              <span class="badge-golden star-pulse rounded-full px-2.5 py-1 text-xs font-bold">
+              <span class="badge-golden rounded-full px-2.5 py-1 text-xs font-bold">
                 結丹 5
               </span>
             </div>
 
-            <!-- 弟子卡片 3 -->
-            <div class="anim-roster stagger-3 surface rounded-2xl p-4 flex items-center justify-between">
+            <div class="surface rounded-2xl p-4 flex items-center justify-between">
               <div class="flex items-center gap-3">
                 <div class="h-10 w-10 rounded-full flex items-center justify-center bg-[rgba(110,158,136,.15)] border border-[rgba(110,158,136,.3)] text-[var(--jade-300)] font-bold">
                   Max
@@ -422,13 +547,12 @@
                   <p class="text-[11px] text-[var(--mist-3)]">入陣 28 次 · 巡山長老</p>
                 </div>
               </div>
-              <span class="badge-golden star-pulse rounded-full px-2.5 py-1 text-xs font-bold">
+              <span class="badge-golden rounded-full px-2.5 py-1 text-xs font-bold">
                 結丹 6
               </span>
             </div>
 
-            <!-- 弟子卡片 4 -->
-            <div class="anim-roster stagger-4 surface rounded-2xl p-4 flex items-center justify-between">
+            <div class="surface rounded-2xl p-4 flex items-center justify-between">
               <div class="flex items-center gap-3">
                 <div class="h-10 w-10 rounded-full flex items-center justify-center bg-[rgba(228,235,232,.08)] border border-[var(--hair)] text-[var(--mist-2)] font-bold">
                   月
@@ -438,7 +562,7 @@
                   <p class="text-[11px] text-[var(--mist-3)]">入陣 19 次 · 內門真傳</p>
                 </div>
               </div>
-              <span class="badge-qi star-pulse rounded-full px-2.5 py-1 text-xs font-bold">
+              <span class="badge-qi rounded-full px-2.5 py-1 text-xs font-bold">
                 練氣 2
               </span>
             </div>
@@ -449,15 +573,12 @@
 
     venues: {
       title: '洞府場館',
-      badge: '山海尋龍 · 洞天啟陣',
-      description: '【設計概念】切換至場館時，中央泛起金絲八卦羅盤投影（旋轉擴散），各場館宛如仙家福地突破雲霧湧現，帶有水波升起與地標定位微震。',
-      aiPrompt: 'Chinese fantasy mystical arena portal, glowing gold trigram Bagua array compass expanding and spinning gently, mist dissipating to reveal floating sacred mountain hall coordinates, golden daoist runes radiating outwards.',
+      badge: '太極八卦陣天 · 破霧尋龍',
+      description: '【獨立全螢幕法術視覺】一道巨大金色乾坤太極八卦陣圖在螢幕中央旋轉炸裂，衝擊光環與金色符文光柱橫掃視窗，破開山嵐雲霧，定格各洞府定位！',
+      aiPrompt: 'Full-screen golden Bagua trigram array burst animation, ancient spinning Taoist Taiji compass expanding rapidly across the viewport, radiant golden sacred runes and shockwave rings blasting away mountain clouds, mystical arena transition VFX.',
       render: function() {
         return `
-          <div class="anim-venues relative overflow-hidden surface rounded-[24px] p-6 sm:p-8">
-            <!-- 八卦虛影擴散光環 -->
-            <div class="anim-bagua absolute top-1/2 left-1/2 w-64 h-64 rounded-full border border-[rgba(201,169,97,.4)] pointer-events-none -translate-x-1/2 -translate-y-1/2 [background:radial-gradient(circle,rgba(201,169,97,.12),transparent_70%)]"></div>
-
+          <div class="relative overflow-hidden surface rounded-[24px] p-6 sm:p-8">
             <div class="relative z-10 flex flex-wrap items-center justify-between gap-4 border-b border-[var(--hair)] pb-4">
               <div>
                 <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--gold)]">
@@ -491,19 +612,15 @@
 
     admin: {
       title: '掌門殿',
-      badge: '紫氣東來 · 金印鎮殿',
-      description: '【設計概念】進入掌門殿時，頂部降下祥雲紫氣，一枚落雲宗玄金古印帶著威嚴的回彈微震（Stamp Effect）凌空下落，突顯掌門執法重器與戒律威嚴。',
-      aiPrompt: 'Majestic sect grandmaster sanctum UI transition, ethereal imperial purple mist cascading down like waterfall clouds, ancient golden square imperial seal dropping with authoritative magnetic impact and subtle shockwave, supreme sacred aura.',
+      badge: '紫氣浩蕩 · 玄金大印鎮天',
+      description: '【獨立全螢幕法術視覺】紫氣祥雲自穹頂傾瀉，一枚萬鈞巨型玄金大印凌空垂直砸在螢幕上，激起強烈震屏（Screen Shake）與金色道紋震波，盡顯掌門至尊威嚴！',
+      aiPrompt: 'Imperial Taoist grandmaster transition VFX, celestial purple clouds cascading down, massive ancient square golden sect jade seal dropping from the sky with thunderous screen-shaking impact, expanding golden blast wave, supreme sect ruler authority.',
       render: function() {
         return `
-          <div class="anim-admin relative overflow-hidden surface rounded-[24px] p-6 sm:p-8 border border-[rgba(201,169,97,.3)] shadow-[0_24px_64px_-16px_rgba(201,169,97,.22)]">
-            <!-- 頂部紫氣降臨動態層 -->
-            <div class="anim-purple-qi absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[rgba(158,143,192,.22)] via-[rgba(201,169,97,.12)] to-transparent pointer-events-none"></div>
-
+          <div class="relative overflow-hidden surface rounded-[24px] p-6 sm:p-8 border border-[rgba(201,169,97,.3)] shadow-[0_24px_64px_-16px_rgba(201,169,97,.22)]">
             <div class="relative z-10 flex items-center justify-between gap-4 border-b border-[var(--hair)] pb-4">
               <div class="flex items-center gap-4">
-                <!-- 凌空下壓的落雲大印 -->
-                <div class="anim-seal-stamp h-14 w-14 rounded-2xl bg-gradient-to-br from-[#FFE8A0] via-[#C9A961] to-[#8A6824] flex items-center justify-center text-[#120F08] font-black text-xl shadow-[0_10px_25px_-5px_rgba(201,169,97,.6)]">
+                <div class="h-14 w-14 rounded-2xl bg-gradient-to-br from-[#FFE8A0] via-[#C9A961] to-[#8A6824] flex items-center justify-center text-[#120F08] font-black text-xl shadow-[0_10px_25px_-5px_rgba(201,169,97,.6)]">
                   落雲
                 </div>
                 <div>
@@ -557,10 +674,13 @@
     var explanation = document.getElementById('explanation');
     var data = tabData[tabKey];
 
+    // 觸發全螢幕獨立飛劍與法術特效！
+    playCinematicRitual(tabKey);
+
     stage.innerHTML = data.render();
     explanation.innerHTML = `
       <div class="flex items-center gap-2 mb-2">
-        <span class="rounded-md bg-[rgba(155,195,174,.18)] px-2 py-0.5 font-bold text-[var(--jade-300)]">動效解析</span>
+        <span class="rounded-md bg-[rgba(155,195,174,.18)] px-2 py-0.5 font-bold text-[var(--jade-300)]">全螢幕法術解析</span>
         <strong class="text-sm text-[var(--mist-1)]">${data.title}（${data.badge}）</strong>
       </div>
       <p class="leading-relaxed text-[var(--mist-2)]">${data.description}</p>
@@ -569,7 +689,7 @@
       <div class="mt-3.5 rounded-xl border border-[rgba(201,169,97,.28)] bg-[rgba(201,169,97,.07)] p-3">
         <div class="flex items-center justify-between gap-2 mb-1.5">
           <span class="text-[11px] font-bold text-[var(--gold)] flex items-center gap-1.5">
-            <i data-lucide="Sparkles" class="h-3.5 w-3.5"></i> 可提供給 AI 的精準提示詞 (Prompt)
+            <i data-lucide="Sparkles" class="h-3.5 w-3.5"></i> 專用 AI 生成提示詞 (Prompt)
           </span>
           <button onclick="copyPromptText()" class="flex items-center gap-1 rounded-lg border border-[rgba(201,169,97,.35)] bg-[rgba(201,169,97,.15)] px-2.5 py-1 text-[11px] font-semibold text-[var(--gold)] transition hover:bg-[rgba(201,169,97,.28)]">
             <i data-lucide="Copy" class="h-3 w-3"></i> <span id="copy-text">複製 AI 提示詞</span>
@@ -579,9 +699,9 @@
       </div>
 
       <div class="mt-3.5 flex flex-wrap items-center gap-4 text-[11px] text-[var(--mist-3)] border-t border-[var(--hair)] pt-2.5">
-        <span>⏱️ 動態時長：<strong>${(0.35 * speed).toFixed(2)} 秒</strong></span>
-        <span>📈 貝茲曲線：<strong>cubic-bezier(0.16, 1, 0.3, 1)</strong></span>
-        <span>✨ 視覺重點：<strong>${tabKey === 'events' ? '開卷光感 + 飛劍流光' : (tabKey === 'members' ? '3D 階梯翻簡 + 境界星芒' : (tabKey === 'venues' ? '金絲八卦羅盤 + 洞天升起' : '紫氣祥雲 + 玄金大印下壓'))}</strong></span>
+        <span>🎬 特效類型：<strong class="text-[var(--jade-300)]">全螢幕懸浮獨立法術層 (#cinematic-fx)</strong></span>
+        <span>⏱️ 動態時長：<strong>${(0.55 * speed).toFixed(2)} 秒</strong></span>
+        <span>✨ 視覺重點：<strong>${tabKey === 'events' ? '青竹飛劍凌空橫越 + 虛空裂隙' : (tabKey === 'members' ? '星宿劍雨由天而降 + 盤旋結陣' : (tabKey === 'venues' ? '金光太極八卦陣旋轉爆裂' : '天降玄金大印砸落 + 震屏衝擊波'))}</strong></span>
       </div>
     `;
 
@@ -606,6 +726,23 @@
       this.classList.add('active-tab', 'text-[var(--jade-100)]', 'bg-[rgba(155,195,174,.18)]', 'border-[rgba(155,195,174,.25)]', 'shadow-inner');
       renderStage(tab);
     });
+  });
+
+  // 法術層開關按鈕
+  document.getElementById('btn-fx-toggle').addEventListener('click', function() {
+    fxEnabled = !fxEnabled;
+    var label = document.getElementById('fx-toggle-label');
+    if (fxEnabled) {
+      this.classList.remove('border-[var(--hair-2)]', 'bg-[rgba(228,235,232,.06)]', 'text-[var(--mist-3)]');
+      this.classList.add('border-[rgba(155,195,174,.4)]', 'bg-[rgba(155,195,174,.15)]', 'text-[var(--jade-100)]');
+      label.innerText = '飛劍法術：已開啟';
+      playCinematicRitual(currentTab);
+    } else {
+      this.classList.remove('border-[rgba(155,195,174,.4)]', 'bg-[rgba(155,195,174,.15)]', 'text-[var(--jade-100)]');
+      this.classList.add('border-[var(--hair-2)]', 'bg-[rgba(228,235,232,.06)]', 'text-[var(--mist-3)]');
+      label.innerText = '飛劍法術：已關閉';
+      document.getElementById('cinematic-fx').innerHTML = '';
+    }
   });
 
   // 重播按鈕
