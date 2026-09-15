@@ -574,6 +574,59 @@
     .qi::after,.event-card::before,.empty-scroll::before,.empty-scroll::after,.seal-toast::after,.realm-badge::before,.realm-badge::after,.office-badge::after,.flow>i::before,.flow>i::after,.scroll-unfurl::before,.scroll-unfurl::after,.skeleton::after{display:none}
     .enter-ritual{display:none}
   }
+
+  /* ---------------- 仙門通行玉令動態特效 (Talisman & Scanner FX) ---------------- */
+  @keyframes talismanPulse {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(201, 169, 97, 0.25), 0 0 40px rgba(110, 158, 136, 0.15);
+      border-color: rgba(201, 169, 97, 0.45);
+    }
+    50% {
+      box-shadow: 0 0 32px rgba(201, 169, 97, 0.5), 0 0 60px rgba(75, 181, 189, 0.3);
+      border-color: rgba(201, 169, 97, 0.85);
+    }
+  }
+  @keyframes scanBeam {
+    0% {
+      top: 0%;
+      opacity: 0.15;
+    }
+    50% {
+      top: calc(100% - 3px);
+      opacity: 0.9;
+    }
+    100% {
+      top: 0%;
+      opacity: 0.15;
+    }
+  }
+  .talisman-frame {
+    position: relative;
+    border-radius: 18px;
+    background: #ffffff;
+    border: 2px solid rgba(201, 169, 97, 0.45);
+    animation: talismanPulse 3.6s ease-in-out infinite;
+    overflow: hidden;
+  }
+  .talisman-scanner-beam {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent 0%, rgba(75, 181, 189, 0.9) 30%, rgba(201, 169, 97, 0.95) 70%, transparent 100%);
+    box-shadow: 0 0 10px rgba(75, 181, 189, 0.8), 0 0 4px rgba(201, 169, 97, 0.9);
+    animation: scanBeam 2.8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .talisman-corner {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-color: var(--gold);
+    pointer-events: none;
+    z-index: 5;
+  }
 </style>
 
 </head>
@@ -4121,6 +4174,12 @@
       footer: [
         p.isAdmin && qrData ? E(Btn, { key: 'del', variant: 'ghost', icon: 'Trash2', onClick: clearQr }, '清除') : null,
         p.isAdmin ? E(Btn, { key: 'up', variant: 'outline', icon: 'Upload', onClick: function () { fileInputRef.current && fileInputRef.current.click(); } }, qrData ? '更換圖片' : '上傳QRCode') : null,
+        qrData ? E('a', {
+          key: 'dl',
+          href: qrData,
+          download: (ev.title || '門禁碼') + '_' + (qrDate || 'gate_qr').replace(/[^a-zA-Z0-9_\-\u4e00-\u9fa5]/g, '_') + '.png',
+          className: 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[var(--hair-2)] hover:border-[var(--gold)] text-xs font-semibold transition text-[var(--mist-2)] hover:text-white'
+        }, E(Icon, { name: 'Download', size: 14 }), '下載') : null,
         qrData ? E(Btn, { key: 'br', variant: fullBright ? 'primary' : 'ghost', icon: 'Sun', onClick: function () { setFullBright(!fullBright); } }, fullBright ? '高亮中' : '螢幕增亮') : null,
         E(Btn, { key: 'c', variant: 'primary', onClick: p.close }, '完成')
       ]
@@ -4130,13 +4189,17 @@
           ref: fileInputRef, type: 'file', accept: 'image/*', className: 'hidden',
           onChange: function (e) { handleFile(e.target.files && e.target.files[0]); }
         }) : null,
-        qrData ? D('flex flex-col items-center rounded-2xl bg-white p-6 shadow-2xl transition-transform ' + (fullBright ? 'scale-105' : 'hover:scale-[1.02]'),
+        qrData ? D('talisman-frame p-3 shadow-2xl flex flex-col items-center justify-center transition-all ' + (fullBright ? 'scale-105' : 'hover:scale-[1.01]'),
+          /* 結界掃描光幕 */
+          D('talisman-scanner-beam'),
+          D('talisman-corner left-1.5 top-1.5 border-l-2 border-t-2'),
+          D('talisman-corner right-1.5 top-1.5 border-r-2 border-t-2'),
+          D('talisman-corner left-1.5 bottom-1.5 border-l-2 border-b-2'),
+          D('talisman-corner right-1.5 bottom-1.5 border-r-2 border-b-2'),
           E('img', {
             src: qrData, alt: '門禁QRCode',
-            className: 'max-h-[260px] max-w-[260px] object-contain select-none'
-          }),
-          E('strong', { className: 'mt-4 text-center font-sans text-[18px] font-bold text-black tracking-wider' }, '門禁QRCode'),
-          E('span', { className: 'mt-1 text-center font-sans text-[14px] font-semibold text-gray-800' }, '(日期：' + qrDate + ')')
+            className: 'max-h-[350px] max-w-[270px] object-contain select-none rounded-lg'
+          })
         ) : D('flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--hair-2)] p-10 text-center',
           E(Icon, { name: 'QrCode', size: 48, className: 'text-[var(--mist-3)] mb-3 opacity-60' }),
           E('p', { className: 'disp font-semibold ' + T1 }, '尚未設定門禁碼'),

@@ -618,6 +618,59 @@
     background-color: var(--gold);
     box-shadow: 0 0 10px rgba(201, 169, 97, 0.6);
   }
+
+  /* ---------------- 仙門通行玉令動態特效 (Talisman & Scanner FX) ---------------- */
+  @keyframes talismanPulse {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(201, 169, 97, 0.25), 0 0 40px rgba(110, 158, 136, 0.15);
+      border-color: rgba(201, 169, 97, 0.45);
+    }
+    50% {
+      box-shadow: 0 0 32px rgba(201, 169, 97, 0.5), 0 0 60px rgba(75, 181, 189, 0.3);
+      border-color: rgba(201, 169, 97, 0.85);
+    }
+  }
+  @keyframes scanBeam {
+    0% {
+      top: 0%;
+      opacity: 0.15;
+    }
+    50% {
+      top: calc(100% - 3px);
+      opacity: 0.9;
+    }
+    100% {
+      top: 0%;
+      opacity: 0.15;
+    }
+  }
+  .talisman-frame {
+    position: relative;
+    border-radius: 18px;
+    background: #ffffff;
+    border: 2px solid rgba(201, 169, 97, 0.45);
+    animation: talismanPulse 3.6s ease-in-out infinite;
+    overflow: hidden;
+  }
+  .talisman-scanner-beam {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent 0%, rgba(75, 181, 189, 0.9) 30%, rgba(201, 169, 97, 0.95) 70%, transparent 100%);
+    box-shadow: 0 0 10px rgba(75, 181, 189, 0.8), 0 0 4px rgba(201, 169, 97, 0.9);
+    animation: scanBeam 2.8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .talisman-corner {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-color: var(--gold);
+    pointer-events: none;
+    z-index: 5;
+  }
 </style>
 </head>
 <body>
@@ -1059,6 +1112,7 @@
     var loginModalState = useState(false), loginModal = loginModalState[0], setLoginModal = loginModalState[1];
     var identityModalState = useState(false), identityModal = identityModalState[0], setIdentityModal = identityModalState[1];
     var qrModalState = useState(false), qrModal = qrModalState[0], setQrModal = qrModalState[1];
+    var qrBrightState = useState(false), qrBright = qrBrightState[0], setQrBright = qrBrightState[1];
     var lastAnnouncedRef = useRef(null);
     var lastPreCourtRef = useRef(null);
     var nowTicker = useState(Date.now()), nowTime = nowTicker[0], setNowTime = nowTicker[1];
@@ -4143,43 +4197,67 @@
       ) : null,
 
       /* 仙門通行玉令（門禁 QR Code）全螢幕彈窗 */
-      qrModal && activeEvent && activeEvent.gateQr ? D('fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-md',
-        { onClick: function (e) { if (e.target === e.currentTarget) setQrModal(false); } },
-        D('bezel max-w-sm w-full',
-          D('core surface p-6 shadow-2xl flex flex-col items-center gap-4',
+      qrModal && activeEvent && activeEvent.gateQr ? D('fixed inset-0 z-50 flex items-center justify-center ' + (qrBright ? 'bg-black/95' : 'bg-black/85') + ' p-4 backdrop-blur-md transition-colors',
+        { onClick: function (e) { if (e.target === e.currentTarget) { setQrModal(false); setQrBright(false); } } },
+        D('bezel max-w-sm w-full transition-all ' + (qrBright ? 'scale-105' : ''),
+          D('core surface p-5 shadow-2xl flex flex-col items-center gap-3.5 ' + (qrBright ? 'bg-white text-black border-4 border-[var(--gold)]' : ''),
             /* 頂部標題列 */
-            D('w-full flex items-center justify-between pb-3 border-b border-[var(--hair)]',
+            D('w-full flex items-center justify-between pb-2.5 border-b ' + (qrBright ? 'border-gray-200' : 'border-[var(--hair)]'),
               D('flex items-center gap-2',
                 E(SectMark, { size: 20 }),
-                S('disp font-bold text-base text-[var(--gold)] tracking-wide', '仙門通行玉令')
+                S('disp font-bold text-base ' + (qrBright ? 'text-black' : 'text-[var(--gold)]') + ' tracking-wide', '仙門通行玉令')
               ),
-              E('button', {
-                type: 'button',
-                onClick: function () { setQrModal(false); },
-                className: 'text-[var(--mist-3)] hover:text-white transition p-1'
-              }, E(Icon, { name: 'X', size: 18 }))
+              E('div', { className: 'flex items-center gap-1' },
+                E('button', {
+                  type: 'button',
+                  onClick: function () { setQrBright(!qrBright); },
+                  title: qrBright ? '關閉增亮' : '螢幕增亮（掃碼防反光）',
+                  className: 'p-1.5 rounded-lg transition ' + (qrBright ? 'bg-amber-100 text-amber-800' : 'text-[var(--mist-3)] hover:text-white hover:bg-[var(--sheen)]')
+                }, E(Icon, { name: 'Sun', size: 17 })),
+                E('button', {
+                  type: 'button',
+                  onClick: function () { setQrModal(false); setQrBright(false); },
+                  className: 'p-1.5 rounded-lg transition ' + (qrBright ? 'text-gray-500 hover:text-black' : 'text-[var(--mist-3)] hover:text-white hover:bg-[var(--sheen)]')
+                }, E(Icon, { name: 'X', size: 17 }))
+              )
             ),
-            S('text-xs text-[var(--mist-2)] text-center tracking-wide', '出示此印即可通過仙門結界（球館閘機）'),
-            /* QR Code 高對比白玉陣眼托盤（確保掃描器毫秒級讀取） */
-            D('rounded-2xl bg-white p-3.5 shadow-2xl border-2 border-[rgba(201,169,97,.4)] flex items-center justify-center',
+            S('text-xs ' + (qrBright ? 'text-gray-600 font-medium' : 'text-[var(--mist-2)]') + ' text-center tracking-wide', '出示此印即可通過仙門結界（球館閘機）'),
+            
+            /* QR Code 仙門靈印托盤（帶雷射掃描光束與呼吸流光） */
+            D('talisman-frame p-2.5 shadow-2xl flex items-center justify-center ' + (qrBright ? 'border-amber-400' : ''),
+              /* 青碧流金雷射掃描光幕 */
+              D('talisman-scanner-beam'),
+              /* 傳統回紋四角飾件 */
+              D('talisman-corner left-1.5 top-1.5 border-l-2 border-t-2'),
+              D('talisman-corner right-1.5 top-1.5 border-r-2 border-t-2'),
+              D('talisman-corner left-1.5 bottom-1.5 border-l-2 border-b-2'),
+              D('talisman-corner right-1.5 bottom-1.5 border-r-2 border-b-2'),
               E('img', {
                 src: activeEvent.gateQr,
-                alt: '門禁通行碼',
-                className: 'object-contain',
-                style: { width: '220px', height: '220px' }
+                alt: '仙門通行玉令',
+                className: 'object-contain select-none max-h-[350px] max-w-[270px] rounded-lg'
               })
             ),
+
             /* 活動與日期資訊 */
             D('text-center',
-              S('disp block font-bold text-sm text-[var(--mist-1)]', activeEvent.title || '今日球場'),
-              S('block text-[11px] text-[var(--mist-3)] mt-1 font-mono', (activeEvent.gateQrDate || activeEvent.dateText || '') + '・掃碼進場')
+              S('disp block font-bold text-sm ' + (qrBright ? 'text-black' : 'text-[var(--mist-1)]'), activeEvent.title || '今日球場'),
+              S('block text-[11px] ' + (qrBright ? 'text-gray-600' : 'text-[var(--mist-3)]') + ' mt-0.5 font-mono', (activeEvent.gateQrDate || activeEvent.dateText || '') + '・掃碼進場')
             ),
-            /* 知悉收令按鈕 */
-            E('button', {
-              type: 'button',
-              onClick: function () { setQrModal(false); },
-              className: 'btn mt-1 w-full rounded-full bg-[linear-gradient(180deg,#A8CFBA_0%,#6E9E88_100%)] py-2 text-sm font-bold text-[#08120E] shadow-[0_8px_20px_-6px_rgba(110,158,136,.7)] hover:shadow-[0_12px_26px_-6px_rgba(110,158,136,.9)] transition'
-            }, '知悉收令')
+
+            /* 操作按鈕組：保存玉令 + 知悉收令 */
+            D('w-full flex items-center gap-2 mt-1',
+              E('a', {
+                href: activeEvent.gateQr,
+                download: (activeEvent.title || '仙門通行玉令') + '_' + (activeEvent.gateQrDate || activeEvent.dateText || 'gate_qr').replace(/[^a-zA-Z0-9_\-\u4e00-\u9fa5]/g, '_') + '.png',
+                className: 'btn flex-1 flex items-center justify-center gap-1.5 rounded-full py-2 text-xs font-bold transition ' + (qrBright ? 'bg-gray-100 hover:bg-gray-200 text-black border border-gray-300' : 'border border-[rgba(201,169,97,.4)] bg-[rgba(201,169,97,.12)] text-[var(--gold)] hover:bg-[rgba(201,169,97,.22)]')
+              }, E(Icon, { name: 'Download', size: 13 }), '保存玉令'),
+              E('button', {
+                type: 'button',
+                onClick: function () { setQrModal(false); setQrBright(false); },
+                className: 'btn flex-1 rounded-full bg-[linear-gradient(180deg,#A8CFBA_0%,#6E9E88_100%)] py-2 text-xs font-bold text-[#08120E] shadow-[0_4px_16px_-4px_rgba(110,158,136,.7)] hover:shadow-[0_8px_20px_-4px_rgba(110,158,136,.9)] transition'
+              }, '知悉收令')
+            )
           )
         )
       ) : null,
