@@ -32,6 +32,44 @@ function member(row) {
   return { nickname: text(row.nickname, '暱稱', 80), gender: row.gender,
     level: number(row.level, '程度', 1, 8), referrer: text(row.referrer ?? '', '備註', 500, true) };
 }
+function lineupData(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  const cleanList = arr => Array.isArray(arr) ? arr.filter(p => p != null && String(p).trim()).map(p => String(p).trim()) : [];
+  return {
+    courts: Array.isArray(raw.courts) ? raw.courts.map(c => {
+      let matchStart = typeof c.matchStart === 'string' ? c.matchStart : null;
+      if (!matchStart && c.startedAt) {
+        matchStart = typeof c.startedAt === 'number' ? new Date(c.startedAt).toISOString() : String(c.startedAt);
+      }
+      return {
+        courtNum: Number(c.courtNum) || 1,
+        status: ['idle', 'waiting', 'playing', 'finished'].includes(c.status) ? (c.status === 'waiting' ? 'idle' : c.status) : 'idle',
+        mode: ['free', 'balanced', 'mixed', 'mens', 'womens', 'singles'].includes(c.mode) ? c.mode : 'free',
+        teamA: cleanList(c.teamA),
+        teamB: cleanList(c.teamB),
+        matchStart,
+        nextTeamA: cleanList(c.nextTeamA),
+        nextTeamB: cleanList(c.nextTeamB)
+      };
+    }) : [],
+    queue: Array.isArray(raw.queue) ? raw.queue.map((q, idx) => ({
+      id: typeof q.id === 'string' ? q.id : 'q-' + Date.now() + '-' + idx,
+      mode: ['free', 'balanced', 'mixed', 'mens', 'womens', 'singles'].includes(q.mode) ? q.mode : 'balanced',
+      teamA: cleanList(q.teamA),
+      teamB: cleanList(q.teamB),
+      createdAt: typeof q.createdAt === 'string' ? q.createdAt : now()
+    })) : [],
+    stats: (raw.stats && typeof raw.stats === 'object') ? raw.stats : {},
+    resting: cleanList(raw.resting),
+    lockedPairs: Array.isArray(raw.lockedPairs) ? raw.lockedPairs
+      .map(cleanList)
+      .filter(p => p.length === 2) : [],
+    history: Array.isArray(raw.history) ? raw.history.slice(-15) : [],
+    announcedAt: typeof raw.announcedAt === 'string' ? raw.announcedAt : null,
+    announcedCourt: Number(raw.announcedCourt) || null,
+    updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : now()
+  };
+}
 function event(row) {
   if (!row || typeof row !== 'object') reject('活動資料格式不正確');
   const time = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
@@ -43,11 +81,15 @@ function event(row) {
     const m = date.match(/^(\d{4})-(\d{2})-(\d{2})$/), d = m && new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])));
     if (!m || d.getUTCFullYear() !== Number(m[1]) || d.getUTCMonth() !== Number(m[2]) - 1 || d.getUTCDate() !== Number(m[3])) reject('活動日期格式不正確');
   }
+  const gateQr = typeof row.gateQr === 'string' && row.gateQr.length <= 500000 ? row.gateQr.trim() : '';
+  const gateQrDate = text(row.gateQrDate ?? '', '門禁日期', 40, true);
+  const lineup = lineupData(row.lineup);
   return { title: text(row.title, '名稱'), date, dateText: text(row.dateText, '日期', 40),
     startTime: row.startTime, endTime: row.endTime, place: text(row.place, '地點', 300),
     courts: number(row.courts, '場地面數', 1, 12), fee: number(row.fee, '費用', 0, 100000),
     note: text(row.note ?? '', '補充事項', 4000, true),
-    venueId: text(row.venueId ?? '', '場館識別碼', 100, true), signupDeadline };
+    venueId: text(row.venueId ?? '', '場館識別碼', 100, true), signupDeadline,
+    gateQr, gateQrDate, lineup };
 }
 function venue(row) {
   if (!row || typeof row !== 'object') reject('場館資料格式不正確');
@@ -118,13 +160,20 @@ function deadlinePassed(value) {
 function publicData(state) {
   const publicVenue = v => v ? ({ id: v.id, name: v.name, address: v.address, mapUrl: v.mapUrl,
     parking: v.parking, facilities: v.facilities, note: v.note }) : null;
-  return { generatedAt: state.updatedAt, version: state.version, venues: state.venues.map(publicVenue), events: state.events.map(ev => ({
-    id: ev.id, ...event(ev),
-    venue: publicVenue(state.venues.find(v => v.id === ev.venueId)), roster: ev.roster.map(r => {
-      const m = state.members.find(m => m.id === r.memberId) || r;
-      return { nickname: m.nickname, gender: m.gender, level: m.level, status: r.status };
-    })
-  })) };
+  const threeDaysAgo = Date.now() - 3 * 86400000;
+  return { generatedAt: state.updatedAt, version: state.version, venues: state.venues.map(publicVenue), events: state.events.map(ev => {
+    const raw = event(ev);
+    if (raw.date && Date.parse(raw.date + 'T23:59:59+08:00') < threeDaysAgo) {
+      raw.gateQr = '';
+    }
+    return {
+      id: ev.id, ...raw,
+      venue: publicVenue(state.venues.find(v => v.id === ev.venueId)), roster: ev.roster.map(r => {
+        const m = state.members.find(m => m.id === r.memberId) || r;
+        return { nickname: m.nickname, gender: m.gender, level: m.level, status: r.status };
+      })
+    };
+  }) };
 }
 export function seed(snapshot) {
   const members = [];
@@ -164,11 +213,12 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
     const row = db.prepare('SELECT adminId FROM sessions WHERE token=? AND expires>?').get(digest(token), Date.now());
     return state.admins.find(a => a.id === row?.adminId) || null;
   }
-  function cookie(res, id) {
+  function cookie(res, id, req) {
     db.prepare('DELETE FROM sessions WHERE expires<=?').run(Date.now());
     const token = randomBytes(32).toString('hex');
     db.prepare('INSERT INTO sessions VALUES (?,?,?)').run(digest(token), id, Date.now() + 12 * 3600 * 1000);
-    res.setHeader('Set-Cookie', `bd_session=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=43200${(secureCookies || origin.startsWith('https:')) ? '; Secure' : ''}`);
+    const isHttps = secureCookies || origin.startsWith('https:') || req?.headers?.['x-forwarded-proto'] === 'https' || req?.socket?.encrypted;
+    res.setHeader('Set-Cookie', `bd_session=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=43200${isHttps ? '; Secure' : ''}`);
   }
   function audit(state, me, act, target = '', detail = '') {
     state.logs.unshift({ t: now(), who: me.account, name: me.name, act, target, detail });
@@ -195,7 +245,39 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
     };
     if (action === 'saveMember') {
       const fields = member(row); uniqueName(state.members, fields.nickname, id);
+      const old = id ? find(state.members) : null;
       upsert(state.members, fields); target = fields.nickname;
+      if (old && old.nickname !== fields.nickname) {
+        const fromName = old.nickname, toName = fields.nickname;
+        for (const ev of state.events) {
+          ev.roster = ev.roster.map(r => r.memberId === id ? { ...r, nickname: fields.nickname, gender: fields.gender, level: fields.level } : r);
+          if (ev.lineup) {
+            const rename = n => n === fromName ? toName : n;
+            if (Array.isArray(ev.lineup.courts)) {
+              for (const c of ev.lineup.courts) {
+                if (c.teamA) c.teamA = c.teamA.map(rename);
+                if (c.teamB) c.teamB = c.teamB.map(rename);
+                if (c.nextTeamA) c.nextTeamA = c.nextTeamA.map(rename);
+                if (c.nextTeamB) c.nextTeamB = c.nextTeamB.map(rename);
+              }
+            }
+            if (Array.isArray(ev.lineup.queue)) {
+              for (const q of ev.lineup.queue) {
+                if (q.teamA) q.teamA = q.teamA.map(rename);
+                if (q.teamB) q.teamB = q.teamB.map(rename);
+              }
+            }
+            if (Array.isArray(ev.lineup.resting)) ev.lineup.resting = ev.lineup.resting.map(rename);
+            if (Array.isArray(ev.lineup.lockedPairs)) {
+              ev.lineup.lockedPairs = ev.lineup.lockedPairs.map(pair => pair.map(rename));
+            }
+            if (ev.lineup.stats && ev.lineup.stats[fromName] != null) {
+              ev.lineup.stats[toName] = (ev.lineup.stats[toName] || 0) + ev.lineup.stats[fromName];
+              delete ev.lineup.stats[fromName];
+            }
+          }
+        }
+      }
     } else if (action === 'removeMember') {
       const old = find(state.members); target = old.nickname;
       // Preserve the latest identity in historical event rows before removing the member.
@@ -204,7 +286,27 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
     } else if (action === 'saveEvent') {
       const fields = event(row);
       if (fields.venueId && !state.venues.some(v => v.id === fields.venueId)) reject('所選場館已不存在');
-      upsert(state.events, { ...fields, roster: id ? find(state.events).roster : [] }); target = fields.title;
+      const oldEv = id ? find(state.events) : null;
+      upsert(state.events, { ...fields, roster: oldEv ? oldEv.roster : [], lineup: oldEv ? (fields.lineup || oldEv.lineup || null) : null }); target = fields.title;
+    } else if (action === 'updateLineup') {
+      const ev = find(state.events);
+      const prevLineup = ev.lineup;
+      ev.lineup = lineupData(row.lineup);
+      if (row.announcedCourt || row.callCourt) {
+        ev.lineup.announcedAt = now();
+        ev.lineup.announcedCourt = Number(row.announcedCourt || row.callCourt);
+      } else if (!ev.lineup.announcedAt && prevLineup?.announcedAt) {
+        ev.lineup.announcedAt = prevLineup.announcedAt;
+        ev.lineup.announcedCourt = prevLineup.announcedCourt;
+      }
+      ev.updatedAt = now(); target = ev.title;
+    } else if (action === 'callLineup') {
+      const ev = find(state.events);
+      if (row.lineup) ev.lineup = lineupData(row.lineup);
+      if (!ev.lineup) ev.lineup = lineupData({});
+      ev.lineup.announcedAt = now();
+      if (row.courtNum) ev.lineup.announcedCourt = Number(row.courtNum);
+      ev.updatedAt = now(); target = ev.title;
     } else if (action === 'removeEvent') {
       target = find(state.events).title; state.events = state.events.filter(ev => ev.id !== id);
       state.intents = state.intents.filter(x => x.eventId !== id);
@@ -271,7 +373,8 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
         db.prepare('DELETE FROM sessions WHERE adminId=?').run(id);
       } else if (action === 'changePin') {
         target = find(state.admins).account;
-        if (me.id === id && !verify(body.currentPassword, db.prepare('SELECT hash FROM passwords WHERE id=?').get(id).hash)) reject('目前密碼不正確', 403);
+        const currentHash = db.prepare('SELECT hash FROM passwords WHERE id=?').get(id)?.hash;
+        if (me.id === id && (!currentHash || !verify(body.currentPassword, currentHash))) reject('目前密碼不正確', 403);
         db.prepare('UPDATE passwords SET hash=? WHERE id=?').run(password(body.pin), id);
         db.prepare('DELETE FROM sessions WHERE adminId=?').run(id);
       } else {
@@ -287,7 +390,8 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
     } else reject('不支援的操作');
     const labels = { saveMember: '儲存弟子', removeMember: '除名弟子', saveEvent: '儲存集結', removeEvent: '撤除集結',
       saveVenue: '儲存場館', removeVenue: '移除場館', approveIntent: '核准意願', rejectIntent: '婉拒意願',
-      writeRoster: '更新陣列', addGuest: '納入散修', saveAdmin: '更新長老', removeAdmin: '革除長老', changePin: '變更口令', changeHonorific: '更換稱號' };
+      writeRoster: '更新陣列', addGuest: '納入散修', saveAdmin: '更新長老', removeAdmin: '革除長老', changePin: '變更口令', changeHonorific: '更換稱號',
+      updateLineup: '更新排位', callLineup: '宣佈上場' };
     audit(state, me, labels[action], target);
     return resultId;
   }
@@ -308,7 +412,7 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
         if (path === '/' || path === '/index.html') {
           res.writeHead(307, { Location: '/console.html' }); return res.end();
         }
-        const files = { '/console.html': 'console.html', '/rite.html': 'index.html', '/health': null };
+        const files = { '/console.html': 'console.html', '/board.html': 'board.html', '/rite.html': 'index.html', '/health': null };
         if (!Object.hasOwn(files, path)) reject('找不到頁面', 404);
         if (path === '/health') return json({ ok: true });
         let html = readHtml(files[path]);
@@ -320,8 +424,13 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
       if (!['GET', 'POST'].includes(req.method)) reject('不支援的請求', 405);
       let body = {};
       if (req.method === 'POST') {
-        const expected = origin || req.origin || 'http://' + req.headers.host;
-        if (req.headers.origin !== expected) reject('請從本站操作', 403);
+        const reqOrigin = req.headers.origin;
+        const host = req.headers.host;
+        const proto = req.headers['x-forwarded-proto'] || (req.socket?.encrypted ? 'https' : 'http');
+        const defaultOrigin = host ? `${proto}://${host}` : '';
+        const expected = origin || req.origin || defaultOrigin;
+        const validOrigin = reqOrigin === expected || (!origin && !req.origin && host && (reqOrigin === `https://${host}` || reqOrigin === `http://${host}`));
+        if (!validOrigin) reject('請從本站操作', 403);
         if (!req.headers['content-type']?.startsWith('application/json')) reject('請使用 JSON', 415);
         let raw = '';
         for await (const chunk of req) { raw += chunk; if (Buffer.byteLength(raw) > 1024 * 1024) reject('資料過大', 413); }
@@ -335,6 +444,38 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
       // and administrators through the authenticated management console only.
       if (req.method === 'POST' && path === '/api/intent') {
         return json({ error: '公開頁僅供查看，請聯絡長老或管理員更新名單' }, 403);
+      }
+      if (req.method === 'POST' && path === '/api/rest') {
+        const { eventId, nickname, resting } = body;
+        if (!eventId || typeof nickname !== 'string' || !nickname.trim() || nickname.trim().length > 80) reject('資料不正確');
+        const cleanName = nickname.trim();
+        db.transaction(() => {
+          state = getState();
+          const ev = state.events.find(x => x.id === eventId);
+          if (!ev) reject('活動已不存在', 404);
+          const attendee = ev.roster.find(r => {
+            const m = state.members.find(x => x.id === r.memberId) || r;
+            return m.nickname.toLowerCase() === cleanName.toLowerCase();
+          });
+          if (!attendee) reject('非本場集結名單之弟子', 404);
+          const canonicalName = (state.members.find(x => x.id === attendee.memberId) || attendee).nickname;
+          if (!ev.lineup) ev.lineup = lineupData({});
+          const set = new Set((ev.lineup.resting || []).map(n => n.toLowerCase()));
+          if (resting) set.add(canonicalName.toLowerCase());
+          else set.delete(canonicalName.toLowerCase());
+          const nameMap = new Map();
+          for (const r of ev.roster) {
+            const m = state.members.find(x => x.id === r.memberId) || r;
+            nameMap.set(m.nickname.toLowerCase(), m.nickname);
+          }
+          ev.lineup.resting = Array.from(set).map(k => nameMap.get(k) || k);
+          ev.lineup.updatedAt = now();
+          ev.updatedAt = now();
+          state.version++;
+          state.updatedAt = now();
+          saveState(state);
+        });
+        return json({ ok: true, version: state.version, resting: state.events.find(x => x.id === eventId)?.lineup?.resting || [] });
       }
       if (req.method === 'GET' && path === '/api/session') return json({ me, needsSetup: !state.admins.length });
       if (req.method === 'POST' && ['/api/setup', '/api/login'].includes(path)) {
@@ -352,7 +493,7 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
               db.prepare('DELETE FROM sessions WHERE adminId=?').run(old.id);
               audit(state, old, '以初始化金鑰重設掌門密碼'); saveState(state);
             });
-            cookie(res, old.id); return json({ me: old });
+            cookie(res, old.id, req); return json({ me: old });
           }
           const ad = { ...account(body), superAdmin: true, id: randomUUID(), seq: 1, createdAt: now() };
           const hash = password(body.pin);
@@ -361,18 +502,19 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
             state.admins.push(ad); db.prepare('INSERT INTO passwords VALUES (?,?)').run(ad.id, hash);
             audit(state, ad, '建立掌門'); saveState(state);
           });
-          cookie(res, ad.id); return json({ me: ad });
+          cookie(res, ad.id, req); return json({ me: ad });
         }
         const ad = state.admins.find(a => a.account === name);
         const hash = ad && db.prepare('SELECT hash FROM passwords WHERE id=?').get(ad.id)?.hash;
         const valid = verify(body.pin, hash || dummyHash);
         if (!ad || !valid) reject('帳號或密碼不正確', 401);
-        db.prepare('DELETE FROM attempts WHERE key=?').run('account:' + name); cookie(res, ad.id); return json({ me: ad });
+        db.prepare('DELETE FROM attempts WHERE key=?').run('account:' + name); cookie(res, ad.id, req); return json({ me: ad });
       }
       if (req.method === 'POST' && path === '/api/logout') {
         const token = (req.headers.cookie || '').match(/bd_session=([a-f0-9]{64})/)?.[1];
         if (token) db.prepare('DELETE FROM sessions WHERE token=?').run(digest(token));
-        res.setHeader('Set-Cookie', `bd_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0${(secureCookies || origin.startsWith('https:')) ? '; Secure' : ''}`);
+        const isHttps = secureCookies || origin.startsWith('https:') || req.headers['x-forwarded-proto'] === 'https' || req.socket?.encrypted;
+        res.setHeader('Set-Cookie', `bd_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0${isHttps ? '; Secure' : ''}`);
         return json({ ok: true });
       }
       if (!me) reject('請先登入管理後台', 401);

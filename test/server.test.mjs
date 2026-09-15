@@ -40,6 +40,10 @@ test('shared club: authentication, permissions, persistence, validation and conf
     const root = await fetch(base + '/', { redirect: 'manual' });
     assert.equal(root.status, 307); assert.equal(root.headers.get('location'), '/console.html');
     const html = await fetch(base + '/console.html'); assert.match(await html.text(), /name="club-live"/);
+    const board = await fetch(base + '/board.html');
+    assert.equal(board.status, 200);
+    assert.match(board.headers.get('content-type'), /text\/html/);
+    assert.match(await board.text(), /戰術大板/);
     assert.equal((await fetch(base + '/data/club.sqlite')).status, 404);
     assert.equal((await fetch(base + '/server.mjs')).status, 404);
   });
@@ -66,6 +70,9 @@ test('shared club: authentication, permissions, persistence, validation and conf
       assert.equal((await head.arrayBuffer()).byteLength, 0);
       assert.equal((await fetch(base + path, { method: 'POST' })).status, 405);
     }
+    const css = await fetch(base + '/tailwind.css');
+    assert.equal(css.status, 200);
+    assert.equal(css.headers.get('content-type'), 'text/css; charset=utf-8');
     assert.equal((await fetch(base + '/assets/server.mjs')).status, 404);
   });
   await t.test('first setup requires a secret and secure password; no second setup', async () => {
@@ -118,6 +125,71 @@ test('shared club: authentication, permissions, persistence, validation and conf
     await act('writeRoster', { id: eventId, roster: [...ev.roster, { ...ev.roster[0], rid: 'another' }] }, ownerCookie, 400);
     await act('writeRoster', { id: eventId, roster: [{ ...ev.roster[0], status: 'bad' }] }, ownerCookie, 400);
   });
+  await t.test('gateQr and lineup actions work and appear in publicData', async () => {
+    const ev = state.events.find(e => e.id === eventId);
+    await act('saveEvent', { id: eventId, row: { ...ev, gateQr: 'data:image/webp;base64,mockqr', gateQrDate: '2026/09/25' } });
+    
+    // Atomic callLineup with courtNum and lineup (and startedAt conversion)
+    const startTimeNum = Date.now() - 5000;
+    await act('callLineup', { id: eventId, row: {
+      courtNum: 1,
+      lineup: {
+        courts: [{ courtNum: 1, status: 'waiting', mode: 'balanced', startedAt: startTimeNum, teamA: ['測試弟子'], teamB: [] }],
+        stats: { '測試弟子': 1 },
+        lockedPairs: [['測試弟子', '默契道友']]
+      }
+    } });
+    
+    let pub = (await request('/api/public')).body.events.find(e => e.id === eventId);
+    assert.equal(pub.gateQr, 'data:image/webp;base64,mockqr');
+    assert.equal(pub.gateQrDate, '2026/09/25');
+    assert.equal(pub.lineup.courts[0].courtNum, 1);
+    assert.equal(pub.lineup.courts[0].status, 'idle'); // 'waiting' normalized to 'idle'
+    assert.ok(pub.lineup.courts[0].matchStart); // startedAt normalized to matchStart
+    assert.equal(pub.lineup.courts[0].teamA[0], '測試弟子');
+    assert.deepEqual(pub.lineup.lockedPairs, [['測試弟子', '默契道友']]);
+    assert.ok(pub.lineup.announcedAt);
+    assert.equal(pub.lineup.announcedCourt, 1);
+    const savedAnnouncedAt = pub.lineup.announcedAt;
+
+    // Subsequent updateLineup without announcedAt preserves existing announcedAt
+    await act('updateLineup', { id: eventId, row: { lineup: {
+      courts: [{ courtNum: 1, status: 'playing', matchStart: pub.lineup.courts[0].matchStart, teamA: ['測試弟子'], teamB: [] }]
+    } } });
+    pub = (await request('/api/public')).body.events.find(e => e.id === eventId);
+    assert.equal(pub.lineup.announcedAt, savedAnnouncedAt, 'announcedAt must be retained after updateLineup');
+
+    // lineupData safely filters out null and undefined values without stringifying to 'null'
+    await act('updateLineup', { id: eventId, row: { lineup: {
+      courts: [{ courtNum: 1, status: 'playing', teamA: [null, undefined, '  ', '測試弟子'], teamB: [] }]
+    } } });
+    pub = (await request('/api/public')).body.events.find(e => e.id === eventId);
+    assert.deepEqual(pub.lineup.courts[0].teamA, ['測試弟子']);
+
+    // Public /api/rest rejects invalid nickname, overlong strings, and non-roster attendees
+    assert.equal((await request('/api/rest', { eventId, nickname: '' }, '')).status, 400);
+    assert.equal((await request('/api/rest', { eventId, nickname: 'x'.repeat(85) }, '')).status, 400);
+    assert.equal((await request('/api/rest', { eventId, nickname: '陌生散修' }, '')).status, 404);
+
+    const verBeforeRest = state.version;
+    const restOn = await request('/api/rest', { eventId, nickname: '測試弟子', resting: true }, '');
+    assert.equal(restOn.status, 200);
+    assert.deepEqual(restOn.body.resting, ['測試弟子']);
+    assert.equal(restOn.body.version, verBeforeRest + 1);
+
+    const pubRest = (await request('/api/public')).body.events.find(e => e.id === eventId);
+    assert.deepEqual(pubRest.lineup.resting, ['測試弟子']);
+
+    // Stale editor using verBeforeRest is now rejected with 409
+    await act('updateLineup', { version: verBeforeRest, id: eventId, row: { lineup: { courts: [] } } }, ownerCookie, 409);
+
+    // Refresh state and reset rest
+    state = (await request('/api/state')).body;
+    const restOff = await request('/api/rest', { eventId, nickname: '測試弟子', resting: false }, '');
+    assert.equal(restOff.status, 200);
+    assert.deepEqual(restOff.body.resting, []);
+    state = (await request('/api/state')).body;
+  });
   await t.test('stale editor rejected; only one concurrent edit wins', async () => {
     const version = state.version;
     const payload = { version, action: 'saveEvent', id: eventId, row: state.events.find(e => e.id === eventId) };
@@ -125,6 +197,29 @@ test('shared club: authentication, permissions, persistence, validation and conf
     assert.deepEqual(results.map(r => r.status).sort(), [200, 409]);
     state = (await request('/api/state')).body;
     assert.equal(state.version, version + 1);
+  });
+  await t.test('new event initializes clean lineup and expired gateQr is stripped from publicData', async () => {
+    // 1. Creating new event passing old lineup in row -> lineup must be reset to null
+    const oldEv = state.events.find(e => e.id === eventId);
+    const newId = (await act('saveEvent', { row: {
+      ...oldEv,
+      title: '全新集結',
+      date: '2026-10-15',
+      dateText: '10/15 (四)',
+      lineup: { courts: [{ courtNum: 1, teamA: ['舊弟子'] }] }
+    } })).body.resultId;
+    state = (await request('/api/state')).body;
+    const createdEv = state.events.find(e => e.id === newId);
+    assert.equal(createdEv.lineup, null, 'New event must not inherit lineup');
+
+    // 2. An event with date 10 days ago should have gateQr stripped in publicData
+    await act('saveEvent', { id: newId, row: {
+      ...createdEv,
+      date: '2026-09-01',
+      gateQr: 'data:image/webp;base64,ancientqr'
+    } });
+    const pub = (await request('/api/public')).body.events.find(e => e.id === newId);
+    assert.equal(pub.gateQr, '', 'Expired event gateQr must be empty in publicData');
   });
   await t.test('guest plus member enrollment is atomic', async () => {
     const before = state.members.length;
@@ -209,5 +304,38 @@ test('shared club: authentication, permissions, persistence, validation and conf
     assert.equal(state.admins.filter(a => a.superAdmin).length, 1);
     assert.ok(state.logs.some(l => l.act === '以初始化金鑰重設掌門密碼'));
     assert.deepEqual((await request('/api/public', undefined, '')).body.events, before.events);
+  });
+  await t.test('member rename propagates to lineup courts, queue, resting, lockedPairs and stats', async () => {
+    // Pick or create a member
+    const m = state.members[0];
+    const oldNick = m.nickname;
+    const newNick = '更名仙尊';
+
+    // Set up lineup with oldNick across courts, queue, resting, lockedPairs, and stats
+    await act('updateLineup', { id: eventId, row: { lineup: {
+      courts: [{ courtNum: 1, status: 'playing', teamA: [oldNick], teamB: [] }],
+      queue: [{ id: 'q-test-1', mode: 'balanced', teamA: [oldNick], teamB: [] }],
+      resting: [oldNick],
+      lockedPairs: [[oldNick, '道友甲']],
+      stats: { [oldNick]: 5 }
+    } } });
+
+    // Rename member via saveMember
+    await act('saveMember', { id: m.id, row: { ...m, nickname: newNick } });
+    state = (await request('/api/state')).body;
+
+    const ev = state.events.find(e => e.id === eventId);
+    assert.deepEqual(ev.lineup.courts[0].teamA, [newNick]);
+    assert.deepEqual(ev.lineup.queue[0].teamA, [newNick]);
+    assert.deepEqual(ev.lineup.resting, [newNick]);
+    assert.deepEqual(ev.lineup.lockedPairs, [[newNick, '道友甲']]);
+    assert.equal(ev.lineup.stats[newNick], 5);
+    assert.equal(ev.lineup.stats[oldNick], undefined);
+    const attendee = ev.roster.find(r => r.memberId === m.id);
+    if (attendee) assert.equal(attendee.nickname, newNick);
+
+    // Revert rename for clean state
+    await act('saveMember', { id: m.id, row: { ...m, nickname: oldNick } });
+    state = (await request('/api/state')).body;
   });
 });

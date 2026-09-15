@@ -27,7 +27,7 @@
 </script>
 
 <script id="rite-gate">
-  (function(){try{var q=location.search;if(/[?&]rite=0/.test(q))return;var force=/[?&]rite=1/.test(q),embedded=/[?&]embedded=1/.test(q);var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;var seen=false;try{seen=sessionStorage.getItem('luoyun-rite')==='1';}catch(e){}if(!force&&(reduce||seen))return;document.documentElement.classList.add('rite-on');if(embedded)document.documentElement.classList.add('rite-embed');
+  (function(){try{var q=location.search;if(/[?&]rite=0/.test(q))return;var force=/[?&]rite=1/.test(q),embedded=/[?&]embedded=1/.test(q);var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;var seen=false;try{seen=sessionStorage.getItem('luoyun-rite')==='1';}catch(e){}if(!force&&(reduce||seen))return;document.documentElement.classList.add('rite-on');if(force)document.documentElement.classList.add('rite-force');if(embedded)document.documentElement.classList.add('rite-embed');
   /* 靽蝝ｇ??仿蝳桃?蝔??交畾菜?頝????桃蔗???渲????Ｕ?     ??函????銝?鞈港??Ｖ遙雿?撘Ⅳ嚗??銝摰??桃蔗????*/
   setTimeout(function(){var r=document.getElementById('rite');if(r&&r.parentNode)r.parentNode.removeChild(r);},8000);}catch(e){}})();
 </script>
@@ -546,7 +546,7 @@
     background:radial-gradient(circle at var(--fx,50%) var(--fy,50%),rgba(255,253,244,.95),rgba(201,169,97,.4) 28%,transparent 60%)}
   html[data-theme="light"] .rite-skip{color:rgba(74,96,86,.62)}
 
-  @media (prefers-reduced-motion:reduce){#rite{display:none}}
+  @media (prefers-reduced-motion:reduce){html:not(.rite-force) #rite{display:none}}
 </style>
 
 <div id="rite" aria-hidden="true">
@@ -628,7 +628,7 @@
     if (rite.parentNode) rite.parentNode.removeChild(rite);
     return;
   }
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (!root.classList.contains('rite-force') && matchMedia('(prefers-reduced-motion: reduce)').matches) {
     dismiss();
     return;
   }

@@ -34,9 +34,19 @@ export function createApp({ dataDir = process.env.DATA_DIR || resolve(root, 'dat
     'yunmeng-light-v1.jpg', 'yunmeng-light-small-v1.jpg'
   ];
   const backgrounds = new Map(bgNames.map(name => ['/assets/' + name, readFileSync(resolve(root, 'public/assets', name))]));
+  const tailwindCssPath = resolve(root, 'public/tailwind.css');
+  const tailwindCss = existsSync(tailwindCssPath) ? readFileSync(tailwindCssPath) : null;
   const server = http.createServer(async (req, res) => {
     req.setEncoding('utf8');
     const url = new URL(req.url, 'http://localhost');
+    if (url.pathname === '/tailwind.css' && tailwindCss) {
+      if (!['GET', 'HEAD'].includes(req.method)) {
+        res.writeHead(405, { Allow: 'GET, HEAD' }); return res.end();
+      }
+      res.writeHead(200, { 'Content-Type': 'text/css; charset=utf-8', 'Content-Length': tailwindCss.length,
+        'Cache-Control': 'public, max-age=3600', 'X-Content-Type-Options': 'nosniff' });
+      return res.end(req.method === 'HEAD' ? undefined : tailwindCss);
+    }
     if (backgrounds.has(url.pathname)) {
       if (!['GET', 'HEAD'].includes(req.method)) {
         res.writeHead(405, { Allow: 'GET, HEAD' }); return res.end();

@@ -14,10 +14,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lucide@1.41.0/dist/umd/lucide.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.1/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script>
-  (function(){try{var t=localStorage.getItem('luoyun-theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='dark';}})();
+  (function(){try{var p=(new URLSearchParams(location.search)).get('theme');var t=p||localStorage.getItem('luoyun-theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='dark';}})();
 </script>
 
 <style>
@@ -62,6 +62,10 @@
     --hair:rgba(228,235,232,.10);
     --hair-2:rgba(228,235,232,.17);
     --sheen:rgba(255,255,255,.055);
+
+    /* 羽球場標線色 */
+    --court-line: rgba(255, 255, 255, 0.85);
+    --court-line-sub: rgba(255, 255, 255, 0.55);
 
     --ease:cubic-bezier(.32,.72,0,1);
     color-scheme: dark;
@@ -197,6 +201,120 @@
     color:var(--tc, var(--mist-2));
   }
 
+  /* 境界靈玉徽章（深淺雙模極致清晰對比） */
+  .level-badge {
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 1.5px 7px; border-radius: 999px;
+    font-family: 'Noto Serif TC', Georgia, serif;
+    font-size: 11px; font-weight: 700; line-height: 1.2;
+    letter-spacing: 0.04em; white-space: nowrap; user-select: none;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    transition: all 0.2s var(--ease);
+  }
+  .level-badge .realm-name { font-weight: 700; }
+  .level-badge .realm-lv {
+    font-size: 9.5px; font-weight: 800;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    padding: 0 4px; border-radius: 4px; line-height: 1.3;
+  }
+
+  /* 深色模式：墨玉深韻底色 + 晶瑩境界靈光 */
+  .level-badge.realm-qi {
+    background: rgba(16, 185, 129, 0.16);
+    border: 1px solid rgba(52, 211, 153, 0.45);
+    color: #6ee7b7;
+  }
+  .level-badge.realm-qi .realm-lv {
+    background: rgba(16, 185, 129, 0.3); color: #d1fae5;
+  }
+
+  .level-badge.realm-foundation {
+    background: rgba(14, 165, 233, 0.16);
+    border: 1px solid rgba(56, 189, 248, 0.45);
+    color: #7dd3fc;
+  }
+  .level-badge.realm-foundation .realm-lv {
+    background: rgba(14, 165, 233, 0.3); color: #e0f2fe;
+  }
+
+  .level-badge.realm-golden {
+    background: rgba(245, 158, 11, 0.18);
+    border: 1px solid rgba(251, 191, 36, 0.5);
+    color: #fcd34d;
+  }
+  .level-badge.realm-golden .realm-lv {
+    background: rgba(245, 158, 11, 0.32); color: #fef3c7;
+  }
+
+  .level-badge.realm-nascent {
+    background: rgba(168, 85, 247, 0.18);
+    border: 1px solid rgba(192, 132, 252, 0.5);
+    color: #d8b4fe;
+  }
+  .level-badge.realm-nascent .realm-lv {
+    background: rgba(168, 85, 247, 0.32); color: #f3e8ff;
+  }
+
+  .level-badge.realm-transcendent {
+    background: linear-gradient(135deg, rgba(234, 179, 8, 0.28), rgba(249, 115, 22, 0.22));
+    border: 1px solid rgba(250, 204, 21, 0.65);
+    color: #fef08a;
+    box-shadow: 0 0 8px rgba(234, 179, 8, 0.35);
+  }
+  .level-badge.realm-transcendent .realm-lv {
+    background: rgba(234, 179, 8, 0.38); color: #ffffff;
+  }
+
+  /* 淺色模式：宣紙沉香底色 + 高飽和高對比墨色，字字清晰銳利 */
+  html[data-theme="light"] .level-badge {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 1px 2px rgba(76, 65, 45, 0.1);
+  }
+  html[data-theme="light"] .level-badge.realm-qi {
+    background: rgba(16, 185, 129, 0.14);
+    border: 1px solid rgba(5, 150, 105, 0.45);
+    color: #047857;
+  }
+  html[data-theme="light"] .level-badge.realm-qi .realm-lv {
+    background: rgba(5, 150, 105, 0.2); color: #064e3b;
+  }
+
+  html[data-theme="light"] .level-badge.realm-foundation {
+    background: rgba(14, 165, 233, 0.14);
+    border: 1px solid rgba(2, 132, 199, 0.45);
+    color: #0369a1;
+  }
+  html[data-theme="light"] .level-badge.realm-foundation .realm-lv {
+    background: rgba(2, 132, 199, 0.2); color: #075985;
+  }
+
+  html[data-theme="light"] .level-badge.realm-golden {
+    background: rgba(245, 158, 11, 0.16);
+    border: 1px solid rgba(180, 83, 9, 0.48);
+    color: #b45309;
+  }
+  html[data-theme="light"] .level-badge.realm-golden .realm-lv {
+    background: rgba(180, 83, 9, 0.22); color: #78350f;
+  }
+
+  html[data-theme="light"] .level-badge.realm-nascent {
+    background: rgba(147, 51, 234, 0.14);
+    border: 1px solid rgba(126, 34, 206, 0.45);
+    color: #7e22ce;
+  }
+  html[data-theme="light"] .level-badge.realm-nascent .realm-lv {
+    background: rgba(126, 34, 206, 0.2); color: #581c87;
+  }
+
+  html[data-theme="light"] .level-badge.realm-transcendent {
+    background: linear-gradient(135deg, rgba(202, 138, 4, 0.22), rgba(234, 88, 12, 0.16));
+    border: 1px solid rgba(161, 98, 7, 0.55);
+    color: #854d0e;
+    box-shadow: 0 1px 3px rgba(161, 98, 7, 0.2);
+  }
+  html[data-theme="light"] .level-badge.realm-transcendent .realm-lv {
+    background: rgba(161, 98, 7, 0.26); color: #451a03;
+  }
+
   @property --realm-angle{syntax:"<angle>";inherits:false;initial-value:0deg}
   .realm-badge{--realm-angle:0deg;position:relative;isolation:isolate;overflow:hidden;border-color:transparent;color:var(--realm-text);text-shadow:0 0 10px var(--realm-glow);background:linear-gradient(180deg,rgba(16,27,30,.96),rgba(9,17,19,.96)) padding-box,conic-gradient(from var(--realm-angle),var(--realm-a),var(--realm-b),var(--realm-c),var(--realm-a)) border-box;box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 0 18px -7px var(--realm-glow);animation:realm-border var(--realm-speed,12s) linear infinite,realm-aura 3.6s ease-in-out infinite}.realm-badge::before{content:"";position:absolute;inset:1px;border-radius:inherit;pointer-events:none;background:radial-gradient(circle at 18% 0%,var(--realm-glow),transparent 42%);opacity:.2}.realm-badge::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(108deg,transparent 34%,rgba(255,255,255,.34) 49%,transparent 64%);transform:translateX(-145%);animation:realm-sheen var(--realm-sheen,6s) var(--ease) infinite}@keyframes realm-border{to{--realm-angle:360deg}}@keyframes realm-aura{50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 0 22px -5px var(--realm-glow)}}@keyframes realm-sheen{0%,68%{transform:translateX(-145%);opacity:0}76%{opacity:.72}100%{transform:translateX(145%);opacity:0}}.realm-qi{--realm-a:#6E9E88;--realm-b:#D5E7DC;--realm-c:#35594B;--realm-text:#CDE9DA;--realm-glow:rgba(155,195,174,.62);--realm-speed:9s;--realm-sheen:6s}.realm-foundation{--realm-a:#5C8B99;--realm-b:#D8F2F7;--realm-c:#385E69;--realm-text:#C9E5ED;--realm-glow:rgba(129,202,220,.68);--realm-speed:12s;--realm-sheen:7s}.realm-golden{--realm-a:#8A6824;--realm-b:#FFF0AE;--realm-c:#C3912D;--realm-text:#FFE8A0;--realm-glow:rgba(226,184,78,.78);--realm-speed:15s;--realm-sheen:8s}.realm-nascent{--realm-a:#6A5596;--realm-b:#E5DBFF;--realm-c:#9E8FC0;--realm-text:#E8DFFF;--realm-glow:rgba(174,145,235,.78);--realm-speed:19s;--realm-sheen:9s}.realm-transcendent{--realm-a:#7F5B13;--realm-b:#FFF7C8;--realm-c:#D6A93D;--realm-text:#FFF2B5;--realm-glow:rgba(255,205,88,.92);--realm-speed:24s;--realm-sheen:10s}
 
@@ -213,7 +331,7 @@
 
   .theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;min-width:40px;height:40px;padding:0 .7rem;border-radius:999px;border:1px solid var(--hair-2);background:rgba(228,235,232,.035);color:var(--mist-2);font:600 11.5px 'Noto Sans TC',sans-serif;cursor:pointer;transition:color .24s var(--ease),border-color .24s var(--ease),background .24s var(--ease),transform .24s var(--ease)}.theme-toggle:hover{color:var(--jade-100);border-color:rgba(155,195,174,.34);background:rgba(155,195,174,.09);transform:translateY(-1px)}
 
-  html[data-theme="light"]{--ink-0:#E8E0D1;--ink-1:#F3EDE1;--ink-2:#DED4C3;--mist-1:#24382F;--mist-2:#4A6056;--mist-3:#4F665C;--jade-100:#174737;--jade-300:#2E7055;--jade-500:#477E65;--jade-700:#285C48;--jade-900:#DBE2D6;--gold:#8C651C;--gold-dim:#6A4B13;--cinnabar:#A64E41;--cinnabar-dim:#7C372E;--amethyst:#66558D;--hair:rgba(76,65,45,.16);--hair-2:rgba(57,82,68,.27);--sheen:rgba(255,252,244,.56);--male-text:#285F73;--male-border:rgba(40,95,115,.28);--male-high:rgba(75,145,167,.18);--male-low:rgba(75,145,167,.07);--female-text:#8B4960;--female-border:rgba(139,73,96,.27);--female-high:rgba(180,104,129,.17);--female-low:rgba(180,104,129,.06);color-scheme:light}
+  html[data-theme="light"]{--ink-0:#E8E0D1;--ink-1:#F3EDE1;--ink-2:#DED4C3;--mist-1:#24382F;--mist-2:#4A6056;--mist-3:#4F665C;--jade-100:#174737;--jade-300:#2E7055;--jade-500:#477E65;--jade-700:#285C48;--jade-900:#DBE2D6;--gold:#8C651C;--gold-dim:#6A4B13;--cinnabar:#A64E41;--cinnabar-dim:#7C372E;--amethyst:#66558D;--hair:rgba(76,65,45,.16);--hair-2:rgba(57,82,68,.27);--sheen:rgba(255,252,244,.56);--court-line:rgba(255,255,255,.92);--court-line-sub:rgba(255,255,255,.65);--male-text:#285F73;--male-border:rgba(40,95,115,.28);--male-high:rgba(75,145,167,.18);--male-low:rgba(75,145,167,.07);--female-text:#8B4960;--female-border:rgba(139,73,96,.27);--female-high:rgba(180,104,129,.17);--female-low:rgba(180,104,129,.06);color-scheme:light}
   html[data-theme="light"] body::before{background-image:url('/assets/yunmeng-light-v1.jpg')}
   html[data-theme="light"] body::after{background:linear-gradient(180deg,rgba(243,237,224,.28),rgba(235,229,212,.45)),radial-gradient(ellipse at 50% 48%,rgba(247,242,231,.66),transparent 80%)}
   @media(max-width:640px){html[data-theme="light"] body::before{background-image:url('/assets/yunmeng-light-small-v1.jpg');background-position:22% center}}
@@ -321,7 +439,11 @@
   .enter-swords{position:absolute;inset:0;z-index:4;pointer-events:none}.enter-sword{position:absolute;left:50%;top:50%;width:20px;height:clamp(12rem,29vw,22rem);transform-origin:50% 92%;transform:translate(-50%,-50%) rotate(var(--r)) translateY(58vh) scale(.55);opacity:0;animation:sword-ascend 1.65s cubic-bezier(.16,.84,.2,1) both;animation-delay:var(--d)}.enter-sword::before{content:"";position:absolute;left:50%;bottom:0;width:19px;height:47px;border:2px solid #b99a4a;border-radius:7px 7px 4px 4px;background:repeating-linear-gradient(90deg,#1a5c41 0 3px,#6da675 4px 6px,#123c2d 7px 9px);box-shadow:0 0 14px rgba(182,238,179,.6);transform:translateX(-50%)}.enter-sword::after{content:"";position:absolute;left:50%;bottom:39px;width:42px;height:9px;border-radius:50%;border:1px solid rgba(243,215,125,.9);background:linear-gradient(90deg,transparent,#d9bd68,transparent);box-shadow:0 0 12px rgba(214,234,175,.7);transform:translateX(-50%)}.enter-sword i{position:absolute;left:50%;bottom:44px;width:8px;height:calc(100% - 74px);clip-path:polygon(50% 0,100% 94%,50% 100%,0 94%);background:linear-gradient(90deg,#336779,#ecfff7 48%,#7ee5cd 54%,#27596b);box-shadow:0 0 13px rgba(163,255,219,.98),0 0 32px rgba(93,155,255,.6);transform:translateX(-50%)}
   .enter-title{position:absolute;z-index:6;top:50%;left:50%;width:min(90vw,34rem);text-align:center;opacity:0;transform:translate(-50%,-20%) scale(.8);animation:enter-title 1.25s var(--ease) both;animation-delay:1.08s;text-shadow:0 0 16px rgba(188,255,221,.86),0 0 34px rgba(119,122,255,.68)}.enter-title strong{display:block;font:700 clamp(1.65rem,5vw,3.4rem) 'Noto Serif TC',serif;letter-spacing:.24em;color:#effff7}.enter-title span{display:block;margin-top:.68rem;font:600 clamp(.66rem,1.6vw,.82rem) 'Noto Serif TC',serif;letter-spacing:.48em;color:var(--jade-100)}.enter-skip{position:absolute;z-index:7;bottom:max(1.35rem,env(safe-area-inset-bottom));left:50%;font-size:.69rem;letter-spacing:.18em;color:rgba(219,245,234,.68);transform:translateX(-50%);animation:skip-glow 1.2s ease-in-out infinite alternate}
   @keyframes enter-veil{0%{opacity:0}10%{opacity:1}78%{opacity:1}100%{opacity:0}}@keyframes ritual-orbit{to{transform:rotate(1turn)}}@keyframes star-burst{0%{opacity:0;transform:translate3d(0,0,0) scale(.2)}24%{opacity:1}100%{opacity:0;transform:translate3d(var(--tx),var(--ty),0) scale(1.8)}}@keyframes evil-thunder{0%,22%{opacity:0}28%,43%{opacity:.96}31%,48%{opacity:.22}55%{opacity:.76}100%{opacity:0}}@keyframes rift-awaken{0%{opacity:0;transform:scale(.08) rotate(-40deg)}26%{opacity:1;transform:scale(1.15) rotate(18deg)}68%{opacity:1;transform:scale(.96) rotate(120deg)}100%{opacity:0;transform:scale(2.1) rotate(260deg)}}@keyframes rift-cut{0%{opacity:0;transform:rotate(var(--r)) scaleX(.04)}28%{opacity:1}75%{opacity:.7}100%{opacity:0;transform:rotate(var(--r)) scaleX(1.45)}}@keyframes sword-ascend{0%{opacity:0;transform:translate(-50%,-50%) rotate(var(--r)) translateY(58vh) scale(.55)}26%{opacity:1}65%{opacity:1;transform:translate(-50%,-50%) rotate(var(--r)) translateY(-4vh) scale(1.04)}100%{opacity:0;transform:translate(-50%,-50%) rotate(var(--r)) translateY(-82vh) scale(.72)}}@keyframes enter-title{0%{opacity:0;letter-spacing:.75em;transform:translate(-50%,-20%) scale(.75)}35%{opacity:1}100%{opacity:0;letter-spacing:normal;transform:translate(-50%,-20%) scale(1.08)}}@keyframes skip-glow{to{color:#effff7;text-shadow:0 0 10px rgba(155,195,174,.8)}}
-  @media(max-width:640px){.enter-sword:nth-child(n+6){display:none}.enter-bolt{width:65vw;opacity:.8}.enter-title strong{letter-spacing:.16em}.enter-stars i:nth-child(n+13){display:none}}
+  @media(max-width:640px){.enter-sword:nth-child(n+6){display:none}.enter-bolt{width:65vw;opacity:.8}.enter-title strong{letter-spacing:.16em;font-size:clamp(1.8rem,8vw,3.4rem)}.enter-title span{font-size:clamp(.72rem,2.2vw,.9rem);letter-spacing:.32em}.enter-rift{width:clamp(14rem,60vw,27rem)}.enter-stars i:nth-child(n+13){display:none}}
+  /* ── 動畫重播膠囊（右下角，仙門令符風格） ── */
+  .rite-replay-fab{position:fixed;right:max(1.15rem,env(safe-area-inset-right));bottom:max(1.15rem,env(safe-area-inset-bottom));z-index:50;display:flex;align-items:center;gap:.45rem;padding:.55rem 1.05rem;border:1px solid rgba(155,195,174,.36);border-radius:999px;background:linear-gradient(180deg,rgba(16,28,30,.92),rgba(8,16,18,.95));box-shadow:0 10px 28px -8px rgba(0,0,0,.7),0 0 16px -4px rgba(110,158,136,.3),inset 0 1px 0 rgba(255,255,255,.16);color:var(--jade-100);font:600 .75rem 'Noto Serif TC',serif;letter-spacing:.12em;backdrop-filter:blur(16px);cursor:pointer;opacity:0;pointer-events:none;transform:translateY(8px);transition:all .32s var(--ease)}.rite-replay-fab.is-shown{opacity:1;pointer-events:auto;transform:translateY(0)}.rite-replay-fab:hover{border-color:rgba(155,195,174,.6);background:linear-gradient(180deg,rgba(24,44,40,.95),rgba(12,25,23,.98));color:#effff7;box-shadow:0 14px 34px -8px rgba(0,0,0,.8),0 0 24px -2px rgba(110,158,136,.55),inset 0 1px 0 rgba(255,255,255,.28);transform:translateY(-2px)}.rite-replay-fab:active{transform:scale(.96)}
+  html[data-theme="light"] .rite-replay-fab{background:linear-gradient(180deg,rgba(248,243,234,.96),rgba(235,226,210,.95));border-color:rgba(46,112,85,.35);color:#174737;box-shadow:0 10px 24px -8px rgba(76,65,45,.25),inset 0 1px 0 rgba(255,255,255,.85)}
+  html[data-theme="light"] .rite-replay-fab:hover{background:linear-gradient(180deg,rgba(255,251,245,.98),rgba(242,234,220,.97));border-color:rgba(46,112,85,.6);color:#08241b;box-shadow:0 14px 30px -8px rgba(76,65,45,.35),0 0 16px -2px rgba(70,140,110,.3),inset 0 1px 0 #fff}
   .seal-toast{ position:relative; overflow:hidden; }.seal-toast::after{ content:""; position:absolute; inset:0; pointer-events:none; background:radial-gradient(circle at 15% 50%,rgba(155,195,174,.16),transparent 42%); animation:toast-glow .85s var(--ease) both; }
   @keyframes toast-glow{ from{opacity:0;transform:translateX(-25%)} to{opacity:.8;transform:translateX(10%)} }
   .enter-canvas-ritual{position:fixed;inset:0;z-index:90;overflow:hidden;background:#000;isolation:isolate}.enter-canvas-ritual canvas{display:block;width:100%;height:100%;touch-action:none}.ritual-skip{position:fixed;right:max(1.15rem,env(safe-area-inset-right));bottom:max(1.15rem,env(safe-area-inset-bottom));z-index:2;min-height:42px;padding:.65rem 1.05rem;border:1px solid rgba(201,255,224,.55);border-radius:999px;background:rgba(6,16,14,.72);box-shadow:0 0 18px rgba(127,214,160,.2),inset 0 1px 0 rgba(255,255,255,.14);color:#dfffee;font:600 .76rem 'Noto Serif TC',serif;letter-spacing:.18em;backdrop-filter:blur(10px);cursor:pointer;transition:transform .16s ease,background .16s ease}.ritual-skip:hover{background:rgba(39,108,78,.62);transform:translateY(-2px)}.ritual-skip:active{transform:scale(.96)}
@@ -348,6 +470,100 @@
   html[data-theme="light"] .calendar-day{background:rgba(247,242,232,.88)}
   html[data-theme="light"] .calendar-day.is-weekend{background:rgba(190,145,63,.09)}
   html[data-theme="light"] .calendar-event{background:rgba(46,112,85,.10)}
+  /* ---------------- 碧玉演武場 (Jade Court) ---------------- */
+  .badminton-court {
+    position: relative;
+    background: radial-gradient(ellipse at 50% 50%, #154e3f 0%, #0c2e25 100%);
+    border: 2px solid rgba(155, 195, 174, 0.35);
+    border-radius: 18px;
+    box-shadow: inset 0 0 45px rgba(0,0,0,0.5), 0 16px 36px -12px rgba(0,0,0,0.6);
+    overflow: hidden;
+    user-select: none;
+    height: 420px;
+    transition: box-shadow .4s var(--ease), border-color .4s var(--ease);
+  }
+  .badminton-court.is-playing {
+    box-shadow: 0 0 28px rgba(110,158,136,.45), inset 0 0 35px rgba(0,0,0,0.35);
+    border-color: #A3CCB9;
+  }
+  html[data-theme="light"] .badminton-court {
+    background: radial-gradient(ellipse at 50% 50%, #1c6651 0%, #124738 100%);
+    border-color: rgba(31, 107, 85, 0.4);
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.35), 0 14px 32px -10px rgba(76,65,45,.35);
+  }
+  .court-lines-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+  /* 俯瞰中央球網（純白網帶 + 微立體落影 + 兩側網柱） */
+  .court-net {
+    position: absolute; top: 50%; left: -6px; right: -6px; height: 3.5px; transform: translateY(-50%);
+    background: #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.45), 0 0 8px rgba(255,255,255,0.4); z-index: 15;
+  }
+  .court-net::after {
+    content: ''; position: absolute; top: 3.5px; left: 0; right: 0;
+    height: 2px; background: rgba(0, 0, 0, 0.22); pointer-events: none;
+  }
+  .court-net-post-l, .court-net-post-r {
+    position: absolute; top: 50%; width: 6px; height: 16px; transform: translateY(-50%);
+    background: linear-gradient(180deg, #ffffff, #94a3b8); border: 1px solid rgba(15, 23, 42, 0.6); border-radius: 2px; z-index: 16;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+  }
+  .court-net-post-l { left: -3px; } .court-net-post-r { right: -3px; }
+  .slot-empty {
+    height: 88px; border: 1.5px dashed rgba(255, 255, 255, 0.32); border-radius: 14px;
+    background: rgba(10, 24, 20, 0.4); backdrop-filter: blur(4px); transition: all .25s var(--ease);
+    display: flex; flex-direction: column; justify-content: space-between; padding: .65rem .85rem; cursor: pointer;
+  }
+  .slot-empty:hover { border-color: var(--jade-300); background: rgba(22, 50, 42, 0.55); transform: translateY(-1px); }
+  html[data-theme="light"] .slot-empty { border: 1.5px dashed rgba(255, 255, 255, 0.65); background: rgba(255, 255, 255, 0.28); }
+  .slot-occupied {
+    height: 88px; border-radius: 14px;
+    background: linear-gradient(180deg, rgba(20, 44, 38, 0.94), rgba(11, 26, 22, 0.90));
+    border: 1px solid rgba(155, 195, 174, 0.35); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 8px 18px -4px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(8px); transition: all .25s var(--ease);
+    display: flex; flex-direction: column; justify-content: space-between; padding: .65rem .85rem; cursor: grab;
+  }
+  .slot-occupied:hover { border-color: var(--jade-300); transform: translateY(-2px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24), 0 12px 24px -6px rgba(110, 158, 136, 0.5); }
+  html[data-theme="light"] .slot-occupied {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(242, 236, 224, 0.94));
+    border: 1px solid rgba(61, 101, 85, 0.32); color: #174737;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 8px 18px -4px rgba(61, 101, 85, 0.25);
+  }
+  .badge-nextup {
+    position: absolute; top: -6px; right: 10px;
+    background: linear-gradient(180deg, #F1DCA5, #C9A961); color: #1a1508;
+    font-size: 9px; font-weight: 800; letter-spacing: .06em; padding: 1px 7px; border-radius: 999px;
+    box-shadow: 0 2px 6px rgba(201,169,97,.6), inset 0 1px 0 rgba(255,255,255,.5); z-index: 10;
+  }
+  .badge-prescheduled {
+    position: absolute; top: -6px; right: 8px;
+    background: linear-gradient(180deg, #6ee7b7, #10b981); color: #022c22;
+    font-size: 8.5px; font-weight: 800; letter-spacing: .04em; padding: 1px 7px; border-radius: 999px;
+    box-shadow: 0 2px 6px rgba(16,185,129,.5), inset 0 1px 0 rgba(255,255,255,.6); z-index: 10;
+  }
+  .badge-queue-sec {
+    position: absolute; top: -6px; right: 8px;
+    background: linear-gradient(180deg, #bae6fd, #38bdf8); color: #082f49;
+    font-size: 8.5px; font-weight: 700; padding: 1px 6px; border-radius: 999px;
+    box-shadow: 0 2px 5px rgba(56,189,248,.4); z-index: 10;
+  }
+  .badge-queue-normal {
+    position: absolute; top: -6px; right: 8px;
+    background: rgba(228,235,232,.12); color: var(--mist-3);
+    border: 1px solid var(--hair-2);
+    font-size: 8px; font-weight: 600; padding: 0.5px 5px; border-radius: 999px;
+    z-index: 10;
+  }
+  html[data-theme="light"] .badge-queue-normal {
+    background: rgba(76,65,45,.10); color: var(--mist-2);
+    border-color: rgba(76,65,45,.18);
+  }
+  .court-slots-top {
+    position: absolute; top: 32px; left: 24px; right: 24px; z-index: 20;
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;
+  }
+  .court-slots-bottom {
+    position: absolute; bottom: 32px; left: 24px; right: 24px; z-index: 20;
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;
+  }
   @media(max-width:640px){
     .calendar-day{min-height:64px;padding:.35rem .2rem}.calendar-weekday{padding:.5rem .1rem;font-size:9.5px}.calendar-number{height:22px;width:22px;font-size:10.5px}.calendar-note,.calendar-event-title,.calendar-add{display:none}.calendar-event{justify-content:center;padding:.28rem;margin-top:.12rem;border:0;background:transparent}.calendar-event-dot{width:7px;height:7px}
   }
@@ -528,6 +744,176 @@
     return { label: '尚餘 ' + Math.max(0, cap - going) + ' 席', tone: JADE, closed: false };
   }
   function venuePlace(v) { return v ? v.name + (v.address ? '（' + v.address + '）' : '') : ''; }
+  function compressImage(fileOrBlob, maxWidth, maxHeight, quality, callback) {
+    return new Promise(function (resolve, reject) {
+      if (!fileOrBlob) return resolve('');
+      var reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = function (e) {
+        var img = new Image();
+        img.onerror = reject;
+        img.onload = function () {
+          var w = img.width, h = img.height;
+          var mw = maxWidth || 400, mh = maxHeight || 400;
+          if (w > mw || h > mh) {
+            var ratio = Math.min(mw / w, mh / h);
+            w = Math.round(w * ratio); h = Math.round(h * ratio);
+          }
+          var canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          var ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h);
+          ctx.drawImage(img, 0, 0, w, h);
+          var q = quality || 0.85;
+          var dataUrl = canvas.toDataURL('image/webp', q);
+          if (!dataUrl.startsWith('data:image/webp')) dataUrl = canvas.toDataURL('image/jpeg', q);
+          if (typeof callback === 'function') callback(dataUrl);
+          resolve(dataUrl);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(fileOrBlob);
+    });
+  }
+  /* 全域音訊上下文：球友點擊任一處時預熱解鎖，確保手機後續推播必響 */
+  var sharedAudioCtx = null;
+  function getAudioCtx() {
+    try {
+      if (!sharedAudioCtx) {
+        var AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) sharedAudioCtx = new AudioCtx();
+      }
+      if (sharedAudioCtx && sharedAudioCtx.state === 'suspended') {
+        sharedAudioCtx.resume();
+      }
+      return sharedAudioCtx;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /* 觸覺震動回饋 (支援 Android / 現代手機 Vibration API) */
+  function triggerVibrate(pattern) {
+    try {
+      if (!pattern || !pattern.length) return;
+      if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+        navigator.vibrate(pattern);
+      }
+    } catch (e) {}
+  }
+
+  /* 仙門法鈴・提醒模式與強度配置 (支援球友自選強度、靜音與完全關閉) */
+  var ALERT_LEVELS = {
+    high: {
+      key: 'high',
+      title: '鼎沸 · 強烈',
+      shortTitle: '強烈',
+      icon: 'BellRing',
+      desc: '靈鐘高亢 (100%) + 實體長震 + 全螢幕召喚彈窗',
+      sound: true,
+      gain: 0.32,
+      vibrateSummon: [280, 120, 280, 120, 450],
+      vibratePre: [140, 80, 140],
+      allowModal: true,
+      allowToast: true
+    },
+    medium: {
+      key: 'medium',
+      title: '柔和 · 適中',
+      shortTitle: '柔和',
+      icon: 'Bell',
+      desc: '清幽微鳴 (35%) + 輕快短震 + 頂部浮動橫幅',
+      sound: true,
+      gain: 0.10,
+      vibrateSummon: [160, 80, 160],
+      vibratePre: [90],
+      allowModal: false,
+      allowToast: true
+    },
+    silent: {
+      key: 'silent',
+      title: '微弱 · 靜音',
+      shortTitle: '靜音',
+      icon: 'Smartphone',
+      desc: '無聲靜音 (0%) + 觸覺震動 + 頂部浮動橫幅',
+      sound: false,
+      gain: 0,
+      vibrateSummon: [200, 100, 200],
+      vibratePre: [100],
+      allowModal: false,
+      allowToast: true
+    },
+    off: {
+      key: 'off',
+      title: '避世 · 關閉',
+      shortTitle: '關閉',
+      icon: 'BellOff',
+      desc: '全面關閉 (0%)：無聲音、無震動、無主動彈窗',
+      sound: false,
+      gain: 0,
+      vibrateSummon: [],
+      vibratePre: [],
+      allowModal: false,
+      allowToast: false
+    }
+  };
+
+  /* 仙門靈鐘聲音效合成 (支援自訂模式音量與震動強度) */
+  function playChime(lvlKey) {
+    var key = lvlKey || (function () {
+      try { return localStorage.getItem('luoyun_alert_level') || 'high'; } catch (e) { return 'high'; }
+    })();
+    var cfg = ALERT_LEVELS[key] || ALERT_LEVELS.high;
+    if (cfg.vibrateSummon && cfg.vibrateSummon.length) {
+      triggerVibrate(cfg.vibrateSummon);
+    }
+    if (!cfg.sound || cfg.gain <= 0) return;
+    try {
+      var ctx = getAudioCtx();
+      if (!ctx) return;
+      var freqs = [587.33, 880.0, 1174.66];
+      freqs.forEach(function (freq, i) {
+        var osc = ctx.createOscillator(), gain = ctx.createGain();
+        osc.type = 'sine';
+        var t0 = ctx.currentTime + i * 0.16;
+        osc.frequency.setValueAtTime(freq, t0);
+        gain.gain.setValueAtTime(0, t0);
+        gain.gain.linearRampToValueAtTime(cfg.gain, t0 + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.6);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(t0); osc.stop(t0 + 1.7);
+      });
+    } catch (e) {}
+  }
+
+  /* 候打預排提醒音效 (支援自訂模式音量與短震) */
+  function playPreChime(lvlKey) {
+    var key = lvlKey || (function () {
+      try { return localStorage.getItem('luoyun_alert_level') || 'high'; } catch (e) { return 'high'; }
+    })();
+    var cfg = ALERT_LEVELS[key] || ALERT_LEVELS.high;
+    if (cfg.vibratePre && cfg.vibratePre.length) {
+      triggerVibrate(cfg.vibratePre);
+    }
+    if (!cfg.sound || cfg.gain <= 0) return;
+    try {
+      var ctx = getAudioCtx();
+      if (!ctx) return;
+      var freqs = [659.25, 987.77];
+      var preGain = cfg.gain * 0.7;
+      freqs.forEach(function (freq, i) {
+        var osc = ctx.createOscillator(), gain = ctx.createGain();
+        osc.type = 'sine';
+        var t0 = ctx.currentTime + i * 0.14;
+        osc.frequency.setValueAtTime(freq, t0);
+        gain.gain.setValueAtTime(0, t0);
+        gain.gain.linearRampToValueAtTime(preGain, t0 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.1);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(t0); osc.stop(t0 + 1.2);
+      });
+    } catch (e) {}
+  }
   /* 「9/25 (五)」→ { d:'25', m:'9月', w:'五' }，給日期印記用 */
   function dateParts(s) {
     var t = String(s || '').trim();
@@ -581,7 +967,7 @@
   var SOFT_CARD = 'inlay rounded-[20px]';
 
   var BTN = 'btn qi inline-flex items-center justify-center gap-2 rounded-full font-medium tracking-wide select-none disabled:opacity-55 disabled:cursor-not-allowed';
-  var BTN_SIZE = { sm: 'text-[12px] px-3 py-1.5', md: 'text-[13px] px-4 py-2', lg: 'text-sm px-5 py-2.5', icon: 'text-[12px] h-9 w-9' };
+  var BTN_SIZE = { xs: 'text-[11px] px-2.5 py-1', sm: 'text-[12px] px-3 py-1.5', md: 'text-[13px] px-4 py-2', lg: 'text-sm px-5 py-2.5', icon: 'text-[12px] h-9 w-9' };
   var BTN_VAR = {
     primary: 'text-[#08120E] font-semibold bg-[linear-gradient(180deg,#A8CFBA_0%,#6E9E88_100%)] shadow-[0_10px_28px_-14px_rgba(110,158,136,.85),inset_0_1px_0_rgba(255,255,255,.35)] hover:shadow-[0_14px_34px_-12px_rgba(110,158,136,1),inset_0_1px_0_rgba(255,255,255,.45)]',
     outline: 'text-[var(--mist-1)] border border-[var(--hair-2)] bg-[linear-gradient(180deg,rgba(228,235,232,.05),rgba(228,235,232,.018))] hover:border-[rgba(155,195,174,.30)] hover:bg-[linear-gradient(180deg,rgba(155,195,174,.09),rgba(228,235,232,.02))]',
@@ -596,7 +982,7 @@
       type: 'button', onClick: p.onClick, disabled: p.disabled || busy, title: p.title, 'aria-label': p.ariaLabel,
       className: 'group/btn ' + BTN + ' ' + BTN_SIZE[p.size || 'md'] + ' ' + BTN_VAR[p.variant || 'outline'] + ' ' + (p.className || '')
     },
-      p.icon ? E(Icon, { name: p.icon, size: p.size === 'sm' ? 13 : 15, stroke: 1.5 }) : null,
+      p.icon ? E(Icon, { name: p.icon, size: p.size === 'xs' ? 11 : (p.size === 'sm' ? 13 : 15), stroke: 1.5 }) : null,
       busy && p.variant === 'primary' ? '處理中…' : p.children,
       /* button-in-button：主要行動的尾端圖示包在自己的圓形裡 */
       p.nub ? D('nub', E(Icon, { name: p.nub, size: 12, stroke: 1.6 })) : null);
@@ -634,7 +1020,16 @@
       E(Icon, { name: p.name, size: p.icon || 18 }));
   }
 
-  function LevelBadge(p) { var lv=Number(p.level)||0,realm=realmOf(lv); return E('span',{className:'tier realm-badge realm-'+realm,style:REALM_STYLE[realm],'aria-label':REALM_LABEL[realm]+'，程度 '+lv},REALM_LABEL[realm],S('num opacity-70',String(lv))); }
+  function LevelBadge(p) {
+    var lv = Number(p.level) || 1, realm = realmOf(lv);
+    return E('span', {
+      className: 'level-badge realm-' + realm,
+      'aria-label': REALM_LABEL[realm] + '，程度 ' + lv
+    },
+      S('realm-name', REALM_LABEL[realm]),
+      S('realm-lv', String(lv))
+    );
+  }
 
   function GenderTag(p) {
     var g = genderMeta(p.g);
@@ -809,13 +1204,29 @@
   function App() {
     var a = useState({ members: [], events: [], venues: [], intents: [], admins: [], logs: [] }), state = a[0], setState = a[1];
     var b = useState(false), ready = b[0], setReady = b[1];
-    var g = useState('events'), tab = g[0], setTab = g[1];
+    var g = useState(function () {
+      try {
+        var p = new URLSearchParams(window.location.search).get('tab');
+        if (p === 'board' || p === 'events' || p === 'members' || p === 'venues' || p === 'admins' || p === 'logs') return p;
+        return 'events';
+      } catch (e) { return 'events'; }
+    }), tab = g[0], setTab = g[1];
     var h = useState(null), openEventId = h[0], setOpenEventId = h[1];
     var i2 = useState(null), me = i2[0], setMe = i2[1];
     var j = useState([]), toasts = j[0], setToasts = j[1];
     var k = useState(null), modal = k[0], setModalState = k[1];
     var fxState = useState(null), fx = fxState[0], setFx = fxState[1];
-    var riteState = useState(function () { try { return /[?&]rite=1(?:&|$)/.test(location.search) || sessionStorage.getItem('luoyun-rite') !== '1'; } catch (e) { return true; } }), riteMounted = riteState[0], setRiteMounted = riteState[1];
+    var riteEpochState = useState(0), riteEpoch = riteEpochState[0], setRiteEpoch = riteEpochState[1];
+    var riteState = useState(function () {
+      try {
+        if (/[?&]rite=1(?:&|$)/.test(location.search)) return true;
+        if (localStorage.getItem('luoyun-rite-suppress') === todayKey()) return false;
+        return sessionStorage.getItem('luoyun-rite') !== '1';
+      } catch (e) { return true; }
+    }), riteMounted = riteState[0], setRiteMounted = riteState[1];
+    var riteMountedRef = useRef(riteMounted);
+    riteMountedRef.current = riteMounted;
+    var startLandingRef = useRef(null);
     var setup = useState(false), needsSetup = setup[0], setNeedsSetup = setup[1];
     var working = useState(false), busy = working[0], setBusy = working[1];
     var errorState = useState(''), error = errorState[0], setError = errorState[1];
@@ -832,26 +1243,41 @@
       setTheme(next);
     }
 
-    function invokeFx(kind) {
+    function invokeFx(kind, force) {
       if (!kind) return;
-      if ((kind === 'enter' || kind === 'landing') && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (!force && (kind === 'enter' || kind === 'landing') && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       clearTimeout(fxTimer.current); setFx({ kind: kind, key: Date.now() });
-      fxTimer.current = setTimeout(function () { setFx(null); if (kind === 'landing') setRiteMounted(false); }, kind === 'landing' ? 6000 : (kind === 'enter' ? 1500 : 1150));
+      fxTimer.current = setTimeout(function () { setFx(null); if (kind === 'landing') { setRiteMounted(false); riteMountedRef.current = false; } }, kind === 'landing' ? 6000 : (kind === 'enter' ? 1500 : 1150));
     }
-    function startLanding() {
-      if (!riteMounted) return;
+    function startLanding(force) {
+      if (!riteMountedRef.current) return;
       if (!riteReady.current) {
         landingWaiting.current = true; setFx({ kind:'landing-wait', key:Date.now() });
         clearTimeout(landingTimer.current);
         landingTimer.current = setTimeout(function () {
-          if (!riteReady.current) { landingWaiting.current = false; setFx(null); setRiteMounted(false); }
+          if (!riteReady.current) { landingWaiting.current = false; setFx(null); setRiteMounted(false); riteMountedRef.current = false; }
         }, 2500);
         return;
       }
-      landingWaiting.current = false; clearTimeout(landingTimer.current); invokeFx('landing');
+      landingWaiting.current = false; clearTimeout(landingTimer.current); invokeFx('landing', force);
       requestAnimationFrame(function () { requestAnimationFrame(function () {
-        if (riteFrame.current && riteFrame.current.contentWindow) riteFrame.current.contentWindow.postMessage({ rite:'start' }, window.location.origin);
+        if (riteFrame.current && riteFrame.current.contentWindow) {
+          riteFrame.current.contentWindow.postMessage({ rite:'start' }, window.location.origin);
+        }
       }); });
+    }
+    startLandingRef.current = startLanding;
+    function replayRite() {
+      try {
+        localStorage.removeItem('luoyun-rite-suppress');
+        sessionStorage.removeItem('luoyun-rite');
+      } catch (e) {}
+      landingPlayed.current = false;
+      riteReady.current = false;
+      landingWaiting.current = true;
+      riteMountedRef.current = true;
+      setRiteEpoch(function (k) { return k + 1; });
+      setRiteMounted(true);
     }
     function flash(msg, kind, fxKind) { var item={id:Date.now()+Math.random(),msg:msg,kind:kind||'ok',fx:fxKind||''}; setToasts(function(old){return old.concat(item).slice(-3);}); invokeFx(fxKind); var timer=setTimeout(function(){setToasts(function(old){return old.filter(function(x){return x.id!==item.id;});});},4000); toastTimers.current.push(timer); }
     function setModal(value) {
@@ -882,7 +1308,8 @@
         if (requestEpoch !== epoch.current) return;
         version.current = publicData.version; setMe(null);
         setState({ members: [], events: publicData.events || [], venues: publicData.venues || [], intents: [], admins: [], logs: [] });
-        setTab('events'); setSyncLabel('公開佈告・每 5 秒更新');
+        setTab(function (curr) { return (curr === 'board' || curr === 'events') ? curr : 'events'; });
+        setSyncLabel('公開佈告・每 5 秒更新');
       }
     }
     useEffect(function () {
@@ -890,17 +1317,34 @@
       async function tick() {
         try { if (!lock.current && !document.hidden) { await refresh(); setError(function (old) { return old === '無法連上伺服器，請稍後再試；本機使用時請確認 npm start 已啟動。' ? '' : old; }); } }
         catch (err) { if (alive) { setSyncLabel('連線中斷，正在重試'); setError('無法連上伺服器，請稍後再試；本機使用時請確認 npm start 已啟動。'); } }
-        finally { if (alive) { setReady(true); if (!landingPlayed.current) { landingPlayed.current = true; requestAnimationFrame(function () { requestAnimationFrame(function () { if (alive) startLanding(); }); }); } timer = setTimeout(tick, 5000); } }
+        finally { if (alive) { setReady(true); if (!landingPlayed.current) { landingPlayed.current = true; requestAnimationFrame(function () { requestAnimationFrame(function () { if (alive && startLandingRef.current) startLandingRef.current(); }); }); } timer = setTimeout(tick, 5000); } }
       }
-      tick(); return function () { alive = false; clearTimeout(timer); clearTimeout(landingTimer.current); toastTimers.current.forEach(clearTimeout); clearTimeout(fxTimer.current); };
+      function onVis() {
+        if (!document.hidden && !lock.current && alive) {
+          clearTimeout(timer);
+          tick();
+        }
+      }
+      document.addEventListener('visibilitychange', onVis);
+      tick(); return function () { alive = false; document.removeEventListener('visibilitychange', onVis); clearTimeout(timer); clearTimeout(landingTimer.current); toastTimers.current.forEach(clearTimeout); clearTimeout(fxTimer.current); };
     }, []);
 
     useEffect(function () {
       function onRiteDone(ev) {
         if (ev.origin !== window.location.origin || !ev.data) return;
-        if (ev.data.rite === 'ready') { riteReady.current = true; if (landingWaiting.current) startLanding(); return; }
+        if (ev.data.rite === 'ready') {
+          console.log('onRiteDone: received ready from iframe');
+          riteReady.current = true;
+          if (landingWaiting.current || riteMountedRef.current) {
+            if (startLandingRef.current) startLandingRef.current(true);
+          }
+          return;
+        }
         if (ev.data.rite !== 'done') return;
-        clearTimeout(fxTimer.current); clearTimeout(landingTimer.current); try { sessionStorage.setItem('luoyun-rite', '1'); } catch (e) {} setFx(null); setRiteMounted(false);
+        console.log('onRiteDone: received done from iframe');
+        clearTimeout(fxTimer.current); clearTimeout(landingTimer.current);
+        try { sessionStorage.setItem('luoyun-rite', '1'); } catch (e) {}
+        setFx(null); setRiteMounted(false); riteMountedRef.current = false;
       }
       window.addEventListener('message', onRiteDone);
       return function () { window.removeEventListener('message', onRiteDone); };
@@ -912,7 +1356,7 @@
       try {
         var data = await api('action', Object.assign({ action: name, version: modal ? modal.version : version.current }, payload));
         accept(data);
-        var ritual = { saveMember:'member', saveEvent:'event', writeRoster:'roster', addGuest:'member', saveVenue:'venue', saveAdmin:'seal', changePin:'seal', removeMember:'seal', removeEvent:'seal', removeVenue:'seal', removeAdmin:'seal' }[name] || 'seal';
+        var ritual = { saveMember:'member', saveEvent:'event', writeRoster:'roster', addGuest:'member', saveVenue:'venue', saveAdmin:'seal', changePin:'seal', removeMember:'seal', removeEvent:'seal', removeVenue:'seal', removeAdmin:'seal', updateLineup:'roster', callLineup:'ward' }[name] || 'seal';
         flash('玉印已落・公開名單已同步', 'ok', ritual); return data.resultId || true;
       } catch (err) {
         setError(err.message); flash(err.message, 'bad');
@@ -926,6 +1370,8 @@
     async function removeEvent(row) { var ok = await action('removeEvent', { id: row.id }); if (ok) setOpenEventId(null); return ok; }
     function writeRoster(ev, roster) { return action('writeRoster', { id: ev.id, roster: roster }); }
     function addGuest(ev, row) { return action('addGuest', { id: ev.id, row: row }); }
+    function updateLineup(ev, lineup) { return action('updateLineup', { id: ev.id, row: { lineup: lineup } }); }
+    function callLineup(ev, courtNum, lineup) { return action('callLineup', { id: ev.id, row: { courtNum: courtNum, lineup: lineup } }); }
     function saveAdmin(row, isNew) { return action('saveAdmin', { id: isNew ? undefined : row.id, row: row }); }
     function changePin(row, pin, currentPassword) { return action('changePin', { id: row.id, pin: pin, currentPassword: currentPassword }); }
     function changeHonorific(row, title, mood) { return action('changeHonorific', { id: row.id, row: { title: title, mood: mood } }); }
@@ -959,6 +1405,7 @@
       flash: flash, setModal: setModal, needAdmin: needAdmin, api: api,
       saveMember: saveMember, removeMember: removeMember,
       saveEvent: saveEvent, removeEvent: removeEvent, writeRoster: writeRoster, addGuest: addGuest,
+      updateLineup: updateLineup, callLineup: callLineup, setRiteMounted: setRiteMounted, replayRite: replayRite,
       saveAdmin: saveAdmin, removeAdmin: removeAdmin, changePin: changePin, changeHonorific: changeHonorific,
       saveVenue: saveVenue, removeVenue: removeVenue, approveIntent: approveIntent, rejectIntent: rejectIntent,
       login: login, logout: logout, loadLogs: loadLogs,
@@ -971,6 +1418,8 @@
       body = E(EventDetail, Object.assign({ ev: openEvent }, ctx));
     } else if (tab === 'events') {
       body = E(EventsList, ctx);
+    } else if (tab === 'board') {
+      body = E(BoardTab, ctx);
     } else if (tab === 'members') {
       body = E(MembersPage, ctx);
     } else if (tab === 'venues') {
@@ -987,9 +1436,17 @@
       toasts.length ? D('toast-stack', { 'aria-live': 'polite' }, toasts.map(function(toast){return D('rise glass seal-toast flex items-center gap-3 rounded-2xl px-4 py-3.5 text-sm ' + (toast.kind === 'bad' ? CIN : T1), {key:toast.id}, E(Icon,{name:toast.kind === 'bad' ? 'TriangleAlert' : 'CircleCheck',size:16,className:toast.kind === 'bad' ? CIN : JADE}), E('span',{className:'flex-1',role:'status'},toast.msg));})) : null,
       modal ? E('div', null, E(Modals, Object.assign({ modal: modal, close: function () { if (!lock.current) setModal(null); } }, ctx)),
         error ? E('p', { role: 'alert', className: 'fixed top-3 left-1/2 z-[70] w-[min(92vw,40rem)] -translate-x-1/2 rounded-2xl glass p-4 ' + CIN }, error) : null) : null,
-       riteMounted ? E('iframe', { ref:riteFrame, className:'console-rite-frame' + (fx && fx.kind === 'landing' ? ' is-active' : ''), src:'/rite.html?rite=1&embedded=1&hold=1', scrolling:'no', title:'青竹流雲拍・入陣禮' }) : null,
+       riteMounted ? E('iframe', { key: 'rite-frame-' + riteEpoch, ref:riteFrame, className:'console-rite-frame' + (fx && fx.kind === 'landing' ? ' is-active' : ''), src:'/rite.html?rite=1&embedded=1&hold=1', scrolling:'no', title:'青竹流雲拍・入陣禮' }) : null,
        fx && fx.kind === 'landing-wait' ? D('rite-prep', S(null, '雲門凝聚中')) : null,
-       fx && fx.kind !== 'landing' && fx.kind !== 'landing-wait' ? E(SectEffect, { key: fx.key, kind: fx.kind, onSkip: function () { clearTimeout(fxTimer.current); setFx(null); } }) : null));
+       fx && fx.kind !== 'landing' && fx.kind !== 'landing-wait' ? E(SectEffect, { key: fx.key, kind: fx.kind, onSkip: function () { clearTimeout(fxTimer.current); setFx(null); } }) : null,
+       /* 右下角重播膠囊（不在播放動畫時常駐顯示） */
+       !riteMounted && (!fx || fx.kind !== 'landing') ? E('button', {
+         type: 'button',
+         className: 'rite-replay-fab is-shown',
+         title: '重溫入陣禮動畫',
+         'aria-label': '重溫入陣禮動畫',
+         onClick: function () { if (replayRite) replayRite(); }
+       }, E(Icon, { name: 'Sparkles', size: 14 }), '重溫動畫') : null));
   }
 
   function SectEffect(p) {
@@ -1084,6 +1541,7 @@
   function TopBar(p) {
     var tabs = [
       { k: 'events', label: '試煉佈告', icon: 'CalendarDays' },
+      { k: 'board', label: '戰術排位', icon: 'LayoutGrid' },
       { k: 'members', label: '弟子名冊', icon: 'Users' },
       { k: 'venues', label: '洞府場館', icon: 'MapPinned' },
       { k: 'admin', label: '掌門殿', icon: 'Settings' }
@@ -1113,7 +1571,17 @@
             E('p', { className: 'mt-1.5 whitespace-nowrap text-[8.5px] font-semibold tracking-[.16em] ' + T3 },
               'FALLING CLOUD SECT',
               S('hidden tracking-normal sm:inline', ' · ' + p.syncLabel)))),
-        D('flex items-center gap-2',
+        D('flex items-center gap-1.5 sm:gap-2',
+          E('button', {
+            type: 'button',
+            className: 'btn qi inline-flex items-center gap-1.5 rounded-full border border-[rgba(155,195,174,.26)] bg-[linear-gradient(180deg,rgba(155,195,174,.10),rgba(155,195,174,.03))] px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-[var(--jade-100)] hover:border-[rgba(155,195,174,.48)] hover:bg-[linear-gradient(180deg,rgba(155,195,174,.18),rgba(155,195,174,.06))] shadow-sm transition shrink-0 whitespace-nowrap',
+            title: '重溫入陣禮動畫',
+            'aria-label': '重溫入陣禮動畫',
+            onClick: function () {
+              if (p.replayRite) p.replayRite();
+              else p.setRiteMounted(true);
+            }
+          }, E(Icon, { name: 'Sparkles', size: 13, className: 'text-[var(--gold)] shrink-0' }), S('hidden sm:inline', '重溫動畫'), S('sm:hidden', '動畫')),
           E('button', {
             type: 'button', className: 'theme-toggle', onClick: p.toggleTheme,
             title: p.theme === 'dark' ? '切換至淺色模式' : '切換至深色模式',
@@ -1137,7 +1605,7 @@
               E(Btn, { variant: 'ghost', size: 'sm', icon: 'LogOut', onClick: p.logout }, '離殿'))
             : E(Btn, { variant: 'primary', size: 'sm', icon: 'Shield', onClick: function () { p.setModal({ type: 'login' }); } }, '入殿'))),
       D('scroll-x mx-auto flex max-w-5xl gap-1 overflow-x-auto px-4 pb-3 sm:px-6',
-        tabs.filter(function (t) { return p.isAdmin || t.k === 'events'; }).map(function (t) {
+        tabs.filter(function (t) { return p.isAdmin || t.k === 'events' || t.k === 'board'; }).map(function (t) {
           var active = p.tab === t.k && !p.openEvent;
           return E('button', {
             key: t.k,
@@ -1300,6 +1768,54 @@
             S('num shrink-0 ' + T3, fmtTime(l.t)), S('disp font-semibold ' + T1, l.name), S('min-w-0 truncate ' + T2, l.act + '・' + (l.target || '—')));
         })) : null,
       p.isAdmin ? null : E(ReadOnlyHint));
+  }
+
+  /* ---------------- board tab (頂層戰術排位) ---------------- */
+  function BoardTab(p) {
+    var events = p.events || [];
+    var a = useState(events[0] ? events[0].id : null), selectedId = a[0], setSelectedId = a[1];
+    var curEvent = events.find(function (e) { return e.id === selectedId; }) || events[0] || null;
+
+    if (!curEvent) {
+      return D('',
+        E(PageHead, { eyebrow: '演武戰術', title: '戰術排位', sub: '目前尚無開壇集結活動' }),
+        E(Empty, { icon: 'CalendarX2', title: '目前沒有進行中的試煉', hint: '請掌門或長老先至「試煉佈告」開壇發布羽球集結。' })
+      );
+    }
+
+    var going = (curEvent.roster || []).filter(function (r) { return r.status === 'going'; });
+
+    return D('',
+      E(PageHead, {
+        eyebrow: '演武戰術 · 碧玉羽球場',
+        title: '戰術排位大板',
+        sub: curEvent.title + ' · ' + curEvent.dateText + ' (' + curEvent.startTime + '–' + curEvent.endTime + ')',
+        action: D('flex items-center gap-2',
+          E('a', {
+            href: '/board.html?event=' + curEvent.id + '&view=tablet',
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            className: 'btn qi inline-flex items-center gap-1.5 rounded-full border border-[rgba(201,169,97,.35)] bg-[linear-gradient(180deg,rgba(201,169,97,.20),rgba(201,169,97,.05))] px-4 py-2 text-xs font-bold text-[var(--gold)] shadow hover:scale-105 transition'
+          }, E(Icon, { name: 'Maximize2', size: 14 }), S('', '⛶ 另開全螢幕大板'))
+        )
+      }),
+
+      events.length > 1 ? D('mb-6 flex items-center gap-2 overflow-x-auto pb-2',
+        S('text-xs font-semibold ' + T3, '切換集結：'),
+        events.map(function (ev) {
+          var isCur = ev.id === curEvent.id;
+          return E('button', {
+            key: ev.id, type: 'button',
+            onClick: function () { setSelectedId(ev.id); },
+            className: 'btn inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium ' +
+              (isCur ? 'bg-[rgba(155,195,174,.2)] text-[var(--jade-100)] border border-[rgba(155,195,174,.3)] font-bold'
+                     : 'inlay text-[var(--mist-3)] hover:text-[var(--mist-1)]')
+          }, E(Icon, { name: 'Calendar', size: 12 }), ev.title + ' (' + ev.dateText + ')');
+        })
+      ) : null,
+
+      E(CourtTacticsBoard, Object.assign({}, p, { ev: curEvent, roster: curEvent.roster, going: going }))
+    );
   }
 
   function TrialCalendar(props) {
@@ -1473,7 +1989,8 @@
         D('min-w-0 flex-1',
           D('flex flex-wrap items-center gap-2',
             E('h3', { className: 'disp brush truncate text-[20px] font-bold leading-tight ' + T1 }, ev.title),
-            E('span', { className: 'tier ' + status.tone }, status.label)),
+            E('span', { className: 'tier ' + status.tone }, status.label),
+            (ev.gateQr || ev.gateQrDate) ? E('span', { className: 'tier inline-flex items-center gap-1 text-[var(--gold)] border-[rgba(201,169,97,.3)] bg-[rgba(201,169,97,.08)]' }, E(Icon, { name: 'QrCode', size: 11 }), '門禁碼') : null),
           D('mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5',
             metaLine('Clock', ev.startTime + '–' + ev.endTime),
             metaLine('MapPin', ev.place),
@@ -1504,6 +2021,7 @@
   /* ---------------- event detail ---------------- */
   function EventDetail(p) {
     var ev = p.ev;
+    var tabState = useState('roster'), detailTab = tabState[0], setDetailTab = tabState[1];
     var filterState = useState('all'), rosterFilter = filterState[0], setRosterFilter = filterState[1];
     var pageState = useState(1), rosterPage = pageState[0], setRosterPage = pageState[1];
     var rosterListTop = useRef(null);
@@ -1560,7 +2078,8 @@
         L.push(''); L.push('⏳ 候補（' + wait.length + '）');
         byGender(wait).forEach(function (r, i) { L.push(nameLine(r, i)); });
       }
-      L.push(''); L.push('【團規】');
+      L.push('');
+      L.push('【團規】');
       rulesOf().forEach(function (t) { L.push('・' + t); });
       return L.join('\n');
     }
@@ -1584,26 +2103,31 @@
     return D('',
       D('flex flex-wrap items-center justify-between gap-2 pb-5',
         E(Btn, { variant: 'ghost', icon: 'ChevronLeft', onClick: function () { p.setOpenEventId(null); } }, '返回佈告欄'),
-        p.isAdmin ? D('flex items-center gap-1',
+        D('flex flex-wrap items-center gap-1.5',
           E(Btn, {
-            variant: 'ghost', size: 'sm', icon: 'CopyPlus',
-            onClick: function () { var copy = Object.assign({}, ev, { id: undefined, date: '', dateText: '', roster: [] }); p.setModal({ type: 'event', row: copy, duplicate: true }); }
-          }, '複製開團'),
-          E(Btn, {
-            variant: 'ghost', size: 'sm', icon: 'Pencil',
-            onClick: function () { if (p.needAdmin()) p.setModal({ type: 'event', row: ev }); }
-          }, '修改集結'),
-          E(Btn, {
-            variant: 'ghost', size: 'sm', icon: 'Trash2',
-            onClick: function () {
-              if (!p.needAdmin()) return;
-              p.setModal({
-                type: 'confirm', title: '撤除集結', danger: true, ok: '撤除整場',
-                body: '將撤除「' + ev.dateText + ' ' + ev.title + '」與其 ' + roster.length + ' 筆入陣名單，無法復原。',
-                run: function () { return p.removeEvent(ev); }
-              });
-            }
-          }, '撤除')) : null),
+            variant: (ev.gateQr || ev.gateQrDate) ? 'soft' : 'ghost', size: 'sm', icon: 'QrCode',
+            onClick: function () { p.setModal({ type: 'gateQr', ev: ev }); }
+          }, ev.gateQrDate ? '門禁碼 (' + ev.gateQrDate + ')' : (ev.gateQr ? '門禁QRCode' : (p.isAdmin ? '設定門禁碼' : '門禁QRCode'))),
+          p.isAdmin ? D('flex items-center gap-1',
+            E(Btn, {
+              variant: 'ghost', size: 'sm', icon: 'CopyPlus',
+              onClick: function () { var copy = Object.assign({}, ev, { id: undefined, date: '', dateText: '', roster: [] }); p.setModal({ type: 'event', row: copy, duplicate: true }); }
+            }, '複製開團'),
+            E(Btn, {
+              variant: 'ghost', size: 'sm', icon: 'Pencil',
+              onClick: function () { if (p.needAdmin()) p.setModal({ type: 'event', row: ev }); }
+            }, '修改集結'),
+            E(Btn, {
+              variant: 'ghost', size: 'sm', icon: 'Trash2',
+              onClick: function () {
+                if (!p.needAdmin()) return;
+                p.setModal({
+                  type: 'confirm', title: '撤除集結', danger: true, ok: '撤除整場',
+                  body: '將撤除「' + ev.dateText + ' ' + ev.title + '」與其 ' + roster.length + ' 筆入陣名單，無法復原。',
+                  run: function () { return p.removeEvent(ev); }
+                });
+              }
+            }, '撤除')) : null)),
 
       /* 主卡：Double-bezel 外殼 + 內核，真磨砂只用在這一張 */
       D('bezel',
@@ -1686,56 +2210,77 @@
             E('h3', { className: 'disp text-[15px] font-semibold ' + T1 }, '門規')),
           E(RuleRows, { rules: rulesOf() }))),
 
-      p.isAdmin ? D('mt-6 flex flex-wrap gap-2.5',
-        E(Btn, {
-          variant: 'primary', icon: 'ListPlus', nub: 'ArrowRight',
-          onClick: function () { p.setModal({ type: 'pick', ev: ev }); }
-        }, '自名冊點將'),
-        E(Btn, {
-          variant: 'outline', icon: 'UserPlus',
-          onClick: function () { p.setModal({ type: 'guest', ev: ev }); }
-        }, '納入散修'),
-        E(Btn, {
-          variant: 'soft', icon: 'ClipboardList',
-          onClick: function () { p.setModal({ type: 'line', text: lineText() }); }
-        }, '生成傳訊符')) : E('div', { className: 'mt-6' }, E(ReadOnlyHint)),
+      /* 分頁切換：出陣名單 vs 試煉排位戰術板 */
+      D('mt-8 mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-[var(--hair)] pb-3',
+        D('flex flex-wrap items-center gap-2',
+          E('button', {
+            type: 'button',
+            onClick: function () { setDetailTab('roster'); },
+            className: 'btn rounded-full px-4 py-2 text-sm font-semibold ' +
+              (detailTab === 'roster' ? 'bg-[rgba(155,195,174,.18)] text-[var(--jade-100)] border border-[rgba(155,195,174,.30)]' : T3 + ' hover:text-[var(--mist-1)] hover:bg-[rgba(228,235,232,.04)]')
+          }, E(Icon, { name: 'Users', size: 14, className: 'mr-1.5 inline' }), '出陣名單 (' + roster.length + ')'),
+          E('button', {
+            type: 'button',
+            onClick: function () { setDetailTab('lineup'); },
+            className: 'btn rounded-full px-4 py-2 text-sm font-semibold ' +
+              (detailTab === 'lineup' ? 'bg-[linear-gradient(180deg,rgba(201,169,97,.22),rgba(201,169,97,.08))] text-[var(--gold)] border border-[rgba(201,169,97,.34)]' : T3 + ' hover:text-[var(--mist-1)] hover:bg-[rgba(228,235,232,.04)]')
+          }, E(Icon, { name: 'Trophy', size: 14, className: 'mr-1.5 inline text-[var(--gold)]' }), '試煉排位戰術板 (' + ev.courts + ' 面場)')
+        )
+      ),
 
-      D('mt-8 mb-3.5 flex items-end justify-between',
-        D('',
-          E('span', { className: 'eyebrow' }, '入陣弟子'),
-          E('p', { className: 'disp mt-2.5 text-[19px] font-bold ' + T1 },
-            String(roster.length), S('text-[13px] font-normal ' + T3, ' 人在列'))),
-        S('text-[11px] ' + T3, p.isAdmin ? '點右側切換狀態' : '入殿後可切換狀態')),
-
-      roster.length ? D('mb-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl inlay px-3 py-2.5 sm:px-4', { ref: rosterListTop },
-        D('flex flex-wrap gap-1.5', [['all', '全部', roster.length], ['going', '入陣', going.length], ['maybe', '觀望', maybe.length], ['wait', '候補', wait.length]].map(function (x) {
-          var on = rosterFilter === x[0], meta = x[0] === 'all' ? null : statusMeta(x[0]);
-          return E('button', { key: x[0], type: 'button', 'aria-pressed': on,
-            onClick: function () { chooseRosterFilter(x[0]); },
-            className: 'btn min-h-[38px] rounded-xl px-3 text-[12px] font-medium ' + (on ? (meta ? meta.tone : JADE) : T3),
-            style: on ? (meta ? meta.seg : { background:'linear-gradient(180deg,rgba(155,195,174,.20),rgba(155,195,174,.06))', border:'1px solid rgba(155,195,174,.28)' }) : { border:'1px solid transparent' }
-          }, x[1] + ' ' + x[2]);
-        })),
-        S('num text-[12px] ' + T3, filteredView.length ? '顯示 ' + (rosterStart + 1) + '–' + Math.min(rosterStart + rosterPageSize, filteredView.length) + '／' + filteredView.length + ' 人' : '此狀態尚無人')) : null,
-
-      roster.length === 0
-        ? E(Empty, {
-          icon: 'Users', title: '陣列尚無一人',
-          hint: p.isAdmin ? '用「自名冊點將」勾選常客，或用「納入散修」加入未建檔的道友。' : '目前尚未公布出席名單。'
-        })
+      detailTab === 'lineup'
+        ? E(CourtTacticsBoard, Object.assign({}, p, { ev: ev, roster: roster, going: going }))
         : D('',
-          filteredView.length ? D('',
-            D('grid gap-2.5', rosterRows.map(function (r, idx) {
-              return E(RosterCard, { key: r.rid || r.nickname + '-' + (rosterStart + idx), r: r, idx: rosterStart + idx, editable: p.isAdmin, setStatus: setStatus, removeRow: removeRow });
-            })),
-            rosterPageCount > 1 ? D('mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl inlay px-3 py-2.5 sm:px-4',
-              E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronLeft', disabled: activeRosterPage <= 1, onClick: function () { moveRosterPage(activeRosterPage - 1); } }, '上一頁'),
-              D('flex items-center gap-1', Array.from({ length: rosterPageCount }, function (_, i) {
-                var n = i + 1, on = n === activeRosterPage;
-                return E('button', { key: n, type: 'button', 'aria-label': '入陣名冊第 ' + n + ' 頁', 'aria-current': on ? 'page' : undefined, onClick: function () { moveRosterPage(n); }, className: 'btn flex h-9 min-w-9 items-center justify-center rounded-xl px-2 text-[12px] font-medium ' + (on ? JADE : T3), style: on ? { background: 'rgba(155,195,174,.12)', border: '1px solid rgba(155,195,174,.25)' } : { border: '1px solid transparent' } }, String(n));
+            p.isAdmin ? D('mt-6 flex flex-wrap gap-2.5',
+              E(Btn, {
+                variant: 'primary', icon: 'ListPlus', nub: 'ArrowRight',
+                onClick: function () { p.setModal({ type: 'pick', ev: ev }); }
+              }, '自名冊點將'),
+              E(Btn, {
+                variant: 'outline', icon: 'UserPlus',
+                onClick: function () { p.setModal({ type: 'guest', ev: ev }); }
+              }, '納入散修'),
+              E(Btn, {
+                variant: 'soft', icon: 'ClipboardList',
+                onClick: function () { p.setModal({ type: 'line', text: lineText() }); }
+              }, '生成傳訊符')) : E('div', { className: 'mt-6' }, E(ReadOnlyHint)),
+
+            D('mt-8 mb-3.5 flex items-end justify-between',
+              D('',
+                E('span', { className: 'eyebrow' }, '入陣弟子'),
+                E('p', { className: 'disp mt-2.5 text-[19px] font-bold ' + T1 },
+                  String(roster.length), S('text-[13px] font-normal ' + T3, ' 人在列'))),
+              S('text-[11px] ' + T3, p.isAdmin ? '點右側切換狀態' : '入殿後可切換狀態')),
+
+            roster.length ? D('mb-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl inlay px-3 py-2.5 sm:px-4', { ref: rosterListTop },
+              D('flex flex-wrap gap-1.5', [['all', '全部', roster.length], ['going', '入陣', going.length], ['maybe', '觀望', maybe.length], ['wait', '候補', wait.length]].map(function (x) {
+                var on = rosterFilter === x[0], meta = x[0] === 'all' ? null : statusMeta(x[0]);
+                return E('button', { key: x[0], type: 'button', 'aria-pressed': on,
+                  onClick: function () { chooseRosterFilter(x[0]); },
+                  className: 'btn min-h-[38px] rounded-xl px-3 text-[12px] font-medium ' + (on ? (meta ? meta.tone : JADE) : T3),
+                  style: on ? (meta ? meta.seg : { background:'linear-gradient(180deg,rgba(155,195,174,.20),rgba(155,195,174,.06))', border:'1px solid rgba(155,195,174,.28)' }) : { border:'1px solid transparent' }
+                }, x[1] + ' ' + x[2]);
               })),
-              E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronRight', disabled: activeRosterPage >= rosterPageCount, onClick: function () { moveRosterPage(activeRosterPage + 1); } }, '下一頁')) : null
-          ) : E(Empty, { icon: 'FilterX', title: '這個狀態目前無人', hint: '切換其他狀態，或由右側下拉選單調整出席狀態。' })));
+              S('num text-[12px] ' + T3, filteredView.length ? '顯示 ' + (rosterStart + 1) + '–' + Math.min(rosterStart + rosterPageSize, filteredView.length) + '／' + filteredView.length + ' 人' : '此狀態尚無人')) : null,
+
+            roster.length === 0
+              ? E(Empty, {
+                icon: 'Users', title: '陣列尚無一人',
+                hint: p.isAdmin ? '用「自名冊點將」勾選常客，或用「納入散修」加入未建檔的道友。' : '目前尚未公布出席名單。'
+              })
+              : D('',
+                filteredView.length ? D('',
+                  D('grid gap-2.5', rosterRows.map(function (r, idx) {
+                    return E(RosterCard, { key: r.rid || r.nickname + '-' + (rosterStart + idx), r: r, idx: rosterStart + idx, editable: p.isAdmin, setStatus: setStatus, removeRow: removeRow });
+                  })),
+                  rosterPageCount > 1 ? D('mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl inlay px-3 py-2.5 sm:px-4',
+                    E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronLeft', disabled: activeRosterPage <= 1, onClick: function () { moveRosterPage(activeRosterPage - 1); } }, '上一頁'),
+                    D('flex items-center gap-1', Array.from({ length: rosterPageCount }, function (_, i) {
+                      var n = i + 1, on = n === activeRosterPage;
+                      return E('button', { key: n, type: 'button', 'aria-label': '入陣名冊第 ' + n + ' 頁', 'aria-current': on ? 'page' : undefined, onClick: function () { moveRosterPage(n); }, className: 'btn flex h-9 min-w-9 items-center justify-center rounded-xl px-2 text-[12px] font-medium ' + (on ? JADE : T3), style: on ? { background: 'rgba(155,195,174,.12)', border: '1px solid rgba(155,195,174,.25)' } : { border: '1px solid transparent' } }, String(n));
+                    })),
+                    E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronRight', disabled: activeRosterPage >= rosterPageCount, onClick: function () { moveRosterPage(activeRosterPage + 1); } }, '下一頁')) : null
+                ) : E(Empty, { icon: 'FilterX', title: '這個狀態目前無人', hint: '切換其他狀態，或由右側下拉選單調整出席狀態。' }))));
   }
 
   function StatusBadge(p) {
@@ -1779,6 +2324,1828 @@
       D('ml-auto flex items-center gap-1.5',
         props.editable ? E(RosterStatusSwitch, { status: r.status, name: r.nickname, onChange: function (kk) { props.setStatus(r, kk); } }) : E(StatusBadge, { status: r.status }),
         props.editable ? E(Btn, { variant: 'ghost', size: 'icon', icon: 'X', ariaLabel: '移出陣列', onClick: function () { props.removeRow(r); } }) : null));
+  }
+
+  /* ---------------- court tactics board (試煉排位戰術板) ---------------- */
+  function CourtTacticsBoard(p) {
+    var ev = p.ev;
+    var courtsCount = Number(ev.courts) || 1;
+    var roster = resolveRoster(ev.roster, p.members);
+    var going = roster.filter(function (r) { return r.status === 'going'; });
+
+    var lineup = ev.lineup || { courts: [], resting: [], stats: {}, history: [], lockedPairs: [], queue: [] };
+    var stats = lineup.stats || {};
+    var restingList = lineup.resting || [];
+    var history = lineup.history || [];
+    var lockedPairs = lineup.lockedPairs || [];
+    var queue = Array.isArray(lineup.queue) ? lineup.queue.slice() : [];
+
+    /* 舊資料向下相容：若共用隊列為空，自動彙整各場地之舊預排至共用隊列 */
+    if (queue.length === 0 && Array.isArray(lineup.courts)) {
+      lineup.courts.forEach(function (c) {
+        var na = (c.nextTeamA || []).filter(Boolean);
+        var nb = (c.nextTeamB || []).filter(Boolean);
+        if (na.length > 0 || nb.length > 0) {
+          queue.push({
+            id: 'legacy-q-' + c.courtNum + '-' + Date.now(),
+            mode: c.mode || 'balanced',
+            teamA: na,
+            teamB: nb,
+            createdAt: new Date().toISOString()
+          });
+        }
+      });
+    }
+
+    var alertLevelState = useState(function () {
+      try { return localStorage.getItem('luoyun_alert_level') || 'high'; } catch (e) { return 'high'; }
+    }), alertLevel = alertLevelState[0], setAlertLevel = alertLevelState[1];
+    var alertSettingModalState = useState(function () {
+      try {
+        var q = new URLSearchParams(window.location.search);
+        return q.get('settings') === 'alert' || q.get('alertSettings') === '1';
+      } catch (e) { return false; }
+    }), alertSettingModal = alertSettingModalState[0], setAlertSettingModal = alertSettingModalState[1];
+
+    function changeAlertLevel(newLevel) {
+      setAlertLevel(newLevel);
+      try { localStorage.setItem('luoyun_alert_level', newLevel); } catch (e) {}
+    }
+
+    /* 全域觸控/點擊一觸解鎖 Web Audio API (防行動瀏覽器靜音) */
+    useEffect(function () {
+      function unlockAudio() {
+        try { getAudioCtx(); } catch (e) {}
+        window.removeEventListener('click', unlockAudio);
+        window.removeEventListener('touchstart', unlockAudio);
+      }
+      window.addEventListener('click', unlockAudio, { once: true });
+      window.addEventListener('touchstart', unlockAudio, { once: true });
+      return function () {
+        window.removeEventListener('click', unlockAudio);
+        window.removeEventListener('touchstart', unlockAudio);
+      };
+    }, []);
+
+    /* 頂部 Toast 橫幅 6 秒自動隱退 */
+    useEffect(function () {
+      if (preAlertToast) {
+        var t = setTimeout(function () { setPreAlertToast(null); }, 6000);
+        return function () { clearTimeout(t); };
+      }
+    }, [preAlertToast]);
+
+    /* 隊友搭檔鎖定輔助函式 */
+    function isPairLocked(name1, name2) {
+      if (!name1 || !name2) return false;
+      return lockedPairs.some(function (p) {
+        return (p[0] === name1 && p[1] === name2) || (p[0] === name2 && p[1] === name1);
+      });
+    }
+
+    function getLockedPartner(name) {
+      if (!name) return null;
+      for (var i = 0; i < lockedPairs.length; i++) {
+        var p = lockedPairs[i];
+        if (p[0] === name) return p[1];
+        if (p[1] === name) return p[0];
+      }
+      return null;
+    }
+
+    function toggleLockPair(name1, name2) {
+      if (!p.isAdmin || !name1 || !name2 || name1 === name2) return;
+      var found = false;
+      var nextPairs = [];
+      for (var i = 0; i < lockedPairs.length; i++) {
+        var pair = lockedPairs[i];
+        if ((pair[0] === name1 && pair[1] === name2) || (pair[0] === name2 && pair[1] === name1)) {
+          found = true;
+          continue;
+        }
+        if (pair[0] === name1 || pair[1] === name1 || pair[0] === name2 || pair[1] === name2) {
+          continue;
+        }
+        nextPairs.push(pair);
+      }
+      if (!found) {
+        nextPairs.push([name1, name2]);
+      }
+      var nextObj = Object.assign({}, lineup, {
+        courts: courts,
+        resting: restingList,
+        stats: stats,
+        lockedPairs: nextPairs,
+        history: history,
+        updatedAt: nowISO()
+      });
+      p.updateLineup(ev, nextObj);
+    }
+
+    var courts = [];
+    for (var i = 1; i <= courtsCount; i++) {
+      var found = (lineup.courts || []).find(function (c) { return c.courtNum === i; });
+      courts.push(found ? Object.assign({}, found) : {
+        courtNum: i,
+        status: 'idle',
+        mode: 'balanced',
+        teamA: [],
+        teamB: [],
+        nextTeamA: [],
+        nextTeamB: [],
+        matchStart: null
+      });
+    }
+
+    var modeState = useState('balanced'), mode = modeState[0], setMode = modeState[1];
+    var viewModeState = useState(function () {
+      try {
+        var q = new URLSearchParams(window.location.search);
+        var pv = q.get('view');
+        if (pv === 'strip' || pv === 'court') return pv;
+        return localStorage.getItem('luoyun_court_view') || 'strip';
+      } catch (e) { return 'strip'; }
+    }), viewMode = viewModeState[0], setViewMode = viewModeState[1];
+    function toggleViewMode(v) {
+      setViewMode(v);
+      try { localStorage.setItem('luoyun_court_view', v); } catch (e) {}
+    }
+    var benchFilterState = useState('all'), benchFilter = benchFilterState[0], setBenchFilter = benchFilterState[1];
+    var nowTickState = useState(Date.now()), nowTime = nowTickState[0], setNowTime = nowTickState[1];
+    useEffect(function () {
+      var t = setInterval(function () { setNowTime(Date.now()); }, 1000);
+      return function () { clearInterval(t); };
+    }, []);
+
+    var selBenchState = useState(null), selectedBench = selBenchState[0], setSelectedBench = selBenchState[1];
+    var selSlotState = useState(null), selectedSlot = selSlotState[0], setSelectedSlot = selSlotState[1];
+    var dragOverTargetState = useState(null), dragOverTarget = dragOverTargetState[0], setDragOverTarget = dragOverTargetState[1];
+
+    var myNickState = useState(function () {
+      try {
+        var q = new URLSearchParams(window.location.search);
+        return q.get('player') || q.get('me') || localStorage.getItem('luoyun-my-nickname') || '';
+      } catch (e) { return ''; }
+    }), myNickname = myNickState[0], setMyNickname = myNickState[1];
+    var pickingNickState = useState(false), pickingNick = pickingNickState[0], setPickingNick = pickingNickState[1];
+    var alertModalState = useState(null), alertModal = alertModalState[0], setAlertModal = alertModalState[1];
+    var preAlertToastState = useState(null), preAlertToast = preAlertToastState[0], setPreAlertToast = preAlertToastState[1];
+    var chimeTestedState = useState(false), chimeTested = chimeTestedState[0], setChimeTested = chimeTestedState[1];
+    var lastPreCourtRef = useRef(null);
+
+    /* 共用排隊池對照表與個人順位分析 */
+    var inQueueSet = new Set();
+    var myQueueInfo = null; // { index: number, partner: string|null, mode: string }
+    queue.forEach(function (q, qIdx) {
+      var tA = q.teamA || [], tB = q.teamB || [];
+      tA.concat(tB).forEach(function (name) { if (name) inQueueSet.add(name); });
+      if (myNickname) {
+        if (tA.includes(myNickname)) {
+          var partner = tA.find(function (n) { return n !== myNickname; }) || null;
+          if (!myQueueInfo) myQueueInfo = { index: qIdx, partner: partner, mode: q.mode || 'balanced' };
+        } else if (tB.includes(myNickname)) {
+          var partner = tB.find(function (n) { return n !== myNickname; }) || null;
+          if (!myQueueInfo) myQueueInfo = { index: qIdx, partner: partner, mode: q.mode || 'balanced' };
+        }
+      }
+    });
+
+    var onCourtMap = {};
+    courts.forEach(function (c) {
+      (c.teamA || []).forEach(function (name) { onCourtMap[name] = c.courtNum; });
+      (c.teamB || []).forEach(function (name) { onCourtMap[name] = c.courtNum; });
+    });
+
+    var restingSet = {};
+    restingList.forEach(function (n) { restingSet[n] = true; });
+
+    /* 待命備戰名單：排除在場上、靜室閉關者，以及已在共用排隊池中的球友 */
+    var bench = going.filter(function (r) { return !onCourtMap[r.nickname] && !restingSet[r.nickname] && !inQueueSet.has(r.nickname); });
+    bench.sort(function (a, b) {
+      var ga = stats[a.nickname] || 0, gb = stats[b.nickname] || 0;
+      if (ga !== gb) return ga - gb;
+      return (Number(b.level) || 0) - (Number(a.level) || 0);
+    });
+
+    var quietRoomList = going.filter(function (r) { return restingSet[r.nickname]; });
+
+    var myQueueIndex = bench.findIndex(function (r) { return r.nickname === myNickname; });
+    var myCourt = myNickname ? onCourtMap[myNickname] : null;
+
+    var activeCourtsCount = courts.filter(function (c) { return c.status === 'playing'; }).length || 1;
+    var estRounds = myQueueIndex >= 0 ? (Math.floor(myQueueIndex / (activeCourtsCount * 4)) + 1) : null;
+
+    /* 候打預排監聽：若剛被排入排隊池，觸發提示音與震動 */
+    useEffect(function () {
+      if (!myNickname) return;
+      var curQueueIdx = myQueueInfo ? myQueueInfo.index : null;
+      if (curQueueIdx !== null && curQueueIdx !== lastPreCourtRef.current) {
+        var cfg = ALERT_LEVELS[alertLevel] || ALERT_LEVELS.high;
+        if (cfg.allowToast) {
+          playPreChime(alertLevel);
+          setPreAlertToast({
+            courtNum: null,
+            nickname: myNickname,
+            queueIndex: curQueueIdx,
+            partner: myQueueInfo.partner
+          });
+        }
+      }
+      lastPreCourtRef.current = curQueueIdx;
+    }, [myNickname, myQueueInfo ? myQueueInfo.index : null, alertLevel]);
+
+    var lastAnnouncedRef = useRef(lineup.announcedAt || null);
+    useEffect(function () {
+      if (!lineup.announcedAt) return;
+      if (lineup.announcedAt !== lastAnnouncedRef.current) {
+        lastAnnouncedRef.current = lineup.announcedAt;
+        if (myNickname && onCourtMap[myNickname]) {
+          var targetCourt = onCourtMap[myNickname];
+          if (!lineup.announcedCourt || lineup.announcedCourt === targetCourt) {
+            var cfg = ALERT_LEVELS[alertLevel] || ALERT_LEVELS.high;
+            playChime(alertLevel);
+            if (cfg.allowModal) {
+              setAlertModal({ courtNum: targetCourt, time: lineup.announcedAt });
+            } else if (cfg.allowToast) {
+              setPreAlertToast({ courtNum: targetCourt, nickname: myNickname, isSummon: true });
+            }
+          }
+        }
+      }
+    }, [lineup.announcedAt, myNickname, alertLevel]);
+
+    function chooseNickname(name) {
+      setMyNickname(name);
+      try { localStorage.setItem('luoyun-my-nickname', name); } catch (e) {}
+      setPickingNick(false);
+      try { getAudioCtx(); } catch (e) {}
+    }
+
+    function commitLineup(nextCourts, nextResting, nextStats, saveHistory, nextQueue, courtNumToAnnounce) {
+      if (!p.needAdmin()) return;
+      var newHistory = history.slice();
+      if (saveHistory !== false) {
+        newHistory = newHistory.concat([{
+          courts: courts.map(function (c) { return Object.assign({}, c); }),
+          resting: restingList.slice(),
+          stats: Object.assign({}, stats),
+          lockedPairs: lockedPairs.slice(),
+          queue: queue.slice()
+        }]).slice(-15);
+      }
+      var nextObj = {
+        courts: nextCourts,
+        queue: nextQueue !== undefined ? nextQueue : queue,
+        resting: nextResting !== undefined ? nextResting : restingList,
+        stats: nextStats || stats,
+        lockedPairs: lockedPairs,
+        history: newHistory,
+        announcedAt: lineup.announcedAt,
+        announcedCourt: lineup.announcedCourt,
+        updatedAt: nowISO()
+      };
+      if (courtNumToAnnounce) {
+        p.callLineup(ev, courtNumToAnnounce, nextObj);
+      } else {
+        p.updateLineup(ev, nextObj);
+      }
+      setSelectedBench(null);
+      setSelectedSlot(null);
+    }
+
+    function toggleMyResting() {
+      if (!ev || !myNickname) return;
+      var isCurrentlyResting = !!restingSet[myNickname];
+      fetch('/api/rest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventId: ev.id, nickname: myNickname, resting: !isCurrentlyResting })
+      }).then(function (r) { return r.json(); }).then(function () {
+        p.flash(isCurrentlyResting ? '已出關備戰！' : '已進入清修靜室閉關修整', 'ok');
+      });
+    }
+
+    function elderToggleQuiet(name) {
+      var list = restingList.slice();
+      var idx = list.indexOf(name);
+      if (idx >= 0) list.splice(idx, 1);
+      else {
+        courts.forEach(function (c) {
+          c.teamA = (c.teamA || []).filter(function (x) { return x !== name; });
+          c.teamB = (c.teamB || []).filter(function (x) { return x !== name; });
+          c.nextTeamA = (c.nextTeamA || []).filter(function (x) { return x !== name; });
+          c.nextTeamB = (c.nextTeamB || []).filter(function (x) { return x !== name; });
+        });
+        list.push(name);
+      }
+      commitLineup(courts, list, stats, true);
+    }
+
+    function undoLineup() {
+      if (!p.needAdmin() || !history.length) return;
+      var prev = history[history.length - 1];
+      var remainingHistory = history.slice(0, -1);
+      var nextObj = {
+        courts: prev.courts || [],
+        queue: prev.queue || [],
+        resting: prev.resting || [],
+        stats: prev.stats || {},
+        lockedPairs: prev.lockedPairs || [],
+        history: remainingHistory,
+        announcedAt: lineup.announcedAt,
+        announcedCourt: lineup.announcedCourt,
+        updatedAt: nowISO()
+      };
+      p.updateLineup(ev, nextObj);
+      setSelectedBench(null);
+      setSelectedSlot(null);
+    }
+
+    /* 戰力平衡配對演算法 (具備鎖定搭檔防拆散保護) */
+    function pairBalanced(players) {
+      var pair1 = null, pair2 = null;
+      for (var i = 0; i < players.length; i++) {
+        for (var j = i + 1; j < players.length; j++) {
+          if (isPairLocked(players[i].nickname, players[j].nickname)) {
+            if (!pair1) pair1 = [players[i].nickname, players[j].nickname];
+            else if (!pair2) pair2 = [players[i].nickname, players[j].nickname];
+          }
+        }
+      }
+
+      if (pair1 && pair2) {
+        return { teamA: pair1, teamB: pair2 };
+      }
+      if (pair1) {
+        var rem = players.map(function (x) { return x.nickname; }).filter(function (name) {
+          return !pair1.includes(name);
+        });
+        return { teamA: pair1, teamB: rem };
+      }
+
+      var sorted = players.slice().sort(function (a, b) {
+        return (Number(b.level) || 4) - (Number(a.level) || 4);
+      });
+      if (sorted.length < 4) {
+        return {
+          teamA: sorted.slice(0, 2).map(function (x) { return x.nickname; }),
+          teamB: sorted.slice(2, 4).map(function (x) { return x.nickname; })
+        };
+      }
+      return {
+        teamA: [sorted[0].nickname, sorted[3].nickname],
+        teamB: [sorted[1].nickname, sorted[2].nickname]
+      };
+    }
+
+    /* 男女混雙配對演算法 (具備鎖定搭檔防拆散保護) */
+    function pairMixed(players) {
+      var pair1 = null;
+      for (var i = 0; i < players.length; i++) {
+        for (var j = i + 1; j < players.length; j++) {
+          if (isPairLocked(players[i].nickname, players[j].nickname)) {
+            pair1 = [players[i].nickname, players[j].nickname];
+            break;
+          }
+        }
+        if (pair1) break;
+      }
+      if (pair1) {
+        var rem = players.map(function (x) { return x.nickname; }).filter(function (name) {
+          return !pair1.includes(name);
+        });
+        return { teamA: pair1, teamB: rem };
+      }
+
+      var males = players.filter(function (p) { return p.gender === 'male'; });
+      var females = players.filter(function (p) { return p.gender === 'female'; });
+      if (males.length >= 2 && females.length >= 2) {
+        males.sort(function (a, b) { return (Number(b.level) || 4) - (Number(a.level) || 4); });
+        females.sort(function (a, b) { return (Number(b.level) || 4) - (Number(a.level) || 4); });
+        return {
+          teamA: [males[0].nickname, females[1].nickname],
+          teamB: [males[1].nickname, females[0].nickname]
+        };
+      }
+      return pairBalanced(players);
+    }
+
+    /* 從可用待命名單中挑選 4 人，強制讓鎖定搭檔整組成對帶入 */
+    function pickFourForMatch(availablePool) {
+      var selected = [];
+      var selectedNames = new Set();
+
+      for (var i = 0; i < availablePool.length; i++) {
+        if (selected.length >= 4) break;
+        var p = availablePool[i];
+        if (selectedNames.has(p.nickname)) continue;
+
+        var partnerName = getLockedPartner(p.nickname);
+        if (partnerName) {
+          var partner = availablePool.find(function (x) {
+            return x.nickname === partnerName && !selectedNames.has(x.nickname);
+          });
+          if (partner) {
+            if (selected.length === 3) {
+              continue; // 剩 1 席放不下整對，先跳過
+            }
+            selected.push(p);
+            selected.push(partner);
+            selectedNames.add(p.nickname);
+            selectedNames.add(partner.nickname);
+          } else {
+            // 搭檔不在池中，保護搭檔不拆散
+            continue;
+          }
+        } else {
+          selected.push(p);
+          selectedNames.add(p.nickname);
+        }
+      }
+
+      if (selected.length < 4) {
+        for (var j = 0; j < availablePool.length; j++) {
+          if (selected.length >= 4) break;
+          var cand = availablePool[j];
+          if (!selectedNames.has(cand.nickname) && !getLockedPartner(cand.nickname)) {
+            selected.push(cand);
+            selectedNames.add(cand.nickname);
+          }
+        }
+      }
+
+      return selected.length === 4 ? selected : null;
+    }
+
+    /* 分配席位 (支援 isNext: 下輪預排席位) */
+    function assignSlot(courtNum, teamKey, slotIndex, playerName, isNext) {
+      if (!p.isAdmin) return;
+      var nextCourts = courts.map(function (c) {
+        var a = (c.teamA || []).map(function (x) { return x === playerName ? null : x; });
+        var b = (c.teamB || []).map(function (x) { return x === playerName ? null : x; });
+        var na = (c.nextTeamA || []).map(function (x) { return x === playerName ? null : x; });
+        var nb = (c.nextTeamB || []).map(function (x) { return x === playerName ? null : x; });
+        if (c.courtNum === courtNum) {
+          if (isNext) {
+            if (teamKey === 'teamA') na[slotIndex] = playerName;
+            else nb[slotIndex] = playerName;
+          } else {
+            if (teamKey === 'teamA') a[slotIndex] = playerName;
+            else b[slotIndex] = playerName;
+          }
+        }
+        return Object.assign({}, c, {
+          teamA: a.filter(function (x, i) { return i < 2; }),
+          teamB: b.filter(function (x, i) { return i < 2; }),
+          nextTeamA: na.filter(function (x, i) { return i < 2; }),
+          nextTeamB: nb.filter(function (x, i) { return i < 2; })
+        });
+      });
+      commitLineup(nextCourts, restingList, stats, true);
+      setSelectedBench(null);
+      setSelectedSlot(null);
+    }
+
+    /* 清除席位 (支援 isNext: 下輪預排席位) */
+    function removeSlot(courtNum, teamKey, slotIndex, isNext) {
+      if (!p.isAdmin) return;
+      var nextCourts = courts.map(function (c) {
+        if (c.courtNum === courtNum) {
+          if (isNext) {
+            var na = (c.nextTeamA || []).slice();
+            var nb = (c.nextTeamB || []).slice();
+            if (teamKey === 'teamA') na[slotIndex] = null;
+            else nb[slotIndex] = null;
+            return Object.assign({}, c, { nextTeamA: na.filter(Boolean), nextTeamB: nb.filter(Boolean) });
+          } else {
+            var a = (c.teamA || []).slice();
+            var b = (c.teamB || []).slice();
+            if (teamKey === 'teamA') a[slotIndex] = null;
+            else b[slotIndex] = null;
+            return Object.assign({}, c, { teamA: a.filter(Boolean), teamB: b.filter(Boolean) });
+          }
+        }
+        return c;
+      });
+      commitLineup(nextCourts, restingList, stats, true);
+    }
+
+    /* 席位對調 Swap Slots (支援平板與手機觸控快速調配) */
+    function swapSlots(src, dest) {
+      if (!p.isAdmin) return;
+      var nextCourts = courts.map(function (c) {
+        return {
+          courtNum: c.courtNum, status: c.status, mode: c.mode, matchStart: c.matchStart,
+          teamA: (c.teamA || []).slice(), teamB: (c.teamB || []).slice(),
+          nextTeamA: (c.nextTeamA || []).slice(), nextTeamB: (c.nextTeamB || []).slice()
+        };
+      });
+      var cSrc = nextCourts.find(function (x) { return x.courtNum === src.courtNum; });
+      var cDest = nextCourts.find(function (x) { return x.courtNum === dest.courtNum; });
+      if (!cSrc || !cDest) return;
+      var arrSrc = src.isNext ? (src.teamKey === 'teamA' ? cSrc.nextTeamA : cSrc.nextTeamB) : (src.teamKey === 'teamA' ? cSrc.teamA : cSrc.teamB);
+      var arrDest = dest.isNext ? (dest.teamKey === 'teamA' ? cDest.nextTeamA : cDest.nextTeamB) : (dest.teamKey === 'teamA' ? cDest.teamA : cDest.teamB);
+      var pSrc = arrSrc[src.slotIndex];
+      var pDest = arrDest[dest.slotIndex];
+      arrSrc[src.slotIndex] = pDest || null;
+      arrDest[dest.slotIndex] = pSrc || null;
+      var cleanedCourts = nextCourts.map(function (c) {
+        return Object.assign({}, c, {
+          teamA: c.teamA.filter(function (x, i) { return i < 2 && x; }),
+          teamB: c.teamB.filter(function (x, i) { return i < 2 && x; }),
+          nextTeamA: c.nextTeamA.filter(function (x, i) { return i < 2 && x; }),
+          nextTeamB: c.nextTeamB.filter(function (x, i) { return i < 2 && x; })
+        });
+      });
+      commitLineup(cleanedCourts, restingList, stats, true);
+      setSelectedSlot(null);
+      setSelectedBench(null);
+    }
+
+    /* 點擊席位通用處理函式 (支援入席、對調、選取) */
+    function handleSlotClick(courtNum, teamKey, slotIndex, name, isNext) {
+      if (!p.isAdmin) return;
+      if (selectedBench) {
+        assignSlot(courtNum, teamKey, slotIndex, selectedBench.nickname, isNext);
+        return;
+      }
+      if (selectedSlot) {
+        if (selectedSlot.courtNum === courtNum && selectedSlot.teamKey === teamKey && selectedSlot.slotIndex === slotIndex && selectedSlot.isNext === isNext) {
+          setSelectedSlot(null);
+          return;
+        }
+        swapSlots(selectedSlot, { courtNum: courtNum, teamKey: teamKey, slotIndex: slotIndex, isNext: isNext });
+        return;
+      }
+      if (name) {
+        setSelectedSlot({ courtNum: courtNum, teamKey: teamKey, slotIndex: slotIndex, name: name, isNext: isNext });
+      }
+    }
+
+    /* ---------------- 搭檔鎖定按鈕 (Duo Lock Button) ---------------- */
+    function renderDuoLockBtn(p1, p2, isNext, courtNum, teamKey) {
+      var isLocked = p1 && p2 && isPairLocked(p1, p2);
+      if (p1 && p2) {
+        return E('button', {
+          type: 'button',
+          title: isLocked ? '搭檔已鎖定（自動補位/預排絕不拆散），點擊解除鎖定' : (p.isAdmin ? '點擊將此兩人鎖定為固定搭檔（自動補位不拆散）' : '搭檔未鎖定'),
+          onClick: function (e) {
+            e.stopPropagation();
+            if (p.isAdmin) toggleLockPair(p1, p2);
+          },
+          className: 'btn inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10.5px] font-bold transition shrink-0 ' +
+            (isLocked ? 'border border-[rgba(201,169,97,.6)] bg-[linear-gradient(180deg,rgba(201,169,97,.3),rgba(201,169,97,.12))] text-[var(--gold)] shadow-[0_0_8px_rgba(201,169,97,0.25)] hover:scale-105' :
+             (p.isAdmin ? 'border border-dashed border-[var(--hair-2)] bg-[rgba(255,255,255,0.03)] text-[var(--mist-3)] hover:text-[var(--gold)] hover:border-[rgba(201,169,97,0.4)]' :
+                   'text-[var(--mist-3)] opacity-40 cursor-default'))
+        },
+          E(Icon, { name: isLocked ? 'Lock' : 'Unlock', size: 11, className: isLocked ? 'text-[var(--gold)]' : '' }),
+          S('', isLocked ? '搭檔鎖定' : (p.isAdmin ? '鎖定搭檔' : '未鎖'))
+        );
+      }
+      return null;
+    }
+
+    /* ---------------- 排隊橫條單一席位 (Strip Slot) ---------------- */
+    function renderStripSlot(name, courtNum, teamKey, slotIndex, isNext) {
+      var player = name ? roster.find(function (r) { return r.nickname === name; }) : null;
+      var isMe = name && name === myNickname;
+      var isSel = selectedSlot && selectedSlot.courtNum === courtNum && selectedSlot.teamKey === teamKey && selectedSlot.slotIndex === slotIndex && selectedSlot.isNext === isNext;
+
+      if (name) {
+        return D('flex items-center justify-between rounded-xl border px-3 py-2 transition cursor-pointer flex-1 min-w-0 ' +
+          (isSel ? 'border-[var(--gold)] bg-[rgba(201,169,97,0.25)] ring-2 ring-[var(--gold)] shadow-md' :
+           (selectedBench || selectedSlot ? 'border-amber-400/60 bg-[rgba(228,235,232,0.08)] hover:border-amber-300' : 'border-[var(--hair)] bg-[rgba(228,235,232,0.04)] hover:bg-[rgba(228,235,232,0.08)]')),
+          {
+            key: 'strip-' + teamKey + '-' + slotIndex,
+            style: { minWidth: '120px' },
+            onClick: function () { handleSlotClick(courtNum, teamKey, slotIndex, name, isNext); }
+          },
+          D('flex items-center gap-2 min-w-0 flex-1',
+            E(Avatar, { name: name, g: player ? player.gender : 'male' }),
+            D('flex flex-col min-w-0 flex-1',
+              D('flex items-center gap-1 min-w-0',
+                S('disp truncate font-bold text-xs sm:text-sm ' + (isMe ? 'text-[var(--gold)]' : T1), name),
+                isMe ? S('shrink-0 rounded px-1 text-[9px] bg-[rgba(201,169,97,0.3)] text-[var(--gold)] font-bold', '我') : null
+              ),
+              D('flex items-center gap-1.5 mt-0.5',
+                player ? E(LevelBadge, { level: player.level }) : null,
+                S('text-[10px] num text-[var(--mist-3)] font-medium', (stats[name] || 0) + ' 場')
+              )
+            )
+          ),
+          p.isAdmin ? E('button', {
+            type: 'button',
+            title: '移出席位',
+            onClick: function (e) { e.stopPropagation(); removeSlot(courtNum, teamKey, slotIndex, isNext); },
+            className: 'text-white/40 hover:text-red-300 p-1 transition rounded-lg hover:bg-white/5 shrink-0 ml-1'
+          }, E(Icon, { name: 'X', size: 12 })) : null
+        );
+      } else {
+        var isTargetActive = p.isAdmin && (selectedBench || selectedSlot);
+        return D('flex items-center justify-center rounded-xl border border-dashed py-2.5 px-2 text-[11px] transition cursor-pointer flex-1 min-w-0 ' +
+          (isTargetActive ? 'border-amber-400/90 bg-amber-950/40 text-amber-300 ring-2 ring-amber-400/50 animate-pulse font-bold' :
+           'border-[var(--hair-2)] bg-[rgba(255,255,255,0.015)] text-[var(--mist-3)] hover:border-emerald-400/60 hover:text-emerald-300'),
+          {
+            key: 'strip-' + teamKey + '-' + slotIndex,
+            style: { minWidth: '120px' },
+            onClick: function () { handleSlotClick(courtNum, teamKey, slotIndex, null, isNext); }
+          },
+          S('truncate', isTargetActive ? ('+ 入席 ' + (selectedBench ? selectedBench.nickname : (selectedSlot ? selectedSlot.name : ''))) : (p.isAdmin ? (isNext ? '+ 預排席位' : '+ 安排弟子') : (isNext ? '候打待定' : '虛位以待')))
+        );
+      }
+    }
+
+    /* ---------------- 緊湊排隊橫條卡片 (Queue Strip Card) ---------------- */
+    function renderQueueStrip(c) {
+      var isPlaying = c.status === 'playing';
+      var elapsed = c.matchStart ? Math.max(0, Math.floor((nowTime - new Date(c.matchStart).getTime()) / 1000)) : 0;
+      var mins = Math.floor(elapsed / 60), secs = elapsed % 60;
+      var timerText = (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
+      var isOvertime = mins >= 15;
+
+      var isMePlaying = myNickname && ((c.teamA || []).includes(myNickname) || (c.teamB || []).includes(myNickname));
+      var isMyCourt = isMePlaying;
+
+      var a0 = (c.teamA || [])[0], a1 = (c.teamA || [])[1];
+      var b0 = (c.teamB || [])[0], b1 = (c.teamB || [])[1];
+
+      return D('div', {
+        key: 'strip-' + c.courtNum,
+        className: 'flex flex-col overflow-hidden rounded-2xl border bg-[rgba(13,31,27,.75)] p-3.5 sm:p-4 shadow-xl backdrop-blur-sm transition ' +
+          (isMyCourt ? 'ring-2 ring-[var(--gold)]/80 shadow-[0_0_16px_rgba(201,169,97,0.2)] ' : '') +
+          (isPlaying ? 'border-emerald-500/40 playing-pulse' : 'border-[var(--hair)]')
+      },
+        /* 1. 頂部資訊列：場地號、狀態徽章、計時器、長老控制鍵 */
+        D('flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-[var(--hair)]',
+          D('flex items-center gap-2',
+            D('flex h-7 w-7 items-center justify-center rounded-lg font-bold text-xs ' + (isPlaying ? 'bg-emerald-500 text-black' : 'bg-white/10 text-white'), c.courtNum),
+            S('disp text-base font-bold text-[var(--mist-1)]', '第 ' + c.courtNum + ' 號場'),
+            isPlaying ? D('inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-950/40 px-2.5 py-0.5 text-xs font-semibold text-emerald-400',
+              S('h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse'),
+              S('num font-mono ' + (isOvertime ? 'text-amber-400 font-bold' : ''), timerText)
+            ) : S('rounded-full border border-[var(--hair)] bg-[rgba(228,235,232,.04)] px-2.5 py-0.5 text-xs text-[var(--mist-3)]', '候場中'),
+            isMyCourt ? S('rounded-full border border-[rgba(201,169,97,0.5)] bg-[rgba(201,169,97,0.15)] px-2 py-0.5 text-[10px] font-bold text-[var(--gold)] animate-pulse', '🔥 我在場上') : null
+          ),
+
+          /* 右側長老控制 */
+          p.isAdmin ? (isPlaying ? D('flex items-center gap-1.5',
+            queue.length > 0 ? E(Btn, {
+              variant: 'primary', size: 'xs', icon: 'Play',
+              title: '結束此場並由共用排隊池第 1 順位組直接接棒開賽',
+              onClick: function () { finishAndPromoteCourt(c.courtNum); }
+            }, S('hidden sm:inline', '🏁 結束並接棒 (順位 1)'), S('inline sm:hidden', '🏁 接棒開賽')) : null,
+            E(Btn, {
+              variant: 'danger', size: 'xs', icon: 'Flag',
+              title: '結束當前賽事並清空場地',
+              onClick: function () { finishCourt(c.courtNum); }
+            }, '結束清空')
+          ) : D('flex items-center gap-1.5',
+            queue.length > 0 ? E(Btn, {
+              variant: 'soft', size: 'xs', icon: 'Sparkles',
+              title: '自共用排隊池取第 1 順位組入陣此場地',
+              onClick: function () { promoteQueueToCourt(c.courtNum); }
+            }, S('hidden sm:inline', '⚡ 呼叫順位 1 入陣'), S('inline sm:hidden', '⚡ 順位 1 上場')) : null,
+            E(Btn, {
+              variant: 'outline', size: 'xs', icon: 'Play',
+              title: '宣佈此場地開賽',
+              onClick: function () { announceCourt(c.courtNum); }
+            }, '宣佈開賽')
+          )) : null
+        ),
+
+        /* 2. 當前交鋒橫條 (Current Match Bar) */
+        D('flex flex-col md:flex-row items-stretch md:items-center gap-2 sm:gap-3 my-2',
+          /* 隊伍 A 方塊 */
+          D('flex-1 rounded-2xl border border-[rgba(155,195,174,0.22)] bg-[rgba(20,44,38,0.25)] p-2 sm:p-2.5 flex flex-col gap-1.5',
+            D('flex items-center justify-between',
+              S('text-[10.5px] font-bold text-teal-300/90 tracking-wide', '隊伍 A（搭檔）'),
+              renderDuoLockBtn(a0, a1, false, c.courtNum, 'teamA')
+            ),
+            D('flex flex-wrap sm:flex-nowrap items-center gap-2',
+              renderStripSlot(a0, c.courtNum, 'teamA', 0, false),
+              renderStripSlot(a1, c.courtNum, 'teamA', 1, false)
+            )
+          ),
+
+          /* 中間 VS 徽章 */
+          D('flex items-center justify-center shrink-0 self-center md:self-auto py-1 md:py-0',
+            D('flex h-8 w-8 items-center justify-center rounded-full border border-[var(--hair)] bg-[var(--surface-sunken)] shadow-inner text-xs font-black tracking-wider text-[var(--mist-3)]',
+              'VS')
+          ),
+
+          /* 隊伍 B 方塊 */
+          D('flex-1 rounded-2xl border border-[rgba(201,169,97,0.22)] bg-[rgba(44,38,20,0.25)] p-2 sm:p-2.5 flex flex-col gap-1.5',
+            D('flex items-center justify-between',
+              S('text-[10.5px] font-bold text-amber-300/90 tracking-wide', '隊伍 B（搭檔）'),
+              renderDuoLockBtn(b0, b1, false, c.courtNum, 'teamB')
+            ),
+            D('flex flex-wrap sm:flex-nowrap items-center gap-2',
+              renderStripSlot(b0, c.courtNum, 'teamB', 0, false),
+              renderStripSlot(b1, c.courtNum, 'teamB', 1, false)
+            )
+          )
+        )
+      );
+    }
+
+    /* ---------------- 全場共用排隊池 (Unified Queue Pool) 核心邏輯 ---------------- */
+    /* 智慧編組排入共用隊列 (搭檔鎖定絕不拆散) */
+    function enqueueAutoMatch(prefMode) {
+      if (!p.needAdmin()) return;
+      var picked = pickFourForMatch(bench);
+      if (!picked) {
+        p.flash('可用待命球友（或可成對之搭檔）不足 4 人，無法編入共用排隊池', 'err');
+        return;
+      }
+      var targetMode = prefMode || mode;
+      var paired = (targetMode === 'mixed') ? pairMixed(picked) : pairBalanced(picked);
+      var newMatch = {
+        id: 'q-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+        mode: targetMode || 'balanced',
+        teamA: paired.teamA,
+        teamB: paired.teamB,
+        createdAt: new Date().toISOString()
+      };
+      var nextQueue = queue.concat([newMatch]);
+      commitLineup(courts, restingList, stats, true, nextQueue);
+      p.flash('已將 1 組弟子智慧編排入共用排隊池！', 'ok', 'roster');
+    }
+
+    /* 智慧預排填滿至前 3 組 (方便現場預先了解對手與搭檔) */
+    function autoQueueTopThree(prefMode) {
+      if (!p.needAdmin()) return;
+      var pool = bench.slice();
+      var nextQueue = queue.slice();
+      var added = 0;
+      var targetMode = prefMode || mode;
+      while (nextQueue.length < 3) {
+        var picked = pickFourForMatch(pool);
+        if (!picked) break;
+        var pickedNames = new Set(picked.map(function (x) { return x.nickname; }));
+        pool = pool.filter(function (x) { return !pickedNames.has(x.nickname); });
+        var paired = (targetMode === 'mixed') ? pairMixed(picked) : pairBalanced(picked);
+        nextQueue.push({
+          id: 'q-' + Date.now() + '-' + added + '-' + Math.random().toString(36).slice(2, 6),
+          mode: targetMode || 'balanced',
+          teamA: paired.teamA,
+          teamB: paired.teamB,
+          createdAt: new Date().toISOString()
+        });
+        added++;
+      }
+      if (added === 0 && nextQueue.length < 3) {
+        p.flash('可用待命球友不足 4 人，已儘可能預排現有組別', 'err');
+        return;
+      }
+      commitLineup(courts, restingList, stats, true, nextQueue);
+      p.flash('已智慧預排至前 ' + nextQueue.length + ' 組隊列！', 'ok', 'roster');
+    }
+
+    /* 一鍵將所有可用待命弟子智慧編組排滿排隊池 */
+    function autoQueueAll(prefMode) {
+      if (!p.needAdmin()) return;
+      var pool = bench.slice();
+      var nextQueue = queue.slice();
+      var count = 0;
+      var targetMode = prefMode || mode;
+      while (true) {
+        var picked = pickFourForMatch(pool);
+        if (!picked) break;
+        var pickedNames = new Set(picked.map(function (x) { return x.nickname; }));
+        pool = pool.filter(function (x) { return !pickedNames.has(x.nickname); });
+        var paired = (targetMode === 'mixed') ? pairMixed(picked) : pairBalanced(picked);
+        nextQueue.push({
+          id: 'q-' + Date.now() + '-' + count + '-' + Math.random().toString(36).slice(2, 6),
+          mode: targetMode || 'balanced',
+          teamA: paired.teamA,
+          teamB: paired.teamB,
+          createdAt: new Date().toISOString()
+        });
+        count++;
+      }
+      if (count === 0) {
+        p.flash('可用待命球友（或可成對之搭檔）不足 4 人，無法編入共用排隊池', 'err');
+        return;
+      }
+      commitLineup(courts, restingList, stats, true, nextQueue);
+      p.flash('已將 ' + count + ' 組待命弟子智慧編入共用排隊池！', 'ok', 'roster');
+    }
+
+    /* 調整共用排隊池順位 (上移 / 下移) */
+    function moveQueueMatch(idx, dir) {
+      if (!p.needAdmin()) return;
+      var targetIdx = idx + dir;
+      if (targetIdx < 0 || targetIdx >= queue.length) return;
+      var nextQueue = queue.slice();
+      var item = nextQueue.splice(idx, 1)[0];
+      nextQueue.splice(targetIdx, 0, item);
+      commitLineup(courts, restingList, stats, true, nextQueue);
+    }
+
+    /* 移出共用排隊池 (球友回歸待命區) */
+    function removeQueueMatch(idx) {
+      if (!p.needAdmin()) return;
+      var nextQueue = queue.slice();
+      nextQueue.splice(idx, 1);
+      commitLineup(courts, restingList, stats, true, nextQueue);
+      p.flash('已將該組移出共用排隊池（弟子回歸待命區）', 'ok');
+    }
+
+    /* 清空共用排隊池 */
+    function clearQueue() {
+      if (!p.needAdmin()) return;
+      commitLineup(courts, restingList, stats, true, []);
+      p.flash('已清空共用排隊池', 'ok');
+    }
+
+    /* 相容舊介面別名 */
+    function preScheduleCourt(courtNum) { enqueueAutoMatch(); }
+    function clearPreSchedule(courtNum) { clearQueue(); }
+    function autoPreScheduleAll() { enqueueAutoMatch(); }
+
+    function autoMatchmake(targetCourtNum) {
+      if (!p.needAdmin()) return;
+      var nextCourts = courts.map(function (c) {
+        return Object.assign({}, c, {
+          teamA: (c.teamA || []).slice(),
+          teamB: (c.teamB || []).slice(),
+          nextTeamA: (c.nextTeamA || []).slice(),
+          nextTeamB: (c.nextTeamB || []).slice()
+        });
+      });
+      var curOnCourt = {};
+      nextCourts.forEach(function (c) {
+        c.teamA.concat(c.teamB).forEach(function (name) { if (name) curOnCourt[name] = true; });
+      });
+      var pool = going.filter(function (r) { return !curOnCourt[r.nickname] && !restingSet[r.nickname] && !inQueueSet.has(r.nickname); });
+      pool.sort(function (a, b) {
+        var ga = stats[a.nickname] || 0, gb = stats[b.nickname] || 0;
+        if (ga !== gb) return ga - gb;
+        return (Number(b.level) || 0) - (Number(a.level) || 0);
+      });
+
+      function fillSingleCourt(court) {
+        var courtMode = court.mode || mode;
+        var needed = courtMode === 'singles' ? 2 : 4;
+        var filledCount = court.teamA.length + court.teamB.length;
+        if (filledCount >= needed) return;
+        var available = pool.slice();
+        if (available.length < (needed - filledCount)) return;
+        var picked = available.splice(0, needed - filledCount);
+        pool = available;
+        var names = picked.map(function (x) { return x.nickname; });
+        while (court.teamA.length < 2 && names.length) court.teamA.push(names.shift());
+        while (court.teamB.length < 2 && names.length) court.teamB.push(names.shift());
+      }
+
+      if (targetCourtNum) {
+        var c = nextCourts.find(function (x) { return x.courtNum === targetCourtNum; });
+        if (c) fillSingleCourt(c);
+      } else {
+        nextCourts.forEach(function (c) { fillSingleCourt(c); });
+      }
+      commitLineup(nextCourts, restingList, stats, true);
+    }
+
+    function announceCourt(courtNum) {
+      if (!p.needAdmin()) return;
+      var nextCourts = courts.map(function (c) {
+        if (courtNum && c.courtNum !== courtNum) return c;
+        return Object.assign({}, c, { status: 'playing', matchStart: new Date().toISOString() });
+      });
+      commitLineup(nextCourts, restingList, stats, false, undefined, courtNum);
+      p.flash('仙門靈鐘已響・宣告上場！', 'ok', 'event');
+    }
+
+    function finishCourt(courtNum) {
+      if (!p.needAdmin()) return;
+      var target = courts.find(function (c) { return c.courtNum === courtNum; });
+      if (!target) return;
+      var newStats = Object.assign({}, stats);
+      (target.teamA || []).concat(target.teamB || []).forEach(function (n) {
+        if (n) newStats[n] = (newStats[n] || 0) + 1;
+      });
+      var nextCourts = courts.map(function (c) {
+        if (c.courtNum !== courtNum) return c;
+        return Object.assign({}, c, { status: 'idle', matchStart: null, teamA: [], teamB: [], nextTeamA: [], nextTeamB: [] });
+      });
+      commitLineup(nextCourts, restingList, newStats, true);
+      p.flash('第 ' + courtNum + ' 號場比賽結束・場次已累計', 'ok', 'seal');
+    }
+
+    /* 結束此局並由共用排隊池第 1 順位接棒開賽 */
+    function finishAndPromoteCourt(courtNum) {
+      if (!p.needAdmin()) return;
+      var target = courts.find(function (c) { return c.courtNum === courtNum; });
+      if (!target) return;
+      var hasQueue = queue && queue.length > 0;
+      var nextQueue = queue.slice();
+      var promoted = hasQueue ? nextQueue.shift() : null;
+
+      if (!promoted && ((target.nextTeamA && target.nextTeamA.length > 0) || (target.nextTeamB && target.nextTeamB.length > 0))) {
+        promoted = { teamA: target.nextTeamA || [], teamB: target.nextTeamB || [], mode: target.mode || 'balanced' };
+      }
+
+      var newStats = Object.assign({}, stats);
+      (target.teamA || []).concat(target.teamB || []).forEach(function (n) {
+        if (n) newStats[n] = (newStats[n] || 0) + 1;
+      });
+
+      var nextCourts = courts.map(function (c) {
+        if (c.courtNum === courtNum) {
+          if (promoted) {
+            return Object.assign({}, c, {
+              status: 'playing',
+              matchStart: new Date().toISOString(),
+              teamA: promoted.teamA || [],
+              teamB: promoted.teamB || [],
+              mode: promoted.mode || c.mode || 'balanced',
+              nextTeamA: [],
+              nextTeamB: []
+            });
+          } else {
+            return Object.assign({}, c, { status: 'idle', matchStart: null, teamA: [], teamB: [], nextTeamA: [], nextTeamB: [] });
+          }
+        }
+        return c;
+      });
+
+      commitLineup(nextCourts, restingList, newStats, true, nextQueue, promoted ? courtNum : undefined);
+      p.flash(promoted ? ('第 ' + courtNum + ' 號場已由排隊池第 1 順位接棒開賽！') : ('第 ' + courtNum + ' 號場比賽結束・場次已累計'), 'ok', promoted ? 'roster' : 'seal');
+    }
+
+    /* 從共用排隊池直接呼叫第 1 順位進駐空場開賽 */
+    function promoteQueueToCourt(courtNum) {
+      if (!p.needAdmin() || !queue.length) return;
+      var nextQueue = queue.slice();
+      var promoted = nextQueue.shift();
+      var nextCourts = courts.map(function (c) {
+        if (c.courtNum === courtNum) {
+          return Object.assign({}, c, {
+            status: 'playing',
+            matchStart: new Date().toISOString(),
+            teamA: promoted.teamA || [],
+            teamB: promoted.teamB || [],
+            mode: promoted.mode || c.mode || 'balanced',
+            nextTeamA: [],
+            nextTeamB: []
+          });
+        }
+        return c;
+      });
+      commitLineup(nextCourts, restingList, stats, true, nextQueue, courtNum);
+      p.flash('第 ' + courtNum + ' 號場已由排隊池第 1 順位入陣開賽！', 'ok', 'roster');
+    }
+
+    /* ---------------- 排隊池單一選手元件 ---------------- */
+    function renderQueuePlayerUnit(name) {
+      if (!name) {
+        return D('flex items-center justify-center rounded-xl border border-dashed border-[var(--hair-2)] bg-white/5 py-2 px-2.5 text-[11px] text-[var(--mist-3)] flex-1 min-w-0',
+          S('', '虛位')
+        );
+      }
+      var player = roster.find(function (r) { return r.nickname === name; });
+      var isMe = name === myNickname;
+      return D('flex items-center justify-between gap-1.5 rounded-xl border px-2.5 py-1.5 transition flex-1 min-w-0 ' +
+        (isMe ? 'border-[var(--gold)] bg-[rgba(201,169,97,0.2)] shadow-sm' : 'border-[var(--hair)] bg-[rgba(228,235,232,0.03)]'),
+        D('flex items-center gap-2 min-w-0 flex-1',
+          E(Avatar, { name: name, g: player ? player.gender : 'male' }),
+          D('flex flex-col min-w-0 flex-1',
+            D('flex items-center gap-1 min-w-0',
+              S('disp truncate font-bold text-xs ' + (isMe ? 'text-[var(--gold)]' : T1), name),
+              isMe ? S('shrink-0 rounded px-1 text-[9px] bg-[rgba(201,169,97,0.3)] text-[var(--gold)] font-bold', '我') : null
+            ),
+            D('flex items-center gap-1.5 mt-0.5',
+              player ? E(LevelBadge, { level: player.level }) : null,
+              S('text-[10px] num text-[var(--mist-3)] font-medium', (stats[name] || 0) + ' 場')
+            )
+          )
+        )
+      );
+    }
+
+    /* ---------------- 全場共用排隊池組件 (Unified Queue Pool) ---------------- */
+    function renderUnifiedQueuePool() {
+      var queueLen = queue.length;
+      var totalInQueue = queue.reduce(function (acc, item) {
+        return acc + (item.teamA || []).length + (item.teamB || []).length;
+      }, 0);
+
+      return D('flex flex-col overflow-hidden rounded-2xl border border-[rgba(201,169,97,.3)] bg-[rgba(13,31,27,.75)] p-4 sm:p-5 shadow-xl backdrop-blur-sm gap-4',
+        /* 1. 排隊池頂部資訊與長老調度工具列 */
+        D('flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[var(--hair)]',
+          D('flex items-center gap-2.5 flex-wrap',
+            D('flex h-8 w-8 items-center justify-center rounded-xl border border-[rgba(201,169,97,.4)] bg-[linear-gradient(180deg,rgba(201,169,97,.2),rgba(201,169,97,.06))] text-[var(--gold)] shadow-sm',
+              E(Icon, { name: 'Zap', size: 16 })),
+            D('flex flex-col',
+              D('flex items-center gap-2',
+                S('disp text-base sm:text-lg font-bold text-[var(--mist-1)]', '全場共用排隊池'),
+                S('rounded-full border border-[rgba(201,169,97,.3)] bg-[rgba(201,169,97,.1)] px-2.5 py-0.5 text-xs font-bold text-[var(--gold)] num',
+                  queueLen + ' 組候打 (' + totalInQueue + ' 人)')
+              ),
+              S('text-[11px] text-[var(--mist-3)]', '所有場地完賽皆統一自此隊列第 1 順位接棒開賽 · 順位公開透明')
+            )
+          ),
+
+          /* 右側長老操作按鈕 */
+          p.isAdmin ? D('flex flex-wrap items-center gap-2',
+            E(Btn, {
+              variant: 'primary', size: 'sm', icon: 'Zap',
+              title: '一鍵為接下來三場比賽智慧抽選名單並排滿前 3 順位',
+              onClick: function () { autoQueueTopThree('balanced'); }
+            }, S('hidden sm:inline', '⚡ 智慧預排前 3 組'), S('inline sm:hidden', '⚡ 預排前 3 組')),
+            E(Btn, {
+              variant: 'outline', size: 'sm', icon: 'PlusCircle',
+              title: '自待命席智慧抽選 4 人（保護鎖定搭檔）彈性排入下一組',
+              onClick: function () { enqueueAutoMatch('balanced'); }
+            }, S('hidden sm:inline', '＋ 彈性加 1 組'), S('inline sm:hidden', '＋ 加 1 組')),
+            E(Btn, {
+              variant: 'outline', size: 'sm', icon: 'ListPlus',
+              title: '智慧編組排滿所有待命弟子入隊列',
+              onClick: function () { autoQueueAll('balanced'); }
+            }, '排滿待命'),
+            queueLen > 0 ? E(Btn, {
+              variant: 'danger', size: 'sm', icon: 'Trash2',
+              title: '清空排隊池中所有預備組別',
+              onClick: function () {
+                if (confirm('確定要清空共用排隊池的所有預備組別嗎？（球員將全數回歸待命區）')) clearQueue();
+              }
+            }, '清空隊列') : null
+          ) : null
+        ),
+
+        /* 2. 排隊池列表（預設預留至少 3 組空間，若更多則彈性向下擴充） */
+        D('flex flex-col gap-3',
+          Array.from({ length: Math.max(3, queueLen) }).map(function (_, idx) {
+            var item = queue[idx];
+            var isSlotOccupied = !!item;
+            var isFirst = idx === 0;
+
+            if (isSlotOccupied) {
+              var isMeInThis = myNickname && ((item.teamA || []).includes(myNickname) || (item.teamB || []).includes(myNickname));
+              var a0 = (item.teamA || [])[0], a1 = (item.teamA || [])[1];
+              var b0 = (item.teamB || [])[0], b1 = (item.teamB || [])[1];
+
+              return D('rounded-2xl border p-3.5 sm:p-4 transition ' +
+                (isMeInThis ? 'border-[var(--gold)] bg-[linear-gradient(180deg,rgba(201,169,97,0.18),rgba(201,169,97,0.06))] ring-2 ring-[var(--gold)]/80 shadow-[0_0_20px_rgba(201,169,97,0.22)]' :
+                 (isFirst ? 'border-[rgba(201,169,97,0.5)] bg-[linear-gradient(180deg,rgba(201,169,97,0.12),rgba(201,169,97,0.03))] shadow-lg' :
+                            'border-[var(--hair)] bg-[rgba(6,16,14,0.6)] hover:border-[var(--hair-2)]')),
+                { key: item.id || ('q-' + idx) },
+                /* 卡片標頭列：順位標籤、我在此組徽章、長老上下移與刪除鍵 */
+                D('flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-[var(--hair)]',
+                  D('flex items-center gap-2',
+                    isFirst ? D('inline-flex items-center gap-1.5 rounded-full border border-[rgba(201,169,97,0.6)] bg-[linear-gradient(180deg,rgba(201,169,97,0.3),rgba(201,169,97,0.1))] px-3 py-0.5 text-xs font-bold text-[var(--gold)] shadow-sm animate-pulse',
+                      E(Icon, { name: 'Flame', size: 12, className: 'text-[var(--gold)]' }),
+                      S('', '🔥 第 1 順位 · 下一場接棒開賽！')
+                    ) : D('inline-flex items-center gap-1 rounded-full border border-[var(--hair)] bg-[rgba(228,235,232,0.05)] px-2.5 py-0.5 text-xs font-semibold text-[var(--mist-2)]',
+                      S('num font-mono', '#' + (idx + 1)),
+                      S('', '第 ' + (idx + 1) + ' 順位組')
+                    ),
+                    isMeInThis ? S('rounded-full bg-[rgba(201,169,97,0.3)] border border-[var(--gold)] px-2.5 py-0.5 text-[10px] font-black text-[var(--gold)] animate-bounce',
+                      '🎯 我在此組') : null,
+                    S('text-[10px] text-[var(--mist-3)] font-mono',
+                      item.mode === 'mixed' ? '男女混雙' : '戰力平衡')
+                  ),
+
+                  /* 長老順位調動工具組 */
+                  p.isAdmin ? D('flex items-center gap-1',
+                    E(Btn, {
+                      variant: 'outline', size: 'xs', icon: 'ChevronUp',
+                      disabled: isFirst,
+                      title: '順位上移',
+                      onClick: function () { moveQueueMatch(idx, -1); }
+                    }),
+                    E(Btn, {
+                      variant: 'outline', size: 'xs', icon: 'ChevronDown',
+                      disabled: idx === queueLen - 1,
+                      title: '順位下移',
+                      onClick: function () { moveQueueMatch(idx, 1); }
+                    }),
+                    E(Btn, {
+                      variant: 'danger', size: 'xs', icon: 'X',
+                      title: '解散此組並移出排隊池',
+                      onClick: function () { removeQueueMatch(idx); }
+                    })
+                  ) : null
+                ),
+
+                /* 隊伍交鋒內容 */
+                D('flex flex-col md:flex-row items-stretch md:items-center gap-2 sm:gap-3 pt-3',
+                  /* 隊伍 A */
+                  D('flex-1 rounded-xl border border-[rgba(155,195,174,0.18)] bg-[rgba(20,44,38,0.25)] p-2.5 flex flex-col gap-1.5',
+                    D('flex items-center justify-between',
+                      S('text-[10px] font-bold text-teal-300/90 tracking-wide', '隊伍 A（搭檔）'),
+                      renderDuoLockBtn(a0, a1, false, null, null)
+                    ),
+                    D('flex flex-wrap sm:flex-nowrap items-center gap-2',
+                      renderQueuePlayerUnit(a0),
+                      renderQueuePlayerUnit(a1)
+                    )
+                  ),
+
+                  /* 中間 VS */
+                  D('flex items-center justify-center shrink-0 self-center py-0.5 md:py-0',
+                    S('text-xs font-black text-[var(--mist-3)] font-mono tracking-wider', 'VS')
+                  ),
+
+                  /* 隊伍 B */
+                  D('flex-1 rounded-xl border border-[rgba(201,169,97,0.18)] bg-[rgba(44,38,20,0.25)] p-2.5 flex flex-col gap-1.5',
+                    D('flex items-center justify-between',
+                      S('text-[10px] font-bold text-amber-300/90 tracking-wide', '隊伍 B（搭檔）'),
+                      renderDuoLockBtn(b0, b1, false, null, null)
+                    ),
+                    D('flex flex-wrap sm:flex-nowrap items-center gap-2',
+                      renderQueuePlayerUnit(b0),
+                      renderQueuePlayerUnit(b1)
+                    )
+                  )
+                )
+              );
+            } else {
+              /* 預留空間虛位卡片 (Slot idx) */
+              var slotTitles = [
+                '🔥 第 1 順位 · 下一場接棒（預留席位）',
+                '⚡ 第 2 順位 · 預備候打（預留席位）',
+                '⏳ 第 3 順位 · 戰力整備（預留席位）'
+              ];
+              var slotTitle = slotTitles[idx] || ('第 ' + (idx + 1) + ' 順位組（預留席位）');
+
+              return D('rounded-2xl border border-dashed border-[var(--hair-2)] bg-[rgba(228,235,232,0.02)] p-3.5 sm:p-4 transition flex flex-col gap-2.5 hover:border-[rgba(201,169,97,0.3)]',
+                { key: 'empty-slot-' + idx },
+                D('flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-dashed border-[var(--hair)]',
+                  D('flex items-center gap-2',
+                    S('inline-flex items-center gap-1 rounded-full border border-dashed border-[var(--hair-2)] bg-white/5 px-2.5 py-0.5 text-xs text-[var(--mist-2)] font-medium',
+                      S('num font-mono text-[var(--gold)]', '#' + (idx + 1)),
+                      S('', slotTitle)
+                    ),
+                    S('text-[10px] text-[var(--mist-3)]', '虛席以待 · 方便現場提前了解對陣名單')
+                  ),
+                  p.isAdmin ? E(Btn, {
+                    variant: 'soft', size: 'xs', icon: 'Sparkles',
+                    title: '自待命席智慧抽選 4 人（保護鎖定搭檔）填入此順位',
+                    onClick: function () { enqueueAutoMatch('balanced'); }
+                  }, '⚡ 智慧填入此組') : null
+                ),
+
+                D('flex flex-col md:flex-row items-stretch md:items-center gap-2 sm:gap-3 pt-1',
+                  /* 隊伍 A 虛位 */
+                  D('flex-1 rounded-xl border border-dashed border-[var(--hair-2)] bg-[rgba(255,255,255,0.015)] p-2.5 flex flex-col gap-1.5',
+                    S('text-[10px] text-[var(--mist-3)] font-semibold tracking-wide', '隊伍 A（預留席）'),
+                    D('flex items-center gap-2',
+                      renderQueuePlayerUnit(null),
+                      renderQueuePlayerUnit(null)
+                    )
+                  ),
+                  D('flex items-center justify-center shrink-0 self-center py-0.5 md:py-0',
+                    S('text-xs font-bold text-[var(--mist-3)]/60 font-mono', 'VS')
+                  ),
+                  /* 隊伍 B 虛位 */
+                  D('flex-1 rounded-xl border border-dashed border-[var(--hair-2)] bg-[rgba(255,255,255,0.015)] p-2.5 flex flex-col gap-1.5',
+                    S('text-[10px] text-[var(--mist-3)] font-semibold tracking-wide', '隊伍 B（預留席）'),
+                    D('flex items-center gap-2',
+                      renderQueuePlayerUnit(null),
+                      renderQueuePlayerUnit(null)
+                    )
+                  )
+                )
+              );
+            }
+          }),
+
+          /* 底部彈性增加組別工具列（長老專用，可無上限彈性增加） */
+          p.isAdmin ? D('flex items-center justify-center pt-2',
+            E(Btn, {
+              variant: 'ghost', size: 'sm', icon: 'PlusCircle',
+              title: '為現場再多開闢 1 組排隊席位，彈性無限擴展',
+              onClick: function () { enqueueAutoMatch('balanced'); }
+            }, '＋ 彈性增加第 ' + (Math.max(3, queueLen) + 1) + ' 順位組（無上限預約）')
+          ) : null
+        )
+      );
+    }
+
+    var MODES = [
+      { k: 'balanced', label: '戰力平衡' },
+      { k: 'mixed', label: '男女混雙' },
+      { k: 'mens', label: '男雙' },
+      { k: 'womens', label: '女雙' },
+      { k: 'singles', label: '單打' },
+      { k: 'free', label: '自由排位' }
+    ];
+
+    return D('flex flex-col gap-6',
+
+      /* 頂部功能條：獨立大板彈出鈕與我是誰綁定 */
+      D('flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--hair)] bg-[rgba(10,22,20,.65)] p-4',
+        D('flex items-center gap-3',
+          E(Avatar, { name: myNickname || '?', g: 'male' }),
+          D('flex flex-col',
+            myNickname ? D('flex flex-wrap items-center gap-2',
+              S('disp font-bold text-sm text-[var(--gold)]', myNickname),
+              S('text-xs ' + T3,
+                restingSet[myNickname] ? '【清修靜室閉關中】' :
+                (myCourt ? '【🔥 第 ' + myCourt + ' 號場激戰中】' :
+                (myQueueInfo ? (myQueueInfo.index === 0 ? '【🔥 排隊池 第 1 順位 · 下場接棒！】' : ('【⚡ 排隊池 第 ' + (myQueueInfo.index + 1) + ' 順位】')) :
+                (myQueueIndex >= 0 ?
+                  (myQueueIndex < 4 ? '【🔥 待命席 第 ' + (myQueueIndex + 1) + ' 位 · 約1局後】' :
+                   (myQueueIndex < 8 ? '【⚡ 待命席 第 ' + (myQueueIndex + 1) + ' 位 · 約2局後】' :
+                    '【⏳ 待命席 第 ' + (myQueueIndex + 1) + ' 位 · 約 ' + (estRounds || 2) + ' 局後】')) : '【備戰待命中】')))),
+              E('button', { type: 'button', onClick: function () { setPickingNick(true); }, className: 'text-xs text-[var(--mist-3)] underline hover:text-[var(--mist-1)]' }, '更換')
+            ) : D('',
+              E('p', { className: 'text-sm font-semibold ' + T1 }, '您是哪位道友？'),
+              E('p', { className: 'text-xs ' + T3 }, '點選認領身分，輪到上場或預排時手機將自動發出靈鐘與震動通知！')
+            )
+          )
+        ),
+
+        D('flex flex-wrap items-center gap-2',
+          /* 視圖切換器（排隊橫條 vs 全景球場，落雲宗 inlay 陰陽滑塊風格） */
+          D('inlay inline-flex items-center gap-1 rounded-full p-1 border border-[var(--hair-2)]',
+            E('button', {
+              type: 'button',
+              onClick: function () { toggleViewMode('strip'); },
+              className: 'btn inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition ' +
+                (viewMode === 'strip' ? 'bg-[linear-gradient(180deg,#A8CFBA_0%,#6E9E88_100%)] text-[#08120E] shadow-[0_2px_8px_rgba(110,158,136,.45),inset_0_1px_0_rgba(255,255,255,.4)] font-bold' : 'text-[var(--mist-3)] hover:text-[var(--mist-1)]')
+            }, E(Icon, { name: 'Rows', size: 12 }), S('', '排隊橫條')),
+            E('button', {
+              type: 'button',
+              onClick: function () { toggleViewMode('court'); },
+              className: 'btn inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition ' +
+                (viewMode === 'court' ? 'bg-[linear-gradient(180deg,#A8CFBA_0%,#6E9E88_100%)] text-[#08120E] shadow-[0_2px_8px_rgba(110,158,136,.45),inset_0_1px_0_rgba(255,255,255,.4)] font-bold' : 'text-[var(--mist-3)] hover:text-[var(--mist-1)]')
+            }, E(Icon, { name: 'LayoutGrid', size: 12 }), S('', '全景球場'))
+          ),
+
+          /* 靈鐘強度設定按鈕 */
+          E('button', {
+            type: 'button',
+            onClick: function () { setAlertSettingModal(true); },
+            title: '設定仙門靈鐘推播模式與震動強度',
+            className: 'btn qi inline-flex h-8 items-center gap-1.5 rounded-full border border-[rgba(201,169,97,.35)] bg-[linear-gradient(180deg,rgba(201,169,97,.14),rgba(201,169,97,.04))] px-3 text-xs font-semibold text-[var(--gold)] hover:border-[rgba(201,169,97,.6)] hover:bg-[linear-gradient(180deg,rgba(201,169,97,.22),rgba(201,169,97,.08))] shadow-sm transition'
+          },
+            E(Icon, { name: (ALERT_LEVELS[alertLevel] ? ALERT_LEVELS[alertLevel].icon : 'Sliders'), size: 13 }),
+            S('', (ALERT_LEVELS[alertLevel] ? ALERT_LEVELS[alertLevel].shortTitle : '強烈') + '提醒 ⚙')
+          ),
+
+          /* 測試靈鐘/震動 按鈕 */
+          E('button', {
+            type: 'button',
+            onClick: function () {
+              playChime(alertLevel);
+              setChimeTested(true);
+              setTimeout(function () { setChimeTested(false); }, 3500);
+            },
+            title: '測試仙門靈鐘與震動，並解鎖瀏覽器音訊播放權限',
+            className: 'btn qi inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition ' +
+              (chimeTested ? 'border-[rgba(110,158,136,.5)] bg-[linear-gradient(180deg,rgba(110,158,136,.22),rgba(110,158,136,.06))] text-[var(--jade-100)] shadow-[0_0_12px_rgba(110,158,136,.3)]'
+                          : 'border-[rgba(201,169,97,.35)] bg-[linear-gradient(180deg,rgba(201,169,97,.14),rgba(201,169,97,.04))] text-[var(--gold)] hover:border-[rgba(201,169,97,.6)] hover:bg-[linear-gradient(180deg,rgba(201,169,97,.22),rgba(201,169,97,.08))]')
+          },
+            E(Icon, { name: chimeTested ? 'Check' : 'BellRing', size: 13, className: chimeTested ? 'text-[var(--jade-100)]' : 'animate-bounce text-[var(--gold)]' }),
+            S('', chimeTested ? '靈鐘已解鎖！' : '🔔 測試靈鐘/震動')
+          ),
+
+          myNickname ? E(Btn, {
+            variant: restingSet[myNickname] ? 'primary' : 'outline', size: 'sm', icon: 'Moon',
+            onClick: toggleMyResting
+          }, restingSet[myNickname] ? '出關備戰' : '入靜修整') : null,
+
+          E(Btn, {
+            variant: 'outline', size: 'sm', icon: 'UserCheck',
+            onClick: function () { setPickingNick(true); }
+          }, myNickname ? '更換道號' : '認領身分'),
+
+          E(Btn, {
+            variant: 'primary', size: 'sm', icon: 'ExternalLink',
+            onClick: function () { window.open('/board.html?event=' + ev.id + '&view=tablet', '_blank'); }
+          }, '⛶ 獨立全螢幕大板')
+        )
+      ),
+
+      /* 選擇身分彈窗 */
+      pickingNick ? E(Modal, {
+        title: '認領您的道號', sub: '選取自己的名號（免密碼，供手機靈鐘推播）',
+        onClose: function () { setPickingNick(false); },
+        footer: [E(Btn, { key: 'c', variant: 'ghost', onClick: function () { setPickingNick(false); } }, '關閉')]
+      }, D('grid grid-cols-2 gap-2 sm:grid-cols-3',
+        going.map(function (r) {
+          var isMe = r.nickname === myNickname;
+          return E('button', {
+            key: r.nickname, type: 'button',
+            onClick: function () { chooseNickname(r.nickname); },
+            className: 'btn flex items-center justify-between rounded-xl border p-3 text-left ' +
+              (isMe ? 'border-[var(--jade-300)] bg-[rgba(155,195,174,.15)] text-[var(--jade-100)]' : 'border-[var(--hair)] bg-[var(--ink-1)] ' + T2 + ' hover:bg-[rgba(228,235,232,.04)]')
+          },
+            S('truncate font-semibold', r.nickname),
+            E(LevelBadge, { level: r.level })
+          );
+        })
+      )) : null,
+
+      /* 長老操控面板 */
+      p.isAdmin ? D('flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--hair)] bg-[var(--ink-1)] p-4',
+        D('flex flex-wrap items-center gap-1.5',
+          S('mr-2 text-xs font-semibold ' + T3, '組隊模式：'),
+          MODES.map(function (m) {
+            var active = mode === m.k;
+            return E('button', {
+              key: m.k, type: 'button',
+              onClick: function () { setMode(m.k); },
+              className: 'btn rounded-xl px-2.5 py-1.5 text-xs font-medium ' +
+                (active ? 'border border-[rgba(155,195,174,.3)] bg-[rgba(155,195,174,.18)] text-[var(--jade-100)]' : 'border border-transparent ' + T3 + ' hover:text-[var(--mist-1)]')
+            }, m.label);
+          })
+        ),
+        D('flex flex-wrap items-center gap-2',
+          E(Btn, {
+            variant: 'primary', size: 'sm', icon: 'Sparkles',
+            onClick: function () { autoMatchmake(); }
+          }, '開壇・首發全滿'),
+          E(Btn, {
+            variant: 'outline', size: 'sm', icon: 'PlusCircle',
+            onClick: function () { enqueueAutoMatch('balanced'); }
+          }, '⚡ 智慧編組隊列'),
+          E(Btn, {
+            variant: 'outline', size: 'sm', icon: 'Bell',
+            onClick: function () { announceCourt(); }
+          }, '擊鼓啟陣（宣佈開賽）'),
+          history.length ? E(Btn, {
+            variant: 'ghost', size: 'sm', icon: 'RotateCcw',
+            onClick: undoLineup
+          }, '復原上一動') : null
+        )
+      ) : null,
+
+      /* 多羽球場（支援切換緊湊排隊橫條與擬真球場標線） */
+      viewMode === 'strip' ? D('flex flex-col gap-4',
+        courts.map(function (c) {
+          return renderQueueStrip(c);
+        })
+      ) : D('grid grid-cols-1 gap-6 md:grid-cols-2',
+        courts.map(function (c) {
+          var isPlaying = c.status === 'playing';
+          var hasNextMatch = (c.nextTeamA && c.nextTeamA.length > 0) || (c.nextTeamB && c.nextTeamB.length > 0);
+
+          function renderSlot(teamKey, idx) {
+            var name = (c[teamKey] || [])[idx];
+            var player = name ? roster.find(function (r) { return r.nickname === name; }) : null;
+            var isSel = selectedSlot && selectedSlot.courtNum === c.courtNum && selectedSlot.teamKey === teamKey && selectedSlot.slotIndex === idx && !selectedSlot.isNext;
+
+            return name ? D('slot-occupied relative flex flex-1 flex-col justify-between ' + (isSel ? 'slot-dragover' : ''),
+              {
+                key: teamKey + '-' + idx,
+                onClick: function () { handleSlotClick(c.courtNum, teamKey, idx, name, false); }
+              },
+              D('flex w-full items-center justify-between',
+                S('text-[10px] font-bold ' + (teamKey === 'teamA' ? 'text-teal-300/90' : 'text-amber-300/90'), teamKey === 'teamA' ? ('隊伍 A · ' + (idx === 0 ? '左位' : '右位')) : ('隊伍 B · ' + (idx === 0 ? '左位' : '右位'))),
+                p.isAdmin ? E('button', {
+                  type: 'button',
+                  onClick: function (e) {
+                    e.stopPropagation();
+                    removeSlot(c.courtNum, teamKey, idx, false);
+                  },
+                  className: 'rounded p-0.5 text-[var(--mist-3)] hover:text-red-400'
+                }, E(Icon, { name: 'X', size: 12 })) : null
+              ),
+              D('flex items-center gap-2 mt-1',
+                E(Avatar, { name: name, g: player ? player.gender : 'male' }),
+                D('flex flex-col min-w-0 flex-1',
+                  S('disp truncate text-xs font-bold ' + (name === myNickname ? 'text-[var(--gold)]' : T1), name),
+                  D('flex items-center gap-1 mt-0.5',
+                    player ? E(LevelBadge, { level: player.level }) : null,
+                    S('text-[10px] num ' + T3, (stats[name] || 0) + ' 場')
+                  )
+                )
+              )
+            ) : D('slot-empty relative flex flex-1 flex-col justify-between ' + (isSel ? 'slot-dragover' : ''),
+              {
+                key: teamKey + '-' + idx,
+                onClick: function () { handleSlotClick(c.courtNum, teamKey, idx, null, false); }
+              },
+              D('flex items-center justify-between',
+                S('text-[10px] font-medium ' + (teamKey === 'teamA' ? 'text-teal-200/60' : 'text-amber-200/60'), teamKey === 'teamA' ? ('隊伍 A · ' + (idx === 0 ? '左位' : '右位')) : ('隊伍 B · ' + (idx === 0 ? '左位' : '右位'))),
+                S('text-[9px] text-[var(--mist-3)] opacity-60', '席位 ' + (idx + 1))
+              ),
+              D('flex flex-col items-center justify-center flex-1',
+                S('disp text-xs tracking-wider text-white/50 hover:text-emerald-300 transition', p.isAdmin ? '+ 安排席位' : '虛位以待')
+              )
+            );
+          }
+
+          return D('div', {
+            key: c.courtNum,
+            className: 'flex flex-col overflow-hidden rounded-2xl border bg-[rgba(13,31,27,.75)] p-4 shadow-xl backdrop-blur-sm ' +
+              (isPlaying ? 'border-emerald-500/40 playing-pulse' : 'border-[var(--hair)]')
+          },
+            /* 球場頭部 */
+            D('flex items-center justify-between border-b border-[var(--hair)] pb-3',
+              D('flex items-center gap-2',
+                D('flex h-7 w-7 items-center justify-center rounded-lg font-bold text-xs ' + (isPlaying ? 'bg-emerald-500 text-black' : 'bg-white/10 text-white'), c.courtNum),
+                S('disp font-bold text-sm text-[var(--jade-100)]', '第 ' + c.courtNum + ' 號羽球場'),
+                S('rounded-md px-2 py-0.5 text-[10px] font-semibold ' + (isPlaying ? 'bg-emerald-500/20 text-emerald-300' : 'bg-white/5 ' + T3), isPlaying ? '激戰中' : '空場待命')
+              ),
+              p.isAdmin ? D('flex items-center gap-1',
+                isPlaying ? (
+                  D('flex items-center gap-1',
+                    queue.length > 0 ? E(Btn, {
+                      variant: 'primary', size: 'xs', icon: 'CheckCircle',
+                      onClick: function () { finishAndPromoteCourt(c.courtNum); }
+                    }, '🏁 結束並接棒開賽 (順位 1)') : null,
+                    E(Btn, {
+                      variant: 'danger', size: 'xs', icon: 'Flag',
+                      onClick: function () { finishCourt(c.courtNum); }
+                    }, '結束清空')
+                  )
+                ) : D('flex items-center gap-1',
+                  queue.length > 0 ? E(Btn, {
+                    variant: 'primary', size: 'xs', icon: 'Sparkles',
+                    onClick: function () { promoteQueueToCourt(c.courtNum); }
+                  }, '⚡ 呼叫第 1 順位入陣') : null,
+                  E(Btn, {
+                    variant: 'outline', size: 'xs', icon: 'Play',
+                    onClick: function () { announceCourt(c.courtNum); }
+                  }, '宣佈上場')
+                )
+              ) : null
+            ),
+
+            /* 擬真羽球場標線與席位 (420px 高度，席位 88px 精確居中於發球線內) */
+            D('badminton-court mt-3 relative ' + (isPlaying ? 'is-playing' : ''),
+              { style: { height: '420px' } },
+              E('svg', { className: 'court-lines-svg', viewBox: '0 0 440 420', preserveAspectRatio: 'none' },
+                E('rect', { x: 16, y: 16, width: 408, height: 388, fill: 'none', stroke: 'var(--court-line)', strokeWidth: 2 }),
+                E('line', { x1: 42, y1: 16, x2: 42, y2: 404, stroke: 'var(--court-line-sub)', strokeWidth: 1 }),
+                E('line', { x1: 398, y1: 16, x2: 398, y2: 404, stroke: 'var(--court-line-sub)', strokeWidth: 1 }),
+                E('line', { x1: 16, y1: 42, x2: 424, y2: 42, stroke: 'var(--court-line-sub)', strokeWidth: 1 }),
+                E('line', { x1: 16, y1: 378, x2: 424, y2: 378, stroke: 'var(--court-line-sub)', strokeWidth: 1 }),
+                E('line', { x1: 16, y1: 162, x2: 424, y2: 162, stroke: 'var(--court-line)', strokeWidth: 1.5 }),
+                E('line', { x1: 16, y1: 258, x2: 424, y2: 258, stroke: 'var(--court-line)', strokeWidth: 1.5 }),
+                E('line', { x1: 220, y1: 16, x2: 220, y2: 162, stroke: 'var(--court-line)', strokeWidth: 1 }),
+                E('line', { x1: 220, y1: 258, x2: 220, y2: 404, stroke: 'var(--court-line)', strokeWidth: 1 })
+              ),
+              D('court-net',
+                D('court-net-post-l'), D('court-net-post-r')
+              ),
+              /* Team A 上半場席位 */
+              D('court-slots-top',
+                renderSlot('teamA', 0), renderSlot('teamA', 1)
+              ),
+              /* 上半場 Team A 搭檔鎖定按鈕 */
+              D('absolute top-2 right-2 z-10',
+                renderDuoLockBtn((c.teamA || [])[0], (c.teamA || [])[1], false, c.courtNum, 'teamA')
+              ),
+              /* Team B 下半場席位 */
+              D('court-slots-bottom',
+                renderSlot('teamB', 0), renderSlot('teamB', 1)
+              ),
+              /* 下半場 Team B 搭檔鎖定按鈕 */
+              D('absolute bottom-2 right-2 z-10',
+                renderDuoLockBtn((c.teamB || [])[0], (c.teamB || [])[1], false, c.courtNum, 'teamB')
+              )
+            )
+          );
+        })
+      ),
+
+      /* 插入全場共用排隊池組件 (Unified Queue Pool) */
+      renderUnifiedQueuePool(),
+
+      /* 待命備戰隊列 與 【清修靜室】 雙區並列 */
+      D('grid grid-cols-1 lg:grid-cols-3 gap-6',
+
+        /* 待命備戰隊列 (佔 2 欄) */
+        D('lg:col-span-2 rounded-2xl border border-[var(--hair)] bg-[rgba(10,22,20,.65)] p-5 shadow-xl',
+          D('flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[var(--hair)] mb-3',
+            D('flex items-center gap-2',
+              E(Icon, { name: 'Users', size: 18, className: 'text-emerald-400' }),
+              S('disp font-bold text-sm text-[var(--mist-1)]', '備戰待命區'),
+              S('rounded-full bg-emerald-500/20 px-2 py-0.5 text-xs text-emerald-300 font-bold', bench.length + ' 人'),
+              S('hidden sm:inline text-xs text-[var(--mist-3)]', '（出賽最少者優先）')
+            ),
+            selectedBench ? D('flex items-center gap-1.5',
+              E('button', {
+                type: 'button', onClick: function () { setSelectedBench(null); },
+                className: 'btn flex items-center gap-1 rounded-full border border-amber-400 bg-amber-950/80 px-2.5 py-1 text-xs font-bold text-amber-300 animate-pulse'
+              }, E(Icon, { name: 'X', size: 12 }), S('', '取消選取【' + selectedBench.nickname + '】'))
+            ) : null
+          ),
+
+          /* 待命區快篩膠囊 */
+          D('flex flex-wrap items-center gap-1.5 mb-3.5',
+            [
+              { id: 'all', label: '全部', count: bench.length },
+              { id: 'male', label: '男修', count: bench.filter(function (x) { return x.gender === 'male'; }).length },
+              { id: 'female', label: '女修', count: bench.filter(function (x) { return x.gender === 'female'; }).length },
+              { id: 'locked', label: '🔒 已鎖定搭檔', count: bench.filter(function (x) { return !!getLockedPartner(x.nickname); }).length },
+              { id: 'top', label: '🔥 前列待命', count: Math.min(8, bench.length) },
+              { id: 'zero', label: '⚡ 0場優先', count: bench.filter(function (x) { return (stats[x.nickname] || 0) === 0; }).length }
+            ].map(function (chip) {
+              var active = benchFilter === chip.id;
+              return E('button', {
+                key: chip.id,
+                type: 'button',
+                onClick: function () { setBenchFilter(chip.id); },
+                className: 'btn inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold transition ' +
+                  (active ? 'border-[var(--jade-300)] bg-[rgba(155,195,174,0.22)] text-[var(--jade-100)] shadow-sm' :
+                           'border-[var(--hair)] bg-[rgba(228,235,232,0.03)] text-[var(--mist-3)] hover:text-[var(--mist-1)]')
+              },
+                S('', chip.label),
+                S('text-[10px] num opacity-70', chip.count)
+              );
+            })
+          ),
+
+          (function () {
+            var filteredBench = bench.filter(function (pRow, idx) {
+              if (benchFilter === 'male') return pRow.gender === 'male';
+              if (benchFilter === 'female') return pRow.gender === 'female';
+              if (benchFilter === 'locked') return !!getLockedPartner(pRow.nickname);
+              if (benchFilter === 'top') return idx < 8;
+              if (benchFilter === 'zero') return (stats[pRow.nickname] || 0) === 0;
+              return true;
+            });
+            if (!filteredBench.length) {
+              return D('py-8 text-center text-xs text-[var(--mist-3)]', '目前無符合條件之弟子');
+            }
+            return D('grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5',
+              filteredBench.map(function (r) {
+                var origIdx = bench.findIndex(function (x) { return x.nickname === r.nickname; });
+                var isNextUp = origIdx < 4;
+                var isSel = selectedBench && selectedBench.nickname === r.nickname;
+                var isMe = r.nickname === myNickname;
+                var partner = getLockedPartner(r.nickname);
+                var badgeText = origIdx < 4 ? ('🔥 #' + (origIdx + 1) + ' 優先待命') : (origIdx < 8 ? ('⚡ #' + (origIdx + 1) + ' 次輪預備') : ('#' + (origIdx + 1)));
+                var badgeClass = origIdx < 4 ? 'badge-nextup' : (origIdx < 8 ? 'badge-queue-sec' : 'badge-queue-normal');
+                var playedCount = stats[r.nickname] || 0;
+
+                return E('div', {
+                  key: r.nickname,
+                  onClick: function () {
+                    if (!p.isAdmin) return;
+                    if (selectedBench && selectedBench.nickname !== r.nickname) {
+                      // 長老已選一名待命弟子，再選另一名：直接切換鎖定搭檔！
+                      toggleLockPair(selectedBench.nickname, r.nickname);
+                      setSelectedBench(null);
+                      return;
+                    }
+                    setSelectedSlot(null);
+                    setSelectedBench(isSel ? null : r);
+                  },
+                  className: 'relative flex items-center justify-between rounded-xl border p-2.5 transition ' +
+                    (p.isAdmin ? 'cursor-pointer hover:border-emerald-400 ' : '') +
+                    (isSel ? 'border-2 border-[var(--gold)] bg-amber-950/50 scale-105 ' : 'border-white/10 bg-black/20 ') +
+                    (partner ? ' border-[rgba(201,169,97,0.4)]' : '') +
+                    (isNextUp ? ' ring-1 ring-amber-400/40' : '')
+                },
+                  S(badgeClass, badgeText),
+                  D('flex items-center gap-2 min-w-0 flex-1',
+                    E(Avatar, { name: r.nickname, g: r.gender }),
+                    D('flex flex-col min-w-0 flex-1',
+                      D('flex items-center gap-1',
+                        S('disp truncate font-bold text-xs ' + (isMe ? 'text-[var(--gold)]' : 'text-white'), r.nickname),
+                        partner ? S('shrink-0 text-[9px] rounded px-1 bg-[rgba(201,169,97,0.22)] text-[var(--gold)] border border-[rgba(201,169,97,0.35)] font-bold', '🔒搭檔') : null
+                      ),
+                      D('flex items-center gap-1 mt-0.5',
+                        E(LevelBadge, { level: r.level }),
+                        playedCount === 0 ?
+                          S('text-[9px] num font-bold text-emerald-300 bg-emerald-950/60 border border-emerald-500/40 rounded px-1 py-0.2', '0場 · 優先') :
+                          S('text-[9px] num text-[var(--mist-3)] font-medium', playedCount + ' 場')
+                      ),
+                      partner ? S('text-[9px] text-[var(--gold)] truncate mt-0.5 opacity-90', '與【' + partner + '】約定') : null
+                    )
+                  ),
+                  D('flex items-center gap-1 shrink-0 ml-1',
+                    p.isAdmin && partner ? E('button', {
+                      type: 'button',
+                      title: '解除與【' + partner + '】的搭檔鎖定',
+                      onClick: function (e) { e.stopPropagation(); toggleLockPair(r.nickname, partner); },
+                      className: 'p-1 text-[var(--gold)] hover:text-red-300 transition'
+                    }, E(Icon, { name: 'Unlock', size: 12 })) : null,
+                    p.isAdmin ? E('button', {
+                      type: 'button', title: '送入清修靜室閉關',
+                      onClick: function (e) { e.stopPropagation(); elderToggleQuiet(r.nickname); },
+                      className: 'text-white/30 hover:text-amber-300 p-1'
+                    }, E(Icon, { name: 'Moon', size: 12 })) : null
+                  )
+                );
+              })
+            );
+          })()
+        ),
+
+        /* 【清修靜室】（閉關區，佔 1 欄） */
+        D('rounded-2xl border border-amber-500/20 bg-[rgba(24,20,15,.65)] p-5 shadow-xl',
+          D('flex items-center justify-between pb-3 border-b border-amber-500/20 mb-4',
+            D('flex items-center gap-2',
+              E(Icon, { name: 'Moon', size: 18, className: 'text-amber-400' }),
+              S('disp font-bold text-sm text-amber-200', '【清修靜室】'),
+              S('rounded-full bg-amber-500/20 px-2 py-0.5 text-xs text-amber-300 font-bold', quietRoomList.length + ' 人')
+            ),
+            S('text-[10px] text-amber-400/60', '閉關中・排位自動避開')
+          ),
+
+          quietRoomList.length ? D('flex flex-col gap-2',
+            quietRoomList.map(function (pRow) {
+              var isMe = pRow.nickname === myNickname;
+              return D('flex items-center justify-between rounded-xl border border-amber-500/20 bg-black/30 p-2 text-xs',
+                { key: pRow.nickname },
+                D('flex items-center gap-2',
+                  E(Avatar, { name: pRow.nickname, g: pRow.gender }),
+                  D('flex flex-col',
+                    S('disp font-bold ' + (isMe ? 'text-[var(--gold)]' : 'text-amber-100'), pRow.nickname),
+                    S('text-[9px] text-amber-400/70', '打坐調息中')
+                  )
+                ),
+                isMe ? E('button', {
+                  type: 'button', onClick: toggleMyResting,
+                  className: 'rounded-lg bg-emerald-600 px-2 py-1 text-[11px] font-bold text-white hover:bg-emerald-500 transition'
+                }, '出關備戰') : (p.isAdmin ? E('button', {
+                  type: 'button', onClick: function () { elderToggleQuiet(pRow.nickname); },
+                  className: 'text-white/40 hover:text-emerald-400 p-1'
+                }, E(Icon, { name: 'LogOut', size: 14 })) : null)
+              );
+            })
+          ) : D('py-8 text-center text-xs text-[var(--mist-3)]', '目前無道友在靜室閉關')
+        ),
+
+        /* 仙門靈鐘・提醒強度設定彈窗 */
+        alertSettingModal ? D('fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md',
+          { onClick: function (e) { if (e.target === e.currentTarget) setAlertSettingModal(false); } },
+          D('bezel max-w-sm w-full',
+            D('core surface p-5 shadow-2xl bg-[var(--ink-1)]',
+              /* 標題列 */
+              D('flex items-center justify-between pb-2.5 border-b border-[var(--hair)] mb-3',
+                D('flex items-center gap-2 min-w-0',
+                  E(Icon, { name: 'Sliders', size: 18, className: 'text-[var(--gold)] shrink-0' }),
+                  S('disp font-bold text-base text-[var(--mist-1)] truncate', '仙門靈鐘・提醒強度設定')
+                ),
+                E('button', {
+                  type: 'button', onClick: function () { setAlertSettingModal(false); },
+                  className: 'shrink-0 rounded-full p-1 text-[var(--mist-3)] hover:text-white transition'
+                }, E(Icon, { name: 'X', size: 18 }))
+              ),
+              E('p', { className: 'text-xs text-[var(--mist-3)] mb-3 leading-relaxed' },
+                '可依所處環境調節靈鐘響度與震動，避免在安靜休息區過於喧鬧；點擊各檔位將即時試聽音效：'
+              ),
+
+              /* 4 種強度檔位選擇卡片 */
+              D('flex flex-col gap-2 mb-3.5',
+                Object.keys(ALERT_LEVELS).map(function (k) {
+                  var item = ALERT_LEVELS[k];
+                  var isSelected = alertLevel === k;
+                  return E('div', {
+                    key: k,
+                    onClick: function () {
+                      changeAlertLevel(k);
+                      playChime(k);
+                    },
+                    className: 'cursor-pointer flex flex-col p-2.5 rounded-xl border transition text-left ' +
+                      (isSelected ? 'border-[var(--gold)] bg-[linear-gradient(135deg,rgba(201,169,97,.18),rgba(201,169,97,.06))] shadow-sm ring-1 ring-[var(--gold)]/40'
+                                  : 'border-[var(--hair)] bg-[rgba(228,235,232,.03)] hover:bg-[rgba(228,235,232,.06)] hover:border-[var(--hair-2)]')
+                  },
+                    D('flex items-center justify-between gap-2',
+                      D('flex items-center gap-1.5 min-w-0 flex-1',
+                        E(Icon, {
+                          name: item.icon, size: 15,
+                          className: (isSelected ? 'text-[var(--gold)]' : 'text-[var(--mist-2)]') + ' shrink-0'
+                        }),
+                        S('font-bold text-xs sm:text-sm truncate ' + (isSelected ? 'text-[var(--gold)]' : 'text-[var(--mist-1)]'), item.title),
+                        isSelected ? D('shrink-0 rounded-full bg-[var(--gold)]/20 px-1.5 py-0.5 text-[9px] font-bold text-[var(--gold)] border border-[var(--gold)]/30', '使用中') : null
+                      ),
+                      E('button', {
+                        type: 'button',
+                        onClick: function (e) {
+                          e.stopPropagation();
+                          changeAlertLevel(k);
+                          playChime(k);
+                        },
+                        style: { minWidth: '44px', textAlign: 'center', whiteSpace: 'nowrap' },
+                        className: 'btn shrink-0 rounded-lg border border-[var(--hair)] px-2 py-0.5 text-[11px] font-medium text-[var(--mist-2)] hover:text-[var(--mist-1)] hover:bg-[rgba(255,255,255,.06)]'
+                      }, k === 'off' ? '安靜' : k === 'silent' ? '試震' : '試聽')
+                    ),
+                    E('p', { className: 'text-[11px] mt-1 font-medium ' + (isSelected ? 'text-amber-200/90' : 'text-[var(--mist-2)]') }, item.desc),
+                    E('p', { className: 'text-[10px] mt-0.5 text-[var(--mist-3)] leading-tight' }, item.sub || '')
+                  );
+                })
+              ),
+
+              /* 底部快捷按鈕 */
+              D('flex items-center justify-between gap-2 pt-2.5 border-t border-[var(--hair)]',
+                E('button', {
+                  type: 'button',
+                  onClick: function () { playChime(alertLevel); },
+                  className: 'btn flex items-center gap-1 text-xs text-[var(--mist-2)] hover:text-[var(--gold)] px-2 py-1 transition shrink-0'
+                }, E(Icon, { name: 'Volume2', size: 14 }), S('', '測試當前強度')),
+                E('button', {
+                  type: 'button',
+                  onClick: function () { setAlertSettingModal(false); },
+                  className: 'btn rounded-full bg-[linear-gradient(180deg,#F1DCA5,#C9A961)] px-5 py-1.5 text-xs font-bold text-[#1a1508] shadow shrink-0'
+                }, '完成設定')
+              )
+            )
+          )
+        ) : null,
+
+        /* 仙門靈鐘奉召開賽全螢幕彈窗 */
+        alertModal ? D('fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md',
+          { onClick: function (e) { if (e.target === e.currentTarget) setAlertModal(null); } },
+          D('bezel max-w-sm w-full animate-bounce',
+            D('core glass p-6 text-center border-2 border-[var(--gold)]',
+              E(Icon, { name: 'BellRing', size: 48, className: 'mx-auto text-[var(--gold)] mb-3 animate-pulse' }),
+              S('disp block text-2xl font-bold text-[var(--gold)]', '仙門靈鐘・奉召上場！'),
+              E('p', { className: 'mt-3 text-sm text-[var(--mist-1)] leading-relaxed' },
+                S('font-bold text-white text-base', myNickname),
+                ' 道友請即刻移步至 ',
+                S('font-bold text-[var(--gold)] text-lg', '第 ' + alertModal.courtNum + ' 號場'),
+                ' 準備開賽！'
+              ),
+              E('button', {
+                type: 'button', onClick: function () { setAlertModal(null); },
+                className: 'btn mt-6 w-full rounded-full bg-[linear-gradient(180deg,#F1DCA5,#C9A961)] py-2.5 text-sm font-bold text-[#1a1508] shadow'
+              }, '遵掌門令，即刻上陣！')
+            )
+          )
+        ) : null,
+
+        /* 候打預排 / 柔和召集 Toast 橫幅 */
+        preAlertToast ? D('fixed top-4 left-4 right-4 z-50 mx-auto max-w-md animate-bounce',
+          D('flex items-center justify-between rounded-2xl border-2 ' +
+            (preAlertToast.isSummon ? 'border-[var(--gold)] bg-amber-950/95 text-amber-100' : 'border-emerald-400 bg-emerald-950/95 text-emerald-100') +
+            ' p-3.5 shadow-2xl backdrop-blur-xl',
+            D('flex items-center gap-3 min-w-0',
+              E(Icon, { name: preAlertToast.isSummon ? 'BellRing' : 'Crosshair', size: 24, className: (preAlertToast.isSummon ? 'text-[var(--gold)]' : 'text-emerald-400') + ' shrink-0' }),
+              D('flex flex-col min-w-0',
+                S('disp font-bold text-sm ' + (preAlertToast.isSummon ? 'text-[var(--gold)]' : 'text-emerald-300'),
+                  preAlertToast.isSummon ? '🔔 奉召出戰提醒！' : '🎯 候打預排提醒！'),
+                S('text-xs truncate ' + (preAlertToast.isSummon ? 'text-amber-200/90' : 'text-emerald-200/90'),
+                  preAlertToast.isSummon ? '掌門已宣令！請道友移步至 第 ' + preAlertToast.courtNum + ' 號場 準備開賽！'
+                                         : (preAlertToast.courtNum ? '長老已將您排入 第 ' + preAlertToast.courtNum + ' 號場 下輪陣容，請開始熱身！'
+                                                                   : '長老已將您排入共用排隊池 第 ' + ((preAlertToast.queueIndex || 0) + 1) + ' 順位' + (preAlertToast.partner ? '（搭檔：' + preAlertToast.partner + '）' : '') + '，請準備熱身！'))
+              )
+            ),
+            E('button', {
+              type: 'button', onClick: function () { setPreAlertToast(null); },
+              className: 'shrink-0 rounded-full p-1.5 ' + (preAlertToast.isSummon ? 'bg-amber-800/60 text-amber-200 hover:text-white' : 'bg-emerald-800/60 text-emerald-200 hover:text-white')
+            }, E(Icon, { name: 'X', size: 14 }))
+          )
+        ) : null
+      )
+    );
+  }
+
+  /* ---------------- gate qr code modal (門禁QRCode) ---------------- */
+  function GateQrModal(p) {
+    var ev = p.modal.ev;
+    var fileInputRef = useRef(null);
+    var qrData = ev.gateQr || '';
+    var qrDate = ev.gateQrDate || ev.dateText || ev.date || '';
+    var fullBrightnessState = useState(false), fullBright = fullBrightnessState[0], setFullBright = fullBrightnessState[1];
+
+    function handleFile(file) {
+      if (!file) return;
+      compressImage(file, 400, 400, 0.85, function (dataUrl) {
+        p.saveEvent(Object.assign({}, ev, { gateQr: dataUrl }), false).then(function () {
+          p.flash('門禁 QR Code 已更新', 'ok');
+        });
+      });
+    }
+
+    function clearQr() {
+      p.saveEvent(Object.assign({}, ev, { gateQr: '', gateQrDate: '' }), false).then(function () {
+        p.flash('門禁碼已清除', 'ok');
+      });
+    }
+
+    return E(Modal, {
+      title: '門禁QRCode 通行證',
+      sub: ev.title + '・' + ev.place,
+      onClose: p.close,
+      footer: [
+        p.isAdmin && qrData ? E(Btn, { key: 'del', variant: 'ghost', icon: 'Trash2', onClick: clearQr }, '清除') : null,
+        p.isAdmin ? E(Btn, { key: 'up', variant: 'outline', icon: 'Upload', onClick: function () { fileInputRef.current && fileInputRef.current.click(); } }, qrData ? '更換圖片' : '上傳QRCode') : null,
+        qrData ? E(Btn, { key: 'br', variant: fullBright ? 'primary' : 'ghost', icon: 'Sun', onClick: function () { setFullBright(!fullBright); } }, fullBright ? '高亮中' : '螢幕增亮') : null,
+        E(Btn, { key: 'c', variant: 'primary', onClick: p.close }, '完成')
+      ]
+    },
+      D('flex flex-col items-center justify-center gap-4 py-2 ' + (fullBright ? 'p-4 bg-white/95 rounded-2xl text-black' : ''),
+        p.isAdmin ? E('input', {
+          ref: fileInputRef, type: 'file', accept: 'image/*', className: 'hidden',
+          onChange: function (e) { handleFile(e.target.files && e.target.files[0]); }
+        }) : null,
+        qrData ? D('flex flex-col items-center rounded-2xl bg-white p-6 shadow-2xl transition-transform ' + (fullBright ? 'scale-105' : 'hover:scale-[1.02]'),
+          E('img', {
+            src: qrData, alt: '門禁QRCode',
+            className: 'max-h-[260px] max-w-[260px] object-contain select-none'
+          }),
+          E('strong', { className: 'mt-4 text-center font-sans text-[18px] font-bold text-black tracking-wider' }, '門禁QRCode'),
+          E('span', { className: 'mt-1 text-center font-sans text-[14px] font-semibold text-gray-800' }, '(日期：' + qrDate + ')')
+        ) : D('flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--hair-2)] p-10 text-center',
+          E(Icon, { name: 'QrCode', size: 48, className: 'text-[var(--mist-3)] mb-3 opacity-60' }),
+          E('p', { className: 'disp font-semibold ' + T1 }, '尚未設定門禁碼'),
+          E('p', { className: 'mt-1 text-xs ' + T3 }, p.isAdmin ? '長老可點擊下方「上傳QRCode」選取球館門禁截圖。' : '請等候掌門或長老上傳當日門禁QRCode。')
+        ),
+        qrData ? D('mt-2 flex items-center gap-2 text-center text-xs ' + (fullBright ? 'text-gray-700' : T3),
+          E(Icon, { name: 'Info', size: 14, className: 'shrink-0 text-[var(--gold)]' }),
+          S('', '感應提示：請對準球館閘門條碼機掃描入場。')) : null
+      ));
   }
 
   /* ---------------- venue page ---------------- */
@@ -1985,6 +4352,7 @@
     if (t === 'pin') return E(PinModal, p);
     if (t === 'honorific') return E(HonorificModal, p);
     if (t === 'confirm') return E(ConfirmModal, p);
+    if (t === 'gateQr') return E(GateQrModal, p);
     return null;
   }
 
@@ -2144,14 +4512,33 @@
     var isNew = !row || !!p.modal.duplicate;
     var firstVenue = p.venues[0] || null;
     var initialDate = row ? (row.date || '') : (p.modal.prefillDate || '');
-    var st = useState(row ? Object.assign({}, row) : {
+    var st = useState(row ? (p.modal.duplicate ? Object.assign({}, row, { id: undefined, roster: [], lineup: null, gateQr: '', gateQrDate: initialDate }) : Object.assign({}, row)) : {
       title: '', date: initialDate, dateText: displayEventDate(initialDate), startTime: '10:00', endTime: '13:00',
       place: venuePlace(firstVenue) || '亞伯林羽球館－東區振興店', venueId: firstVenue ? firstVenue.id : '',
       courts: firstVenue ? firstVenue.defaultCourts : 5, fee: firstVenue ? firstVenue.defaultFee : 220,
-      note: '', roster: []
+      note: '', roster: [], gateQr: '', gateQrDate: initialDate
     });
     var f = st[0], setF = st[1];
     function up(kk, v) { setF(function (x) { var n = Object.assign({}, x); n[kk] = v; return n; }); }
+
+    function handlePaste(ev) {
+      var items = (ev.clipboardData || (ev.originalEvent && ev.originalEvent.clipboardData)) ? (ev.clipboardData || ev.originalEvent.clipboardData).items : null;
+      if (!items) return;
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].type && items[i].type.indexOf('image') === 0) {
+          var blob = items[i].getAsFile();
+          if (blob) {
+            compressImage(blob, 400, 400, 0.85).then(function (b64) {
+              up('gateQr', b64);
+              if (!f.gateQrDate) up('gateQrDate', f.date || '');
+              p.flash('已由剪貼簿貼上門禁 QR Code', 'ok');
+            });
+            break;
+          }
+        }
+      }
+    }
+
     var ok = f.title.trim() && f.date && f.dateText.trim() && f.place.trim() && f.startTime && f.endTime > f.startTime && Number.isInteger(Number(f.courts)) && Number(f.courts) >= 1 && Number(f.courts) <= 12 && f.fee !== '' && Number.isInteger(Number(f.fee)) && Number(f.fee) >= 0;
     return E(Modal, {
       title: p.modal.duplicate ? '複製開團' : (isNew ? '開壇集結' : '修改集結'), wide: true,
@@ -2171,7 +4558,7 @@
         }, p.modal.duplicate ? '建立新活動' : (isNew ? '開壇' : '儲存'))
       ]
     },
-      D('grid grid-cols-1 gap-5 sm:grid-cols-2',
+      D('grid grid-cols-1 gap-5 sm:grid-cols-2', { onPaste: handlePaste },
         p.modal.duplicate ? D('sm:col-span-2 flex items-start gap-3 rounded-2xl border border-[rgba(163,204,185,.22)] bg-[rgba(108,160,135,.10)] px-4 py-3 text-[12.5px] leading-5 ' + T2,
           E(Icon, { name: 'CopyPlus', size: 16, className: 'mt-0.5 shrink-0 text-[var(--jade-3)]' }),
           D(null, E('strong', { className: T1 }, '建立獨立活動'), E('p', { className: 'mt-0.5 ' + T3 }, '日期與出席名單會保持空白；其他設定可在下方調整。'))
@@ -2212,7 +4599,57 @@
             value: f.note, onChange: function (ev) { up('note', ev.target.value); },
             placeholder: '例如：用球：輝鷹2號或同級距球款（可按 Enter 換行或用「｜」分成多條）',
             className: INPUT + ' min-h-[5.5rem] resize-y leading-relaxed'
-          })))));
+          }))),
+        D('sm:col-span-2 rounded-2xl border border-[rgba(255,255,255,.08)] bg-[rgba(255,255,255,.02)] p-4',
+          D('flex items-center justify-between gap-2 mb-3',
+            D('flex items-center gap-2',
+              E(Icon, { name: 'QrCode', size: 16, className: 'text-[var(--jade-3)]' }),
+              E('span', { className: 'text-sm font-semibold ' + T1 }, '場館門禁 QR Code（選填）')
+            ),
+            f.gateQr ? E(Btn, {
+              variant: 'danger', size: 'sm', icon: 'Trash2',
+              onClick: function () { up('gateQr', ''); }
+            }, '清除 QR 碼') : null
+          ),
+          D('grid grid-cols-1 sm:grid-cols-2 gap-3',
+            E(Field, { label: 'QR 碼有效日期' },
+              E('input', {
+                type: 'date', value: f.gateQrDate || f.date || '',
+                onChange: function (ev) { up('gateQrDate', ev.target.value); },
+                className: INPUT
+              })
+            ),
+            D('flex flex-col justify-end',
+              E('label', { className: 'block text-[11px] font-semibold tracking-wider text-[var(--mist-3)] uppercase mb-1.5' }, '門禁圖片（選取或貼上）'),
+              D('flex items-center gap-2',
+                E('label', { className: 'cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-[rgba(108,160,135,.15)] text-[var(--jade-3)] hover:bg-[rgba(108,160,135,.25)] transition' },
+                  E(Icon, { name: 'Upload', size: 14 }),
+                  S(null, f.gateQr ? '更換圖片' : '選取圖片'),
+                  E('input', {
+                    type: 'file', accept: 'image/*', className: 'hidden',
+                    onChange: function (ev) {
+                      var file = ev.target.files && ev.target.files[0];
+                      if (!file) return;
+                      compressImage(file, 400, 400, 0.85).then(function (b64) {
+                        up('gateQr', b64);
+                        if (!f.gateQrDate) up('gateQrDate', f.date || '');
+                      }).catch(function (err) { alert('圖片處理失敗：' + err.message); });
+                    }
+                  })
+                ),
+                E('span', { className: 'text-[11px] ' + T3 }, '支援 JPG/PNG 或可直接 Ctrl+V 貼上')
+              )
+            )
+          ),
+          f.gateQr ? D('mt-3 flex items-center gap-3 p-2.5 rounded-xl bg-[rgba(0,0,0,.2)] border border-[rgba(255,255,255,.05)]',
+            E('img', { src: f.gateQr, alt: 'QR Preview', className: 'w-16 h-16 object-contain rounded-lg bg-white p-1' }),
+            D('flex-1 text-xs ' + T2,
+              D('font-semibold text-emerald-400', '已設定門禁 QR Code'),
+              D('text-[11px] ' + T3, '有效日期：' + (f.gateQrDate || f.date || '當日') + '（前台將為球友提供高對比全螢幕掃描彈窗）')
+            )
+          ) : null
+        )
+      ));
   }
 
   function PickModal(p) {

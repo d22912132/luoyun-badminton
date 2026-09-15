@@ -3,8 +3,9 @@ import { createHandler, seed } from './club.mjs';
 import { getOfficialCalendar, supportedCalendarYears } from './calendar.mjs';
 import indexHtml from './index.html';
 import consoleHtml from './console.html';
+import boardHtml from './board.html';
 
-const pages = { '/console.html': consoleHtml, '/rite.html': indexHtml };
+const pages = { '/console.html': consoleHtml, '/board.html': boardHtml, '/rite.html': indexHtml };
 const snapshot = JSON.parse(indexHtml.match(/id="snapshot">\s*([\s\S]*?)<\/script>/)[1]);
 const headers = { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store',
   'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'SAMEORIGIN', 'Referrer-Policy': 'same-origin' };
@@ -70,9 +71,15 @@ export default {
     if (path === '/health') return Response.json({ ok: true });
     if (!['GET', 'HEAD'].includes(request.method)) return new Response('Method not allowed', { status: 405 });
     if (path === '/' || path === '/index.html') return new Response(null, { status: 307, headers: { ...headers, Location: '/console.html' } });
-    if (!Object.hasOwn(pages, path)) return new Response('找不到頁面', { status: 404 });
-    const html = pages[path].replace('<head>', '<head><meta name="club-live" content="true">')
-      .replace(/(<script type="application\/json" id="snapshot">)[\s\S]*?(<\/script>)/, '$1{}$2');
-    return new Response(request.method === 'HEAD' ? null : html, { headers });
+    if (Object.hasOwn(pages, path)) {
+      const html = pages[path].replace('<head>', '<head><meta name="club-live" content="true">')
+        .replace(/(<script type="application\/json" id="snapshot">)[\s\S]*?(<\/script>)/, '$1{}$2');
+      return new Response(request.method === 'HEAD' ? null : html, { headers });
+    }
+    if (env.ASSETS) {
+      const res = await env.ASSETS.fetch(request);
+      if (res.status !== 404) return res;
+    }
+    return new Response('找不到頁面', { status: 404 });
   }
 };

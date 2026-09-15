@@ -40,7 +40,7 @@ export async function getOfficialCalendar(year, fetcher = fetch) {
   if (!url) throw Object.assign(new Error('此年度的行政院行事曆尚未公布'), { status: 404 });
   const hit = cache.get(year);
   if (hit && hit.expires > Date.now()) return hit.data;
-  const response = await fetcher(url, { headers: { Accept: 'text/csv' } });
+  const response = await fetcher(url, { headers: { Accept: 'text/csv' }, signal: AbortSignal.timeout(8000) });
   if (!response.ok) throw Object.assign(new Error('行政院行事曆暫時無法取得'), { status: 502 });
   const days = parseCalendarCsv(await response.text());
   if (days.length < 300) throw Object.assign(new Error('行政院行事曆資料格式異常'), { status: 502 });
