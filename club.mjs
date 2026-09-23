@@ -63,6 +63,7 @@ function lineupData(raw) {
     stats: (raw.stats && typeof raw.stats === 'object') ? raw.stats : {},
     pairs: (raw.pairs && typeof raw.pairs === 'object') ? raw.pairs : {},
     matchSeq: Number(raw.matchSeq) || 0,
+    autoMode: ['off', 'fair', 'level', 'variety'].includes(raw.autoMode) ? raw.autoMode : 'variety',
     pos: (raw.pos && typeof raw.pos === 'object') ? raw.pos : {},
     times: (raw.times && typeof raw.times === 'object') ? raw.times : {},
     since: (raw.since && typeof raw.since === 'object') ? raw.since : {},

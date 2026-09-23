@@ -21,7 +21,7 @@
     --ink-0: #101A1E; --ink-1: #16242A; --ink-2: #1B2C32;
     --mist-1: #EEF5F1; --mist-2: #B9CAC3; --mist-3: #91A39B;
     --jade-100: #D5E7DC; --jade-300: #9BC3AE; --jade-500: #6E9E88; --jade-700: #3D6555;
-    --gold: #C9A961; --gold-dim: #8A7440;
+    --gold: #C9A961; --gold-dim: #8A7440; --amethyst: #9E8FC0;
     --cinnabar: #D07A6C; --cinnabar-dim: #8C4438;
     --male-text: #A8CBD8; --male-border: rgba(168,203,216,.30); --male-high: rgba(168,203,216,.13);
     --female-text: #DFB4C4; --female-border: rgba(223,180,196,.30); --female-high: rgba(223,180,196,.13);
@@ -35,7 +35,7 @@
     --ink-0: #E8E0D1; --ink-1: #F3EDE1; --ink-2: #DED4C3;
     --mist-1: #24382F; --mist-2: #4A6056; --mist-3: #4F665C;
     --jade-100: #174737; --jade-300: #2E7055; --jade-500: #477E65; --jade-700: #285C48;
-    --gold: #8C651C; --gold-dim: #6A4B13;
+    --gold: #8C651C; --gold-dim: #6A4B13; --amethyst: #66558D;
     --cinnabar: #A64E41; --cinnabar-dim: #7C372E;
     --male-text: #285F73; --male-border: rgba(40,95,115,.34); --male-high: rgba(75,145,167,.18);
     --female-text: #8B4960; --female-border: rgba(139,73,96,.32); --female-high: rgba(180,104,129,.17);
@@ -79,6 +79,12 @@
   .btn:hover { border-color: var(--jade-500); color: var(--jade-100); }
   .btn.primary { background: var(--jade-700); border-color: var(--jade-500); color: var(--jade-100); }
   .btn.warn { border-color: var(--cinnabar-dim); color: var(--cinnabar); }
+  /* 模式配色沿用 App 的語意：關閉灰、公平綠、均衡金、變化紫 */
+  .btn.mode { font-weight: 700; }
+  .btn.mode.off { color: var(--mist-3); }
+  .btn.mode.fair { color: var(--jade-300); border-color: var(--jade-500); }
+  .btn.mode.level { color: var(--gold); border-color: var(--gold-dim); }
+  .btn.mode.variety { color: var(--amethyst, #9E8FC0); border-color: var(--amethyst, #9E8FC0); }
   .btn:disabled { opacity: .4; cursor: not-allowed; }
 
   .banner {
@@ -207,6 +213,18 @@
 
   var QUEUE_SLOTS = 4;
   var PREF_KEY = 'luoyun-court-prefs';
+  /* 換場自動挑人的四種模式，對應「羽球排場王」的 Auto 循環。
+     存在 lineup 而不是 localStorage：同一場活動的多位長老應該用同一套規則。 */
+  var AUTO_MODES = [
+    { key: 'off', label: '關閉', tone: 'off', hint: '換場只用排隊 1，排隊沒人就留空給你手動排' },
+    { key: 'fair', label: '排隊公平', tone: 'fair', hint: '等待最久的優先，不看程度也不看搭配' },
+    { key: 'level', label: '程度均衡', tone: 'level', hint: '挑程度接近的四人，上場時強弱分隊（會覆蓋排隊裡排好的隊形）' },
+    { key: 'variety', label: '搭配變化', tone: 'variety', hint: '等待優先，且避開剛剛同場過的人' }
+  ];
+  function modeAt(key) {
+    for (var i = 0; i < AUTO_MODES.length; i++) if (AUTO_MODES[i].key === key) return AUTO_MODES[i];
+    return AUTO_MODES[3];
+  }
   /* 顯示偏好存在瀏覽器，不進 lineup：平板要大字、手機要精簡，各台裝置不該互相覆蓋。 */
   function loadPrefs() {
     var d = { timer: true, count: false, wait: true, level: true, gender: true, voice: true, scale: 1 };
@@ -316,6 +334,7 @@
     var sinceMap = baseLineup.since || {};
     var stateMap = baseLineup.state || {};
     var timesMap = baseLineup.times || {};
+    var autoMode = modeAt(baseLineup.autoMode).key;
 
     var roster = (activeEvent && activeEvent.roster) || [];
     var going = roster.filter(function (r) { return r.status === 'going'; });
@@ -521,7 +540,32 @@
 
     /* 自動挑人：等待最久的優先；剛剛同場過的人不再湊在一起。
        候補人數不夠時放寬硬規則，寧可有球打也不要空場。 */
+    function levelOf(n) { return Number((detail[n] || {}).level) || 0; }
+
+    /* 程度均衡：先取等最久的一段當候選，再從中選程度最接近的四人。
+       候選窗只開 need*2，否則「程度接近」會把等很久的人一直往後推。 */
+    function pickByLevel(avail, need) {
+      var win = avail.slice(0, Math.min(avail.length, need * 2));
+      if (win.length <= need) return win.slice(0, need);
+      var sorted = win.slice().sort(function (a, b) { return levelOf(a) - levelOf(b); });
+      var best = null, bestSpread = Infinity;
+      for (var i = 0; i + need <= sorted.length; i++) {
+        var group = sorted.slice(i, i + need);
+        var spread = levelOf(group[group.length - 1]) - levelOf(group[0]);
+        if (spread < bestSpread) { bestSpread = spread; best = group; }
+      }
+      return best || win.slice(0, need);
+    }
+
+    /* 強弱分隊：最強配最弱、中間兩位一隊。只有剛好四人時適用。 */
+    function balanceOrder(names) {
+      if (names.length !== 4) return names;
+      var s = names.slice().sort(function (a, b) { return levelOf(b) - levelOf(a); });
+      return [s[0], s[3], s[1], s[2]];
+    }
+
     function pickNext(st, pairs, seq, need, seed) {
+      if (autoMode === 'off' || need <= 0) return [];
       var taken = {};
       st.courts.forEach(function (c) { membersOf(c).forEach(function (n) { taken[n] = 1; }); });
       st.queue.forEach(function (q) { membersOf(q).forEach(function (n) { taken[n] = 1; }); });
@@ -536,6 +580,8 @@
         if (wa !== wb) return wa - wb;
         return (stats[a] || 0) - (stats[b] || 0);
       });
+      if (autoMode === 'fair') return avail.slice(0, need);
+      if (autoMode === 'level') return pickByLevel(avail, need);
       function fresh(chosen, cand) {
         var all = (seed || []).concat(chosen);
         for (var i = 0; i < all.length; i++) {
@@ -594,6 +640,10 @@
       st.queue.shift();
       st.queue.push(emptySlot(QUEUE_SLOTS - 1));
 
+      // 程度均衡管的是「怎麼分隊」，所以來自排隊的組合也要重排——
+      // 否則輸送帶一轉起來，上場的人幾乎都來自排隊，這個模式就完全不作用了。
+      // 代價是它會覆蓋你在排隊裡排好的隊形；不想被動就用其他三種模式。
+      if (autoMode === 'level' && !keep.length) incoming = balanceOrder(incoming);
       var onCourt = keep.concat(incoming);
       var target = st.courts.find(function (x) { return x.courtNum === courtNum; });
       target.teamA = []; target.teamB = [];
@@ -647,6 +697,14 @@
         return Object.assign({}, x, { label: value.slice(0, 20) });
       });
       saveLineup(buildLineup(st));
+    }
+
+    function cycleMode() {
+      if (!me || busy) return;
+      var i = 0;
+      for (var k = 0; k < AUTO_MODES.length; k++) if (AUTO_MODES[k].key === autoMode) i = k;
+      var next = AUTO_MODES[(i + 1) % AUTO_MODES.length];
+      saveLineup(Object.assign({}, baseLineup, { autoMode: next.key }));
     }
 
     function undo() {
@@ -706,6 +764,7 @@
       var lines = ['羽球活動記錄', activeEvent.title,
         (activeEvent.dateText || '') + '　' + (activeEvent.place || ''), '',
         '共換場 ' + (Number(baseLineup.matchSeq) || 0) + ' 次',
+        '排場模式：' + modeAt(autoMode).label,
         '匯出時間：' + new Date().toLocaleString('zh-TW'),
         '------------------------------------------',
         '球員出場記錄'];
@@ -782,7 +841,7 @@
         me ? D('foot',
           E('button', {
             className: 'btn primary', type: 'button', disabled: busy,
-            title: q0ready ? '換上排隊 1' : '自動挑等最久的',
+            title: q0ready ? '換上排隊 1' : modeAt(autoMode).hint,
             onClick: function () { swapCourt(c.courtNum); }
           }, '換場'),
           (c.status !== 'playing' && names.length >= 4)
@@ -864,6 +923,10 @@
         D('evt', activeEvent.title + '　' + (activeEvent.dateText || '') + '　' + (activeEvent.place || '')),
         D('spacer'),
         me ? S('evt', '拖曳移動 ・ 輕觸鎖定（鎖定者換場續戰）') : null,
+        me ? E('button', {
+          className: 'btn mode ' + modeAt(autoMode).tone, type: 'button', disabled: busy,
+          title: modeAt(autoMode).hint, onClick: cycleMode
+        }, 'Auto：' + modeAt(autoMode).label) : null,
         me ? E('button', {
           className: 'btn', type: 'button', disabled: !history.length || busy, onClick: undo
         }, '復原' + (history.length ? '（' + history.length + '）' : '')) : null,

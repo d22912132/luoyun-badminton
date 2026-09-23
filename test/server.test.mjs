@@ -143,6 +143,7 @@ test('shared club: authentication, permissions, persistence, validation and conf
         locked: ['測試弟子'],
         pairs: { '測試弟子|默契道友': 3 },
         matchSeq: 3,
+        autoMode: 'level',
         lockedPairs: [['測試弟子', '默契道友']]
       }
     } });
@@ -163,6 +164,7 @@ test('shared club: authentication, permissions, persistence, validation and conf
     assert.deepEqual(pub.lineup.pos['測試弟子'], { x: 0.3, y: 0.7 });
     assert.equal(pub.lineup.pairs['測試弟子|默契道友'], 3);
     assert.equal(pub.lineup.matchSeq, 3);
+    assert.equal(pub.lineup.autoMode, 'level');
     assert.deepEqual(pub.lineup.locked, ['測試弟子']); // 輕推鎖定（換場續戰）
     assert.ok(pub.lineup.announcedAt);
     assert.equal(pub.lineup.announcedCourt, 1);
