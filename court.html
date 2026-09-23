@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>落雲宗・排場執事</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script>
+  (function(){try{var p=(new URLSearchParams(location.search)).get('theme');var t=p||localStorage.getItem('luoyun-theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='dark';}})();
+</script>
+<style>
+  /* ponytail: 不用 Tailwind。public/tailwind.css 是預先建置的成品，
+     沒有 build script，新 class 不在裡面就靜靜失效。純 CSS 沒這個問題。
+     色票沿用 board.html／console.html 的墨玉仙境變數，維持全站一致。 */
+  :root {
+    --ink-0: #101A1E; --ink-1: #16242A; --ink-2: #1B2C32;
+    --mist-1: #EEF5F1; --mist-2: #B9CAC3; --mist-3: #91A39B;
+    --jade-100: #D5E7DC; --jade-300: #9BC3AE; --jade-500: #6E9E88; --jade-700: #3D6555;
+    --gold: #C9A961; --gold-dim: #8A7440;
+    --cinnabar: #D07A6C; --cinnabar-dim: #8C4438;
+    --male-text: #A8CBD8; --male-border: rgba(168,203,216,.30); --male-high: rgba(168,203,216,.13);
+    --female-text: #DFB4C4; --female-border: rgba(223,180,196,.30); --female-high: rgba(223,180,196,.13);
+    --hair: rgba(228,235,232,.10); --hair-2: rgba(228,235,232,.17);
+    --court-bg: radial-gradient(ellipse at 50% 50%, #154e3f 0%, #0c2e25 100%);
+    --court-line: rgba(255,255,255,.5); --court-border: rgba(155,195,174,.35);
+    --surface-overlay: rgba(10,18,21,.94); --surface-sunken: rgba(6,12,14,.55);
+    color-scheme: dark;
+  }
+  html[data-theme="light"] {
+    --ink-0: #E8E0D1; --ink-1: #F3EDE1; --ink-2: #DED4C3;
+    --mist-1: #24382F; --mist-2: #4A6056; --mist-3: #4F665C;
+    --jade-100: #174737; --jade-300: #2E7055; --jade-500: #477E65; --jade-700: #285C48;
+    --gold: #8C651C; --gold-dim: #6A4B13;
+    --cinnabar: #A64E41; --cinnabar-dim: #7C372E;
+    --male-text: #285F73; --male-border: rgba(40,95,115,.34); --male-high: rgba(75,145,167,.18);
+    --female-text: #8B4960; --female-border: rgba(139,73,96,.32); --female-high: rgba(180,104,129,.17);
+    --hair: rgba(76,65,45,.16); --hair-2: rgba(57,82,68,.27);
+    --court-bg: radial-gradient(ellipse at 50% 50%, #1c6651 0%, #124738 100%);
+    --court-border: rgba(31,107,85,.4);
+    --surface-overlay: rgba(246,240,228,.97); --surface-sunken: rgba(234,225,208,.6);
+    color-scheme: light;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--ink-0); }
+  body {
+    color: var(--mist-2); min-height: 100vh;
+    font-family: 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+    background: url('/assets/yunmeng-dark-v1.jpg') center center / cover no-repeat;
+  }
+  body::after {
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background: linear-gradient(180deg, rgba(6,17,20,.55), rgba(6,17,20,.68));
+  }
+  html[data-theme="light"] body::before { background-image: url('/assets/yunmeng-light-v1.jpg'); }
+  html[data-theme="light"] body::after { background: linear-gradient(180deg, rgba(240,234,220,.62), rgba(240,234,220,.74)); }
+
+  .wrap { padding: 8px 10px 16px; max-width: 1800px; margin: 0 auto; }
+
+  .topbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .brand { font-family: 'Noto Serif TC', serif; font-weight: 700; font-size: 17px; color: var(--jade-100); }
+  .evt { font-size: 12px; color: var(--mist-3); }
+  .spacer { flex: 1 1 auto; }
+  .btn {
+    font: inherit; font-size: 12px; padding: 6px 12px; border-radius: 999px; cursor: pointer;
+    background: var(--surface-sunken); color: var(--mist-2);
+    border: 1px solid var(--hair-2); transition: .16s;
+  }
+  .btn:hover { border-color: var(--jade-500); color: var(--jade-100); }
+  .btn.primary { background: var(--jade-700); border-color: var(--jade-500); color: var(--jade-100); }
+  .btn.warn { border-color: var(--cinnabar-dim); color: var(--cinnabar); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+
+  .banner {
+    font-size: 12px; padding: 8px 12px; border-radius: 8px; margin-bottom: 10px;
+    background: var(--surface-sunken); border: 1px solid var(--hair-2); color: var(--mist-3);
+  }
+
+  .courts { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+
+  /* 場地與排隊格都是自由定位的畫布：拖到哪就停在哪，不限人數。 */
+  .canvas {
+    position: relative; border-radius: 12px; overflow: visible;
+    aspect-ratio: 4 / 3; min-height: 130px;
+    border: 2px solid var(--court-border); background: var(--court-bg);
+  }
+  .canvas.playing { border-color: var(--gold); }
+  .canvas.qbox { background: var(--surface-sunken); border-width: 1px; border-style: dashed; }
+  .canvas.qbox.next { border-color: var(--gold); border-style: solid; }
+  .canvas.drop { outline: 2px solid var(--jade-300); outline-offset: -2px; }
+  /* 球網：上下半場的分界，也是 A 隊／B 隊的判定線 */
+  .canvas::after {
+    content: ""; position: absolute; left: 6%; right: 6%; top: 50%;
+    border-top: 1px dashed var(--court-line); pointer-events: none;
+  }
+  .zlabel {
+    position: absolute; left: 8px; top: 5px; font-family: 'Noto Serif TC', serif;
+    font-size: 12px; font-weight: 700; color: var(--jade-100); opacity: .8;
+    background: none; border: none; width: 6em; padding: 0;
+  }
+  .canvas.qbox .zlabel { color: var(--jade-300); pointer-events: none; }
+  .ztimer {
+    position: absolute; right: 8px; top: 5px; font-size: 12px; font-weight: 700;
+    font-variant-numeric: tabular-nums; color: var(--gold); pointer-events: none;
+  }
+  .ztimer.idle { color: var(--mist-3); font-weight: 400; }
+  .qbadge {
+    position: absolute; right: 6px; top: 5px; font-size: 10px; padding: 1px 6px;
+    border-radius: 999px; background: var(--gold); color: var(--ink-0); font-weight: 700; pointer-events: none;
+  }
+
+  .chip {
+    display: inline-flex; align-items: baseline; gap: 4px; cursor: grab;
+    padding: 3px 7px; border-radius: 999px; font-size: 12px; font-weight: 500; white-space: nowrap;
+    border: 1px solid var(--hair-2); background: var(--surface-overlay); color: var(--mist-1);
+    user-select: none; touch-action: none;
+  }
+  .canvas .chip { position: absolute; transform: translate(-50%, -50%); }
+  .chip.male { color: var(--male-text); border-color: var(--male-border); background: var(--male-high); }
+  .chip.female { color: var(--female-text); border-color: var(--female-border); background: var(--female-high); }
+  /* 鎖定＝換場續戰，用白底強調，對應 App 的鎖定狀態 */
+  .chip.locked { background: var(--mist-1); color: var(--ink-0); border-color: var(--mist-1); font-weight: 700; }
+  .chip.locked .lv, .chip.locked .wait { color: var(--ink-0); opacity: .7; }
+  .chip.ghosting { opacity: .3; }
+  .chip .lv { font-size: 10px; opacity: .8; font-variant-numeric: tabular-nums; }
+  .chip .wait { font-size: 10px; color: var(--gold); font-variant-numeric: tabular-nums; }
+  .drag-ghost {
+    position: fixed; left: 0; top: 0; z-index: 99; pointer-events: none;
+    padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 700;
+    background: var(--gold); color: var(--ink-0); box-shadow: 0 4px 14px rgba(0,0,0,.4);
+  }
+
+  .foot { display: flex; gap: 6px; margin-top: 6px; }
+  .foot .btn { flex: 1 1 auto; font-size: 11px; padding: 5px 6px; }
+
+  .sect { margin-top: 12px; }
+  .sect-head {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+    font-family: 'Noto Serif TC', serif; font-size: 13px; font-weight: 700; color: var(--jade-300);
+  }
+  .sect-head .n { font-size: 11px; font-weight: 400; color: var(--mist-3); }
+  .queue { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+  .conveyor { position: absolute; left: -15px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--jade-500); opacity: .7; }
+  @media (max-width: 719px) { .conveyor { display: none; } }
+
+  .row2 { display: grid; gap: 10px; margin-top: 12px; grid-template-columns: 1fr; }
+  @media (min-width: 900px) { .row2 { grid-template-columns: 3fr 2fr; } }
+  .listzone { border-radius: 12px; padding: 8px; border: 1px solid var(--hair-2); background: var(--surface-sunken); }
+  .listzone.drop { outline: 2px dashed var(--jade-300); outline-offset: -2px; }
+  .list { display: flex; flex-wrap: wrap; gap: 5px; min-height: 44px; }
+  .empty { font-size: 11px; color: var(--mist-3); opacity: .7; padding: 4px; }
+
+  .modal-bg { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .modal { background: var(--ink-1); border: 1px solid var(--hair-2); border-radius: 12px; padding: 14px; max-width: 640px; width: 100%; max-height: 80vh; display: flex; flex-direction: column; }
+  .modal h2 { font-family: 'Noto Serif TC', serif; font-size: 15px; color: var(--jade-100); margin: 0 0 8px; }
+  .modal pre {
+    flex: 1 1 auto; overflow: auto; margin: 0 0 10px; padding: 10px; border-radius: 8px;
+    background: var(--surface-sunken); color: var(--mist-2); font-size: 12px; line-height: 1.6;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  .modal-foot { display: flex; gap: 8px; justify-content: flex-end; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="application/json" id="snapshot">{}</script>
+<script>
+(function () {
+  var E = React.createElement, useState = React.useState, useEffect = React.useEffect, useRef = React.useRef;
+
+  function isProps(x) { return x && typeof x === 'object' && !Array.isArray(x) && !x.type; }
+  function D(cls) {
+    var k = [].slice.call(arguments, 1);
+    var extra = isProps(k[0]) ? k.shift() : null;
+    return E.apply(null, ['div', Object.assign({}, extra, { className: cls })].concat(k));
+  }
+  function S(cls) {
+    var k = [].slice.call(arguments, 1);
+    var extra = isProps(k[0]) ? k.shift() : null;
+    return E.apply(null, ['span', Object.assign({}, extra, { className: cls })].concat(k));
+  }
+
+  var QUEUE_SLOTS = 4;
+
+  function clone(v) { return JSON.parse(JSON.stringify(v)); }
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  function mmss(sec) { return pad2(Math.floor(sec / 60)) + ':' + pad2(sec % 60); }
+  function hms(ms) {
+    var s = Math.max(0, Math.floor(ms / 1000));
+    return Math.floor(s / 3600) + ':' + pad2(Math.floor(s / 60) % 60) + ':' + pad2(s % 60);
+  }
+  function parseDrop(str) {
+    var p = String(str || '').split(':');
+    if (p[0] === 'court') return { kind: 'court', courtNum: Number(p[1]) };
+    if (p[0] === 'queue') return { kind: 'queue', qidx: Number(p[1]) };
+    return { kind: p[0] };
+  }
+  function emptySlot(i) {
+    return { id: 'q' + (i + 1), mode: 'balanced', teamA: [], teamB: [], createdAt: new Date().toISOString() };
+  }
+  function pairKey(a, b) { return a < b ? a + '|' + b : b + '|' + a; }
+  function defaultPos(i) {
+    var col = i % 2, row = Math.floor(i / 2) % 2;
+    return { x: col ? 0.72 : 0.28, y: row ? 0.74 : 0.26 };
+  }
+
+  function CourtApp() {
+    var dataState = useState(null), data = dataState[0], setData = dataState[1];
+    var meState = useState(null), me = meState[0], setMe = meState[1];
+    var themeState = useState(document.documentElement.dataset.theme || 'dark'), theme = themeState[0], setTheme = themeState[1];
+    var dragState = useState(null), dragging = dragState[0], setDragging = dragState[1];
+    var nowState = useState(Date.now()), nowTime = nowState[0], setNowTime = nowState[1];
+    var busyState = useState(false), busy = busyState[0], setBusy = busyState[1];
+    var errState = useState(''), err = errState[0], setErr = errState[1];
+    var logState = useState(''), logText = logState[0], setLogText = logState[1];
+    var dragRef = useRef(null), ghostRef = useRef(null), labelDraft = useRef({});
+
+    function refresh(includeSession) {
+      fetch('/api/public').then(function (r) { return r.json(); }).then(function (res) {
+        setData(res);
+      }).catch(function () {});
+      if (includeSession) {
+        fetch('/api/session').then(function (r) { return r.json(); }).then(function (res) {
+          setMe(res.me || null);
+        }).catch(function () {});
+      }
+    }
+
+    useEffect(function () {
+      refresh(true);
+      var tick = 0;
+      // 背景分頁不輪詢以節省請求，但首次載入一律要抓，否則背景開啟會卡在載入中
+      var poller = setInterval(function () { if (document.hidden) return; tick++; refresh(tick % 8 === 0); }, 3500);
+      function onVis() { if (!document.hidden) refresh(true); }
+      document.addEventListener('visibilitychange', onVis);
+      return function () {
+        clearInterval(poller);
+        document.removeEventListener('visibilitychange', onVis);
+      };
+    }, []);
+
+    useEffect(function () {
+      var t = setInterval(function () { setNowTime(Date.now()); }, 1000);
+      return function () { clearInterval(t); };
+    }, []);
+
+    var events = (data && data.events) || [];
+    var targetId = new URLSearchParams(window.location.search).get('event');
+    var activeEvent = (targetId && events.find(function (e) { return e.id === targetId; })) || events[0] || null;
+
+    var baseLineup = (activeEvent && activeEvent.lineup) || { courts: [], stats: {}, resting: [], queue: [] };
+    var numCourts = (activeEvent && Number(activeEvent.courts)) || 1;
+    var courts = (baseLineup.courts || []).slice(0, numCourts).map(clone);
+    while (courts.length < numCourts) {
+      courts.push({ courtNum: courts.length + 1, status: 'idle', mode: 'balanced', teamA: [], teamB: [], label: '' });
+    }
+    var queue = [];
+    for (var qi = 0; qi < QUEUE_SLOTS; qi++) {
+      var qsrc = (baseLineup.queue || [])[qi];
+      queue.push(qsrc ? Object.assign(emptySlot(qi), clone(qsrc), { id: 'q' + (qi + 1) }) : emptySlot(qi));
+    }
+    var resting = (baseLineup.resting || []).slice();
+    var stats = baseLineup.stats || {};
+    var lockedList = baseLineup.locked || [];
+    var posMap = baseLineup.pos || {};
+    var sinceMap = baseLineup.since || {};
+    var stateMap = baseLineup.state || {};
+    var timesMap = baseLineup.times || {};
+
+    var roster = (activeEvent && activeEvent.roster) || [];
+    var going = roster.filter(function (r) { return r.status === 'going'; });
+    var detail = {};
+    going.forEach(function (r) { detail[r.nickname] = r; });
+
+    // 去重：teamA/teamB 可能被別的頁面或舊資料寫入重複名字，
+    // 重複的名字會讓 React key 撞號、也會讓換場算錯人數。
+    function membersOf(z) {
+      var seen = {};
+      return ((z && z.teamA) || []).concat((z && z.teamB) || []).filter(function (n) {
+        if (!n || seen[n]) return false;
+        seen[n] = 1;
+        return true;
+      });
+    }
+
+    var placed = {};
+    courts.forEach(function (c) { membersOf(c).forEach(function (n) { placed[n] = 1; }); });
+    queue.forEach(function (q) { membersOf(q).forEach(function (n) { placed[n] = 1; }); });
+    resting.forEach(function (n) { placed[n] = 1; });
+    var pool = going.filter(function (r) { return !placed[r.nickname]; });
+    pool.sort(function (a, b) {
+      var wa = sinceMap[a.nickname] || 0, wb = sinceMap[b.nickname] || 0;
+      if (wa !== wb) return wa - wb;
+      return (stats[a.nickname] || 0) - (stats[b.nickname] || 0);
+    });
+
+    function isLocked(name) { return lockedList.indexOf(name) >= 0; }
+
+    function toggleTheme() {
+      var next = theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      try { localStorage.setItem('luoyun-theme', next); } catch (e) {}
+      setTheme(next);
+    }
+
+    /* 寫入沿用 board.html 的路徑：先讀 /api/state 取版本，再 POST /api/action。
+       伺服器有樂觀鎖，版本落後會被拒絕。 */
+    function saveLineup(next) {
+      if (!me || !activeEvent || busy) return;
+      setBusy(true);
+      setErr('');
+      fetch('/api/state').then(function (r) {
+        if (!r.ok) throw new Error('讀取狀態失敗，請確認長老登入狀態');
+        return r.json();
+      }).then(function (st) {
+        if (st.error) throw new Error(st.error);
+        return fetch('/api/action', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ version: st.version, action: 'updateLineup', id: activeEvent.id, row: { lineup: next } })
+        });
+      }).then(function (r) {
+        return r.json().then(function (res) {
+          if (!r.ok || res.error) throw new Error(res.error || '排位更新失敗');
+          return res;
+        });
+      }).then(function () {
+        setBusy(false);
+        refresh();
+      }).catch(function (e) {
+        setBusy(false);
+        setErr(e.message || '排位儲存失敗，請重新整理');
+        refresh();
+      });
+    }
+
+    function snapshotState() {
+      return { courts: clone(courts), queue: clone(queue), resting: resting.slice(), pos: clone(posMap) };
+    }
+
+    /* 三個時間累計器用不變式維護：每次存檔比對狀態，狀態變了就把上一段時間結算進去。
+       比在每個動作裡各記一次可靠，不會漏掉任何一條路徑。 */
+    function syncClocks(st, prev) {
+      var times = clone(prev.times || {});
+      var since = Object.assign({}, prev.since || {});
+      var state = Object.assign({}, prev.state || {});
+      var stamp = Date.now();
+      var onPlay = {}, onRest = {};
+      st.courts.forEach(function (c) {
+        if (c.status !== 'playing') return;
+        membersOf(c).forEach(function (n) { onPlay[n] = 1; });
+      });
+      st.resting.forEach(function (n) { onRest[n] = 1; });
+      going.forEach(function (r) {
+        var n = r.nickname;
+        var next = onPlay[n] ? 'play' : (onRest[n] ? 'rest' : 'wait');
+        if (since[n] == null) { since[n] = stamp; state[n] = next; return; }
+        if (state[n] !== next) {
+          var bucket = times[n] || { play: 0, wait: 0, rest: 0 };
+          var was = state[n] || 'wait';
+          bucket[was] = (bucket[was] || 0) + (stamp - since[n]);
+          times[n] = bucket;
+          since[n] = stamp;
+          state[n] = next;
+        }
+      });
+      return { times: times, since: since, state: state };
+    }
+
+    function buildLineup(st, extra) {
+      var out = Object.assign({}, baseLineup, {
+        courts: st.courts, queue: st.queue, resting: st.resting, pos: st.pos
+      }, extra || {});
+      var clocks = syncClocks(st, out);
+      out.times = clocks.times;
+      out.since = clocks.since;
+      out.state = clocks.state;
+      return out;
+    }
+
+    /* 注意：這會把名字從「每一個」場地與排隊格裡濾掉，包含你正要讀取的那一格。
+       要搬移某組人時，務必先把名單複製出來再呼叫，否則複製到的是空陣列。 */
+    function pluck(st, name) {
+      st.courts.forEach(function (c) {
+        c.teamA = (c.teamA || []).filter(function (n) { return n !== name; });
+        c.teamB = (c.teamB || []).filter(function (n) { return n !== name; });
+      });
+      st.queue.forEach(function (q) {
+        q.teamA = (q.teamA || []).filter(function (n) { return n !== name; });
+        q.teamB = (q.teamB || []).filter(function (n) { return n !== name; });
+      });
+      st.resting = st.resting.filter(function (n) { return n !== name; });
+    }
+
+    function zoneOf(st, addr) {
+      if (addr.kind === 'court') return st.courts.find(function (x) { return x.courtNum === addr.courtNum; });
+      if (addr.kind === 'queue') return st.queue[addr.qidx];
+      return null;
+    }
+
+    /* 自由定位：teamA/teamB 依 y 座標的上下半場推導，board.html 才讀得到隊伍。 */
+    function putAt(st, name, addr, x, y) {
+      pluck(st, name);
+      if (addr.kind === 'rest') { st.resting.push(name); return; }
+      if (addr.kind === 'pool') return;
+      var z = zoneOf(st, addr);
+      if (!z) return;
+      var p = { x: Math.min(0.92, Math.max(0.08, x)), y: Math.min(0.88, Math.max(0.12, y)) };
+      st.pos[name] = p;
+      (p.y > 0.5 ? z.teamB : z.teamA).push(name);
+    }
+
+    function place(name, addr, x, y) {
+      var st = snapshotState();
+      putAt(st, name, addr, x, y);
+      saveLineup(buildLineup(st));
+    }
+
+    /* 輕觸鎖定：鎖住的人換場時留在場上不被換走，再輕觸一次解鎖。 */
+    function toggleLock(name) {
+      if (!me) return;
+      var next = isLocked(name)
+        ? lockedList.filter(function (n) { return n !== name; })
+        : lockedList.concat([name]);
+      saveLineup(Object.assign({}, baseLineup, { locked: next }));
+    }
+
+    /* 拖曳用 pointer events 自己實作：HTML5 drag 在觸控裝置上根本不觸發，
+       而現場是平板。移動中的殘影直接操作 DOM，不走 React，避免每幀重繪整頁。 */
+    function onChipPointerDown(name, ev) {
+      if (!me || busy) return;
+      dragRef.current = { name: name, id: ev.pointerId, x0: ev.clientX, y0: ev.clientY, moved: false };
+      try { ev.currentTarget.setPointerCapture(ev.pointerId); } catch (e) {}
+    }
+
+    function onChipPointerMove(ev) {
+      var d = dragRef.current;
+      if (!d || d.id !== ev.pointerId) return;
+      if (!d.moved) {
+        if (Math.abs(ev.clientX - d.x0) < 6 && Math.abs(ev.clientY - d.y0) < 6) return;
+        d.moved = true;
+        setDragging(d.name);
+      }
+      var g = ghostRef.current;
+      if (!g) {
+        g = document.createElement('div');
+        g.className = 'drag-ghost';
+        document.body.appendChild(g);
+        ghostRef.current = g;
+      }
+      g.textContent = d.name;
+      g.style.transform = 'translate(' + (ev.clientX + 12) + 'px,' + (ev.clientY - 14) + 'px)';
+    }
+
+    function onChipPointerUp(ev) {
+      var d = dragRef.current;
+      if (!d || d.id !== ev.pointerId) return;
+      dragRef.current = null;
+      if (ghostRef.current) { ghostRef.current.remove(); ghostRef.current = null; }
+      setDragging(null);
+      if (!d.moved) { toggleLock(d.name); return; }
+      var el = document.elementFromPoint(ev.clientX, ev.clientY);
+      var zone = el && el.closest ? el.closest('[data-drop]') : null;
+      if (!zone) return;
+      var addr = parseDrop(zone.getAttribute('data-drop'));
+      var r = zone.getBoundingClientRect();
+      place(d.name, addr, (ev.clientX - r.left) / r.width, (ev.clientY - r.top) / r.height);
+    }
+
+    /* 自動挑人：等待最久的優先；剛剛同場過的人不再湊在一起。
+       候補人數不夠時放寬硬規則，寧可有球打也不要空場。 */
+    function pickNext(st, pairs, seq, need, seed) {
+      var taken = {};
+      st.courts.forEach(function (c) { membersOf(c).forEach(function (n) { taken[n] = 1; }); });
+      st.queue.forEach(function (q) { membersOf(q).forEach(function (n) { taken[n] = 1; }); });
+      st.resting.forEach(function (n) { taken[n] = 1; });
+      // seed 是已經確定要上這一場的人（續戰的＋排隊已取出的），必須排除，
+      // 否則他們還沒被放回場地時會被當成待命而重複挑中。
+      var avail = going.filter(function (r) {
+        return !taken[r.nickname] && (seed || []).indexOf(r.nickname) < 0;
+      }).map(function (r) { return r.nickname; });
+      avail.sort(function (a, b) {
+        var wa = sinceMap[a] || 0, wb = sinceMap[b] || 0;
+        if (wa !== wb) return wa - wb;
+        return (stats[a] || 0) - (stats[b] || 0);
+      });
+      function fresh(chosen, cand) {
+        var all = (seed || []).concat(chosen);
+        for (var i = 0; i < all.length; i++) {
+          if (pairs[pairKey(all[i], cand)] === seq) return false;
+        }
+        return true;
+      }
+      var picked = [];
+      for (var i = 0; i < avail.length && picked.length < need; i++) {
+        if (fresh(picked, avail[i])) picked.push(avail[i]);
+      }
+      for (var k = 0; k < avail.length && picked.length < need; k++) {
+        if (picked.indexOf(avail[k]) < 0) picked.push(avail[k]);
+      }
+      return picked;
+    }
+
+    /* 換場：排隊 1 上場、後面整排往前移，下場的人自動排到隊尾。
+       放隊尾而不是排隊 1，剛打完的才不會馬上又輪到。
+       鎖定的人留在場上續戰，只補足缺的名額。 */
+    function swapCourt(courtNum) {
+      var st = snapshotState();
+      var c = st.courts.find(function (x) { return x.courtNum === courtNum; });
+      if (!c) return;
+      var played = membersOf(c);
+      var seq = (Number(baseLineup.matchSeq) || 0) + 1;
+      var nextStats = Object.assign({}, stats);
+      var nextPairs = Object.assign({}, baseLineup.pairs || {});
+      played.forEach(function (n) { nextStats[n] = (nextStats[n] || 0) + 1; });
+      for (var i = 0; i < played.length; i++) {
+        for (var j = i + 1; j < played.length; j++) nextPairs[pairKey(played[i], played[j])] = seq;
+      }
+
+      var keep = played.filter(isLocked);
+      var leaving = played.filter(function (n) { return !isLocked(n); });
+      leaving.forEach(function (n) { pluck(st, n); });
+      var need = 4 - keep.length;
+
+      // 排隊 1 先上；名單要在 pluck 之前複製出來
+      var q0 = st.queue[0] || { teamA: [], teamB: [] };
+      var queued = (q0.teamA || []).filter(Boolean).concat((q0.teamB || []).filter(Boolean));
+      var incoming = [];
+      if (need > 0 && queued.length) {
+        incoming = queued.slice(0, need);
+        incoming.forEach(function (n) { pluck(st, n); });
+      }
+      if (incoming.length < need) {
+        var more = pickNext(st, nextPairs, seq, need - incoming.length, keep.concat(incoming));
+        more.forEach(function (n) { pluck(st, n); });
+        incoming = incoming.concat(more);
+      }
+
+      // 輸送帶前移一格，空出隊尾給剛下場的人
+      st.queue.shift();
+      st.queue.push(emptySlot(QUEUE_SLOTS - 1));
+
+      var onCourt = keep.concat(incoming);
+      var target = st.courts.find(function (x) { return x.courtNum === courtNum; });
+      target.teamA = []; target.teamB = [];
+      onCourt.forEach(function (n, i) {
+        var p = (keep.indexOf(n) >= 0 && st.pos[n]) ? st.pos[n] : defaultPos(i);
+        st.pos[n] = p;
+        (p.y > 0.5 ? target.teamB : target.teamA).push(n);
+      });
+      target.status = onCourt.length >= 4 ? 'playing' : 'idle';
+      target.matchStart = onCourt.length >= 4 ? new Date().toISOString() : null;
+
+      // 剛下場的人排到隊尾，沒人會因為不好意思而被漏掉
+      var tail = st.queue[QUEUE_SLOTS - 1];
+      leaving.forEach(function (n, i) {
+        var p = defaultPos(i);
+        st.pos[n] = p;
+        (p.y > 0.5 ? tail.teamB : tail.teamA).push(n);
+      });
+
+      saveLineup(buildLineup(st, { stats: nextStats, pairs: nextPairs, matchSeq: seq }));
+    }
+
+    function startCourt(courtNum) {
+      var st = snapshotState();
+      st.courts = st.courts.map(function (c) {
+        if (c.courtNum !== courtNum) return c;
+        return Object.assign({}, c, { status: 'playing', matchStart: new Date().toISOString() });
+      });
+      saveLineup(buildLineup(st));
+    }
+
+    function clearCourt(courtNum) {
+      var st = snapshotState();
+      var c = st.courts.find(function (x) { return x.courtNum === courtNum; });
+      if (!c) return;
+      var names = membersOf(c);
+      c.teamA = []; c.teamB = []; c.status = 'idle'; c.matchStart = null;
+      saveLineup(Object.assign({}, buildLineup(st), {
+        locked: lockedList.filter(function (n) { return names.indexOf(n) < 0; })
+      }));
+    }
+
+    function setLabel(courtNum, value) {
+      var st = snapshotState();
+      st.courts = st.courts.map(function (x) {
+        if (x.courtNum !== courtNum) return x;
+        return Object.assign({}, x, { label: value.slice(0, 20) });
+      });
+      saveLineup(buildLineup(st));
+    }
+
+    function buildReport() {
+      var stamp = Date.now();
+      var lines = ['羽球活動記錄', activeEvent.title,
+        (activeEvent.dateText || '') + '　' + (activeEvent.place || ''), '',
+        '共換場 ' + (Number(baseLineup.matchSeq) || 0) + ' 次',
+        '匯出時間：' + new Date().toLocaleString('zh-TW'),
+        '------------------------------------------',
+        '球員出場記錄'];
+      going.slice().sort(function (a, b) {
+        return (stats[b.nickname] || 0) - (stats[a.nickname] || 0);
+      }).forEach(function (r) {
+        var n = r.nickname;
+        var t = Object.assign({ play: 0, wait: 0, rest: 0 }, timesMap[n]);
+        // 目前這一段還沒結算，加上去才是真實累計
+        var cur = stateMap[n];
+        if (cur && sinceMap[n]) t[cur] = (t[cur] || 0) + (stamp - sinceMap[n]);
+        lines.push(n + '　' + (stats[n] || 0) + ' 場 | 上場 ' + hms(t.play) +
+          ' | 等待 ' + hms(t.wait) + ' | 休息 ' + hms(t.rest));
+      });
+      return lines.join('\n');
+    }
+
+    function waitLabel(name) {
+      if (stateMap[name] === 'play' || !sinceMap[name]) return null;
+      return Math.max(0, Math.floor((nowTime - sinceMap[name]) / 60000)) + ' 分';
+    }
+
+    function chip(name, positioned, idx) {
+      var d = detail[name] || {};
+      var cls = 'chip' + (d.gender === 'female' ? ' female' : d.gender === 'male' ? ' male' : '');
+      if (isLocked(name)) cls += ' locked';
+      if (dragging === name) cls += ' ghosting';
+      var wait = waitLabel(name);
+      var style = null;
+      if (positioned) {
+        var p = posMap[name] || defaultPos(idx);
+        style = { left: (p.x * 100) + '%', top: (p.y * 100) + '%' };
+      }
+      return D(cls, {
+        key: name,
+        style: style,
+        'data-chip': name,
+        title: me ? '拖曳移動，輕觸鎖定' : '',
+        onPointerDown: function (ev) { onChipPointerDown(name, ev); },
+        onPointerMove: onChipPointerMove,
+        onPointerUp: onChipPointerUp,
+        onPointerCancel: onChipPointerUp
+      },
+        S('', name),
+        d.level ? S('lv', 'Lv' + d.level) : null,
+        wait ? S('wait', wait) : null
+      );
+    }
+
+    function courtCard(c) {
+      var ms = c.matchStart ? Date.parse(c.matchStart) : 0;
+      var elapsed = (c.status === 'playing' && ms) ? Math.max(0, Math.floor((nowTime - ms) / 1000)) : 0;
+      var names = membersOf(c);
+      var q0ready = membersOf(queue[0]).length;
+      return D('', { key: c.courtNum },
+        D('canvas' + (c.status === 'playing' ? ' playing' : '') + (dragging ? ' drop' : ''),
+          { 'data-drop': 'court:' + c.courtNum },
+          E('input', {
+            className: 'zlabel',
+            value: labelDraft.current[c.courtNum] != null ? labelDraft.current[c.courtNum] : (c.label || ('場地 ' + c.courtNum)),
+            disabled: !me,
+            'aria-label': '場地 ' + c.courtNum + ' 名稱',
+            onChange: function (ev) { labelDraft.current[c.courtNum] = ev.target.value; setNowTime(Date.now()); },
+            onBlur: function (ev) {
+              var v = ev.target.value.trim();
+              delete labelDraft.current[c.courtNum];
+              if (v !== (c.label || '')) setLabel(c.courtNum, v);
+            }
+          }),
+          D('ztimer' + (c.status === 'playing' ? '' : ' idle'), c.status === 'playing' ? mmss(elapsed) : '待命'),
+          names.map(function (n, i) { return chip(n, true, i); })
+        ),
+        me ? D('foot',
+          E('button', {
+            className: 'btn primary', type: 'button', disabled: busy,
+            title: q0ready ? '換上排隊 1' : '自動挑等最久的',
+            onClick: function () { swapCourt(c.courtNum); }
+          }, '換場'),
+          (c.status !== 'playing' && names.length >= 4)
+            ? E('button', { className: 'btn', type: 'button', disabled: busy, onClick: function () { startCourt(c.courtNum); } }, '開始')
+            : null,
+          names.length ? E('button', { className: 'btn warn', type: 'button', disabled: busy, onClick: function () { clearCourt(c.courtNum); } }, '清空') : null
+        ) : null
+      );
+    }
+
+    if (!data) return D('wrap', D('banner', '正在請出名冊…'));
+    if (!activeEvent) return D('wrap', D('banner', '目前沒有集結活動。請先在管理後台開團。'));
+
+    return D('wrap',
+      logText ? D('modal-bg', { onClick: function () { setLogText(''); } },
+        D('modal', { onClick: function (ev) { ev.stopPropagation(); } },
+          E('h2', null, '羽球活動記錄'),
+          E('pre', null, logText),
+          D('modal-foot',
+            E('button', {
+              className: 'btn', type: 'button',
+              onClick: function () { try { navigator.clipboard.writeText(logText); } catch (e) {} }
+            }, '複製'),
+            E('button', { className: 'btn primary', type: 'button', onClick: function () { setLogText(''); } }, '關閉')
+          )
+        )
+      ) : null,
+      D('topbar',
+        D('brand', '排場執事'),
+        D('evt', activeEvent.title + '　' + (activeEvent.dateText || '') + '　' + (activeEvent.place || '')),
+        D('spacer'),
+        me ? S('evt', '拖曳移動 ・ 輕觸鎖定（鎖定者換場續戰）') : null,
+        E('button', { className: 'btn', type: 'button', onClick: function () { setLogText(buildReport()); } }, '活動記錄'),
+        E('button', { className: 'btn', type: 'button', onClick: toggleTheme }, theme === 'dark' ? '晝' : '夜'),
+        E('a', { className: 'btn', href: '/console.html' }, '後台')
+      ),
+      err ? D('banner', { style: { borderColor: 'var(--cinnabar-dim)', color: 'var(--cinnabar)' } }, err) : null,
+      !me ? D('banner', '訪客唯讀。長老請先於後台登入後回到此頁。') : null,
+      D('courts', courts.map(courtCard)),
+      D('sect',
+        D('sect-head', '排隊區', S('n', '排隊 1 下一組上場；換場時整排往前移，下場的人排到隊尾')),
+        D('queue', queue.map(function (q, i) {
+          var names = membersOf(q);
+          return D('canvas qbox' + (i === 0 ? ' next' : '') + (dragging ? ' drop' : ''),
+            { key: q.id, 'data-drop': 'queue:' + i },
+            D('zlabel', '排隊 ' + (i + 1)),
+            i === 0 ? D('qbadge', '下一組') : null,
+            names.map(function (n, k) { return chip(n, true, k); }),
+            i > 0 ? D('conveyor', '◀') : null
+          );
+        }))
+      ),
+      D('row2',
+        D('listzone' + (dragging ? ' drop' : ''), { 'data-drop': 'pool' },
+          D('sect-head', '待命池', S('n', pool.length + ' 人（等最久的排前面）')),
+          D('list', pool.length
+            ? pool.map(function (p) { return chip(p.nickname, false, 0); })
+            : D('empty', '無人待命'))
+        ),
+        D('listzone' + (dragging ? ' drop' : ''), { 'data-drop': 'rest' },
+          D('sect-head', '休息區', S('n', resting.length + ' 人')),
+          D('list', resting.length
+            ? resting.map(function (n) { return chip(n, false, 0); })
+            : D('empty', '無人休息'))
+        )
+      )
+    );
+  }
+
+  var rootEl = document.getElementById('root');
+  if (ReactDOM.createRoot) ReactDOM.createRoot(rootEl).render(E(CourtApp));
+  else ReactDOM.render(E(CourtApp), rootEl);
+})();
+</script>
+</body>
+</html>

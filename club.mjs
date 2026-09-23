@@ -43,6 +43,7 @@ function lineupData(raw) {
       }
       return {
         courtNum: Number(c.courtNum) || 1,
+        label: typeof c.label === 'string' ? c.label.slice(0, 20) : '',
         status: ['idle', 'waiting', 'playing', 'finished'].includes(c.status) ? (c.status === 'waiting' ? 'idle' : c.status) : 'idle',
         mode: ['free', 'balanced', 'mixed', 'mens', 'womens', 'singles'].includes(c.mode) ? c.mode : 'free',
         teamA: cleanList(c.teamA),
@@ -60,7 +61,14 @@ function lineupData(raw) {
       createdAt: typeof q.createdAt === 'string' ? q.createdAt : now()
     })) : [],
     stats: (raw.stats && typeof raw.stats === 'object') ? raw.stats : {},
+    pairs: (raw.pairs && typeof raw.pairs === 'object') ? raw.pairs : {},
+    matchSeq: Number(raw.matchSeq) || 0,
+    pos: (raw.pos && typeof raw.pos === 'object') ? raw.pos : {},
+    times: (raw.times && typeof raw.times === 'object') ? raw.times : {},
+    since: (raw.since && typeof raw.since === 'object') ? raw.since : {},
+    state: (raw.state && typeof raw.state === 'object') ? raw.state : {},
     resting: cleanList(raw.resting),
+    locked: cleanList(raw.locked),
     lockedPairs: Array.isArray(raw.lockedPairs) ? raw.lockedPairs
       .map(cleanList)
       .filter(p => p.length === 2) : [],
@@ -268,6 +276,7 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
               }
             }
             if (Array.isArray(ev.lineup.resting)) ev.lineup.resting = ev.lineup.resting.map(rename);
+            if (Array.isArray(ev.lineup.locked)) ev.lineup.locked = ev.lineup.locked.map(rename);
             if (Array.isArray(ev.lineup.lockedPairs)) {
               ev.lineup.lockedPairs = ev.lineup.lockedPairs.map(pair => pair.map(rename));
             }
@@ -275,6 +284,12 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
               ev.lineup.stats[toName] = (ev.lineup.stats[toName] || 0) + ev.lineup.stats[fromName];
               delete ev.lineup.stats[fromName];
             }
+            for (const key of ['pos', 'times', 'since', 'state']) {
+              const map = ev.lineup[key];
+              if (map && map[fromName] != null) { map[toName] = map[fromName]; delete map[fromName]; }
+            }
+            // ponytail: lineup.pairs 是複合鍵（"甲|乙"），改名後留下的舊鍵只會讓該組少擋一次
+            // 「不要連續同場」，下一場就自動失效，不值得為此拆解所有鍵。
           }
         }
       }
@@ -412,7 +427,7 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
         if (path === '/' || path === '/index.html') {
           res.writeHead(307, { Location: '/console.html' }); return res.end();
         }
-        const files = { '/console.html': 'console.html', '/board.html': 'board.html', '/rite.html': 'index.html', '/health': null };
+        const files = { '/console.html': 'console.html', '/board.html': 'board.html', '/court.html': 'court.html', '/rite.html': 'index.html', '/health': null };
         if (!Object.hasOwn(files, path)) reject('找不到頁面', 404);
         if (path === '/health') return json({ ok: true });
         let html = readHtml(files[path]);

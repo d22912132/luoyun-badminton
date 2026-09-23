@@ -4,8 +4,9 @@ import { getOfficialCalendar, supportedCalendarYears } from './calendar.mjs';
 import indexHtml from './index.html';
 import consoleHtml from './console.html';
 import boardHtml from './board.html';
+import courtHtml from './court.html';
 
-const pages = { '/console.html': consoleHtml, '/board.html': boardHtml, '/rite.html': indexHtml };
+const pages = { '/console.html': consoleHtml, '/board.html': boardHtml, '/court.html': courtHtml, '/rite.html': indexHtml };
 const snapshot = JSON.parse(indexHtml.match(/id="snapshot">\s*([\s\S]*?)<\/script>/)[1]);
 const headers = { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store',
   'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'SAMEORIGIN', 'Referrer-Policy': 'same-origin' };

@@ -134,8 +134,15 @@ test('shared club: authentication, permissions, persistence, validation and conf
     await act('callLineup', { id: eventId, row: {
       courtNum: 1,
       lineup: {
-        courts: [{ courtNum: 1, status: 'waiting', mode: 'balanced', startedAt: startTimeNum, teamA: ['測試弟子'], teamB: [] }],
+        courts: [{ courtNum: 1, status: 'waiting', mode: 'balanced', startedAt: startTimeNum, label: '五號場', teamA: ['測試弟子'], teamB: [] }],
         stats: { '測試弟子': 1 },
+        since: { '默契道友': 1758585600000 },
+        state: { '默契道友': 'wait' },
+        times: { '默契道友': { play: 1000, wait: 2000, rest: 3000 } },
+        pos: { '測試弟子': { x: 0.3, y: 0.7 } },
+        locked: ['測試弟子'],
+        pairs: { '測試弟子|默契道友': 3 },
+        matchSeq: 3,
         lockedPairs: [['測試弟子', '默契道友']]
       }
     } });
@@ -147,7 +154,16 @@ test('shared club: authentication, permissions, persistence, validation and conf
     assert.equal(pub.lineup.courts[0].status, 'idle'); // 'waiting' normalized to 'idle'
     assert.ok(pub.lineup.courts[0].matchStart); // startedAt normalized to matchStart
     assert.equal(pub.lineup.courts[0].teamA[0], '測試弟子');
+    assert.equal(pub.lineup.courts[0].label, '五號場'); // court.html 自訂場地名稱要通過 lineupData 白名單
     assert.deepEqual(pub.lineup.lockedPairs, [['測試弟子', '默契道友']]);
+    // court.html 的三個時間累計器、狀態、座標與搭配冷卻欄位都要通過 lineupData 白名單
+    assert.equal(pub.lineup.since['默契道友'], 1758585600000);
+    assert.equal(pub.lineup.state['默契道友'], 'wait');
+    assert.deepEqual(pub.lineup.times['默契道友'], { play: 1000, wait: 2000, rest: 3000 });
+    assert.deepEqual(pub.lineup.pos['測試弟子'], { x: 0.3, y: 0.7 });
+    assert.equal(pub.lineup.pairs['測試弟子|默契道友'], 3);
+    assert.equal(pub.lineup.matchSeq, 3);
+    assert.deepEqual(pub.lineup.locked, ['測試弟子']); // 輕推鎖定（換場續戰）
     assert.ok(pub.lineup.announcedAt);
     assert.equal(pub.lineup.announcedCourt, 1);
     const savedAnnouncedAt = pub.lineup.announcedAt;
@@ -317,7 +333,10 @@ test('shared club: authentication, permissions, persistence, validation and conf
       queue: [{ id: 'q-test-1', mode: 'balanced', teamA: [oldNick], teamB: [] }],
       resting: [oldNick],
       lockedPairs: [[oldNick, '道友甲']],
-      stats: { [oldNick]: 5 }
+      stats: { [oldNick]: 5 },
+      since: { [oldNick]: 1758585600000 },
+      pos: { [oldNick]: { x: 0.5, y: 0.5 } },
+      locked: [oldNick]
     } } });
 
     // Rename member via saveMember
@@ -328,6 +347,10 @@ test('shared club: authentication, permissions, persistence, validation and conf
     assert.deepEqual(ev.lineup.courts[0].teamA, [newNick]);
     assert.deepEqual(ev.lineup.queue[0].teamA, [newNick]);
     assert.deepEqual(ev.lineup.resting, [newNick]);
+    assert.equal(ev.lineup.since[newNick], 1758585600000);
+    assert.equal(ev.lineup.since[oldNick], undefined);
+    assert.deepEqual(ev.lineup.pos[newNick], { x: 0.5, y: 0.5 });
+    assert.deepEqual(ev.lineup.locked, [newNick]);
     assert.deepEqual(ev.lineup.lockedPairs, [[newNick, '道友甲']]);
     assert.equal(ev.lineup.stats[newNick], 5);
     assert.equal(ev.lineup.stats[oldNick], undefined);
