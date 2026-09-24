@@ -138,6 +138,7 @@
   .chip.locked { background: var(--mist-1); color: var(--ink-0); border-color: var(--mist-1); font-weight: 700; }
   .chip.locked .lv, .chip.locked .wait { color: var(--ink-0); opacity: .7; }
   .chip.ghosting { opacity: .3; }
+  .chip .lvbar { align-self: stretch; width: 4px; border-radius: 2px; margin-right: 1px; }
   .chip .lv, .chip .cnt { font-size: calc(var(--chip-fs, 12px) * .82); opacity: .8; font-variant-numeric: tabular-nums; }
   .chip .wait { font-size: calc(var(--chip-fs, 12px) * .82); color: var(--gold); font-variant-numeric: tabular-nums; }
   .drag-ghost {
@@ -226,8 +227,12 @@
     return AUTO_MODES[3];
   }
   /* 顯示偏好存在瀏覽器，不進 lineup：平板要大字、手機要精簡，各台裝置不該互相覆蓋。 */
+  var LEVEL_COLORS = ['#F5F5F5', '#F5F5F5', '#F8BBD0', '#2196F3', '#9C27B0', '#3F51B5', '#4CAF50', '#FFEB3B', '#FF9800'];
   function loadPrefs() {
-    var d = { timer: true, count: false, wait: true, level: true, gender: true, voice: true, scale: 1 };
+    var d = {
+      timer: true, count: false, wait: true, level: false, levelColor: true, gender: false,
+      voice: true, voiceTimes: 2, preAnnounce: false, pairAnnounce: false, autoLock: true, scale: 1
+    };
     try { return Object.assign(d, JSON.parse(localStorage.getItem(PREF_KEY) || '{}')); } catch (e) { return d; }
   }
 
@@ -265,6 +270,7 @@
     var prefState = useState(loadPrefs), prefs = prefState[0], setPrefs = prefState[1];
     var setupState = useState(false), setupOpen = setupState[0], setSetupOpen = setupState[1];
     var histState = useState([]), history = histState[0], setHistory = histState[1];
+    var futureState = useState([]), future = futureState[0], setFuture = futureState[1];
     var dragRef = useRef(null), ghostRef = useRef(null), labelDraft = useRef({});
 
     function savePrefs(patch) {
@@ -276,10 +282,13 @@
     function speak(text) {
       if (!prefs.voice || !window.speechSynthesis) return;
       try {
-        var u = new SpeechSynthesisUtterance(text);
-        u.lang = 'zh-TW';
         window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(u);
+        var times = Math.max(1, Math.min(3, Number(prefs.voiceTimes) || 1));
+        for (var i = 0; i < times; i++) {
+          var u = new SpeechSynthesisUtterance(text);
+          u.lang = 'zh-TW';
+          window.speechSynthesis.speak(u);
+        }
       } catch (e) {}
     }
 
@@ -377,7 +386,10 @@
     function saveLineup(next, isUndo) {
       if (!me || !activeEvent || busy) return;
       // 復原點只存在本機：跨裝置共用一份會互相打架，而樂觀鎖已擋掉覆寫舊資料的風險
-      if (!isUndo) setHistory(function (old) { return old.concat([clone(baseLineup)]).slice(-10); });
+      if (!isUndo) {
+        setHistory(function (old) { return old.concat([clone(baseLineup)]).slice(-10); });
+        setFuture([]);
+      }
       setBusy(true);
       setErr('');
       fetch('/api/state').then(function (r) {
@@ -481,13 +493,40 @@
       (p.y > 0.5 ? z.teamB : z.teamA).push(name);
     }
 
-    function place(name, addr, x, y) {
-      var st = snapshotState();
-      putAt(st, name, addr, x, y);
-      saveLineup(buildLineup(st));
+    /* 同隊綁定：同一格同一半場的兩人都鎖定時，拖一個就兩個一起走（App V1.5.8）。 */
+    function lockedPartner(name) {
+      if (!isLocked(name)) return null;
+      var zones = courts.concat(queue);
+      for (var i = 0; i < zones.length; i++) {
+        var z = zones[i];
+        var teams = [z.teamA || [], z.teamB || []];
+        for (var t = 0; t < 2; t++) {
+          if (teams[t].indexOf(name) < 0) continue;
+          var mate = teams[t].filter(function (n) { return n !== name && isLocked(n); });
+          return mate.length === 1 ? mate[0] : null;
+        }
+      }
+      return null;
     }
 
-    /* 輕觸鎖定：鎖住的人換場時留在場上不被換走，再輕觸一次解鎖。 */
+    function place(name, addr, x, y) {
+      var st = snapshotState();
+      var mate = lockedPartner(name);
+      var p0 = posMap[name], pm = mate && posMap[mate];
+      putAt(st, name, addr, x, y);
+      if (mate) {
+        var dx = (pm && p0) ? pm.x - p0.x : 0.3, dy = (pm && p0) ? pm.y - p0.y : 0;
+        putAt(st, mate, addr, st.pos[name] ? st.pos[name].x + dx : x + dx, st.pos[name] ? st.pos[name].y + dy : y + dy);
+      }
+      var extra = {};
+      // 移動球員自動加鎖：拖進場地就鎖，換場時不被自動排場調走
+      if (prefs.autoLock && addr.kind === 'court' && !isLocked(name)) {
+        extra.locked = lockedList.concat([name]);
+      }
+      saveLineup(buildLineup(st, extra));
+    }
+
+    /* 輕觸切換鎖定：鎖定的人不會被自動排場挑中或調動，手動拖曳與換場不受影響。 */
     function toggleLock(name) {
       if (!me) return;
       var next = isLocked(name)
@@ -573,7 +612,7 @@
       // seed 是已經確定要上這一場的人（續戰的＋排隊已取出的），必須排除，
       // 否則他們還沒被放回場地時會被當成待命而重複挑中。
       var avail = going.filter(function (r) {
-        return !taken[r.nickname] && (seed || []).indexOf(r.nickname) < 0;
+        return !taken[r.nickname] && (seed || []).indexOf(r.nickname) < 0 && !isLocked(r.nickname);
       }).map(function (r) { return r.nickname; });
       avail.sort(function (a, b) {
         var wa = sinceMap[a] || 0, wb = sinceMap[b] || 0;
@@ -601,7 +640,7 @@
 
     /* 換場：排隊 1 上場、後面整排往前移，下場的人自動排到隊尾。
        放隊尾而不是排隊 1，剛打完的才不會馬上又輪到。
-       鎖定的人留在場上續戰，只補足缺的名額。 */
+       鎖定只影響自動挑人，換場時場上的人一律下場。 */
     function swapCourt(courtNum) {
       var st = snapshotState();
       var c = st.courts.find(function (x) { return x.courtNum === courtNum; });
@@ -615,8 +654,9 @@
         for (var j = i + 1; j < played.length; j++) nextPairs[pairKey(played[i], played[j])] = seq;
       }
 
-      var keep = played.filter(isLocked);
-      var leaving = played.filter(function (n) { return !isLocked(n); });
+      // 比照 App 實機行為：鎖定只擋「自動排場」，換場是手動操作，場上的人全部下場
+      var keep = [];
+      var leaving = played.slice();
       leaving.forEach(function (n) { pluck(st, n); });
       var need = 4 - keep.length;
 
@@ -665,7 +705,12 @@
 
       if (incoming.length) {
         var where = (target.label || ('場地 ' + courtNum));
-        speak(where + '，請 ' + incoming.join('、') + ' 上場');
+        var msg = prefs.pairAnnounce && target.teamA.length && target.teamB.length
+          ? where + '，' + target.teamA.join('、') + ' 對 ' + target.teamB.join('、') + '，請上場'
+          : where + '，請 ' + incoming.join('、') + ' 上場';
+        var nextUp = membersOf(st.queue[0]);
+        if (prefs.preAnnounce && nextUp.length) msg += '。下一組 ' + nextUp.join('、') + ' 請準備';
+        speak(msg);
       }
       saveLineup(buildLineup(st, { stats: nextStats, pairs: nextPairs, matchSeq: seq }));
     }
@@ -710,8 +755,19 @@
     function undo() {
       if (!history.length || !me || busy) return;
       var prev = history[history.length - 1];
+      var cur = clone(baseLineup);
       setHistory(function (old) { return old.slice(0, -1); });
+      setFuture(function (old) { return old.concat([cur]); });
       saveLineup(prev, true);
+    }
+
+    function redo() {
+      if (!future.length || !me || busy) return;
+      var next = future[future.length - 1];
+      var cur = clone(baseLineup);
+      setFuture(function (old) { return old.slice(0, -1); });
+      setHistory(function (old) { return old.concat([cur]).slice(-10); });
+      saveLineup(next, true);
     }
 
     /* 計時與場次重置：清掉統計與計時，但人留在原位，方便同一天接著打第二輪。 */
@@ -808,6 +864,7 @@
         onPointerUp: onChipPointerUp,
         onPointerCancel: onChipPointerUp
       },
+        prefs.levelColor ? S('lvbar', { style: { background: LEVEL_COLORS[Number(d.level) || 0] || LEVEL_COLORS[0] } }) : null,
         S('', name),
         (prefs.level && d.level) ? S('lv', 'Lv' + d.level) : null,
         prefs.count ? S('cnt', (stats[name] || 0) + '場') : null,
@@ -872,7 +929,9 @@
             swRow('球員上場次數', 'count'),
             swRow('球員等待時間', 'wait'),
             swRow('球員等級數字', 'level'),
+            swRow('等級顏色分級', 'levelColor'),
             swRow('性別配色', 'gender'),
+            swRow('移動球員自動加鎖', 'autoLock'),
             D('prow', D('lbl', '字級'),
               E('input', {
                 type: 'range', min: 0.8, max: 1.6, step: 0.1, value: scale,
@@ -880,7 +939,17 @@
                 onChange: function (ev) { savePrefs({ scale: Number(ev.target.value) }); }
               }),
               S('', Math.round(scale * 100) + '%')),
-            swRow('換場語音唸名', 'voice'),
+            swRow('換場語音廣播', 'voice'),
+            D('prow', D('lbl', '語音廣播次數'),
+              [1, 2, 3].map(function (n) {
+                return E('button', {
+                  key: n, type: 'button',
+                  className: 'btn' + (Number(prefs.voiceTimes) === n ? ' primary' : ''),
+                  onClick: function () { savePrefs({ voiceTimes: n }); }
+                }, n + ' 次');
+              })),
+            swRow('上場預告廣播', 'preAnnounce'),
+            swRow('建議搭檔廣播', 'pairAnnounce'),
             D('prow', D('lbl', '語音測試'),
               E('button', {
                 className: 'btn', type: 'button',
@@ -922,7 +991,7 @@
         D('brand', '排場執事'),
         D('evt', activeEvent.title + '　' + (activeEvent.dateText || '') + '　' + (activeEvent.place || '')),
         D('spacer'),
-        me ? S('evt', '拖曳移動 ・ 輕觸鎖定（鎖定者換場續戰）') : null,
+        me ? S('evt', '拖曳移動 ・ 輕觸鎖定（鎖定者不被自動排場調動）') : null,
         me ? E('button', {
           className: 'btn mode ' + modeAt(autoMode).tone, type: 'button', disabled: busy,
           title: modeAt(autoMode).hint, onClick: cycleMode
@@ -930,6 +999,9 @@
         me ? E('button', {
           className: 'btn', type: 'button', disabled: !history.length || busy, onClick: undo
         }, '復原' + (history.length ? '（' + history.length + '）' : '')) : null,
+        me ? E('button', {
+          className: 'btn', type: 'button', disabled: !future.length || busy, onClick: redo
+        }, '重做' + (future.length ? '（' + future.length + '）' : '')) : null,
         E('button', { className: 'btn', type: 'button', onClick: function () { setLogText(buildReport()); } }, '活動記錄'),
         E('button', { className: 'btn', type: 'button', onClick: function () { setSetupOpen(true); } }, '設定'),
         E('button', { className: 'btn', type: 'button', onClick: toggleTheme }, theme === 'dark' ? '晝' : '夜'),
