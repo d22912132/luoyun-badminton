@@ -49,7 +49,7 @@
   .wrap { position: relative; padding: 10px 12px 18px; max-width: 1900px; margin: 0 auto; }
 
   .clock {
-    position: absolute; right: 12px; top: 6px; z-index: 5;
+    position: absolute; right: 6px; top: 6px; z-index: 5; pointer-events: none;
     display: inline-flex; align-items: center; gap: 6px;
     padding: 3px 12px; border-radius: 999px;
     background: rgba(20,35,50,.88); color: #fff;
@@ -58,18 +58,23 @@
   .clock svg { width: 15px; height: 15px; }
 
   .banner {
-    font-size: 13px; padding: 7px 12px; border-radius: 8px; margin: 0 0 10px; max-width: calc(100% - 150px);
+    font-size: 13px; padding: 7px 12px; border-radius: 8px; margin: 0 0 10px;
     background: rgba(255,255,255,.92); color: var(--ink);
   }
   .banner a { color: var(--pink); font-weight: 700; }
   .banner.err { background: #FFEBEE; color: #B71C1C; }
 
-  /* 上排：每一欄是「場地＋下方計時與場下鈕」，最後一欄是「休息區＋控制鈕」 */
-  .arena { display: grid; gap: 14px 14px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin-top: 26px; }
-  .col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  /* 整個排場畫面塞進一個螢幕，欄列由 layoutFor() 依場數決定 */
+  .arena { display: grid; gap: 12px 16px; height: calc(100vh - 24px); min-height: 480px; }
+  .col, .qwrap { display: flex; flex-direction: column; gap: 6px; min-width: 0; min-height: 0; position: relative; }
+  .col .canvas, .qwrap .canvas { flex: 1 1 auto; }
+  .col.rest-strip { flex-direction: row; align-items: stretch; gap: 16px; }
+  .col.rest-strip .ctl { justify-content: center; }
+  .col.rest-strip .zname { left: 12px; transform: translateY(-50%); width: auto; text-align: left; }
+  .col.rest-block .ctl { align-items: flex-end; }
 
   .canvas {
-    position: relative; aspect-ratio: 16 / 9.5; min-height: 118px;
+    position: relative; min-height: 70px;
     background: var(--court); border: 1px solid var(--court-edge);
     touch-action: none;
   }
@@ -91,21 +96,29 @@
   .hand { position: absolute; right: 8px; bottom: 6px; font-size: 18px; opacity: .9; pointer-events: none; filter: grayscale(1) brightness(3); }
 
   /* 輸送帶箭頭：排隊 N 往左遞補到排隊 N-1 */
-  .queue { display: grid; gap: 14px 30px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-top: 14px; }
-  .qwrap { position: relative; }
   .arrow {
-    position: absolute; left: -44px; top: 50%; transform: translateY(-50%); z-index: 2;
+    position: absolute; left: -22px; top: 50%; transform: translateY(-50%); z-index: 2;
     width: 0; height: 0; pointer-events: none;
     border-top: 26px solid transparent; border-bottom: 26px solid transparent;
     border-right: 58px solid var(--arrow);
   }
-  .qwrap:first-child .arrow { left: -14px; border-right-width: 44px; }
-  @media (max-width: 719px) { .arrow { display: none; } }
+  .qwrap .arrow { left: -22px; }
+  @media (max-width: 719px) {
+    .arrow { display: none; }
+    .arena { height: auto; grid-template-columns: 1fr 1fr !important; grid-template-rows: none !important; }
+    .arena > * { grid-column: auto !important; grid-row: auto !important; }
+    .arena > .col.rest-side, .arena > .col.rest-strip, .arena > .col.rest-block { grid-column: 1 / -1 !important; flex-direction: column; }
+    .canvas { aspect-ratio: 16 / 11; flex: 0 0 auto; }
+  }
 
-  .ctlrow { display: flex; align-items: center; gap: 10px; min-height: 52px; }
+  .ctlrow { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex: 0 0 auto; }
   .timer { color: #fff; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  /* 計時變色：3 分黃、7 分橘、12 分紅（App 實測） */
+  .timer.yellow { color: #FFEB3B; }
+  .timer.orange { color: #FFA726; }
+  .timer.red { color: #FF4F7B; }
   .swapbtn {
-    flex: 1 1 auto; max-width: 170px; min-width: 0; white-space: nowrap; height: 46px; border: none; border-radius: 999px; cursor: pointer;
+    flex: 0 1 auto; width: 58%; max-width: 130px; min-width: 0; white-space: nowrap; height: 42px; border: none; border-radius: 999px; cursor: pointer;
     background: var(--pink); color: var(--btn-text); font: inherit; font-size: 18px; font-weight: 500;
     box-shadow: 0 3px 8px rgba(0,0,0,.2);
   }
@@ -122,6 +135,7 @@
   .round:disabled { opacity: .45; cursor: not-allowed; }
   .round svg { width: 22px; height: 22px; }
   .round.gear { background: var(--pink); }
+  .round.armed { background: #7C4DFF; }
   .round.m-off { background: var(--grey-btn); }
   .round.m-fair { background: #22D32A; }
   .round.m-level { background: #FF7043; }
@@ -141,6 +155,9 @@
   .chip.locked .nm { color: var(--name-locked); }
   .chip .meta { grid-column: 1 / span 2; font-size: .62em; color: var(--sub); display: flex; gap: .5em; font-weight: 700; }
   .chip .meta .lv { color: var(--team); }
+  /* 等待分鐘變色：10 分黃、16 分紅（App 實測） */
+  .chip .meta .w.yellow { color: #FFEB3B; }
+  .chip .meta .w.red { color: #FF4F7B; }
   .chip.ghosting { opacity: .3; }
   .drag-ghost {
     position: fixed; left: 0; top: 0; z-index: 99; pointer-events: none;
@@ -149,7 +166,7 @@
   }
 
   .pool {
-    margin-top: 18px; padding: 10px 12px; border-radius: 4px;
+    margin-top: 14px; padding: 10px 12px; border-radius: 4px;
     background: var(--arena-dark); border: 1px solid rgba(255,255,255,.12);
   }
   .pool.drop { outline: 2px solid rgba(255,255,255,.75); outline-offset: -2px; }
@@ -202,6 +219,7 @@
     padding: 4px 12px; font: inherit; font-size: 14px; cursor: pointer;
   }
   .seg button.on { background: var(--pink); color: #fff; border-color: var(--pink); }
+  .sel { font: inherit; font-size: 16px; padding: 4px 10px; border: 1px solid var(--pink-soft); border-radius: 6px; background: #fff; color: #333; }
   .pillbtn {
     border: none; border-radius: 999px; padding: 8px 18px; background: #fff; color: var(--pink);
     font: inherit; font-size: 15px; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,.18);
@@ -227,7 +245,9 @@
     return E.apply(null, ['span', Object.assign({}, extra, { className: cls })].concat(k));
   }
 
-  var QUEUE_SLOTS = 4;
+  /* 以下門檻都是在 App 實機上計時觀察出來的 */
+  function timerTone(sec) { return sec >= 720 ? 'red' : sec >= 420 ? 'orange' : sec >= 180 ? 'yellow' : ''; }
+  function waitTone(min) { return min >= 16 ? 'red' : min >= 10 ? 'yellow' : ''; }
   var PREF_KEY = 'luoyun-court-prefs';
   /* 換場自動挑人的四種模式，對應「羽球排場王」的 Auto 循環。
      存在 lineup 而不是 localStorage：同一場活動的多位長老應該用同一套規則。 */
@@ -285,6 +305,7 @@
     var prefState = useState(loadPrefs), prefs = prefState[0], setPrefs = prefState[1];
     var setupState = useState(false), setupOpen = setupState[0], setSetupOpen = setupState[1];
     var funcState = useState(false), funcOpen = funcState[0], setFuncOpen = funcState[1];
+    var adjustState = useState(0), adjustMode = adjustState[0], setAdjustMode = adjustState[1];
     var histState = useState([]), history = histState[0], setHistory = histState[1];
     var futureState = useState([]), future = futureState[0], setFuture = futureState[1];
     var dragRef = useRef(null), ghostRef = useRef(null), labelDraft = useRef({});
@@ -347,8 +368,10 @@
     while (courts.length < numCourts) {
       courts.push({ courtNum: courts.length + 1, status: 'idle', mode: 'balanced', teamA: [], teamB: [], label: '' });
     }
+    // 排隊格數＝場地數＋1，比照 App（3 面 4 格、5 面 6 格）
+    var qSlots = numCourts + 1;
     var queue = [];
-    for (var qi = 0; qi < QUEUE_SLOTS; qi++) {
+    for (var qi = 0; qi < qSlots; qi++) {
       var qsrc = (baseLineup.queue || [])[qi];
       queue.push(qsrc ? Object.assign(emptySlot(qi), clone(qsrc), { id: 'q' + (qi + 1) }) : emptySlot(qi));
     }
@@ -543,6 +566,14 @@
     }
 
     /* 輕觸切換鎖定：鎖定的人不會被自動排場挑中或調動，手動拖曳與換場不受影響。 */
+    function adjustCount(name, delta) {
+      setAdjustMode(0);
+      if (!me) return;
+      var next = Object.assign({}, stats);
+      next[name] = Math.max(0, (next[name] || 0) + delta);
+      saveLineup(Object.assign({}, baseLineup, { stats: next }));
+    }
+
     function toggleLock(name) {
       if (!me) return;
       var next = isLocked(name)
@@ -584,7 +615,11 @@
       dragRef.current = null;
       if (ghostRef.current) { ghostRef.current.remove(); ghostRef.current = null; }
       setDragging(null);
-      if (!d.moved) { toggleLock(d.name); return; }
+      if (!d.moved) {
+        if (adjustMode) { adjustCount(d.name, adjustMode); return; }
+        toggleLock(d.name);
+        return;
+      }
       var el = document.elementFromPoint(ev.clientX, ev.clientY);
       var zone = el && el.closest ? el.closest('[data-drop]') : null;
       if (!zone) return;
@@ -694,7 +729,7 @@
 
       // 輸送帶前移一格，空出隊尾給剛下場的人
       st.queue.shift();
-      st.queue.push(emptySlot(QUEUE_SLOTS - 1));
+      st.queue.push(emptySlot(st.queue.length));
 
       // 程度均衡管的是「怎麼分隊」，所以來自排隊的組合也要重排——
       // 否則輸送帶一轉起來，上場的人幾乎都來自排隊，這個模式就完全不作用了。
@@ -712,7 +747,7 @@
       target.matchStart = onCourt.length >= 4 ? new Date().toISOString() : null;
 
       // 剛下場的人排到隊尾，沒人會因為不好意思而被漏掉
-      var tail = st.queue[QUEUE_SLOTS - 1];
+      var tail = st.queue[st.queue.length - 1];
       leaving.forEach(function (n, i) {
         var p = defaultPos(i);
         st.pos[n] = p;
@@ -858,9 +893,9 @@
       }
       var bar = barColor(d);
       var meta = [];
-      if (wait) meta.push(S('', { key: 'w' }, wait));
-      if (prefs.level && d.level) meta.push(S('lv', { key: 'l' }, 'Lv' + d.level));
       if (prefs.count) meta.push(S('', { key: 'c' }, (stats[name] || 0) + ' 場'));
+      if (wait) meta.push(S('w ' + waitTone(parseInt(wait, 10)), { key: 'w' }, wait));
+      if (prefs.level && d.level) meta.push(S('lv', { key: 'l' }, 'Lv' + d.level));
       return D(cls, {
         key: name,
         style: style,
@@ -893,7 +928,7 @@
       );
     }
 
-    function restIcons() {
+    function restIcons(kind) {
       var f = 'rgba(150,195,225,.45)';
       function stool(cx, cy) {
         return E('g', { key: 's' + cx + cy },
@@ -906,6 +941,12 @@
         return E('g', { key: 'c' + cx + cy },
           E('path', { d: 'M' + (cx - 12) + ' ' + (cy - 8) + ' h24 v10 a12 12 0 0 1 -24 0 z', fill: f }),
           E('circle', { cx: cx + 14, cy: cy - 1, r: 5, fill: 'none', stroke: f, strokeWidth: 3 }));
+      }
+      if (kind === 'strip') {
+        var row = [];
+        for (var k = 0; k < 8; k++) row.push(k % 2 ? cup(120 + k * 70, 48) : stool(120 + k * 70, 40));
+        return E('svg', { className: 'lines', viewBox: '0 0 700 100', preserveAspectRatio: 'xMidYMid meet', 'aria-hidden': true },
+          E('rect', { x: 90, y: 12, width: 590, height: 76, fill: 'none', stroke: 'rgba(220,240,120,.35)', strokeWidth: 3 }), row);
       }
       return E('svg', { className: 'lines', viewBox: '0 0 160 130', preserveAspectRatio: 'xMidYMid meet', 'aria-hidden': true },
         stool(40, 28), cup(118, 30), cup(40, 92), stool(118, 90));
@@ -939,12 +980,41 @@
       return null;
     }
 
-    function courtCol(c) {
+    /* 版面比照 App：依場數換排法，整頁塞進一個橫向螢幕。
+       3 面以下：場地＋休息區同一排，排隊一排；4 面：排隊一排、休息區在最下面一條；
+       5 面以上：排隊兩排，休息區佔右下兩欄。 */
+    function layoutFor(n) {
+      var L = { cols: n + 1, rows: '1.3fr 1fr', court: [], queue: [], rest: null, restKind: 'side' };
+      var i;
+      if (n <= 3) {
+        for (i = 0; i < n; i++) L.court.push({ c: i + 1, r: 1 });
+        for (i = 0; i < n + 1; i++) L.queue.push({ c: i + 1, r: 2 });
+        L.rest = { c: n + 1, r: 1 };
+      } else if (n === 4) {
+        L.cols = 20; L.rows = '1.4fr 1fr .55fr'; L.restKind = 'strip';
+        for (i = 0; i < 4; i++) L.court.push({ c: i * 5 + 1, cs: 5, r: 1 });
+        for (i = 0; i < 5; i++) L.queue.push({ c: i * 4 + 1, cs: 4, r: 2 });
+        L.rest = { c: 1, cs: 20, r: 3 };
+      } else {
+        var qc = n - 2;
+        L.cols = n; L.rows = '1.1fr 1fr 1fr'; L.restKind = 'block';
+        for (i = 0; i < n; i++) L.court.push({ c: i + 1, r: 1 });
+        for (i = 0; i < n + 1; i++) L.queue.push({ c: (i % qc) + 1, r: 2 + Math.floor(i / qc) });
+        L.rest = { c: n - 1, cs: 2, r: 2, rs: 2 };
+      }
+      return L;
+    }
+    function cell(p) {
+      return { gridColumn: p.c + ' / span ' + (p.cs || 1), gridRow: p.r + ' / span ' + (p.rs || 1) };
+    }
+
+    function courtCol(c, place) {
       var ms = c.matchStart ? Date.parse(c.matchStart) : 0;
       var elapsed = ms ? Math.max(0, Math.floor((nowTime - ms) / 1000)) : 0;
       var names = membersOf(c);
       var q0ready = membersOf(queue[0]).length;
-      return D('col', { key: 'c' + c.courtNum },
+      var shown = c.status === 'playing' ? elapsed : 0;
+      return D('col', { key: 'c' + c.courtNum, style: cell(place) },
         D('canvas' + (dragging ? ' drop' : ''), { 'data-drop': 'court:' + c.courtNum },
           courtLines(false),
           E('input', {
@@ -963,7 +1033,7 @@
           names.map(function (n, i) { return chip(n, true, i); })
         ),
         D('ctlrow',
-          prefs.timer ? D('timer', c.status === 'playing' ? mmss(elapsed) : '00:00') : null,
+          prefs.timer ? D('timer ' + timerTone(shown), mmss(shown)) : null,
           E('button', {
             className: 'swapbtn', type: 'button', disabled: !me || busy,
             title: q0ready ? '換上排隊 1' : modeAt(autoMode).hint,
@@ -973,25 +1043,41 @@
       );
     }
 
-    function restCol() {
-      return D('col', { key: 'rest' },
+    function controls() {
+      return D('ctl',
+        D('btns',
+          E('button', {
+            className: 'round m-' + modeAt(autoMode).tone, type: 'button', disabled: !me || busy,
+            title: modeAt(autoMode).hint, 'aria-label': '切換排場模式', onClick: cycleMode
+          }, icon('auto')),
+          E('button', {
+            className: 'round' + (adjustMode === 1 ? ' armed' : ''), type: 'button', disabled: !me || busy,
+            'aria-label': '上場次數加一', 'aria-pressed': adjustMode === 1,
+            title: '按下後點一位球員，他的上場次數 +1',
+            onClick: function () { setAdjustMode(adjustMode === 1 ? 0 : 1); }
+          }, '+1'),
+          E('button', {
+            className: 'round' + (adjustMode === -1 ? ' armed' : ''), type: 'button', disabled: !me || busy,
+            'aria-label': '上場次數減一', 'aria-pressed': adjustMode === -1,
+            title: '按下後點一位球員，他的上場次數 −1',
+            onClick: function () { setAdjustMode(adjustMode === -1 ? 0 : -1); }
+          }, '−1'),
+          E('button', { className: 'round gear', type: 'button', 'aria-label': '功能按鈕', onClick: function () { setFuncOpen(true); } }, icon('gear'))
+        ),
+        D('modetext', (autoMode === 'off' ? 'Auto：' : 'AI Auto：') + modeAt(autoMode).label)
+      );
+    }
+
+    function restCol(place, kind) {
+      var clockNow = new Date(nowTime);
+      return D('col rest-' + kind, { key: 'rest', style: cell(place) },
         D('canvas rest' + (dragging ? ' drop' : ''), { 'data-drop': 'rest' },
-          restIcons(),
+          restIcons(kind),
           D('zname', '休息區'),
+          D('clock', icon('clock'), pad2(clockNow.getHours()) + ':' + pad2(clockNow.getMinutes()) + ':' + pad2(clockNow.getSeconds())),
           resting.map(function (n, i) { return chip(n, true, i); })
         ),
-        D('ctl',
-          D('btns',
-            E('button', {
-              className: 'round m-' + modeAt(autoMode).tone, type: 'button', disabled: !me || busy,
-              title: modeAt(autoMode).hint, 'aria-label': '切換排場模式', onClick: cycleMode
-            }, icon('auto')),
-            E('button', { className: 'round', type: 'button', disabled: !me || busy || numCourts >= 12, 'aria-label': '場地加一面', onClick: function () { changeCourts(1); } }, '+1'),
-            E('button', { className: 'round', type: 'button', disabled: !me || busy || numCourts <= 1, 'aria-label': '場地減一面', onClick: function () { changeCourts(-1); } }, '−1'),
-            E('button', { className: 'round gear', type: 'button', 'aria-label': '功能按鈕', onClick: function () { setFuncOpen(true); } }, icon('gear'))
-          ),
-          D('modetext', (autoMode === 'off' ? 'Auto：' : 'AI Auto：') + modeAt(autoMode).label)
-        )
+        controls()
       );
     }
 
@@ -1054,6 +1140,13 @@
               }),
               D('fsval', '字級: ' + Math.round(27 * scale))),
             D('sect', '排場設定'),
+            me ? D('prow', D('lbl', '場數'),
+              E('select', {
+                className: 'sel', value: numCourts, disabled: busy, 'aria-label': '場數',
+                onChange: function (ev) { changeCourts(Number(ev.target.value) - numCourts); }
+              }, [1, 2, 3, 4, 5, 6].concat(numCourts > 6 ? [numCourts] : []).map(function (n) {
+                return E('option', { key: n, value: n }, n);
+              }))) : null,
             swRow('移動球員自動加鎖', 'autoLock'),
             D('sect', '語音廣播設定'),
             swRow('換場語音廣播', 'voice'),
@@ -1074,8 +1167,8 @@
     if (!data) return D('wrap', D('banner', '正在請出名冊…'));
     if (!activeEvent) return D('wrap', D('banner', '目前沒有集結活動。請先在管理後台開團。'));
 
-    var clockNow = new Date(nowTime);
-    return D('wrap', { style: { '--chip-fs': (18 * (Number(prefs.scale) || 1)).toFixed(1) + 'px' } },
+    var L = layoutFor(numCourts);
+    return D('wrap', { style: { '--chip-fs': 'calc(clamp(13px, 1.75vw, 30px) * ' + (Number(prefs.scale) || 1) + ')' } },
       funcOpen ? funcModal() : null,
       setupOpen ? settingsModal() : null,
       logText ? D('modal-bg', { onClick: function () { setLogText(''); } },
@@ -1088,21 +1181,24 @@
           )
         )
       ) : null,
-      D('clock', icon('clock'), pad2(clockNow.getHours()) + ':' + pad2(clockNow.getMinutes()) + ':' + pad2(clockNow.getSeconds())),
       err ? D('banner err', err) : null,
       !me ? D('banner', '訪客唯讀，只能看排場。長老請先到 ', E('a', { href: '/console.html' }, '後台'), ' 登入再回來。') : null,
-      D('arena', courts.map(courtCol).concat([restCol()])),
-      D('queue', queue.map(function (q, i) {
-        return D('qwrap', { key: q.id },
-          D('canvas slot' + (dragging ? ' drop' : ''), { 'data-drop': 'queue:' + i },
-            courtLines(true),
-            D('zname', '排隊 ' + (i + 1)),
-            S('hand', '✋'),
-            membersOf(q).map(function (n, k) { return chip(n, true, k); })
-          ),
-          D('arrow')
-        );
-      })),
+      D('arena', { style: { gridTemplateColumns: 'repeat(' + L.cols + ', minmax(0, 1fr))', gridTemplateRows: L.rows } },
+        courts.map(function (c, i) { return courtCol(c, L.court[i]); }),
+        queue.map(function (q, i) {
+          return D('qwrap', { key: q.id, style: cell(L.queue[i]) },
+            D('canvas slot' + (dragging ? ' drop' : ''), { 'data-drop': 'queue:' + i },
+              courtLines(true),
+              D('zname', '排隊 ' + (i + 1)),
+              S('hand', '✋'),
+              membersOf(q).map(function (n, k) { return chip(n, true, k); })
+            ),
+            D('arrow')
+          );
+        }),
+        restCol(L.rest, L.restKind)
+      ),
+      adjustMode ? D('banner', '請點一位球員，他的上場次數 ' + (adjustMode > 0 ? '+1' : '−1')) : null,
       D('pool' + (dragging ? ' drop' : ''), { 'data-drop': 'pool' },
         D('pool-head', '待命池', S('n', pool.length + ' 人・等最久的排前面')),
         D('list', pool.length
