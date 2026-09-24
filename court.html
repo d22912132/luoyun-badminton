@@ -7,190 +7,205 @@
 <title>落雲宗・排場執事</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
-<script>
-  (function(){try{var p=(new URLSearchParams(location.search)).get('theme');var t=p||localStorage.getItem('luoyun-theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='dark';}})();
-</script>
 <style>
-  /* ponytail: 不用 Tailwind。public/tailwind.css 是預先建置的成品，
-     沒有 build script，新 class 不在裡面就靜靜失效。純 CSS 沒這個問題。
-     色票沿用 board.html／console.html 的墨玉仙境變數，維持全站一致。 */
+  /* 版面與配色比照「羽球排場王」：藍色場館底、綠色球場、黃框白線、粉紅按鈕。
+     ponytail: 不用 Tailwind。public/tailwind.css 是預先建置的成品，新 class 不在裡面就靜靜失效。 */
   :root {
-    --ink-0: #101A1E; --ink-1: #16242A; --ink-2: #1B2C32;
-    --mist-1: #EEF5F1; --mist-2: #B9CAC3; --mist-3: #91A39B;
-    --jade-100: #D5E7DC; --jade-300: #9BC3AE; --jade-500: #6E9E88; --jade-700: #3D6555;
-    --gold: #C9A961; --gold-dim: #8A7440; --amethyst: #9E8FC0;
-    --cinnabar: #D07A6C; --cinnabar-dim: #8C4438;
-    --male-text: #A8CBD8; --male-border: rgba(168,203,216,.30); --male-high: rgba(168,203,216,.13);
-    --female-text: #DFB4C4; --female-border: rgba(223,180,196,.30); --female-high: rgba(223,180,196,.13);
-    --hair: rgba(228,235,232,.10); --hair-2: rgba(228,235,232,.17);
-    --court-bg: radial-gradient(ellipse at 50% 50%, #154e3f 0%, #0c2e25 100%);
-    --court-line: rgba(255,255,255,.5); --court-border: rgba(155,195,174,.35);
-    --surface-overlay: rgba(10,18,21,.94); --surface-sunken: rgba(6,12,14,.55);
-    color-scheme: dark;
-  }
-  html[data-theme="light"] {
-    --ink-0: #E8E0D1; --ink-1: #F3EDE1; --ink-2: #DED4C3;
-    --mist-1: #24382F; --mist-2: #4A6056; --mist-3: #4F665C;
-    --jade-100: #174737; --jade-300: #2E7055; --jade-500: #477E65; --jade-700: #285C48;
-    --gold: #8C651C; --gold-dim: #6A4B13; --amethyst: #66558D;
-    --cinnabar: #A64E41; --cinnabar-dim: #7C372E;
-    --male-text: #285F73; --male-border: rgba(40,95,115,.34); --male-high: rgba(75,145,167,.18);
-    --female-text: #8B4960; --female-border: rgba(139,73,96,.32); --female-high: rgba(180,104,129,.17);
-    --hair: rgba(76,65,45,.16); --hair-2: rgba(57,82,68,.27);
-    --court-bg: radial-gradient(ellipse at 50% 50%, #1c6651 0%, #124738 100%);
-    --court-border: rgba(31,107,85,.4);
-    --surface-overlay: rgba(246,240,228,.97); --surface-sunken: rgba(234,225,208,.6);
-    color-scheme: light;
+    --arena: #4A8FC4;
+    --arena-dark: #3B7DB0;
+    --court: #0B6B45;
+    --court-edge: #0A5C3C;
+    --court-yellow: #E8E600;
+    --court-line: rgba(255,255,255,.88);
+    --slot: rgba(255,255,255,.07);
+    --slot-line: rgba(220,240,210,.35);
+    --arrow: rgba(150,205,95,.62);
+    --name: #FFF27A;
+    --name-locked: #3DF2C0;
+    --sub: #FFFFFF;
+    --team: #E6ECF2;
+    --pink: #E91E63;
+    --pink-soft: #F48FB1;
+    --pink-bg: #F9E7F1;
+    --pink-text: #E91E63;
+    --btn-text: #FFEB3B;
+    --grey-btn: #5F7F99;
+    --ink: #2B2B2B;
+    --purple: #673AB7;
   }
 
   * { box-sizing: border-box; }
-  html, body { margin: 0; background: var(--ink-0); }
+  html, body { margin: 0; background: var(--arena); }
   body {
-    color: var(--mist-2); min-height: 100vh;
+    color: var(--sub); min-height: 100vh;
     font-family: 'Noto Sans TC', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -webkit-tap-highlight-color: transparent;
   }
-  body::before {
-    content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
-    background: url('/assets/yunmeng-dark-v1.jpg') center center / cover no-repeat;
-  }
-  body::after {
-    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
-    background: linear-gradient(180deg, rgba(6,17,20,.55), rgba(6,17,20,.68));
-  }
-  html[data-theme="light"] body::before { background-image: url('/assets/yunmeng-light-v1.jpg'); }
-  html[data-theme="light"] body::after { background: linear-gradient(180deg, rgba(240,234,220,.62), rgba(240,234,220,.74)); }
 
-  .wrap { padding: 8px 10px 16px; max-width: 1800px; margin: 0 auto; }
+  .wrap { position: relative; padding: 10px 12px 18px; max-width: 1900px; margin: 0 auto; }
 
-  .topbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
-  .brand { font-family: 'Noto Serif TC', serif; font-weight: 700; font-size: 17px; color: var(--jade-100); }
-  .evt { font-size: 12px; color: var(--mist-3); }
-  .spacer { flex: 1 1 auto; }
-  .btn {
-    font: inherit; font-size: 12px; padding: 6px 12px; border-radius: 999px; cursor: pointer;
-    background: var(--surface-sunken); color: var(--mist-2);
-    border: 1px solid var(--hair-2); transition: .16s;
+  .clock {
+    position: absolute; right: 12px; top: 6px; z-index: 5;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 12px; border-radius: 999px;
+    background: rgba(20,35,50,.88); color: #fff;
+    font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums;
   }
-  .btn:hover { border-color: var(--jade-500); color: var(--jade-100); }
-  .btn.primary { background: var(--jade-700); border-color: var(--jade-500); color: var(--jade-100); }
-  .btn.warn { border-color: var(--cinnabar-dim); color: var(--cinnabar); }
-  /* 模式配色沿用 App 的語意：關閉灰、公平綠、均衡金、變化紫 */
-  .btn.mode { font-weight: 700; }
-  .btn.mode.off { color: var(--mist-3); }
-  .btn.mode.fair { color: var(--jade-300); border-color: var(--jade-500); }
-  .btn.mode.level { color: var(--gold); border-color: var(--gold-dim); }
-  .btn.mode.variety { color: var(--amethyst, #9E8FC0); border-color: var(--amethyst, #9E8FC0); }
-  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .clock svg { width: 15px; height: 15px; }
 
   .banner {
-    font-size: 12px; padding: 8px 12px; border-radius: 8px; margin-bottom: 10px;
-    background: var(--surface-sunken); border: 1px solid var(--hair-2); color: var(--mist-3);
+    font-size: 13px; padding: 7px 12px; border-radius: 8px; margin: 0 0 10px; max-width: calc(100% - 150px);
+    background: rgba(255,255,255,.92); color: var(--ink);
   }
+  .banner a { color: var(--pink); font-weight: 700; }
+  .banner.err { background: #FFEBEE; color: #B71C1C; }
 
-  .courts { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+  /* 上排：每一欄是「場地＋下方計時與場下鈕」，最後一欄是「休息區＋控制鈕」 */
+  .arena { display: grid; gap: 14px 14px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin-top: 26px; }
+  .col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 
-  /* 場地與排隊格都是自由定位的畫布：拖到哪就停在哪，不限人數。 */
   .canvas {
-    position: relative; border-radius: 12px; overflow: visible;
-    aspect-ratio: 4 / 3; min-height: 130px;
-    border: 2px solid var(--court-border); background: var(--court-bg);
+    position: relative; aspect-ratio: 16 / 9.5; min-height: 118px;
+    background: var(--court); border: 1px solid var(--court-edge);
+    touch-action: none;
   }
-  .canvas.playing { border-color: var(--gold); }
-  .canvas.qbox { background: var(--surface-sunken); border-width: 1px; border-style: dashed; }
-  .canvas.qbox.next { border-color: var(--gold); border-style: solid; }
-  .canvas.drop { outline: 2px solid var(--jade-300); outline-offset: -2px; }
-  /* 球網：上下半場的分界，也是 A 隊／B 隊的判定線 */
-  .canvas::after {
-    content: ""; position: absolute; left: 6%; right: 6%; top: 50%;
-    border-top: 1px dashed var(--court-line); pointer-events: none;
-  }
-  .zlabel {
-    position: absolute; left: 8px; top: 5px; font-family: 'Noto Serif TC', serif;
-    font-size: 12px; font-weight: 700; color: var(--jade-100); opacity: .8;
-    background: none; border: none; width: 6em; padding: 0;
-  }
-  .canvas.qbox .zlabel { color: var(--jade-300); pointer-events: none; }
-  .ztimer {
-    position: absolute; right: 8px; top: 5px; font-size: 12px; font-weight: 700;
-    font-variant-numeric: tabular-nums; color: var(--gold); pointer-events: none;
-  }
-  .ztimer.idle { color: var(--mist-3); font-weight: 400; }
-  .qbadge {
-    position: absolute; right: 6px; top: 5px; font-size: 10px; padding: 1px 6px;
-    border-radius: 999px; background: var(--gold); color: var(--ink-0); font-weight: 700; pointer-events: none;
-  }
+  .canvas.slot { background: var(--slot); border-color: rgba(255,255,255,.08); }
+  .canvas.rest { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.12); }
+  .canvas.drop { outline: 2px solid rgba(255,255,255,.75); outline-offset: -2px; }
+  .canvas svg.lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 
-  .chip {
-    display: inline-flex; align-items: baseline; gap: 4px; cursor: grab;
-    padding: 3px 7px; border-radius: 999px; font-size: var(--chip-fs, 12px); font-weight: 500; white-space: nowrap;
-    border: 1px solid var(--hair-2); background: var(--surface-overlay); color: var(--mist-1);
-    user-select: none; touch-action: none;
+  .zname {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: 70%; text-align: center; background: none; border: none; padding: 0;
+    color: #fff; font: inherit; font-size: 20px; letter-spacing: .06em;
+    pointer-events: auto;
   }
-  .canvas .chip { position: absolute; transform: translate(-50%, -50%); }
-  .chip.male { color: var(--male-text); border-color: var(--male-border); background: var(--male-high); }
-  .chip.female { color: var(--female-text); border-color: var(--female-border); background: var(--female-high); }
-  /* 鎖定＝換場續戰，用白底強調，對應 App 的鎖定狀態 */
-  .chip.locked { background: var(--mist-1); color: var(--ink-0); border-color: var(--mist-1); font-weight: 700; }
-  .chip.locked .lv, .chip.locked .wait { color: var(--ink-0); opacity: .7; }
+  .zname:focus { outline: 1px dashed rgba(255,255,255,.6); }
+  .zname:disabled { color: #fff; opacity: 1; }
+  .canvas.slot .zname, .canvas.rest .zname { pointer-events: none; color: rgba(255,255,255,.9); }
+  .canvas.rest .zname { color: rgba(225,240,250,.55); font-weight: 700; }
+  .hand { position: absolute; right: 8px; bottom: 6px; font-size: 18px; opacity: .9; pointer-events: none; filter: grayscale(1) brightness(3); }
+
+  /* 輸送帶箭頭：排隊 N 往左遞補到排隊 N-1 */
+  .queue { display: grid; gap: 14px 30px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-top: 14px; }
+  .qwrap { position: relative; }
+  .arrow {
+    position: absolute; left: -44px; top: 50%; transform: translateY(-50%); z-index: 2;
+    width: 0; height: 0; pointer-events: none;
+    border-top: 26px solid transparent; border-bottom: 26px solid transparent;
+    border-right: 58px solid var(--arrow);
+  }
+  .qwrap:first-child .arrow { left: -14px; border-right-width: 44px; }
+  @media (max-width: 719px) { .arrow { display: none; } }
+
+  .ctlrow { display: flex; align-items: center; gap: 10px; min-height: 52px; }
+  .timer { color: #fff; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .swapbtn {
+    flex: 1 1 auto; max-width: 170px; min-width: 0; white-space: nowrap; height: 46px; border: none; border-radius: 999px; cursor: pointer;
+    background: var(--pink); color: var(--btn-text); font: inherit; font-size: 18px; font-weight: 500;
+    box-shadow: 0 3px 8px rgba(0,0,0,.2);
+  }
+  .swapbtn:disabled { opacity: .45; cursor: not-allowed; }
+
+  .ctl { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+  .ctl .btns { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .round {
+    width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer;
+    background: var(--grey-btn); color: #fff; font: inherit; font-size: 18px;
+    display: inline-flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,.2);
+  }
+  .round:disabled { opacity: .45; cursor: not-allowed; }
+  .round svg { width: 22px; height: 22px; }
+  .round.gear { background: var(--pink); }
+  .round.m-off { background: var(--grey-btn); }
+  .round.m-fair { background: #22D32A; }
+  .round.m-level { background: #FF7043; }
+  .round.m-variety { background: #E040FB; }
+  .modetext { color: #fff; font-size: 15px; font-weight: 700; }
+
+  /* 球員：等級色條＋黃色名字，第二行是等待分鐘 */
+  .chip {
+    display: inline-grid; grid-template-columns: auto auto; column-gap: 3px; align-items: start;
+    cursor: grab; user-select: none; touch-action: none; white-space: nowrap;
+    font-size: var(--chip-fs, 18px); line-height: 1.15;
+    text-shadow: 0 1px 2px rgba(0,0,0,.35);
+  }
+  .canvas .chip { position: absolute; transform: translate(-12%, -30%); }
+  .chip .bar { grid-row: 1; width: .32em; height: 1.05em; margin-top: .08em; background: #F5F5F5; }
+  .chip .nm { grid-row: 1; color: var(--name); font-weight: 700; }
+  .chip.locked .nm { color: var(--name-locked); }
+  .chip .meta { grid-column: 1 / span 2; font-size: .62em; color: var(--sub); display: flex; gap: .5em; font-weight: 700; }
+  .chip .meta .lv { color: var(--team); }
   .chip.ghosting { opacity: .3; }
-  .chip .lvbar { align-self: stretch; width: 4px; border-radius: 2px; margin-right: 1px; }
-  .chip .lv, .chip .cnt { font-size: calc(var(--chip-fs, 12px) * .82); opacity: .8; font-variant-numeric: tabular-nums; }
-  .chip .wait { font-size: calc(var(--chip-fs, 12px) * .82); color: var(--gold); font-variant-numeric: tabular-nums; }
   .drag-ghost {
     position: fixed; left: 0; top: 0; z-index: 99; pointer-events: none;
-    padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 700;
-    background: var(--gold); color: var(--ink-0); box-shadow: 0 4px 14px rgba(0,0,0,.4);
+    padding: 3px 10px; border-radius: 6px; font-size: 16px; font-weight: 700;
+    background: rgba(20,35,50,.9); color: var(--name); box-shadow: 0 4px 14px rgba(0,0,0,.4);
   }
 
-  .foot { display: flex; gap: 6px; margin-top: 6px; }
-  .foot .btn { flex: 1 1 auto; font-size: 11px; padding: 5px 6px; }
-
-  .sect { margin-top: 12px; }
-  .sect-head {
-    display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
-    font-family: 'Noto Serif TC', serif; font-size: 13px; font-weight: 700; color: var(--jade-300);
+  .pool {
+    margin-top: 18px; padding: 10px 12px; border-radius: 4px;
+    background: var(--arena-dark); border: 1px solid rgba(255,255,255,.12);
   }
-  .sect-head .n { font-size: 11px; font-weight: 400; color: var(--mist-3); }
-  .queue { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
-  .conveyor { position: absolute; left: -15px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--jade-500); opacity: .7; }
-  @media (max-width: 719px) { .conveyor { display: none; } }
+  .pool.drop { outline: 2px solid rgba(255,255,255,.75); outline-offset: -2px; }
+  .pool-head { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: #fff; }
+  .pool-head .n { font-size: 12px; font-weight: 400; opacity: .85; margin-left: 6px; }
+  .pool .list { display: flex; flex-wrap: wrap; gap: 8px 18px; min-height: 40px; }
+  .empty { font-size: 13px; opacity: .75; }
 
-  .row2 { display: grid; gap: 10px; margin-top: 12px; grid-template-columns: 1fr; }
-  @media (min-width: 900px) { .row2 { grid-template-columns: 3fr 2fr; } }
-  .listzone { border-radius: 12px; padding: 8px; border: 1px solid var(--hair-2); background: var(--surface-sunken); }
-  .listzone.drop { outline: 2px dashed var(--jade-300); outline-offset: -2px; }
-  .list { display: flex; flex-wrap: wrap; gap: 5px; min-height: 44px; }
-  .empty { font-size: 11px; color: var(--mist-3); opacity: .7; padding: 4px; }
-
-  .modal-bg { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; padding: 16px; }
-  .modal { background: var(--ink-1); border: 1px solid var(--hair-2); border-radius: 12px; padding: 14px; max-width: 640px; width: 100%; max-height: 80vh; display: flex; flex-direction: column; }
-  .modal h2 { font-family: 'Noto Serif TC', serif; font-size: 15px; color: var(--jade-100); margin: 0 0 8px; }
+  /* 功能按鈕：白底對話框，比照 App */
+  .modal-bg { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .modal {
+    position: relative; background: #fff; color: var(--ink); border-radius: 4px;
+    padding: 22px 26px; width: 100%; max-width: 420px; max-height: 88vh; display: flex; flex-direction: column;
+  }
+  .modal .x { position: absolute; right: 12px; top: 8px; border: none; background: none; font-size: 26px; cursor: pointer; color: #333; }
+  .modal h2 { font-size: 20px; margin: 4px 0 14px; font-weight: 700; }
+  .frow { display: flex; align-items: center; gap: 12px; padding: 9px 0; font-size: 18px; }
+  .frow .ic { border: none; background: none; cursor: pointer; padding: 2px; color: #333; display: inline-flex; }
+  .frow .ic:disabled { opacity: .35; cursor: not-allowed; }
+  .frow .ic svg { width: 28px; height: 28px; }
+  .frow a.ic { text-decoration: none; }
   .modal pre {
-    flex: 1 1 auto; overflow: auto; margin: 0 0 10px; padding: 10px; border-radius: 8px;
-    background: var(--surface-sunken); color: var(--mist-2); font-size: 12px; line-height: 1.6;
-    white-space: pre-wrap; word-break: break-word;
+    flex: 1 1 auto; overflow: auto; margin: 0 0 12px; padding: 10px 12px; border: 1px solid #999; border-radius: 2px;
+    background: #F4F1F4; color: #333; font-size: 15px; line-height: 1.7; white-space: pre-wrap; word-break: break-word;
   }
-  .modal-foot { display: flex; gap: 8px; justify-content: flex-end; }
-  .prow { display: flex; align-items: center; gap: 10px; padding: 7px 2px; border-bottom: 1px solid var(--hair); font-size: 13px; }
-  .prow:last-child { border-bottom: none; }
+  .modal.log { max-width: 520px; background: #EFE9EF; border-radius: 24px; }
+  .mfoot { display: flex; gap: 22px; justify-content: flex-end; }
+  .mfoot button { border: none; background: none; color: var(--purple); font: inherit; font-size: 14px; cursor: pointer; }
+
+  /* 設定：淡粉紅底、粉紅分段標題、粉紅開關，比照 App 設定頁 */
+  .modal.setup { background: var(--pink-bg); max-width: 560px; padding: 0; }
+  .setup-head {
+    background: var(--pink); color: #fff; text-align: center; font-size: 22px; letter-spacing: .06em;
+    padding: 16px 40px 16px; border-radius: 4px 4px 0 0;
+  }
+  .setup-head .x { color: #fff; top: 10px; }
+  .setup-body { overflow: auto; padding: 4px 26px 18px; }
+  .sect { text-align: center; color: var(--pink-text); font-size: 18px; margin: 18px 0 6px; }
+  .prow { display: flex; align-items: center; gap: 12px; padding: 10px 0; font-size: 17px; color: #333; }
   .prow .lbl { flex: 1 1 auto; }
-  .sw {
-    width: 42px; height: 24px; border-radius: 999px; border: 1px solid var(--hair-2);
-    background: var(--surface-sunken); position: relative; cursor: pointer; flex: 0 0 auto;
+  .sw { width: 54px; height: 30px; border-radius: 999px; background: #E6E0E6; border: 2px solid #79747E; position: relative; cursor: pointer; flex: 0 0 auto; }
+  .sw::after { content: ""; position: absolute; top: 5px; left: 6px; width: 16px; height: 16px; border-radius: 50%; background: #79747E; transition: .15s; }
+  .sw.on { background: var(--pink-soft); border-color: var(--pink-soft); }
+  .sw.on::after { top: 2px; left: 25px; width: 22px; height: 22px; background: var(--pink); }
+  .prow input[type=range] { flex: 1 1 auto; accent-color: var(--purple); }
+  .fsval { font-size: 20px; font-weight: 700; color: #444; min-width: 70px; }
+  .seg { display: inline-flex; gap: 6px; }
+  .seg button {
+    border: 1px solid var(--pink-soft); background: #fff; color: var(--pink); border-radius: 999px;
+    padding: 4px 12px; font: inherit; font-size: 14px; cursor: pointer;
   }
-  .sw::after {
-    content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px;
-    border-radius: 50%; background: var(--mist-3); transition: .16s;
+  .seg button.on { background: var(--pink); color: #fff; border-color: var(--pink); }
+  .pillbtn {
+    border: none; border-radius: 999px; padding: 8px 18px; background: #fff; color: var(--pink);
+    font: inherit; font-size: 15px; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,.18);
   }
-  .sw.on { background: var(--jade-700); border-color: var(--jade-500); }
-  .sw.on::after { left: 21px; background: var(--jade-100); }
-  .prow input[type=range] { flex: 1 1 auto; accent-color: var(--jade-500); }
-  .modal .body { overflow: auto; }
 </style>
 </head>
 <body>
@@ -254,6 +269,7 @@
   }
   function pairKey(a, b) { return a < b ? a + '|' + b : b + '|' + a; }
   function defaultPos(i) {
+    if (i >= 4) return { x: 0.12 + (i % 3) * 0.3, y: 0.42 + (Math.floor((i - 4) / 3) % 3) * 0.16 };
     var col = i % 2, row = Math.floor(i / 2) % 2;
     return { x: col ? 0.72 : 0.28, y: row ? 0.74 : 0.26 };
   }
@@ -261,7 +277,6 @@
   function CourtApp() {
     var dataState = useState(null), data = dataState[0], setData = dataState[1];
     var meState = useState(null), me = meState[0], setMe = meState[1];
-    var themeState = useState(document.documentElement.dataset.theme || 'dark'), theme = themeState[0], setTheme = themeState[1];
     var dragState = useState(null), dragging = dragState[0], setDragging = dragState[1];
     var nowState = useState(Date.now()), nowTime = nowState[0], setNowTime = nowState[1];
     var busyState = useState(false), busy = busyState[0], setBusy = busyState[1];
@@ -269,6 +284,7 @@
     var logState = useState(''), logText = logState[0], setLogText = logState[1];
     var prefState = useState(loadPrefs), prefs = prefState[0], setPrefs = prefState[1];
     var setupState = useState(false), setupOpen = setupState[0], setSetupOpen = setupState[1];
+    var funcState = useState(false), funcOpen = funcState[0], setFuncOpen = funcState[1];
     var histState = useState([]), history = histState[0], setHistory = histState[1];
     var futureState = useState([]), future = futureState[0], setFuture = futureState[1];
     var dragRef = useRef(null), ghostRef = useRef(null), labelDraft = useRef({});
@@ -374,13 +390,6 @@
 
     function isLocked(name) { return lockedList.indexOf(name) >= 0; }
 
-    function toggleTheme() {
-      var next = theme === 'dark' ? 'light' : 'dark';
-      document.documentElement.dataset.theme = next;
-      try { localStorage.setItem('luoyun-theme', next); } catch (e) {}
-      setTheme(next);
-    }
-
     /* 寫入沿用 board.html 的路徑：先讀 /api/state 取版本，再 POST /api/action。
        伺服器有樂觀鎖，版本落後會被拒絕。 */
     function saveLineup(next, isUndo) {
@@ -484,12 +493,12 @@
     /* 自由定位：teamA/teamB 依 y 座標的上下半場推導，board.html 才讀得到隊伍。 */
     function putAt(st, name, addr, x, y) {
       pluck(st, name);
-      if (addr.kind === 'rest') { st.resting.push(name); return; }
       if (addr.kind === 'pool') return;
+      var p = { x: Math.min(0.9, Math.max(0.04, x)), y: Math.min(0.88, Math.max(0.08, y)) };
+      st.pos[name] = p;
+      if (addr.kind === 'rest') { st.resting.push(name); return; }
       var z = zoneOf(st, addr);
       if (!z) return;
-      var p = { x: Math.min(0.92, Math.max(0.08, x)), y: Math.min(0.88, Math.max(0.12, y)) };
-      st.pos[name] = p;
       (p.y > 0.5 ? z.teamB : z.teamA).push(name);
     }
 
@@ -517,6 +526,13 @@
       if (mate) {
         var dx = (pm && p0) ? pm.x - p0.x : 0.3, dy = (pm && p0) ? pm.y - p0.y : 0;
         putAt(st, mate, addr, st.pos[name] ? st.pos[name].x + dx : x + dx, st.pos[name] ? st.pos[name].y + dy : y + dy);
+      }
+      if (addr.kind === 'court') {
+        var tc = st.courts.find(function (x) { return x.courtNum === addr.courtNum; });
+        if (tc && tc.status !== 'playing' && membersOf(tc).length >= 4) {
+          tc.status = 'playing';
+          tc.matchStart = new Date().toISOString();
+        }
       }
       var extra = {};
       // 移動球員自動加鎖：拖進場地就鎖，換場時不被自動排場調走
@@ -715,26 +731,6 @@
       saveLineup(buildLineup(st, { stats: nextStats, pairs: nextPairs, matchSeq: seq }));
     }
 
-    function startCourt(courtNum) {
-      var st = snapshotState();
-      st.courts = st.courts.map(function (c) {
-        if (c.courtNum !== courtNum) return c;
-        return Object.assign({}, c, { status: 'playing', matchStart: new Date().toISOString() });
-      });
-      saveLineup(buildLineup(st));
-    }
-
-    function clearCourt(courtNum) {
-      var st = snapshotState();
-      var c = st.courts.find(function (x) { return x.courtNum === courtNum; });
-      if (!c) return;
-      var names = membersOf(c);
-      c.teamA = []; c.teamB = []; c.status = 'idle'; c.matchStart = null;
-      saveLineup(Object.assign({}, buildLineup(st), {
-        locked: lockedList.filter(function (n) { return names.indexOf(n) < 0; })
-      }));
-    }
-
     function setLabel(courtNum, value) {
       var st = snapshotState();
       st.courts = st.courts.map(function (x) {
@@ -782,7 +778,7 @@
         courts: st.courts, queue: st.queue, resting: st.resting, pos: st.pos,
         stats: {}, times: {}, since: {}, state: {}, pairs: {}, matchSeq: 0
       }));
-      setSetupOpen(false);
+      setFuncOpen(false);
     }
 
     /* 場數存在活動本身（activeEvent.courts），不在 lineup，所以要走 saveEvent。
@@ -843,17 +839,28 @@
       return Math.max(0, Math.floor((nowTime - sinceMap[name]) / 60000)) + ' 分';
     }
 
+    function barColor(d) {
+      if (prefs.levelColor) return LEVEL_COLORS[Number(d.level) || 0] || LEVEL_COLORS[0];
+      if (prefs.gender) return d.gender === 'female' ? '#F48FB1' : d.gender === 'male' ? '#4FC3F7' : '#F5F5F5';
+      return null;
+    }
+
     function chip(name, positioned, idx) {
       var d = detail[name] || {};
-      var cls = 'chip' + (prefs.gender ? (d.gender === 'female' ? ' female' : d.gender === 'male' ? ' male' : '') : '');
+      var cls = 'chip';
       if (isLocked(name)) cls += ' locked';
       if (dragging === name) cls += ' ghosting';
-      var wait = waitLabel(name);
+      var wait = prefs.wait ? waitLabel(name) : null;
       var style = null;
       if (positioned) {
         var p = posMap[name] || defaultPos(idx);
         style = { left: (p.x * 100) + '%', top: (p.y * 100) + '%' };
       }
+      var bar = barColor(d);
+      var meta = [];
+      if (wait) meta.push(S('', { key: 'w' }, wait));
+      if (prefs.level && d.level) meta.push(S('lv', { key: 'l' }, 'Lv' + d.level));
+      if (prefs.count) meta.push(S('', { key: 'c' }, (stats[name] || 0) + ' 場'));
       return D(cls, {
         key: name,
         style: style,
@@ -864,24 +871,84 @@
         onPointerUp: onChipPointerUp,
         onPointerCancel: onChipPointerUp
       },
-        prefs.levelColor ? S('lvbar', { style: { background: LEVEL_COLORS[Number(d.level) || 0] || LEVEL_COLORS[0] } }) : null,
-        S('', name),
-        (prefs.level && d.level) ? S('lv', 'Lv' + d.level) : null,
-        prefs.count ? S('cnt', (stats[name] || 0) + '場') : null,
-        (prefs.wait && wait) ? S('wait', wait) : null
+        bar ? S('bar', { style: { background: bar } }) : S('', null),
+        S('nm', name),
+        meta.length ? D('meta', meta) : null
       );
     }
 
-    function courtCard(c) {
+    /* 球場線：黃色外框＋白色邊線、發球線與中線，比照 App 的場地圖 */
+    function courtLines(faint) {
+      var y = faint ? 'rgba(220,240,210,.28)' : 'var(--court-yellow)';
+      var w = faint ? 'var(--slot-line)' : 'var(--court-line)';
+      function L(x1, y1, x2, y2, c) {
+        return E('line', { x1: x1, y1: y1, x2: x2, y2: y2, stroke: c, strokeWidth: 2, vectorEffect: 'non-scaling-stroke' });
+      }
+      return E('svg', { className: 'lines', viewBox: '0 0 100 100', preserveAspectRatio: 'none', 'aria-hidden': true },
+        E('rect', { x: 7, y: 7, width: 86, height: 86, fill: 'none', stroke: y, strokeWidth: 3, vectorEffect: 'non-scaling-stroke' }),
+        L(13, 7, 13, 93, w), L(87, 7, 87, 93, w),
+        L(7, 12, 93, 12, w), L(7, 88, 93, 88, w),
+        L(7, 34, 93, 34, w), L(7, 64, 93, 64, w),
+        L(50, 7, 50, 34, w), L(50, 64, 50, 93, w)
+      );
+    }
+
+    function restIcons() {
+      var f = 'rgba(150,195,225,.45)';
+      function stool(cx, cy) {
+        return E('g', { key: 's' + cx + cy },
+          E('ellipse', { cx: cx, cy: cy, rx: 13, ry: 5, fill: f }),
+          E('rect', { x: cx - 10, y: cy + 3, width: 3, height: 15, fill: f }),
+          E('rect', { x: cx + 7, y: cy + 3, width: 3, height: 15, fill: f }),
+          E('rect', { x: cx - 1.5, y: cy + 3, width: 3, height: 13, fill: f }));
+      }
+      function cup(cx, cy) {
+        return E('g', { key: 'c' + cx + cy },
+          E('path', { d: 'M' + (cx - 12) + ' ' + (cy - 8) + ' h24 v10 a12 12 0 0 1 -24 0 z', fill: f }),
+          E('circle', { cx: cx + 14, cy: cy - 1, r: 5, fill: 'none', stroke: f, strokeWidth: 3 }));
+      }
+      return E('svg', { className: 'lines', viewBox: '0 0 160 130', preserveAspectRatio: 'xMidYMid meet', 'aria-hidden': true },
+        stool(40, 28), cup(118, 30), cup(40, 92), stool(118, 90));
+    }
+
+    function icon(kind) {
+      var p = { fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' };
+      var a = { viewBox: '0 0 24 24', 'aria-hidden': true };
+      if (kind === 'auto') return E('svg', a,
+        E('path', Object.assign({ d: 'M20 11a8 8 0 0 0-14.3-4.9M4 13a8 8 0 0 0 14.3 4.9' }, p)),
+        E('path', Object.assign({ d: 'M5.5 2.5v4h4M18.5 21.5v-4h-4' }, p)),
+        E('path', { d: 'M12 8l1.2 2.8L16 12l-2.8 1.2L12 16l-1.2-2.8L8 12l2.8-1.2z', fill: 'currentColor' }));
+      if (kind === 'gear') return E('svg', a,
+        E('circle', Object.assign({ cx: 12, cy: 12, r: 3 }, p)),
+        E('path', Object.assign({ d: 'M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z' }, p)));
+      if (kind === 'clock') return E('svg', a,
+        E('circle', Object.assign({ cx: 12, cy: 12, r: 9 }, p)), E('path', Object.assign({ d: 'M12 7v5l3 2' }, p)));
+      if (kind === 'setup') return E('svg', a,
+        E('rect', Object.assign({ x: 7, y: 2, width: 12, height: 20, rx: 2 }, p)),
+        E('circle', Object.assign({ cx: 9, cy: 12, r: 2.5 }, p)));
+      if (kind === 'timer') return E('svg', a,
+        E('circle', Object.assign({ cx: 12, cy: 13, r: 8 }, p)), E('path', Object.assign({ d: 'M12 9v4M10 2h4' }, p)));
+      if (kind === 'undo') return E('svg', a, E('path', Object.assign({ d: 'M9 14L4 9l5-5M4 9h10a6 6 0 0 1 0 12h-3' }, p)));
+      if (kind === 'redo') return E('svg', a, E('path', Object.assign({ d: 'M15 14l5-5-5-5M20 9H10a6 6 0 0 0 0 12h3' }, p)));
+      if (kind === 'voice') return E('svg', a,
+        E('circle', Object.assign({ cx: 9, cy: 8, r: 4 }, p)), E('path', Object.assign({ d: 'M2 21a7 7 0 0 1 14 0M18 5a5 5 0 0 1 0 7M21 3a9 9 0 0 1 0 11' }, p)));
+      if (kind === 'log') return E('svg', a,
+        E('rect', Object.assign({ x: 8, y: 8, width: 13, height: 13, rx: 2 }, p)), E('path', Object.assign({ d: 'M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3' }, p)));
+      if (kind === 'cloud') return E('svg', a,
+        E('path', Object.assign({ d: 'M7 18h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5 1.5A3.5 3.5 0 0 0 7 18z' }, p)), E('path', Object.assign({ d: 'M12 15v-5M9.5 12.5L12 10l2.5 2.5' }, p)));
+      return null;
+    }
+
+    function courtCol(c) {
       var ms = c.matchStart ? Date.parse(c.matchStart) : 0;
-      var elapsed = (c.status === 'playing' && ms) ? Math.max(0, Math.floor((nowTime - ms) / 1000)) : 0;
+      var elapsed = ms ? Math.max(0, Math.floor((nowTime - ms) / 1000)) : 0;
       var names = membersOf(c);
       var q0ready = membersOf(queue[0]).length;
-      return D('', { key: c.courtNum },
-        D('canvas' + (c.status === 'playing' ? ' playing' : '') + (dragging ? ' drop' : ''),
-          { 'data-drop': 'court:' + c.courtNum },
+      return D('col', { key: 'c' + c.courtNum },
+        D('canvas' + (dragging ? ' drop' : ''), { 'data-drop': 'court:' + c.courtNum },
+          courtLines(false),
           E('input', {
-            className: 'zlabel',
+            className: 'zname',
             value: labelDraft.current[c.courtNum] != null ? labelDraft.current[c.courtNum] : (c.label || ('場地 ' + c.courtNum)),
             disabled: !me,
             'aria-label': '場地 ' + c.courtNum + ' 名稱',
@@ -892,20 +959,65 @@
               if (v !== (c.label || '')) setLabel(c.courtNum, v);
             }
           }),
-          prefs.timer ? D('ztimer' + (c.status === 'playing' ? '' : ' idle'), c.status === 'playing' ? mmss(elapsed) : '待命') : null,
+          S('hand', '✋'),
           names.map(function (n, i) { return chip(n, true, i); })
         ),
-        me ? D('foot',
+        D('ctlrow',
+          prefs.timer ? D('timer', c.status === 'playing' ? mmss(elapsed) : '00:00') : null,
           E('button', {
-            className: 'btn primary', type: 'button', disabled: busy,
+            className: 'swapbtn', type: 'button', disabled: !me || busy,
             title: q0ready ? '換上排隊 1' : modeAt(autoMode).hint,
             onClick: function () { swapCourt(c.courtNum); }
-          }, '換場'),
-          (c.status !== 'playing' && names.length >= 4)
-            ? E('button', { className: 'btn', type: 'button', disabled: busy, onClick: function () { startCourt(c.courtNum); } }, '開始')
-            : null,
-          names.length ? E('button', { className: 'btn warn', type: 'button', disabled: busy, onClick: function () { clearCourt(c.courtNum); } }, '清空') : null
-        ) : null
+          }, c.courtNum + ' 場下')
+        )
+      );
+    }
+
+    function restCol() {
+      return D('col', { key: 'rest' },
+        D('canvas rest' + (dragging ? ' drop' : ''), { 'data-drop': 'rest' },
+          restIcons(),
+          D('zname', '休息區'),
+          resting.map(function (n, i) { return chip(n, true, i); })
+        ),
+        D('ctl',
+          D('btns',
+            E('button', {
+              className: 'round m-' + modeAt(autoMode).tone, type: 'button', disabled: !me || busy,
+              title: modeAt(autoMode).hint, 'aria-label': '切換排場模式', onClick: cycleMode
+            }, icon('auto')),
+            E('button', { className: 'round', type: 'button', disabled: !me || busy || numCourts >= 12, 'aria-label': '場地加一面', onClick: function () { changeCourts(1); } }, '+1'),
+            E('button', { className: 'round', type: 'button', disabled: !me || busy || numCourts <= 1, 'aria-label': '場地減一面', onClick: function () { changeCourts(-1); } }, '−1'),
+            E('button', { className: 'round gear', type: 'button', 'aria-label': '功能按鈕', onClick: function () { setFuncOpen(true); } }, icon('gear'))
+          ),
+          D('modetext', (autoMode === 'off' ? 'Auto：' : 'AI Auto：') + modeAt(autoMode).label)
+        )
+      );
+    }
+
+    function frow(label, kind, onClick, disabled) {
+      return D('frow', { key: label },
+        S('', label),
+        E('button', { className: 'ic', type: 'button', disabled: !!disabled, 'aria-label': label, onClick: onClick }, icon(kind))
+      );
+    }
+
+    function funcModal() {
+      function close() { setFuncOpen(false); }
+      return D('modal-bg', { onClick: close },
+        D('modal', { onClick: function (ev) { ev.stopPropagation(); } },
+          E('button', { className: 'x', type: 'button', 'aria-label': '關閉', onClick: close }, '×'),
+          E('h2', null, '功能按鈕'),
+          frow('返回設定頁：', 'setup', function () { setFuncOpen(false); setSetupOpen(true); }),
+          frow('計時與場次重置：', 'timer', resetSession, !me || busy),
+          D('frow', { key: 'console' },
+            S('', '長老登入與名冊：'),
+            E('a', { className: 'ic', href: '/console.html', 'aria-label': '長老登入與名冊' }, icon('cloud'))),
+          frow('回到上一步：' + history.length, 'undo', undo, !me || busy || !history.length),
+          frow('重做下一步：' + future.length, 'redo', redo, !me || busy || !future.length),
+          frow('語音測試：', 'voice', function () { speak('場地一，請 甲 乙 丙 丁 上場'); }),
+          frow('羽球活動記錄：', 'log', function () { setFuncOpen(false); setLogText(buildReport()); })
+        )
       );
     }
 
@@ -921,49 +1033,39 @@
 
     function settingsModal() {
       var scale = Number(prefs.scale) || 1;
-      return D('modal-bg', { onClick: function () { setSetupOpen(false); } },
-        D('modal', { onClick: function (ev) { ev.stopPropagation(); } },
-          E('h2', null, '設定'),
-          D('body',
+      function close() { setSetupOpen(false); }
+      return D('modal-bg', { onClick: close },
+        D('modal setup', { onClick: function (ev) { ev.stopPropagation(); } },
+          D('setup-head', '設定',
+            E('button', { className: 'x', type: 'button', 'aria-label': '關閉', onClick: close }, '×')),
+          D('setup-body',
+            D('sect', '顯示設定'),
             swRow('場上進行時間', 'timer'),
             swRow('球員上場次數', 'count'),
-            swRow('球員等待時間', 'wait'),
+            swRow('球員場下等待時間', 'wait'),
             swRow('球員等級數字', 'level'),
-            swRow('等級顏色分級', 'levelColor'),
+            swRow('球員顏色分級', 'levelColor'),
             swRow('性別配色', 'gender'),
-            swRow('移動球員自動加鎖', 'autoLock'),
+            D('sect', '字體設定'),
             D('prow', D('lbl', '字級'),
               E('input', {
-                type: 'range', min: 0.8, max: 1.6, step: 0.1, value: scale,
-                'aria-label': '字級',
+                type: 'range', min: 0.7, max: 1.6, step: 0.1, value: scale, 'aria-label': '字級',
                 onChange: function (ev) { savePrefs({ scale: Number(ev.target.value) }); }
               }),
-              S('', Math.round(scale * 100) + '%')),
+              D('fsval', '字級: ' + Math.round(27 * scale))),
+            D('sect', '排場設定'),
+            swRow('移動球員自動加鎖', 'autoLock'),
+            D('sect', '語音廣播設定'),
             swRow('換場語音廣播', 'voice'),
             D('prow', D('lbl', '語音廣播次數'),
-              [1, 2, 3].map(function (n) {
+              D('seg', [1, 2, 3].map(function (n) {
                 return E('button', {
-                  key: n, type: 'button',
-                  className: 'btn' + (Number(prefs.voiceTimes) === n ? ' primary' : ''),
+                  key: n, type: 'button', className: Number(prefs.voiceTimes) === n ? 'on' : '',
                   onClick: function () { savePrefs({ voiceTimes: n }); }
-                }, n + ' 次');
-              })),
+                }, n + '次');
+              }))),
             swRow('上場預告廣播', 'preAnnounce'),
-            swRow('建議搭檔廣播', 'pairAnnounce'),
-            D('prow', D('lbl', '語音測試'),
-              E('button', {
-                className: 'btn', type: 'button',
-                onClick: function () { speak('場地一，請 甲 乙 丙 丁 上場'); }
-              }, '試聽')),
-            me ? D('prow', D('lbl', '場地面數'),
-              E('button', { className: 'btn', type: 'button', disabled: busy || numCourts <= 1, onClick: function () { changeCourts(-1); } }, '−1'),
-              S('', String(numCourts)),
-              E('button', { className: 'btn', type: 'button', disabled: busy || numCourts >= 12, onClick: function () { changeCourts(1); } }, '＋1')) : null,
-            me ? D('prow', D('lbl', '計時與場次重置'),
-              E('button', { className: 'btn warn', type: 'button', disabled: busy, onClick: resetSession }, '重置')) : null
-          ),
-          D('modal-foot',
-            E('button', { className: 'btn primary', type: 'button', onClick: function () { setSetupOpen(false); } }, '關閉')
+            swRow('建議搭檔廣播', 'pairAnnounce')
           )
         )
       );
@@ -972,70 +1074,40 @@
     if (!data) return D('wrap', D('banner', '正在請出名冊…'));
     if (!activeEvent) return D('wrap', D('banner', '目前沒有集結活動。請先在管理後台開團。'));
 
-    return D('wrap', { style: { '--chip-fs': (12 * (Number(prefs.scale) || 1)).toFixed(1) + 'px' } },
+    var clockNow = new Date(nowTime);
+    return D('wrap', { style: { '--chip-fs': (18 * (Number(prefs.scale) || 1)).toFixed(1) + 'px' } },
+      funcOpen ? funcModal() : null,
       setupOpen ? settingsModal() : null,
       logText ? D('modal-bg', { onClick: function () { setLogText(''); } },
-        D('modal', { onClick: function (ev) { ev.stopPropagation(); } },
+        D('modal log', { onClick: function (ev) { ev.stopPropagation(); } },
           E('h2', null, '羽球活動記錄'),
           E('pre', null, logText),
-          D('modal-foot',
-            E('button', {
-              className: 'btn', type: 'button',
-              onClick: function () { try { navigator.clipboard.writeText(logText); } catch (e) {} }
-            }, '複製'),
-            E('button', { className: 'btn primary', type: 'button', onClick: function () { setLogText(''); } }, '關閉')
+          D('mfoot',
+            E('button', { type: 'button', onClick: function () { try { navigator.clipboard.writeText(logText); } catch (e) {} } }, '複製到剪貼簿'),
+            E('button', { type: 'button', onClick: function () { setLogText(''); } }, '關閉')
           )
         )
       ) : null,
-      D('topbar',
-        D('brand', '排場執事'),
-        D('evt', activeEvent.title + '　' + (activeEvent.dateText || '') + '　' + (activeEvent.place || '')),
-        D('spacer'),
-        me ? S('evt', '拖曳移動 ・ 輕觸鎖定（鎖定者不被自動排場調動）') : null,
-        me ? E('button', {
-          className: 'btn mode ' + modeAt(autoMode).tone, type: 'button', disabled: busy,
-          title: modeAt(autoMode).hint, onClick: cycleMode
-        }, 'Auto：' + modeAt(autoMode).label) : null,
-        me ? E('button', {
-          className: 'btn', type: 'button', disabled: !history.length || busy, onClick: undo
-        }, '復原' + (history.length ? '（' + history.length + '）' : '')) : null,
-        me ? E('button', {
-          className: 'btn', type: 'button', disabled: !future.length || busy, onClick: redo
-        }, '重做' + (future.length ? '（' + future.length + '）' : '')) : null,
-        E('button', { className: 'btn', type: 'button', onClick: function () { setLogText(buildReport()); } }, '活動記錄'),
-        E('button', { className: 'btn', type: 'button', onClick: function () { setSetupOpen(true); } }, '設定'),
-        E('button', { className: 'btn', type: 'button', onClick: toggleTheme }, theme === 'dark' ? '晝' : '夜'),
-        E('a', { className: 'btn', href: '/console.html' }, '後台')
-      ),
-      err ? D('banner', { style: { borderColor: 'var(--cinnabar-dim)', color: 'var(--cinnabar)' } }, err) : null,
-      !me ? D('banner', '訪客唯讀。長老請先於後台登入後回到此頁。') : null,
-      D('courts', courts.map(courtCard)),
-      D('sect',
-        D('sect-head', '排隊區', S('n', '排隊 1 下一組上場；換場時整排往前移，下場的人排到隊尾')),
-        D('queue', queue.map(function (q, i) {
-          var names = membersOf(q);
-          return D('canvas qbox' + (i === 0 ? ' next' : '') + (dragging ? ' drop' : ''),
-            { key: q.id, 'data-drop': 'queue:' + i },
-            D('zlabel', '排隊 ' + (i + 1)),
-            i === 0 ? D('qbadge', '下一組') : null,
-            names.map(function (n, k) { return chip(n, true, k); }),
-            i > 0 ? D('conveyor', '◀') : null
-          );
-        }))
-      ),
-      D('row2',
-        D('listzone' + (dragging ? ' drop' : ''), { 'data-drop': 'pool' },
-          D('sect-head', '待命池', S('n', pool.length + ' 人（等最久的排前面）')),
-          D('list', pool.length
-            ? pool.map(function (p) { return chip(p.nickname, false, 0); })
-            : D('empty', '無人待命'))
-        ),
-        D('listzone' + (dragging ? ' drop' : ''), { 'data-drop': 'rest' },
-          D('sect-head', '休息區', S('n', resting.length + ' 人')),
-          D('list', resting.length
-            ? resting.map(function (n) { return chip(n, false, 0); })
-            : D('empty', '無人休息'))
-        )
+      D('clock', icon('clock'), pad2(clockNow.getHours()) + ':' + pad2(clockNow.getMinutes()) + ':' + pad2(clockNow.getSeconds())),
+      err ? D('banner err', err) : null,
+      !me ? D('banner', '訪客唯讀，只能看排場。長老請先到 ', E('a', { href: '/console.html' }, '後台'), ' 登入再回來。') : null,
+      D('arena', courts.map(courtCol).concat([restCol()])),
+      D('queue', queue.map(function (q, i) {
+        return D('qwrap', { key: q.id },
+          D('canvas slot' + (dragging ? ' drop' : ''), { 'data-drop': 'queue:' + i },
+            courtLines(true),
+            D('zname', '排隊 ' + (i + 1)),
+            S('hand', '✋'),
+            membersOf(q).map(function (n, k) { return chip(n, true, k); })
+          ),
+          D('arrow')
+        );
+      })),
+      D('pool' + (dragging ? ' drop' : ''), { 'data-drop': 'pool' },
+        D('pool-head', '待命池', S('n', pool.length + ' 人・等最久的排前面')),
+        D('list', pool.length
+          ? pool.map(function (p) { return chip(p.nickname, false, 0); })
+          : D('empty', '無人待命'))
       )
     );
   }
