@@ -797,6 +797,11 @@
     return { label: '尚餘 ' + Math.max(0, cap - going) + ' 席', tone: JADE, closed: false };
   }
   function venuePlace(v) { return v ? v.name + (v.address ? '（' + v.address + '）' : '') : ''; }
+  /* 門禁 QR 是場館的預設值（跟預設面數、費用一樣），開壇時帶入活動自己那份。 */
+  function venueQrOf(venues, venueId) {
+    var v = (venues || []).find(function (x) { return x.id === venueId; });
+    return v && v.gateQr ? v.gateQr : '';
+  }
   function compressImage(fileOrBlob, maxWidth, maxHeight, quality, callback) {
     return new Promise(function (resolve, reject) {
       if (!fileOrBlob) return resolve('');
@@ -4552,14 +4557,25 @@
 
   function VenueModal(p) {
     var row = p.modal.row, isNew = !row;
-    var st = useState(row ? Object.assign({}, row) : { name: '', address: '', mapUrl: '', parking: '', facilities: '', defaultCourts: 5, defaultFee: 220, note: '' });
+    var st = useState(row ? Object.assign({}, row) : { name: '', address: '', mapUrl: '', parking: '', facilities: '', gateQr: '', defaultCourts: 5, defaultFee: 220, note: '' });
     var f = st[0], setF = st[1];
     function up(k, v) { setF(function (old) { var n = Object.assign({}, old); n[k] = v; return n; }); }
+    function takeGateQr(fileOrBlob) {
+      if (!fileOrBlob) return;
+      compressImage(fileOrBlob, 400, 400, 0.85).then(function (b64) { up('gateQr', b64); })
+        .catch(function (err) { alert('圖片處理失敗：' + err.message); });
+    }
+    function pasteGateQr(e) {
+      var items = e.clipboardData && e.clipboardData.items;
+      for (var i = 0; items && i < items.length; i++) {
+        if (items[i].type && items[i].type.indexOf('image') === 0) { takeGateQr(items[i].getAsFile()); return; }
+      }
+    }
     var ok = f.name.trim() && Number(f.defaultCourts) >= 1 && Number(f.defaultCourts) <= 12 && Number(f.defaultFee) >= 0 && (!f.mapUrl || /^https:\/\//i.test(f.mapUrl));
     return E(Modal, { title: isNew ? '新增洞府場館' : '修改洞府場館', wide: true, sub: '儲存後，開壇時可一鍵帶入常用資訊', onClose: p.close,
       footer: [E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
         E(Btn, { key: 'o', variant: 'primary', icon: 'Check', disabled: !ok, onClick: async function () { if (await p.saveVenue(f, isNew)) p.close(); } }, '儲存場館')] },
-      D('grid grid-cols-1 gap-5 sm:grid-cols-2',
+      D('grid grid-cols-1 gap-5 sm:grid-cols-2', { onPaste: pasteGateQr },
         D('sm:col-span-2', E(Field, { label: '場館名稱' }, E('input', { value: f.name, onChange: function (e) { up('name', e.target.value); }, className: INPUT, autoFocus: true, placeholder: '例如：亞伯林羽球館－東區振興店' }))),
         D('sm:col-span-2', E(Field, { label: '地址' }, E('input', { value: f.address, onChange: function (e) { up('address', e.target.value); }, className: INPUT, placeholder: '例如：東區振興路284巷2號' }))),
         D('sm:col-span-2', E(Field, { label: 'Google Maps 導航連結（選填）' }, E('input', { type: 'url', value: f.mapUrl, onChange: function (e) { up('mapUrl', e.target.value); }, className: INPUT, placeholder: 'https://maps.google.com/…' }))),
@@ -4567,7 +4583,24 @@
         E(Field, { label: '預設每人費用' }, E('input', { type: 'number', min: 0, step: 10, value: f.defaultFee, onChange: function (e) { up('defaultFee', e.target.value); }, className: INPUT })),
         E(Field, { label: '停車資訊' }, E('input', { value: f.parking, onChange: function (e) { up('parking', e.target.value); }, className: INPUT, placeholder: '停車場、路邊停車提醒' })),
         E(Field, { label: '設施資訊' }, E('input', { value: f.facilities, onChange: function (e) { up('facilities', e.target.value); }, className: INPUT, placeholder: '飲水機、淋浴間、冷氣等' })),
-        D('sm:col-span-2', E(Field, { label: '場館提醒' }, E('textarea', { value: f.note, onChange: function (e) { up('note', e.target.value); }, className: INPUT + ' min-h-24', placeholder: '集合位置或入場方式' })))));
+        D('sm:col-span-2', E(Field, { label: '場館提醒' }, E('textarea', { value: f.note, onChange: function (e) { up('note', e.target.value); }, className: INPUT + ' min-h-24', placeholder: '集合位置或入場方式' }))),
+        D('sm:col-span-2 rounded-2xl border border-[rgba(255,255,255,.08)] bg-[rgba(255,255,255,.02)] p-4',
+          D('flex items-center justify-between gap-2 mb-2',
+            D('flex items-center gap-2',
+              E(Icon, { name: 'QrCode', size: 16, className: 'text-[var(--jade-3)]' }),
+              E('span', { className: 'text-sm font-semibold ' + T1 }, '目前的門禁 QR（選填）')),
+            f.gateQr ? E(Btn, { variant: 'danger', size: 'sm', icon: 'Trash2', onClick: function () { up('gateQr', ''); } }, '清除') : null),
+          E('p', { className: 'text-[11px] leading-relaxed ' + T3 },
+            '球館的門禁碼大約兩週換一次。換碼時在這裡換一張，之後每次開壇都會自動帶入，不必再逐場上傳。'),
+          D('mt-3 flex items-center gap-3',
+            E('label', { className: 'cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-[rgba(108,160,135,.15)] text-[var(--jade-3)] hover:bg-[rgba(108,160,135,.25)] transition' },
+              E(Icon, { name: 'Upload', size: 14 }),
+              S(null, f.gateQr ? '更換圖片' : '選取圖片'),
+              E('input', { type: 'file', accept: 'image/*', className: 'hidden',
+                onChange: function (e) { takeGateQr(e.target.files && e.target.files[0]); } })),
+            f.gateQr
+              ? E('img', { src: f.gateQr, alt: '門禁 QR 預覽', className: 'w-16 h-16 object-contain rounded-lg bg-white p-1' })
+              : E('span', { className: 'text-[11px] ' + T3 }, '可直接 Ctrl+V 貼上球館給的原圖')))));
   }
 
   function EventModal(p) {
@@ -4575,11 +4608,12 @@
     var isNew = !row || !!p.modal.duplicate;
     var firstVenue = p.venues[0] || null;
     var initialDate = row ? (row.date || '') : (p.modal.prefillDate || '');
-    var st = useState(row ? (p.modal.duplicate ? Object.assign({}, row, { id: undefined, roster: [], lineup: null, gateQr: '', gateQrDate: initialDate }) : Object.assign({}, row)) : {
+    var venueQr = firstVenue && firstVenue.gateQr ? firstVenue.gateQr : '';
+    var st = useState(row ? (p.modal.duplicate ? Object.assign({}, row, { id: undefined, roster: [], lineup: null, gateQr: venueQrOf(p.venues, row.venueId), gateQrDate: initialDate }) : Object.assign({}, row)) : {
       title: '', date: initialDate, dateText: displayEventDate(initialDate), startTime: '10:00', endTime: '13:00',
       place: venuePlace(firstVenue) || '亞伯林羽球館－東區振興店', venueId: firstVenue ? firstVenue.id : '',
       courts: firstVenue ? firstVenue.defaultCourts : 5, fee: firstVenue ? firstVenue.defaultFee : 220,
-      note: '', roster: [], gateQr: '', gateQrDate: initialDate
+      note: '', roster: [], gateQr: venueQr, gateQrDate: initialDate
     });
     var f = st[0], setF = st[1];
     function up(kk, v) { setF(function (x) { var n = Object.assign({}, x); n[kk] = v; return n; }); }
@@ -4650,7 +4684,7 @@
         p.venues.length ? D('sm:col-span-2', E(Field, { label: '從洞府場館帶入（選填）' },
           E('select', { value: f.venueId || '', className: INPUT, onChange: function (ev) {
             var id = ev.target.value, v = p.venues.find(function (x) { return x.id === id; });
-            setF(function (old) { return Object.assign({}, old, v ? { venueId: v.id, place: venuePlace(v), courts: v.defaultCourts, fee: v.defaultFee } : { venueId: '' }); });
+            setF(function (old) { return Object.assign({}, old, v ? { venueId: v.id, place: venuePlace(v), courts: v.defaultCourts, fee: v.defaultFee, gateQr: v.gateQr || '' } : { venueId: '' }); });
           } }, [E('option', { key: '', value: '' }, '自行輸入地點')].concat(p.venues.map(function (v) { return E('option', { key: v.id, value: v.id }, v.name); }))))) : null,
         D('sm:col-span-2', E(Field, { label: '地點' },
           E('input', { value: f.place, onChange: function (ev) { setF(function (old) { return Object.assign({}, old, { place: ev.target.value, venueId: '' }); }); }, className: INPUT }))),

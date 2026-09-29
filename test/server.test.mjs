@@ -104,7 +104,7 @@ test('shared club: authentication, permissions, persistence, validation and conf
     assert.equal(state.events.find(e => e.id === eventId).date, '2026-09-30');
   });
   await t.test('venue presets and the public page remains read-only', async () => {
-    venueId = (await act('saveVenue', { row: { name: '測試仙山球館', address: '測試路 1 號', mapUrl: 'https://maps.google.com/?q=test', parking: '地下停車場', facilities: '飲水機', defaultCourts: 3, defaultFee: 180, note: '二樓集合' } })).body.resultId;
+    venueId = (await act('saveVenue', { row: { name: '測試仙山球館', address: '測試路 1 號', mapUrl: 'https://maps.google.com/?q=test', parking: '地下停車場', facilities: '飲水機', gateQr: 'data:image/webp;base64,venueqr', defaultCourts: 3, defaultFee: 180, note: '二樓集合' } })).body.resultId;
     const ev = state.events.find(e => e.id === eventId);
     await act('saveEvent', { id: eventId, row: { ...ev, venueId, place: '測試仙山球館（測試路 1 號）', signupDeadline: '2099-12-31T23:59' } });
     const signup = { eventId, nickname: '訪客小羽', gender: 'female', level: 3, status: 'maybe', note: '朋友介紹' };
@@ -115,6 +115,9 @@ test('shared club: authentication, permissions, persistence, validation and conf
     const pub = (await request('/api/public', undefined, '')).body;
     const publicEvent = pub.events.find(e => e.id === eventId);
     assert.equal(publicEvent.venue.address, '測試路 1 號');
+    state = (await request('/api/state')).body;
+    assert.equal(state.venues.find(v => v.id === venueId).gateQr, 'data:image/webp;base64,venueqr', '場館門禁圖要存得住');
+    assert.equal(publicEvent.venue.gateQr, undefined, '場館門禁圖不可以出現在公開資料（公開只走活動那份，才吃得到 3 天過期）');
     assert.equal(publicEvent.pendingCount, undefined); assert.equal(pub.intents, undefined);
   });
   await t.test('roster update reaches public output and preserves linked identities', async () => {

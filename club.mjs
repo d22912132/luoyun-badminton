@@ -104,9 +104,11 @@ function venue(row) {
   if (!row || typeof row !== 'object') reject('場館資料格式不正確');
   const mapUrl = text(row.mapUrl ?? '', '地圖連結', 1000, true);
   if (mapUrl && !/^https:\/\//i.test(mapUrl)) reject('地圖連結必須使用 https://');
+  const gateQr = typeof row.gateQr === 'string' && row.gateQr.length <= 500000 ? row.gateQr.trim() : '';
   return { name: text(row.name, '場館名稱', 120), address: text(row.address ?? '', '地址', 300, true),
     mapUrl, parking: text(row.parking ?? '', '停車資訊', 500, true),
     facilities: text(row.facilities ?? '', '設施資訊', 500, true),
+    gateQr,
     defaultCourts: number(row.defaultCourts ?? 1, '預設場地面數', 1, 12),
     defaultFee: number(row.defaultFee ?? 0, '預設費用', 0, 100000), note: text(row.note ?? '', '場館備註', 1000, true) };
 }
@@ -167,6 +169,8 @@ function deadlinePassed(value) {
   return !!value && Date.now() > Date.parse(value + ':00+08:00');
 }
 function publicData(state) {
+  // ponytail: 場館的 gateQr 只是開團時要複製的樣板，刻意不進 publicVenue——
+  // 對外一律走活動自己那份，才吃得到下面 3 天過期的規則
   const publicVenue = v => v ? ({ id: v.id, name: v.name, address: v.address, mapUrl: v.mapUrl,
     parking: v.parking, facilities: v.facilities, note: v.note }) : null;
   const threeDaysAgo = Date.now() - 3 * 86400000;
