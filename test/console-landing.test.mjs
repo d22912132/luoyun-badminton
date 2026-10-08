@@ -47,3 +47,17 @@ test('修為徽章保留動態玉令視覺並覆蓋九境', () => {
     }
   }
 });
+
+test('修為徽章 hover/focus 會提供羽球分級簡述', () => {
+  const consoleHtml = readFileSync(new URL('../console.html', import.meta.url), 'utf8');
+  const boardHtml = readFileSync(new URL('../board.html', import.meta.url), 'utf8');
+  const landingHtml = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  for (const html of [consoleHtml, boardHtml]) {
+    assert.match(html, /level-badge-wrap/);
+    assert.match(html, /羽球判讀/);
+    assert.match(html, /基本球路起步/);
+    assert.match(html, /進階延伸級/);
+  }
+  assert.match(landingHtml, /realm-badge-wrap/);
+  assert.match(landingHtml, /主被動初識/);
+});

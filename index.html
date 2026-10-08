@@ -297,8 +297,9 @@
   .venue-extra a{color:var(--jade-300);font-weight:600;text-decoration:none}
   .masthead,#app,.foot{animation:sect-arrive .7s var(--ease) both}#app{animation-delay:.12s}.foot{animation-delay:.22s}
 
-  @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}body::before,.entry-portal,.qi-ring::before,.cloud-bank,.realm-badge::before,.realm-badge::after,.flow i::before,.flow i::after,.full-seal::after{animation:none}.entry-portal{display:none}.event-card::after{display:none}}
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}body::before,.entry-portal,.qi-ring::before,.cloud-bank,.realm-badge::before,.realm-badge::after,.flow i::before,.flow i::after,.full-seal::after{animation:none}.realm-badge-wrap .realm-tooltip{transition:none}.entry-portal{display:none}.event-card::after{display:none}}
   .realm-refined{--realm-a:#3C7F87;--realm-b:#B6EEF0;--realm-c:#24515B;--realm-text:#C7F6F0;--realm-glow:rgba(94,208,211,.78);--realm-speed:21s;--realm-sheen:9s}.realm-fusion{--realm-a:#496C9B;--realm-b:#C8DFFF;--realm-c:#2F4168;--realm-text:#D9E8FF;--realm-glow:rgba(116,168,236,.82);--realm-speed:23s;--realm-sheen:10s}.realm-mahayana{--realm-a:#8F5367;--realm-b:#FFD2D9;--realm-c:#5B2E49;--realm-text:#FFE0E7;--realm-glow:rgba(235,137,160,.84);--realm-speed:25s;--realm-sheen:11s}.realm-tribulation{--realm-a:#8B3128;--realm-b:#FFE0A1;--realm-c:#C85B32;--realm-text:#FFE9B7;--realm-glow:rgba(239,145,78,.96);--realm-speed:27s;--realm-sheen:12s}
+  .realm-badge-wrap{position:relative;display:inline-flex;vertical-align:middle;z-index:0}.realm-badge-wrap:hover,.realm-badge-wrap:focus-within{z-index:40}.realm-badge{cursor:help}.realm-badge:focus-visible{outline:2px solid var(--realm-b);outline-offset:3px}.realm-badge-wrap .realm-tooltip{position:absolute;left:50%;bottom:calc(100% + .65rem);z-index:60;width:min(19rem,calc(100vw - 2rem));padding:.7rem .8rem;border:1px solid color-mix(in srgb,var(--realm-b) 48%,transparent);border-radius:14px;background:linear-gradient(180deg,rgba(16,27,30,.98),rgba(9,17,19,.98));box-shadow:0 16px 34px -18px rgba(0,0,0,.9),0 0 22px -8px var(--realm-glow);color:#dbece3;font:500 11px/1.55 'Noto Sans TC',sans-serif;opacity:0;pointer-events:none;transform:translate(-50%,6px) scale(.96);transform-origin:bottom center;transition:opacity .18s var(--ease),transform .18s var(--ease)}.realm-badge-wrap .realm-tooltip::after{content:'';position:absolute;left:50%;bottom:-6px;width:10px;height:10px;border-right:1px solid color-mix(in srgb,var(--realm-b) 48%,transparent);border-bottom:1px solid color-mix(in srgb,var(--realm-b) 48%,transparent);background:#0b1719;transform:translateX(-50%) rotate(45deg)}.realm-badge-wrap:hover .realm-tooltip,.realm-badge-wrap:focus-within .realm-tooltip{opacity:1;transform:translate(-50%,0) scale(1)}.realm-tooltip-title{display:block;margin-bottom:.2rem;color:var(--realm-text);font:700 11px 'Noto Serif TC',Georgia,serif;letter-spacing:.05em}.realm-tooltip-text{display:block;color:#dbece3}
 </style>
 
 </head>
@@ -1525,7 +1526,18 @@
   }
   function flow(v, cap) { var c=Math.max(1,cap),pct=Math.min(100,Math.round((v/c)*100)),over=v>c,near=!over&&pct>=80;var grad=over?'linear-gradient(90deg,#B85446 0%,#E0958A 100%)':(near?'linear-gradient(90deg,#3D6555 0%,#9BC3AE 58%,#D9BC6D 100%)':'linear-gradient(90deg,#3D6555 0%,#6E9E88 48%,#9BC3AE 100%)');var glow=over?'rgba(208,122,108,.7)':(near?'rgba(201,169,97,.65)':'rgba(155,195,174,.55)');return '<div class="flow'+(v===0?' is-empty':'')+(near?' is-near':'')+(pct>=100&&!over?' is-full':'')+'"><i style="width:'+pct+'%;background-image:'+grad+';background-size:100% 100%;--flow-glow:'+glow+'"></i></div>'; }
   function realmOf(level){var lv=Number(level)||1;return lv>=10?{k:'tribulation',label:'渡劫'}:lv>=9?{k:'mahayana',label:'大乘期'}:lv>=8?{k:'fusion',label:'合體期'}:lv>=7?{k:'refined',label:'煉虛期'}:lv>=6?{k:'transcendent',label:'化神期'}:lv>=5?{k:'nascent',label:'元嬰期'}:lv>=4?{k:'golden',label:'結丹期'}:lv>=3?{k:'foundation',label:'築基期'}:{k:'qi',label:'練氣期'};}
-  function realmBadge(level){var r=realmOf(level);return '<span class="realm-badge realm-'+r.k+'" aria-label="'+r.label+'，程度 '+Number(level||0)+'">'+r.label+'<span class="num">'+Number(level||0)+'</span></span>';}
+  var BADMINTON_GUIDE=[
+    {max:3,range:'1–3',text:'基本球路起步：以反射撈球為主，揮拍框架與球路概念尚未穩定。'},
+    {max:4,range:'4',text:'動作框架成形：高遠、切、殺、小球有基本意識，但擊球點、發力與失誤仍多。'},
+    {max:5,range:'5',text:'基本功穩定：各球路失誤率下降，開始能跟球並思考下一拍。'},
+    {max:6,range:'6',text:'主被動初識：能分辨球責；主動時可製造受迫球，被動時能勉強回球。'},
+    {max:7,range:'7',text:'被動處理成形：過渡、中腰、反拍抽高與高遠球能幫助重整局面。'},
+    {max:8,range:'8',text:'被動球質穩定：受壓時仍能穩定過渡，守住底線並重建主動。'},
+    {max:9,range:'9',text:'戰術邏輯成熟：能限制球路、帶動輪轉與連貫組織，下一拍更接近肌肉記憶。'},
+    {max:10,range:'10',text:'進階延伸級：目前分級表尚未提供獨立定義，先標示為超出一般業餘觀察的延伸級。'}
+  ];
+  function badmintonGuideOf(level){var n=Math.max(1,Math.min(10,Number(level)||1));for(var i=0;i<BADMINTON_GUIDE.length;i++)if(n<=BADMINTON_GUIDE[i].max)return BADMINTON_GUIDE[i];return BADMINTON_GUIDE[BADMINTON_GUIDE.length-1];}
+  function realmBadge(level){var lv=Number(level)||1,r=realmOf(lv),guide=badmintonGuideOf(lv),label=r.label+'，程度 '+lv+'。'+guide.text;return '<span class="realm-badge-wrap" title="'+guide.range+'級・'+guide.text+'"><span class="realm-badge realm-'+r.k+'" tabindex="0" role="img" aria-label="'+label+'">'+r.label+'<span class="num">'+lv+'</span></span><span class="realm-tooltip" aria-hidden="true"><span class="realm-tooltip-title">'+guide.range+'級・羽球判讀</span><span class="realm-tooltip-text">'+guide.text+'</span></span></span>';}
   function countup(n){return '<span class="countup" data-count-to="'+Number(n||0)+'">'+Number(n||0)+'</span>';}
 
   function groupHtml(g, list, eventIndex) {

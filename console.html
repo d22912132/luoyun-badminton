@@ -240,6 +240,24 @@
   @keyframes level-realm-border { to { --level-realm-angle: 360deg; } }
   @keyframes level-realm-aura { 50% { box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 0 22px -5px var(--realm-glow); } }
   @keyframes level-realm-sheen { 0%,68% { transform: translateX(-145%); opacity: 0; } 76% { opacity: .72; } 100% { transform: translateX(145%); opacity: 0; } }
+  .level-badge-wrap { position: relative; display: inline-flex; vertical-align: middle; z-index: 0; }
+  .level-badge-wrap:hover, .level-badge-wrap:focus-within { z-index: 40; }
+  .level-badge { cursor: help; }
+  .level-badge:focus-visible { outline: 2px solid var(--realm-b); outline-offset: 3px; }
+  .level-badge-wrap .realm-tooltip {
+    position: absolute; left: 50%; bottom: calc(100% + .65rem); z-index: 60;
+    width: min(19rem, calc(100vw - 2rem)); padding: .7rem .8rem;
+    border: 1px solid color-mix(in srgb, var(--realm-b) 48%, transparent); border-radius: 14px;
+    background: linear-gradient(180deg, rgba(16,27,30,.98), rgba(9,17,19,.98));
+    box-shadow: 0 16px 34px -18px rgba(0,0,0,.9), 0 0 22px -8px var(--realm-glow);
+    color: #dbece3; font: 500 11px/1.55 'Noto Sans TC', sans-serif; letter-spacing: .01em;
+    opacity: 0; pointer-events: none; transform: translate(-50%, 6px) scale(.96); transform-origin: bottom center;
+    transition: opacity .18s var(--ease), transform .18s var(--ease);
+  }
+  .level-badge-wrap .realm-tooltip::after { content: ''; position: absolute; left: 50%; bottom: -6px; width: 10px; height: 10px; border-right: 1px solid color-mix(in srgb, var(--realm-b) 48%, transparent); border-bottom: 1px solid color-mix(in srgb, var(--realm-b) 48%, transparent); background: #0b1719; transform: translateX(-50%) rotate(45deg); }
+  .level-badge-wrap:hover .realm-tooltip, .level-badge-wrap:focus-within .realm-tooltip { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  .realm-tooltip-title { display: block; margin-bottom: .2rem; color: var(--realm-text); font: 700 11px 'Noto Serif TC', Georgia, serif; letter-spacing: .05em; }
+  .realm-tooltip-text { display: block; color: #dbece3; }
 
   @property --realm-angle{syntax:"<angle>";inherits:false;initial-value:0deg}
   .realm-badge{--realm-angle:0deg;position:relative;isolation:isolate;overflow:hidden;border-color:transparent;color:var(--realm-text);text-shadow:0 0 10px var(--realm-glow);background:linear-gradient(180deg,rgba(16,27,30,.96),rgba(9,17,19,.96)) padding-box,conic-gradient(from var(--realm-angle),var(--realm-a),var(--realm-b),var(--realm-c),var(--realm-a)) border-box;box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 0 18px -7px var(--realm-glow);animation:realm-border var(--realm-speed,12s) linear infinite,realm-aura 3.6s ease-in-out infinite}.realm-badge::before{content:"";position:absolute;inset:1px;border-radius:inherit;pointer-events:none;background:radial-gradient(circle at 18% 0%,var(--realm-glow),transparent 42%);opacity:.2}.realm-badge::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(108deg,transparent 34%,rgba(255,255,255,.34) 49%,transparent 64%);transform:translateX(-145%);animation:realm-sheen var(--realm-sheen,6s) var(--ease) infinite}@keyframes realm-border{to{--realm-angle:360deg}}@keyframes realm-aura{50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 0 22px -5px var(--realm-glow)}}@keyframes realm-sheen{0%,68%{transform:translateX(-145%);opacity:0}76%{opacity:.72}100%{transform:translateX(145%);opacity:0}}.realm-qi{--realm-a:#6E9E88;--realm-b:#D5E7DC;--realm-c:#35594B;--realm-text:#CDE9DA;--realm-glow:rgba(155,195,174,.62);--realm-speed:9s;--realm-sheen:6s}.realm-foundation{--realm-a:#5C8B99;--realm-b:#D8F2F7;--realm-c:#385E69;--realm-text:#C9E5ED;--realm-glow:rgba(129,202,220,.68);--realm-speed:12s;--realm-sheen:7s}.realm-golden{--realm-a:#8A6824;--realm-b:#FFF0AE;--realm-c:#C3912D;--realm-text:#FFE8A0;--realm-glow:rgba(226,184,78,.78);--realm-speed:15s;--realm-sheen:8s}.realm-nascent{--realm-a:#6A5596;--realm-b:#E5DBFF;--realm-c:#9E8FC0;--realm-text:#E8DFFF;--realm-glow:rgba(174,145,235,.78);--realm-speed:19s;--realm-sheen:9s}.realm-transcendent{--realm-a:#7F5B13;--realm-b:#FFF7C8;--realm-c:#D6A93D;--realm-text:#FFF2B5;--realm-glow:rgba(255,205,88,.92);--realm-speed:24s;--realm-sheen:10s}
@@ -499,6 +517,7 @@
     body::before{ animation:none }
     .qi::after,.event-card::before,.empty-scroll::before,.empty-scroll::after,.seal-toast::after,.realm-badge::before,.realm-badge::after,.level-badge::before,.level-badge::after,.office-badge::after,.flow>i::before,.flow>i::after,.scroll-unfurl::before,.scroll-unfurl::after,.skeleton::after{display:none}
     .level-badge{animation:none}
+    .level-badge-wrap .realm-tooltip{transition:none}
     .enter-ritual{display:none}
   }
 
@@ -680,6 +699,21 @@
     mahayana:{range:'9', meaning:'凡界最後一層，一切都指向同一個出口。'},
     tribulation:{range:'10', meaning:'引動天劫，渡過即飛升，渡不過通常屍骨無存。'}
   };
+  var BADMINTON_GUIDE = [
+    { max: 3, range: '1–3', text: '基本球路起步：以反射撈球為主，揮拍框架與球路概念尚未穩定。' },
+    { max: 4, range: '4', text: '動作框架成形：高遠、切、殺、小球有基本意識，但擊球點、發力與失誤仍多。' },
+    { max: 5, range: '5', text: '基本功穩定：各球路失誤率下降，開始能跟球並思考下一拍。' },
+    { max: 6, range: '6', text: '主被動初識：能分辨球責；主動時可製造受迫球，被動時能勉強回球。' },
+    { max: 7, range: '7', text: '被動處理成形：過渡、中腰、反拍抽高與高遠球能幫助重整局面。' },
+    { max: 8, range: '8', text: '被動球質穩定：受壓時仍能穩定過渡，守住底線並重建主動。' },
+    { max: 9, range: '9', text: '戰術邏輯成熟：能限制球路、帶動輪轉與連貫組織，下一拍更接近肌肉記憶。' },
+    { max: 10, range: '10', text: '進階延伸級：目前分級表尚未提供獨立定義，先標示為超出一般業餘觀察的延伸級。' }
+  ];
+  function badmintonGuideOf(lv) {
+    var n = Math.max(1, Math.min(10, Number(lv) || 1));
+    for (var i = 0; i < BADMINTON_GUIDE.length; i++) if (n <= BADMINTON_GUIDE[i].max) return BADMINTON_GUIDE[i];
+    return BADMINTON_GUIDE[BADMINTON_GUIDE.length - 1];
+  }
   var REALM_STYLE={qi:{'--realm-a':'#8FBFAF','--realm-b':'#D5E7DC','--realm-c':'#3D6555','--realm-text':'#CDE9DA','--realm-glow':'rgba(155,195,174,.65)','--realm-speed':'8s'},foundation:{'--realm-a':'#88AEBB','--realm-b':'#C7E2EA','--realm-c':'#3F6875','--realm-text':'#C9E5ED','--realm-glow':'rgba(129,183,200,.65)','--realm-speed':'10s'},golden:{'--realm-a':'#C9A961','--realm-b':'#F1DCA5','--realm-c':'#79602D','--realm-text':'#F3DFAB','--realm-glow':'rgba(201,169,97,.72)','--realm-speed':'14s'},nascent:{'--realm-a':'#9E8FC0','--realm-b':'#D1C7EA','--realm-c':'#57486E','--realm-text':'#DCD2F5','--realm-glow':'rgba(158,143,192,.7)','--realm-speed':'18s'},transcendent:{'--realm-a':'#D6B55E','--realm-b':'#FFF0B7','--realm-c':'#99743B','--realm-text':'#FFF0BA','--realm-glow':'rgba(222,187,93,.85)','--realm-speed':'24s'}};
   var GENDER = {
     male: { label: '男', style: { '--tc': 'var(--male-text)', '--tb': 'var(--male-border)', '--th': 'var(--male-high)', '--tl': 'var(--male-low)' } },
@@ -1032,13 +1066,18 @@
   }
 
   function LevelBadge(p) {
-    var lv = Number(p.level) || 1, realm = realmOf(lv);
-    return E('span', {
-      className: 'level-badge realm-' + realm,
-      'aria-label': REALM_LABEL[realm] + '，程度 ' + lv
-    },
-      S('realm-name', REALM_LABEL[realm]),
-      S('realm-lv', String(lv))
+    var lv = Number(p.level) || 1, realm = realmOf(lv), guide = badmintonGuideOf(lv);
+    var label = REALM_LABEL[realm] + '，程度 ' + lv + '。' + guide.text;
+    return E('span', { className: 'level-badge-wrap', title: guide.range + '級・' + guide.text },
+      E('span', {
+        className: 'level-badge realm-' + realm, tabIndex: 0, role: 'img', 'aria-label': label
+      },
+        S('realm-name', REALM_LABEL[realm]),
+        S('realm-lv', String(lv))
+      ),
+      E('span', { className: 'realm-tooltip', 'aria-hidden': 'true' },
+        S('realm-tooltip-title', guide.range + '級・羽球判讀'),
+        S('realm-tooltip-text', guide.text))
     );
   }
 

@@ -283,8 +283,27 @@
   @keyframes level-realm-border { to { --level-realm-angle: 360deg; } }
   @keyframes level-realm-aura { 50% { box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 0 22px -5px var(--realm-glow); } }
   @keyframes level-realm-sheen { 0%,68% { transform: translateX(-145%); opacity: 0; } 76% { opacity: .72; } 100% { transform: translateX(145%); opacity: 0; } }
+  .level-badge-wrap { position: relative; display: inline-flex; vertical-align: middle; z-index: 0; }
+  .level-badge-wrap:hover, .level-badge-wrap:focus-within { z-index: 40; }
+  .level-badge { cursor: help; }
+  .level-badge:focus-visible { outline: 2px solid var(--realm-b); outline-offset: 3px; }
+  .level-badge-wrap .realm-tooltip {
+    position: absolute; left: 50%; bottom: calc(100% + .65rem); z-index: 60;
+    width: min(19rem, calc(100vw - 2rem)); padding: .7rem .8rem;
+    border: 1px solid color-mix(in srgb, var(--realm-b) 48%, transparent); border-radius: 14px;
+    background: linear-gradient(180deg, rgba(16,27,30,.98), rgba(9,17,19,.98));
+    box-shadow: 0 16px 34px -18px rgba(0,0,0,.9), 0 0 22px -8px var(--realm-glow);
+    color: #dbece3; font: 500 11px/1.55 'Noto Sans TC', sans-serif; letter-spacing: .01em;
+    opacity: 0; pointer-events: none; transform: translate(-50%, 6px) scale(.96); transform-origin: bottom center;
+    transition: opacity .18s var(--ease), transform .18s var(--ease);
+  }
+  .level-badge-wrap .realm-tooltip::after { content: ''; position: absolute; left: 50%; bottom: -6px; width: 10px; height: 10px; border-right: 1px solid color-mix(in srgb, var(--realm-b) 48%, transparent); border-bottom: 1px solid color-mix(in srgb, var(--realm-b) 48%, transparent); background: #0b1719; transform: translateX(-50%) rotate(45deg); }
+  .level-badge-wrap:hover .realm-tooltip, .level-badge-wrap:focus-within .realm-tooltip { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  .realm-tooltip-title { display: block; margin-bottom: .2rem; color: var(--realm-text); font: 700 11px 'Noto Serif TC', Georgia, serif; letter-spacing: .05em; }
+  .realm-tooltip-text { display: block; color: #dbece3; }
   @media (prefers-reduced-motion: reduce) {
     .level-badge, .level-badge::before, .level-badge::after { animation: none; }
+    .level-badge-wrap .realm-tooltip { transition: none; }
   }
 
   /* 按鈕手感 */
@@ -848,6 +867,21 @@
   /* 境界與修為 */
   function realmOf(lv) { lv = Number(lv) || 1; return lv >= 10 ? 'tribulation' : lv >= 9 ? 'mahayana' : lv >= 8 ? 'fusion' : lv >= 7 ? 'refined' : lv >= 6 ? 'transcendent' : lv >= 5 ? 'nascent' : lv >= 4 ? 'golden' : lv >= 3 ? 'foundation' : 'qi'; }
   var REALM_LABEL = { qi: '練氣期', foundation: '築基期', golden: '結丹期', nascent: '元嬰期', transcendent: '化神期', refined: '煉虛期', fusion: '合體期', mahayana: '大乘期', tribulation: '渡劫' };
+  var BADMINTON_GUIDE = [
+    { max: 3, range: '1–3', text: '基本球路起步：以反射撈球為主，揮拍框架與球路概念尚未穩定。' },
+    { max: 4, range: '4', text: '動作框架成形：高遠、切、殺、小球有基本意識，但擊球點、發力與失誤仍多。' },
+    { max: 5, range: '5', text: '基本功穩定：各球路失誤率下降，開始能跟球並思考下一拍。' },
+    { max: 6, range: '6', text: '主被動初識：能分辨球責；主動時可製造受迫球，被動時能勉強回球。' },
+    { max: 7, range: '7', text: '被動處理成形：過渡、中腰、反拍抽高與高遠球能幫助重整局面。' },
+    { max: 8, range: '8', text: '被動球質穩定：受壓時仍能穩定過渡，守住底線並重建主動。' },
+    { max: 9, range: '9', text: '戰術邏輯成熟：能限制球路、帶動輪轉與連貫組織，下一拍更接近肌肉記憶。' },
+    { max: 10, range: '10', text: '進階延伸級：目前分級表尚未提供獨立定義，先標示為超出一般業餘觀察的延伸級。' }
+  ];
+  function badmintonGuideOf(lv) {
+    var n = Math.max(1, Math.min(10, Number(lv) || 1));
+    for (var i = 0; i < BADMINTON_GUIDE.length; i++) if (n <= BADMINTON_GUIDE[i].max) return BADMINTON_GUIDE[i];
+    return BADMINTON_GUIDE[BADMINTON_GUIDE.length - 1];
+  }
   var REALM_STYLE = {
     qi: { '--tc': '#CDE9DA', '--tb': 'rgba(155,195,174,.26)', '--th': 'rgba(155,195,174,.13)', '--tl': 'rgba(155,195,174,.03)' },
     foundation: { '--tc': '#C9E5ED', '--tb': 'rgba(129,183,200,.26)', '--th': 'rgba(129,183,200,.13)', '--tl': 'rgba(129,183,200,.03)' },
@@ -857,13 +891,18 @@
   };
 
   function LevelBadge(p) {
-    var lv = Number(p.level) || 1, r = realmOf(lv);
-    return E('span', {
-      className: 'level-badge realm-' + r,
-      'aria-label': REALM_LABEL[r] + ' ' + lv
-    },
-      S('realm-name', REALM_LABEL[r]),
-      S('realm-lv', String(lv))
+    var lv = Number(p.level) || 1, r = realmOf(lv), guide = badmintonGuideOf(lv);
+    var label = REALM_LABEL[r] + '，程度 ' + lv + '。' + guide.text;
+    return E('span', { className: 'level-badge-wrap', title: guide.range + '級・' + guide.text },
+      E('span', {
+        className: 'level-badge realm-' + r, tabIndex: 0, role: 'img', 'aria-label': label
+      },
+        S('realm-name', REALM_LABEL[r]),
+        S('realm-lv', String(lv))
+      ),
+      E('span', { className: 'realm-tooltip', 'aria-hidden': 'true' },
+        S('realm-tooltip-title', guide.range + '級・羽球判讀'),
+        S('realm-tooltip-text', guide.text))
     );
   }
 
