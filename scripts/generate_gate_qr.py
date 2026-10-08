@@ -69,6 +69,20 @@ def generate_standard_qr(code, date_text, output_path):
     canvas.save(output_path)
     return canvas, output_path
 
+def generate_qr_only(code, output_path):
+    """產生給網頁自動 fallback 使用的純 QR 資產（不含日期文字）。"""
+    qr = qrcode.QRCode(
+        version=3,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(code)
+    qr.make(fit=True)
+    qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGB")
+    qr_img.save(output_path)
+    return qr_img, output_path
+
 def generate_talisman_qr(code, date_text, date_display, output_path):
     """落雲宗 · 仙門通行玉令精裝版（符合宗門設計規範）"""
     qr = qrcode.QRCode(
@@ -199,7 +213,7 @@ if __name__ == "__main__":
     parser.add_argument("--date", default="2026/09/25", help="標註日期 (格式: YYYY/MM/DD 或 YYYY-MM-DD)")
     parser.add_argument("--display-date", default="9/25 (五)", help="簡要顯示日期 (如: 9/25 (五))")
     parser.add_argument("--output", default="qrcode_20260925.png", help="輸出圖片檔名")
-    parser.add_argument("--style", choices=["talisman", "standard"], default="talisman", help="風格: talisman(仙門通行玉令精裝版) 或 standard(標準黑白版)")
+    parser.add_argument("--style", choices=["talisman", "standard", "qr-only"], default="talisman", help="風格: talisman(仙門通行玉令精裝版)、standard(標準黑白版) 或 qr-only(網頁純 QR 資產)")
     parser.add_argument("--apply-db", action="store_true", help="是否自動同步寫入 data/club.sqlite")
     parser.add_argument("--db-path", default="data/club.sqlite", help="資料庫路徑")
     args = parser.parse_args()
@@ -207,9 +221,12 @@ if __name__ == "__main__":
     if args.style == "talisman":
         img, path = generate_talisman_qr(args.code, args.date, args.display_date, args.output)
         print(f"已成功產出「落雲宗 · 仙門通行玉令」：{path}")
-    else:
+    elif args.style == "standard":
         img, path = generate_standard_qr(args.code, args.date, args.output)
         print(f"已成功產出標準黑白門禁 QR Code：{path}")
+    else:
+        img, path = generate_qr_only(args.code, args.output)
+        print(f"已成功產出網頁純 QR 資產：{path}")
 
     if args.apply_db:
         apply_to_database(args.db_path, args.date, args.display_date, path)

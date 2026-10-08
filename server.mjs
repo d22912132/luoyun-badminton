@@ -34,6 +34,7 @@ export function createApp({ dataDir = process.env.DATA_DIR || resolve(root, 'dat
     'yunmeng-light-v1.jpg', 'yunmeng-light-small-v1.jpg'
   ];
   const backgrounds = new Map(bgNames.map(name => ['/assets/' + name, readFileSync(resolve(root, 'public/assets', name))]));
+  const gateQr = readFileSync(resolve(root, 'public/gate-qr.png'));
   const tailwindCssPath = resolve(root, 'public/tailwind.css');
   const tailwindCss = existsSync(tailwindCssPath) ? readFileSync(tailwindCssPath) : null;
   const server = http.createServer(async (req, res) => {
@@ -56,6 +57,14 @@ export function createApp({ dataDir = process.env.DATA_DIR || resolve(root, 'dat
       res.writeHead(200, { 'Content-Type': ct, 'Content-Length': image.length,
         'Cache-Control': 'public, max-age=31536000, immutable', 'X-Content-Type-Options': 'nosniff' });
       return res.end(req.method === 'HEAD' ? undefined : image);
+    }
+    if (url.pathname === '/gate-qr.png') {
+      if (!['GET', 'HEAD'].includes(req.method)) {
+        res.writeHead(405, { Allow: 'GET, HEAD' }); return res.end();
+      }
+      res.writeHead(200, { 'Content-Type': 'image/png', 'Content-Length': gateQr.length,
+        'Cache-Control': 'public, max-age=3600', 'X-Content-Type-Options': 'nosniff' });
+      return res.end(req.method === 'HEAD' ? undefined : gateQr);
     }
     if (url.pathname !== '/api/calendar') return handler(req, res);
     const year = Number(url.searchParams.get('year'));

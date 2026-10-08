@@ -782,6 +782,21 @@
   function nowISO() { return new Date().toISOString(); }
   function pad2(n) { return ('0' + n).slice(-2); }
   function todayKey() { var d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+  var DEFAULT_GATE_QR = '/gate-qr.png';
+  var GATE_QR_MAX_AGE = 3 * 86400000;
+  /* ponytail: 提供的產生器固定門禁編碼，日期是顯示／檔名；球館換碼時替換 public/gate-qr.png。 */
+  function gateQrOf(ev) {
+    if (!ev) return '';
+    if (ev.date) {
+      var stamp = Date.parse(String(ev.date).replace(/\//g, '-') + 'T23:59:59+08:00');
+      if (Number.isFinite(stamp) && stamp < Date.now() - GATE_QR_MAX_AGE) return '';
+    }
+    return ev.gateQr || DEFAULT_GATE_QR;
+  }
+  function gateQrDateOf(ev) {
+    if (!ev) return '';
+    return String(ev.gateQr ? (ev.gateQrDate || ev.dateText || ev.date) : (ev.date || ev.dateText || ev.gateQrDate || '')).replace(/-/g, '/');
+  }
   function displayEventDate(iso) {
     var m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
     if (!m) return '';
@@ -2048,7 +2063,7 @@
           D('flex flex-wrap items-center gap-2',
             E('h3', { className: 'disp brush truncate text-[20px] font-bold leading-tight ' + T1 }, ev.title),
             E('span', { className: 'tier ' + status.tone }, status.label),
-            (ev.gateQr || ev.gateQrDate) ? E('span', { className: 'tier inline-flex items-center gap-1 text-[var(--gold)] border-[rgba(201,169,97,.3)] bg-[rgba(201,169,97,.08)]' }, E(Icon, { name: 'QrCode', size: 11 }), '門禁碼') : null),
+            gateQrOf(ev) ? E('span', { className: 'tier inline-flex items-center gap-1 text-[var(--gold)] border-[rgba(201,169,97,.3)] bg-[rgba(201,169,97,.08)]' }, E(Icon, { name: 'QrCode', size: 11 }), '門禁碼') : null),
           D('mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5',
             metaLine('Clock', ev.startTime + '–' + ev.endTime),
             metaLine('MapPin', ev.place),
@@ -2163,9 +2178,9 @@
         E(Btn, { variant: 'ghost', icon: 'ChevronLeft', onClick: function () { p.setOpenEventId(null); } }, '返回佈告欄'),
         D('flex flex-wrap items-center gap-1.5',
           E(Btn, {
-            variant: (ev.gateQr || ev.gateQrDate) ? 'soft' : 'ghost', size: 'sm', icon: 'QrCode',
+            variant: gateQrOf(ev) ? 'soft' : 'ghost', size: 'sm', icon: 'QrCode',
             onClick: function () { p.setModal({ type: 'gateQr', ev: ev }); }
-          }, ev.gateQrDate ? '門禁碼 (' + ev.gateQrDate + ')' : (ev.gateQr ? '門禁QRCode' : (p.isAdmin ? '設定門禁碼' : '門禁QRCode'))),
+          }, gateQrOf(ev) ? '門禁碼 (' + gateQrDateOf(ev) + ')' : '門禁碼'),
           p.isAdmin ? D('flex items-center gap-1',
             E(Btn, {
               variant: 'ghost', size: 'sm', icon: 'CopyPlus',
@@ -4153,8 +4168,9 @@
   function GateQrModal(p) {
     var ev = p.modal.ev;
     var fileInputRef = useRef(null);
-    var qrData = ev.gateQr || '';
-    var qrDate = ev.gateQrDate || ev.dateText || ev.date || '';
+    var qrData = gateQrOf(ev);
+    var qrDate = gateQrDateOf(ev);
+    var autoQr = !!qrData && !ev.gateQr;
     var fullBrightnessState = useState(false), fullBright = fullBrightnessState[0], setFullBright = fullBrightnessState[1];
 
     function handleFile(file) {
@@ -4177,8 +4193,8 @@
       sub: ev.title + '・' + ev.place,
       onClose: p.close,
       footer: [
-        p.isAdmin && qrData ? E(Btn, { key: 'del', variant: 'ghost', icon: 'Trash2', onClick: clearQr }, '清除') : null,
-        p.isAdmin ? E(Btn, { key: 'up', variant: 'outline', icon: 'Upload', onClick: function () { fileInputRef.current && fileInputRef.current.click(); } }, qrData ? '更換圖片' : '上傳QRCode') : null,
+        p.isAdmin && ev.gateQr ? E(Btn, { key: 'del', variant: 'ghost', icon: 'Trash2', onClick: clearQr }, '清除自訂 QR') : null,
+        p.isAdmin ? E(Btn, { key: 'up', variant: 'outline', icon: 'Upload', onClick: function () { fileInputRef.current && fileInputRef.current.click(); } }, ev.gateQr ? '更換自訂 QR' : '使用自訂 QR') : null,
         qrData ? E('a', {
           key: 'dl',
           href: qrData,
@@ -4204,15 +4220,18 @@
           E('img', {
             src: qrData, alt: '門禁QRCode',
             className: 'max-h-[350px] max-w-[270px] object-contain select-none rounded-lg'
-          })
+          }),
+          D('mt-2 text-center',
+            E('strong', { className: 'disp block text-sm ' + (fullBright ? 'text-black' : T1) }, '門禁QRCode'),
+            E('span', { className: 'mt-0.5 block text-xs ' + (fullBright ? 'text-gray-700' : T3) }, '(日期：' + (qrDate || '依活動日期') + ')'))
         ) : D('flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--hair-2)] p-10 text-center',
           E(Icon, { name: 'QrCode', size: 48, className: 'text-[var(--mist-3)] mb-3 opacity-60' }),
-          E('p', { className: 'disp font-semibold ' + T1 }, '尚未設定門禁碼'),
-          E('p', { className: 'mt-1 text-xs ' + T3 }, p.isAdmin ? '長老可點擊下方「上傳QRCode」選取球館門禁截圖。' : '請等候掌門或長老上傳當日門禁QRCode。')
+          E('p', { className: 'disp font-semibold ' + T1 }, '此活動的門禁碼已過期'),
+          E('p', { className: 'mt-1 text-xs ' + T3 }, p.isAdmin ? '若球館已換碼，請使用下方「使用自訂 QR」更新。' : '請向掌門或長老確認最新門禁碼。')
         ),
         qrData ? D('mt-2 flex items-center gap-2 text-center text-xs ' + (fullBright ? 'text-gray-700' : T3),
           E(Icon, { name: 'Info', size: 14, className: 'shrink-0 text-[var(--gold)]' }),
-          S('', '感應提示：請對準球館閘門條碼機掃描入場。')) : null
+          S('', autoQr ? '系統已依活動日期自動產生，不需上傳；請對準球館閘門條碼機掃描入場。' : '此活動使用自訂門禁 QR，請對準球館閘門條碼機掃描入場。')) : null
       ));
   }
 
@@ -4667,7 +4686,7 @@
           }))),
         E(Field, { label: p.modal.duplicate ? '新活動日期（必填）' : '活動日期' },
           E('input', {
-            type: 'date', value: f.date || '', onChange: function (ev) { var value = ev.target.value; setF(function (old) { return Object.assign({}, old, { date: value, dateText: displayEventDate(value) }); }); },
+            type: 'date', value: f.date || '', onChange: function (ev) { var value = ev.target.value; setF(function (old) { return Object.assign({}, old, { date: value, dateText: displayEventDate(value), gateQrDate: old.gateQr ? old.gateQrDate : value }); }); },
             className: INPUT, 'data-copy-date': p.modal.duplicate ? 'true' : undefined
           })),
         E(Field, { label: '場地面數' },
@@ -4701,13 +4720,14 @@
           D('flex items-center justify-between gap-2 mb-3',
             D('flex items-center gap-2',
               E(Icon, { name: 'QrCode', size: 16, className: 'text-[var(--jade-3)]' }),
-              E('span', { className: 'text-sm font-semibold ' + T1 }, '場館門禁 QR Code（選填）')
+              E('span', { className: 'text-sm font-semibold ' + T1 }, '門禁 QR Code（系統自動產生）')
             ),
             f.gateQr ? E(Btn, {
               variant: 'danger', size: 'sm', icon: 'Trash2',
               onClick: function () { up('gateQr', ''); }
             }, '清除 QR 碼') : null
           ),
+          E('p', { className: 'mb-3 text-[11px] leading-relaxed ' + T3 }, '不必逐場上傳：未設定自訂圖片時，前台會直接使用系統門禁 QR，並依本場活動日期顯示。只有球館換碼時才需要上傳自訂 QR。'),
           D('grid grid-cols-1 sm:grid-cols-2 gap-3',
             E(Field, { label: 'QR 碼有效日期' },
               E('input', {

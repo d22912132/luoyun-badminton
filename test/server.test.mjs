@@ -74,6 +74,15 @@ test('shared club: authentication, permissions, persistence, validation and conf
     assert.equal(css.status, 200);
     assert.equal(css.headers.get('content-type'), 'text/css; charset=utf-8');
     assert.equal((await fetch(base + '/assets/server.mjs')).status, 404);
+    const gateQr = await fetch(base + '/gate-qr.png');
+    assert.equal(gateQr.status, 200);
+    assert.equal(gateQr.headers.get('content-type'), 'image/png');
+    const gateQrBytes = Buffer.from(await gateQr.arrayBuffer());
+    assert.equal(gateQrBytes.subarray(0, 8).toString('hex'), '89504e470d0a1a0a');
+    const gateQrHead = await fetch(base + '/gate-qr.png', { method: 'HEAD' });
+    assert.equal(gateQrHead.status, 200);
+    assert.equal(Number(gateQrHead.headers.get('content-length')), gateQrBytes.length);
+    assert.equal((await fetch(base + '/gate-qr.png', { method: 'POST' })).status, 405);
   });
   await t.test('first setup requires a secret and secure password; no second setup', async () => {
     assert.equal((await request('/api/setup', { ...owner, token: 'wrong' })).status, 403);

@@ -696,6 +696,22 @@
     return E.apply(null, ['span', Object.assign({}, extra, { className: cls })].concat(k));
   }
 
+  var DEFAULT_GATE_QR = '/gate-qr.png';
+  var GATE_QR_MAX_AGE = 3 * 86400000;
+  /* ponytail: 與後台共用提供腳本的固定門禁編碼；日期僅作活動標示。 */
+  function gateQrOf(ev) {
+    if (!ev) return '';
+    if (ev.date) {
+      var stamp = Date.parse(String(ev.date).replace(/\//g, '-') + 'T23:59:59+08:00');
+      if (Number.isFinite(stamp) && stamp < Date.now() - GATE_QR_MAX_AGE) return '';
+    }
+    return ev.gateQr || DEFAULT_GATE_QR;
+  }
+  function gateQrDateOf(ev) {
+    if (!ev) return '';
+    return String(ev.gateQr ? (ev.gateQrDate || ev.dateText || ev.date) : (ev.date || ev.dateText || ev.gateQrDate || '')).replace(/-/g, '/');
+  }
+
   /* 極細精準 Lucide 圖示 */
   function Icon(props) {
     var set = (window.lucide && window.lucide.icons) || {};
@@ -3320,7 +3336,7 @@
               )
               : S('disp text-xs sm:text-sm font-bold text-[var(--mist-1)] truncate max-w-[120px] sm:max-w-[200px]',
                 (activeEvent && activeEvent.title) || '戰術大板'),
-              activeEvent && activeEvent.gateQr ? E('button', {
+              gateQrOf(activeEvent) ? E('button', {
                 type: 'button', onClick: function () { setQrModal(true); },
                 className: 'btn inline-flex items-center gap-1 rounded-full border border-[rgba(201,169,97,.4)] bg-[rgba(201,169,97,.12)] px-2 py-0.5 text-[10px] font-bold text-[var(--gold)]',
                 title: '出示門禁碼'
@@ -3596,8 +3612,8 @@
             D('mt-1 flex items-center gap-3 text-xs text-[var(--mist-3)]',
               E(Icon, { name: 'MapPin', size: 13, className: 'text-[var(--jade-500)]' }),
               S('', (activeEvent && activeEvent.place) || '仙山羽球館'),
-              /* 入場門禁通行碼按鈕：僅在有 gateQr 時顯示（落雲宗仙門金令風格） */
-              activeEvent && activeEvent.gateQr ? E('button', {
+              /* 入場門禁通行碼按鈕：自動 QR 與自訂 QR 都可直接出示 */
+              gateQrOf(activeEvent) ? E('button', {
                 type: 'button',
                 onClick: function () { setQrModal(true); },
                 className: 'btn qi inline-flex items-center gap-1.5 rounded-full border border-[rgba(201,169,97,.36)] bg-[linear-gradient(180deg,rgba(201,169,97,.16),rgba(201,169,97,.04))] px-3 py-1 text-xs font-bold text-[var(--gold)] hover:border-[rgba(201,169,97,.6)] hover:bg-[linear-gradient(180deg,rgba(201,169,97,.24),rgba(201,169,97,.08))] shadow-[0_4px_14px_-4px_rgba(201,169,97,.3)] transition',
@@ -4197,7 +4213,7 @@
       ) : null,
 
       /* 仙門通行玉令（門禁 QR Code）全螢幕彈窗 */
-      qrModal && activeEvent && activeEvent.gateQr ? D('fixed inset-0 z-50 flex items-center justify-center ' + (qrBright ? 'bg-black/95' : 'bg-black/85') + ' p-4 backdrop-blur-md transition-colors',
+      qrModal && gateQrOf(activeEvent) ? D('fixed inset-0 z-50 flex items-center justify-center ' + (qrBright ? 'bg-black/95' : 'bg-black/85') + ' p-4 backdrop-blur-md transition-colors',
         { onClick: function (e) { if (e.target === e.currentTarget) { setQrModal(false); setQrBright(false); } } },
         D('bezel max-w-sm w-full transition-all ' + (qrBright ? 'scale-105' : ''),
           D('core surface p-5 shadow-2xl flex flex-col items-center gap-3.5 ' + (qrBright ? 'bg-white text-black border-4 border-[var(--gold)]' : ''),
@@ -4221,7 +4237,7 @@
                 }, E(Icon, { name: 'X', size: 17 }))
               )
             ),
-            S('text-xs ' + (qrBright ? 'text-gray-600 font-medium' : 'text-[var(--mist-2)]') + ' text-center tracking-wide', '出示此印即可通過仙門結界（球館閘機）'),
+            S('text-xs ' + (qrBright ? 'text-gray-600 font-medium' : 'text-[var(--mist-2)]') + ' text-center tracking-wide', activeEvent.gateQr ? '此活動使用自訂門禁 QR，出示此印即可通過球館閘機' : '系統依活動日期自動產生，出示此印即可通過球館閘機'),
             
             /* QR Code 仙門靈印托盤（帶雷射掃描光束與呼吸流光） */
             D('talisman-frame p-2.5 shadow-2xl flex items-center justify-center ' + (qrBright ? 'border-amber-400' : ''),
@@ -4233,7 +4249,7 @@
               D('talisman-corner left-1.5 bottom-1.5 border-l-2 border-b-2'),
               D('talisman-corner right-1.5 bottom-1.5 border-r-2 border-b-2'),
               E('img', {
-                src: activeEvent.gateQr,
+                src: gateQrOf(activeEvent),
                 alt: '仙門通行玉令',
                 className: 'object-contain select-none max-h-[350px] max-w-[270px] rounded-lg'
               })
@@ -4242,14 +4258,14 @@
             /* 活動與日期資訊 */
             D('text-center',
               S('disp block font-bold text-sm ' + (qrBright ? 'text-black' : 'text-[var(--mist-1)]'), activeEvent.title || '今日球場'),
-              S('block text-[11px] ' + (qrBright ? 'text-gray-600' : 'text-[var(--mist-3)]') + ' mt-0.5 font-mono', (activeEvent.gateQrDate || activeEvent.dateText || '') + '・掃碼進場')
+              S('block text-[11px] ' + (qrBright ? 'text-gray-600' : 'text-[var(--mist-3)]') + ' mt-0.5 font-mono', '日期：' + gateQrDateOf(activeEvent) + '・掃碼進場')
             ),
 
             /* 操作按鈕組：保存玉令 + 知悉收令 */
             D('w-full flex items-center gap-2 mt-1',
               E('a', {
-                href: activeEvent.gateQr,
-                download: (activeEvent.title || '仙門通行玉令') + '_' + (activeEvent.gateQrDate || activeEvent.dateText || 'gate_qr').replace(/[^a-zA-Z0-9_\-\u4e00-\u9fa5]/g, '_') + '.png',
+                href: gateQrOf(activeEvent),
+                download: (activeEvent.title || '仙門通行玉令') + '_' + (gateQrDateOf(activeEvent) || 'gate_qr').replace(/[^a-zA-Z0-9_\-\u4e00-\u9fa5]/g, '_') + '.png',
                 className: 'btn flex-1 flex items-center justify-center gap-1.5 rounded-full py-2 text-xs font-bold transition ' + (qrBright ? 'bg-gray-100 hover:bg-gray-200 text-black border border-gray-300' : 'border border-[rgba(201,169,97,.4)] bg-[rgba(201,169,97,.12)] text-[var(--gold)] hover:bg-[rgba(201,169,97,.22)]')
               }, E(Icon, { name: 'Download', size: 13 }), '保存玉令'),
               E('button', {
