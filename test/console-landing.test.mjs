@@ -35,3 +35,15 @@ test('羽球程度 1–10 會對應完整修為境界', () => {
   assert.match(boardHtml, /REALM_LABEL = \{.*fusion: '合體期'.*tribulation: '渡劫'/s);
   assert.match(landingHtml, /k:'tribulation',label:'渡劫'/);
 });
+
+test('修為徽章保留動態玉令視覺並覆蓋九境', () => {
+  const consoleHtml = readFileSync(new URL('../console.html', import.meta.url), 'utf8');
+  const boardHtml = readFileSync(new URL('../board.html', import.meta.url), 'utf8');
+  for (const html of [consoleHtml, boardHtml]) {
+    assert.match(html, /\.level-badge::before/);
+    assert.match(html, /level-realm-border/);
+    for (const realm of ['qi', 'foundation', 'golden', 'nascent', 'transcendent', 'refined', 'fusion', 'mahayana', 'tribulation']) {
+      assert.match(html, new RegExp(`\\.level-badge\\.realm-${realm} \\{`));
+    }
+  }
+});
