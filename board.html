@@ -284,9 +284,8 @@
   @keyframes level-realm-aura { 50% { box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 0 22px -5px var(--realm-glow); } }
   @keyframes level-realm-sheen { 0%,68% { transform: translateX(-145%); opacity: 0; } 76% { opacity: .72; } 100% { transform: translateX(145%); opacity: 0; } }
   .level-badge-wrap { position: relative; display: inline-flex; vertical-align: middle; z-index: 0; }
-  .level-badge-wrap:hover, .level-badge-wrap:focus-within { z-index: 40; }
+  .level-badge-wrap:hover { z-index: 40; }
   .level-badge { cursor: help; }
-  .level-badge:focus-visible { outline: 2px solid var(--realm-b); outline-offset: 3px; }
   .level-badge-wrap .realm-tooltip {
     position: absolute; left: 50%; bottom: calc(100% + .65rem); z-index: 60;
     width: min(19rem, calc(100vw - 2rem)); padding: .7rem .8rem;
@@ -298,7 +297,7 @@
     transition: opacity .18s var(--ease), transform .18s var(--ease);
   }
   .level-badge-wrap .realm-tooltip::after { content: ''; position: absolute; left: 50%; bottom: -6px; width: 10px; height: 10px; border-right: 1px solid color-mix(in srgb, var(--realm-b) 48%, transparent); border-bottom: 1px solid color-mix(in srgb, var(--realm-b) 48%, transparent); background: #0b1719; transform: translateX(-50%) rotate(45deg); }
-  .level-badge-wrap:hover .realm-tooltip, .level-badge-wrap:focus-within .realm-tooltip { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  .level-badge-wrap:hover .realm-tooltip { opacity: 1; transform: translate(-50%, 0) scale(1); }
   .realm-tooltip-title { display: block; margin-bottom: .2rem; color: var(--realm-text); font: 700 11px 'Noto Serif TC', Georgia, serif; letter-spacing: .05em; }
   .realm-tooltip-text { display: block; color: #dbece3; }
   @media (prefers-reduced-motion: reduce) {
@@ -895,7 +894,7 @@
     var label = REALM_LABEL[r] + '，程度 ' + lv + '。' + guide.text;
     return E('span', { className: 'level-badge-wrap', title: guide.range + '級・' + guide.text },
       E('span', {
-        className: 'level-badge realm-' + r, tabIndex: 0, role: 'img', 'aria-label': label
+        className: 'level-badge realm-' + r, role: 'img', 'aria-label': label
       },
         S('realm-name', REALM_LABEL[r]),
         S('realm-lv', String(lv))
