@@ -10,7 +10,7 @@
 | `_14.jpg` | 主畫面：上排場地＋休息區，下排排隊池 | **要這個版面關係** |
 | `_7.jpg` | 配置頁：場數、場地名稱、上場球員 | 要這些設定項 |
 | `_17.jpg` | 功能按鈕 modal | 要語音測試、計時重置、場數 +1/−1 |
-| `_3.jpg` | 12 級顏色分級 | **不要**，本專案用 level 1–8 |
+| `_3.jpg` | 12 級顏色分級 | **不要**，本專案用 level 1–10 |
 | 其餘 | 四分頁流程（設定/資料庫/配置/開始） | **不要**，名冊由 console.html 管 |
 
 ---
@@ -84,8 +84,8 @@ announcedAt、announcedCourt、updatedAt
   有樂觀鎖，舊版本會被伺服器拒絕。不要繞過它直接 fetch
 
 # 球員資料模型
-nickname / gender（male|female）/ level（整數 1–8）/ status（入陣|觀望|候補）
-注意 level 上限是 8，不是附圖 App 的 12。
+nickname / gender（male|female）/ level（整數 1–10）/ status（入陣|觀望|候補）
+注意 level 上限是 10，不是附圖 App 的 12。
 
 # 通用禁則
 - 不要修改 board.html、console.html、index.html

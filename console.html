@@ -627,6 +627,22 @@
     pointer-events: none;
     z-index: 5;
   }
+  .level-badge.realm-refined { --tc:#99f6e4; --tb:rgba(45,212,191,.45); --th:rgba(20,184,166,.18); --tl:rgba(20,184,166,.04); }
+  .level-badge.realm-refined .realm-lv { background:rgba(20,184,166,.32); color:#ecfffb; }
+  .level-badge.realm-fusion { --tc:#bfdbfe; --tb:rgba(96,165,250,.45); --th:rgba(59,130,246,.18); --tl:rgba(59,130,246,.04); }
+  .level-badge.realm-fusion .realm-lv { background:rgba(59,130,246,.32); color:#eff6ff; }
+  .level-badge.realm-mahayana { --tc:#fecdd3; --tb:rgba(244,114,182,.48); --th:rgba(225,29,72,.18); --tl:rgba(225,29,72,.04); }
+  .level-badge.realm-mahayana .realm-lv { background:rgba(225,29,72,.32); color:#fff1f2; }
+  .level-badge.realm-tribulation { --tc:#fed7aa; --tb:rgba(248,113,113,.55); --th:rgba(185,28,28,.22); --tl:rgba(185,28,28,.05); box-shadow:0 0 8px rgba(239,68,68,.35); }
+  .level-badge.realm-tribulation .realm-lv { background:rgba(185,28,28,.38); color:#fff7ed; }
+  html[data-theme="light"] .level-badge.realm-refined { --tc:#0f766e; --tb:rgba(13,148,136,.46); --th:rgba(20,184,166,.16); --tl:rgba(20,184,166,.03); }
+  html[data-theme="light"] .level-badge.realm-refined .realm-lv { background:rgba(13,148,136,.2); color:#134e4a; }
+  html[data-theme="light"] .level-badge.realm-fusion { --tc:#1d4ed8; --tb:rgba(37,99,235,.46); --th:rgba(59,130,246,.14); --tl:rgba(59,130,246,.03); }
+  html[data-theme="light"] .level-badge.realm-fusion .realm-lv { background:rgba(37,99,235,.2); color:#1e3a8a; }
+  html[data-theme="light"] .level-badge.realm-mahayana { --tc:#be123c; --tb:rgba(225,29,72,.46); --th:rgba(244,63,94,.14); --tl:rgba(244,63,94,.03); }
+  html[data-theme="light"] .level-badge.realm-mahayana .realm-lv { background:rgba(225,29,72,.2); color:#881337; }
+  html[data-theme="light"] .level-badge.realm-tribulation { --tc:#9a3412; --tb:rgba(194,65,12,.5); --th:rgba(234,88,12,.16); --tl:rgba(234,88,12,.03); box-shadow:0 1px 3px rgba(154,52,18,.22); }
+  html[data-theme="light"] .level-badge.realm-tribulation .realm-lv { background:rgba(194,65,12,.2); color:#7c2d12; }
 </style>
 
 </head>
@@ -738,10 +754,21 @@
   ];
   function statusMeta(k) { for (var i = 0; i < STATUSES.length; i++) if (STATUSES[i].k === k) return STATUSES[i]; return STATUSES[0]; }
 
-  /* 程度 1–8 對應五個境界；8 級採最高境界，避免區間重疊。 */
+  /* 程度 1–10 對應九個境界；數字程度仍保留在名冊與配對邏輯中。 */
   var TIER_STYLE = {high:{ '--tc':'var(--gold)','--tb':'rgba(201,169,97,.30)','--th':'rgba(201,169,97,.16)','--tl':'rgba(201,169,97,.04)'},mid:{ '--tc':'var(--jade-300)','--tb':'rgba(155,195,174,.26)','--th':'rgba(155,195,174,.13)','--tl':'rgba(155,195,174,.03)'},low:{ '--tc':'var(--mist-2)','--tb':'rgba(228,235,232,.14)','--th':'rgba(228,235,232,.08)','--tl':'rgba(228,235,232,.02)'},warn:{ '--tc':'var(--cinnabar)','--tb':'rgba(208,122,108,.30)','--th':'rgba(208,122,108,.15)','--tl':'rgba(208,122,108,.04)'}};
-  function realmOf(lv) { lv=Number(lv)||1; return lv>=8?'transcendent':lv>=7?'nascent':lv>=5?'golden':lv>=3?'foundation':'qi'; }
-  var REALM_LABEL={qi:'練氣',foundation:'築基',golden:'結丹',nascent:'元嬰',transcendent:'化神'};
+  function realmOf(lv) { lv=Number(lv)||1; return lv>=10?'tribulation':lv>=9?'mahayana':lv>=8?'fusion':lv>=7?'refined':lv>=6?'transcendent':lv>=5?'nascent':lv>=4?'golden':lv>=3?'foundation':'qi'; }
+  var REALM_LABEL={qi:'練氣期',foundation:'築基期',golden:'結丹期',nascent:'元嬰期',transcendent:'化神期',refined:'煉虛期',fusion:'合體期',mahayana:'大乘期',tribulation:'渡劫'};
+  var REALM_INFO={
+    qi:{range:'1–2', meaning:'能吸納並運轉靈氣，但本質仍是凡人，與常人壽元相去不遠。'},
+    foundation:{range:'3', meaning:'靈氣轉為永久根基，修仙從興趣變成一條路，開始辟穀。'},
+    golden:{range:'4', meaning:'根基凝成金丹，宗門開始與你談條件而不是收編你，壽元數百年。'},
+    nascent:{range:'5', meaning:'金丹孕出元嬰，肉身毀了元嬰仍在，多數小說的大反派落在這裡。'},
+    transcendent:{range:'6', meaning:'元嬰與肉身開始合一，已經不太算人，壽元達千年級。'},
+    refined:{range:'7', meaning:'以虛空煉己，長篇小說也少有細寫。'},
+    fusion:{range:'8', meaning:'神與體合為不可分的一體，「受傷」的定義開始改變。'},
+    mahayana:{range:'9', meaning:'凡界最後一層，一切都指向同一個出口。'},
+    tribulation:{range:'10', meaning:'引動天劫，渡過即飛升，渡不過通常屍骨無存。'}
+  };
   var REALM_STYLE={qi:{'--realm-a':'#8FBFAF','--realm-b':'#D5E7DC','--realm-c':'#3D6555','--realm-text':'#CDE9DA','--realm-glow':'rgba(155,195,174,.65)','--realm-speed':'8s'},foundation:{'--realm-a':'#88AEBB','--realm-b':'#C7E2EA','--realm-c':'#3F6875','--realm-text':'#C9E5ED','--realm-glow':'rgba(129,183,200,.65)','--realm-speed':'10s'},golden:{'--realm-a':'#C9A961','--realm-b':'#F1DCA5','--realm-c':'#79602D','--realm-text':'#F3DFAB','--realm-glow':'rgba(201,169,97,.72)','--realm-speed':'14s'},nascent:{'--realm-a':'#9E8FC0','--realm-b':'#D1C7EA','--realm-c':'#57486E','--realm-text':'#DCD2F5','--realm-glow':'rgba(158,143,192,.7)','--realm-speed':'18s'},transcendent:{'--realm-a':'#D6B55E','--realm-b':'#FFF0B7','--realm-c':'#99743B','--realm-text':'#FFF0BA','--realm-glow':'rgba(222,187,93,.85)','--realm-speed':'24s'}};
   var GENDER = {
     male: { label: '男', style: { '--tc': 'var(--male-text)', '--tb': 'var(--male-border)', '--th': 'var(--male-high)', '--tl': 'var(--male-low)' } },
@@ -1710,8 +1737,9 @@
 
     var FILTERS = [
       { k: 'all', label: '全部' }, { k: 'male', label: '男' }, { k: 'female', label: '女' },
-      { k: 'qi', label: '練氣' }, { k: 'foundation', label: '築基' }, { k: 'golden', label: '結丹' },
-      { k: 'nascent', label: '元嬰' }, { k: 'transcendent', label: '化神' }
+      { k: 'qi', label: '練氣期' }, { k: 'foundation', label: '築基期' }, { k: 'golden', label: '結丹期' },
+      { k: 'nascent', label: '元嬰期' }, { k: 'transcendent', label: '化神期' }, { k: 'refined', label: '煉虛期' },
+      { k: 'fusion', label: '合體期' }, { k: 'mahayana', label: '大乘期' }, { k: 'tribulation', label: '渡劫' }
     ];
     function match(m, kk) {
       if (kk === 'all') return true;
@@ -4506,9 +4534,9 @@
   }
 
   function LevelPick(props) {
-    var nums = [1, 2, 3, 4, 5, 6, 7, 8];
+    var nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     return D('flex flex-col gap-3',
-      D('grid grid-cols-8 gap-1.5', nums.map(function (n) {
+      D('grid grid-cols-5 gap-1.5 sm:grid-cols-10', nums.map(function (n) {
         var on = Number(props.value) === n;
         return E('button', {
           key: n, onClick: function () { props.onPick(n); },
@@ -4522,7 +4550,16 @@
       })),
       E('p', { className: 'text-[12px] ' + T3 },
         '目前境界：', S('disp font-semibold ' + JADE, REALM_LABEL[realmOf(Number(props.value))]),
-        '　（1–2 練氣・3–4 築基・5–6 結丹・7 元嬰・8 化神）'));
+        '　（' + Object.keys(REALM_INFO).map(function (key) { return REALM_INFO[key].range + ' ' + REALM_LABEL[key]; }).join('・') + '）'),
+      E('details', { className: 'rounded-2xl border border-[var(--hair-2)] bg-[rgba(255,255,255,.02)] px-3.5 py-2.5' },
+        E('summary', { className: 'cursor-pointer select-none py-1 text-[12px] font-semibold ' + T2 }, '展開境界說明'),
+        D('mt-2 grid gap-2 text-[11px] leading-relaxed ' + T3,
+          Object.keys(REALM_INFO).map(function (key) {
+            var info = REALM_INFO[key];
+            return D('flex items-start gap-2', { key: key },
+              S('shrink-0 font-semibold ' + JADE, info.range + ' ' + REALM_LABEL[key]),
+              S('', info.meaning));
+          }))));
   }
 
   function StatusPick(props) {
@@ -4832,7 +4869,7 @@
             })),
           E(Btn, { variant: 'outline', size: 'sm', icon: 'CheckCheck', onClick: selectAll }, '全選 / 取消')),
         D('flex flex-wrap gap-1.5',
-          [['all', '全部'], ['qi', '練氣'], ['foundation', '築基'], ['golden', '結丹'], ['nascent', '元嬰'], ['transcendent', '化神']].map(function (t) {
+          [['all', '全部'], ['qi', '練氣期'], ['foundation', '築基期'], ['golden', '結丹期'], ['nascent', '元嬰期'], ['transcendent', '化神期'], ['refined', '煉虛期'], ['fusion', '合體期'], ['mahayana', '大乘期'], ['tribulation', '渡劫']].map(function (t) {
             var on = tier === t[0];
             return E('button', {
               key: t[0], onClick: function () { setTier(t[0]); },

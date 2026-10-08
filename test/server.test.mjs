@@ -103,7 +103,9 @@ test('shared club: authentication, permissions, persistence, validation and conf
   await t.test('member creation, duplicate validation and event limits', async () => {
     memberId = (await act('saveMember', { row: { nickname: '測試弟子', gender: 'female', level: 5, referrer: '私人備註' } })).body.resultId;
     await act('saveMember', { row: { nickname: '測試弟子', gender: 'female', level: 5 } }, ownerCookie, 400);
-    await act('saveMember', { row: { nickname: 'bad', gender: 'female', level: 9 } }, ownerCookie, 400);
+    await act('saveMember', { row: { nickname: 'bad', gender: 'female', level: 11 } }, ownerCookie, 400);
+    const tribulationId = (await act('saveMember', { row: { nickname: '渡劫測試', gender: 'male', level: 10 } })).body.resultId;
+    assert.equal(state.members.find(m => m.id === tribulationId).level, 10);
     const row = { title: '測試活動', date: '2099-09-30', dateText: '9/30 (三)', startTime: '10:00', endTime: '12:00', place: '測試場館', courts: 2, fee: 200, note: '' };
     await act('saveEvent', { row: { ...row, courts: -1 } }, ownerCookie, 400);
     await act('saveEvent', { row: { ...row, courts: 1.5 } }, ownerCookie, 400);

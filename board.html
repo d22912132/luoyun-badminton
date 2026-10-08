@@ -671,6 +671,22 @@
     pointer-events: none;
     z-index: 5;
   }
+  .level-badge.realm-refined { --tc:#99f6e4; --tb:rgba(45,212,191,.45); --th:rgba(20,184,166,.18); --tl:rgba(20,184,166,.04); }
+  .level-badge.realm-refined .realm-lv { background:rgba(20,184,166,.32); color:#ecfffb; }
+  .level-badge.realm-fusion { --tc:#bfdbfe; --tb:rgba(96,165,250,.45); --th:rgba(59,130,246,.18); --tl:rgba(59,130,246,.04); }
+  .level-badge.realm-fusion .realm-lv { background:rgba(59,130,246,.32); color:#eff6ff; }
+  .level-badge.realm-mahayana { --tc:#fecdd3; --tb:rgba(244,114,182,.48); --th:rgba(225,29,72,.18); --tl:rgba(225,29,72,.04); }
+  .level-badge.realm-mahayana .realm-lv { background:rgba(225,29,72,.32); color:#fff1f2; }
+  .level-badge.realm-tribulation { --tc:#fed7aa; --tb:rgba(248,113,113,.55); --th:rgba(185,28,28,.22); --tl:rgba(185,28,28,.05); box-shadow:0 0 8px rgba(239,68,68,.35); }
+  .level-badge.realm-tribulation .realm-lv { background:rgba(185,28,28,.38); color:#fff7ed; }
+  html[data-theme="light"] .level-badge.realm-refined { --tc:#0f766e; --tb:rgba(13,148,136,.46); --th:rgba(20,184,166,.16); --tl:rgba(20,184,166,.03); }
+  html[data-theme="light"] .level-badge.realm-refined .realm-lv { background:rgba(13,148,136,.2); color:#134e4a; }
+  html[data-theme="light"] .level-badge.realm-fusion { --tc:#1d4ed8; --tb:rgba(37,99,235,.46); --th:rgba(59,130,246,.14); --tl:rgba(59,130,246,.03); }
+  html[data-theme="light"] .level-badge.realm-fusion .realm-lv { background:rgba(37,99,235,.2); color:#1e3a8a; }
+  html[data-theme="light"] .level-badge.realm-mahayana { --tc:#be123c; --tb:rgba(225,29,72,.46); --th:rgba(244,63,94,.14); --tl:rgba(244,63,94,.03); }
+  html[data-theme="light"] .level-badge.realm-mahayana .realm-lv { background:rgba(225,29,72,.2); color:#881337; }
+  html[data-theme="light"] .level-badge.realm-tribulation { --tc:#9a3412; --tb:rgba(194,65,12,.5); --th:rgba(234,88,12,.16); --tl:rgba(234,88,12,.03); box-shadow:0 1px 3px rgba(154,52,18,.22); }
+  html[data-theme="light"] .level-badge.realm-tribulation .realm-lv { background:rgba(194,65,12,.2); color:#7c2d12; }
 </style>
 </head>
 <body>
@@ -917,8 +933,8 @@
   }
 
   /* 境界與修為 */
-  function realmOf(lv) { lv = Number(lv) || 1; return lv >= 8 ? 'transcendent' : lv >= 7 ? 'nascent' : lv >= 5 ? 'golden' : lv >= 3 ? 'foundation' : 'qi'; }
-  var REALM_LABEL = { qi: '練氣', foundation: '築基', golden: '結丹', nascent: '元嬰', transcendent: '化神' };
+  function realmOf(lv) { lv = Number(lv) || 1; return lv >= 10 ? 'tribulation' : lv >= 9 ? 'mahayana' : lv >= 8 ? 'fusion' : lv >= 7 ? 'refined' : lv >= 6 ? 'transcendent' : lv >= 5 ? 'nascent' : lv >= 4 ? 'golden' : lv >= 3 ? 'foundation' : 'qi'; }
+  var REALM_LABEL = { qi: '練氣期', foundation: '築基期', golden: '結丹期', nascent: '元嬰期', transcendent: '化神期', refined: '煉虛期', fusion: '合體期', mahayana: '大乘期', tribulation: '渡劫' };
   var REALM_STYLE = {
     qi: { '--tc': '#CDE9DA', '--tb': 'rgba(155,195,174,.26)', '--th': 'rgba(155,195,174,.13)', '--tl': 'rgba(155,195,174,.03)' },
     foundation: { '--tc': '#C9E5ED', '--tb': 'rgba(129,183,200,.26)', '--th': 'rgba(129,183,200,.13)', '--tl': 'rgba(129,183,200,.03)' },

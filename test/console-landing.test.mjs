@@ -22,3 +22,16 @@ test('門禁 QR 沒有自訂圖片時會依活動日期自動顯示', () => {
   assert.match(boardHtml, /var DEFAULT_GATE_QR = '\/gate-qr\.png'/);
   assert.match(boardHtml, /src: gateQrOf\(activeEvent\)/);
 });
+
+test('羽球程度 1–10 會對應完整修為境界', () => {
+  const consoleHtml = readFileSync(new URL('../console.html', import.meta.url), 'utf8');
+  const boardHtml = readFileSync(new URL('../board.html', import.meta.url), 'utf8');
+  const landingHtml = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  assert.match(consoleHtml, /lv>=10\?'tribulation'/);
+  assert.match(consoleHtml, /qi:'練氣期'.*foundation:'築基期'.*golden:'結丹期'.*nascent:'元嬰期'.*transcendent:'化神期'.*refined:'煉虛期'.*fusion:'合體期'.*mahayana:'大乘期'.*tribulation:'渡劫'/s);
+  assert.match(consoleHtml, /var REALM_INFO=/);
+  assert.match(consoleHtml, /var nums = \[1, 2, 3, 4, 5, 6, 7, 8, 9, 10\]/);
+  assert.match(boardHtml, /lv >= 10 \? 'tribulation'/);
+  assert.match(boardHtml, /REALM_LABEL = \{.*fusion: '合體期'.*tribulation: '渡劫'/s);
+  assert.match(landingHtml, /k:'tribulation',label:'渡劫'/);
+});

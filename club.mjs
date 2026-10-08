@@ -30,7 +30,7 @@ function member(row) {
   if (!row || typeof row !== 'object') reject('名冊資料格式不正確');
   if (!['male', 'female'].includes(row.gender)) reject('請選擇性別');
   return { nickname: text(row.nickname, '暱稱', 80), gender: row.gender,
-    level: number(row.level, '程度', 1, 8), referrer: text(row.referrer ?? '', '備註', 500, true) };
+    level: number(row.level, '程度', 1, 10), referrer: text(row.referrer ?? '', '備註', 500, true) };
 }
 function lineupData(raw) {
   if (!raw || typeof raw !== 'object') return null;
@@ -117,7 +117,7 @@ function intent(row) {
   if (!['male', 'female'].includes(row.gender)) reject('請選擇性別');
   if (!['going', 'maybe', 'wait'].includes(row.status)) reject('報名狀態不正確');
   return { nickname: text(row.nickname, '暱稱', 80), gender: row.gender,
-    level: number(row.level, '程度', 1, 8), status: row.status,
+    level: number(row.level, '程度', 1, 10), status: row.status,
     note: text(row.note ?? '', '留言', 300, true) };
 }
 function account(row) {
