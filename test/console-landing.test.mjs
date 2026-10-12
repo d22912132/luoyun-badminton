@@ -12,15 +12,35 @@ test('console preloads the full rite and starts it only after its ready signal',
   assert.match(html, /window\.addEventListener\('message', onRiteDone\)/);
 });
 
-test('門禁 QR 沒有自訂圖片時會依活動日期自動顯示', () => {
+test('內建門禁 QR 只在當月有效，過月就不給圖', () => {
   const consoleHtml = readFileSync(new URL('../console.html', import.meta.url), 'utf8');
   const boardHtml = readFileSync(new URL('../board.html', import.meta.url), 'utf8');
-  assert.match(consoleHtml, /var DEFAULT_GATE_QR = '\/gate-qr\.png'/);
-  assert.match(consoleHtml, /function gateQrOf\(ev\)/);
-  assert.match(consoleHtml, /系統已依活動日期自動產生，不需上傳/);
-  assert.match(consoleHtml, /門禁 QR Code（系統自動產生）/);
-  assert.match(boardHtml, /var DEFAULT_GATE_QR = '\/gate-qr\.png'/);
-  assert.match(boardHtml, /src: gateQrOf\(activeEvent\)/);
+  const MONTH_KEY = "var DEFAULT_GATE_QR_MONTH = '";
+
+  for (const [name, html] of [['console.html', consoleHtml], ['board.html', boardHtml]]) {
+    assert.ok(html.includes("var DEFAULT_GATE_QR = '/gate-qr.png'"), name + ' 要有內建門禁圖');
+    assert.ok(html.includes('function gateQrOf(ev)'), name + ' 要有 gateQrOf');
+    // 球館每月換碼；少了月份守門，過期的碼會被當成有效的發出去
+    assert.ok(html.includes('function defaultGateQrFresh(ev)'), name + ' 要有月份守門');
+    assert.ok(html.includes("return defaultGateQrFresh(ev) ? DEFAULT_GATE_QR : '';"),
+      name + ' 要先問過月份才可以退回內建圖');
+    assert.ok(!html.includes('return ev.gateQr || DEFAULT_GATE_QR;'),
+      name + ' 不可以略過月份判斷直接退回內建圖');
+  }
+
+  const monthOf = html => html.split(MONTH_KEY)[1].slice(0, 7);
+  const consoleMonth = monthOf(consoleHtml);
+  assert.equal(consoleMonth.length, 7, 'DEFAULT_GATE_QR_MONTH 應為 YYYY-MM');
+  assert.equal(consoleMonth.charAt(4), '-', 'DEFAULT_GATE_QR_MONTH 應為 YYYY-MM');
+  assert.equal(monthOf(boardHtml), consoleMonth,
+    '兩頁的門禁碼月份必須一致，否則只會有一邊顯示');
+
+  assert.ok(boardHtml.includes('src: gateQrOf(activeEvent)'), 'board 仍以 gateQrOf 取圖');
+
+  // 文案不要再寫成「依活動日期自動產生」——碼是球館每月發的，不是算出來的
+  assert.ok(!consoleHtml.includes('系統已依活動日期自動產生'), '舊的誤導文案應已移除');
+  assert.ok(consoleHtml.includes('月公用門禁碼，不需上傳'), '說明要標出是哪個月的公用碼');
+  assert.ok(consoleHtml.includes('門禁 QR Code（系統內建公用碼・'), '表單標題要標出月份');
 });
 
 test('羽球程度 1–10 會對應完整修為境界', () => {

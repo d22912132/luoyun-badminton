@@ -646,14 +646,26 @@
 
   var DEFAULT_GATE_QR = '/gate-qr.png';
   var GATE_QR_MAX_AGE = 3 * 86400000;
-  /* ponytail: 與後台共用提供腳本的固定門禁編碼；日期僅作活動標示。 */
+  /* 與後台共用同一張公用門禁碼；球館每月換碼，所以要認月份。
+     換月時連同 console.html 的 DEFAULT_GATE_QR_MONTH 一起改。 */
+  var DEFAULT_GATE_QR_MONTH = '2026-10';
+  function monthOfEvent(ev) {
+    var m = String((ev && ev.date) || '').split('/').join('-').slice(0, 7);
+    return (m.length === 7 && m.charAt(4) === '-') ? m : '';
+  }
+  function defaultGateQrFresh(ev) {
+    var now = new Date();
+    var thisMonth = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2);
+    return (monthOfEvent(ev) || thisMonth) === DEFAULT_GATE_QR_MONTH;
+  }
   function gateQrOf(ev) {
     if (!ev) return '';
     if (ev.date) {
       var stamp = Date.parse(String(ev.date).replace(/\//g, '-') + 'T23:59:59+08:00');
       if (Number.isFinite(stamp) && stamp < Date.now() - GATE_QR_MAX_AGE) return '';
     }
-    return ev.gateQr || DEFAULT_GATE_QR;
+    if (ev.gateQr) return ev.gateQr;
+    return defaultGateQrFresh(ev) ? DEFAULT_GATE_QR : '';
   }
   function gateQrDateOf(ev) {
     if (!ev) return '';

@@ -756,14 +756,26 @@
   function todayKey() { var d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
   var DEFAULT_GATE_QR = '/gate-qr.png';
   var GATE_QR_MAX_AGE = 3 * 86400000;
-  /* ponytail: 提供的產生器固定門禁編碼，日期是顯示／檔名；球館換碼時替換 public/gate-qr.png。 */
+  /* 球館每月換一次門禁碼，public/gate-qr.png 只在這個月有效。換月時三處要一起更新：
+     圖檔本身、scripts/generate_gate_qr.py 的 GATE_PASS_CODE，以及下面的月份。
+     沒更新就寧可不給圖——帶著過期的碼走到閘機前刷不過，比沒有碼更糟。 */
+  var DEFAULT_GATE_QR_MONTH = '2026-10';
+  function monthOfEvent(ev) {
+    var m = String((ev && ev.date) || '').split('/').join('-').slice(0, 7);
+    return (m.length === 7 && m.charAt(4) === '-') ? m : '';
+  }
+  function defaultGateQrFresh(ev) {
+    /* 活動沒填日期時，以今天所在月份判斷 */
+    return (monthOfEvent(ev) || todayKey().slice(0, 7)) === DEFAULT_GATE_QR_MONTH;
+  }
   function gateQrOf(ev) {
     if (!ev) return '';
     if (ev.date) {
       var stamp = Date.parse(String(ev.date).replace(/\//g, '-') + 'T23:59:59+08:00');
       if (Number.isFinite(stamp) && stamp < Date.now() - GATE_QR_MAX_AGE) return '';
     }
-    return ev.gateQr || DEFAULT_GATE_QR;
+    if (ev.gateQr) return ev.gateQr;
+    return defaultGateQrFresh(ev) ? DEFAULT_GATE_QR : '';
   }
   function gateQrDateOf(ev) {
     if (!ev) return '';
@@ -4209,7 +4221,7 @@
         ),
         qrData ? D('mt-2 flex items-center gap-2 text-center text-xs ' + (fullBright ? 'text-gray-700' : T3),
           E(Icon, { name: 'Info', size: 14, className: 'shrink-0 text-[var(--gold)]' }),
-          S('', autoQr ? '系統已依活動日期自動產生，不需上傳；請對準球館閘門條碼機掃描入場。' : '此活動使用自訂門禁 QR，請對準球館閘門條碼機掃描入場。')) : null
+          S('', autoQr ? ('此為球館 ' + DEFAULT_GATE_QR_MONTH.replace('-', ' 年 ') + ' 月公用門禁碼，不需上傳；請對準球館閘門條碼機掃描入場。') : '此活動使用自訂門禁 QR，請對準球館閘門條碼機掃描入場。')) : null
       ));
   }
 
@@ -4707,14 +4719,14 @@
           D('flex items-center justify-between gap-2 mb-3',
             D('flex items-center gap-2',
               E(Icon, { name: 'QrCode', size: 16, className: 'text-[var(--jade-3)]' }),
-              E('span', { className: 'text-sm font-semibold ' + T1 }, '門禁 QR Code（系統自動產生）')
+              E('span', { className: 'text-sm font-semibold ' + T1 }, ('門禁 QR Code（系統內建公用碼・' + DEFAULT_GATE_QR_MONTH.replace('-', ' 年 ') + ' 月）'))
             ),
             f.gateQr ? E(Btn, {
               variant: 'danger', size: 'sm', icon: 'Trash2',
               onClick: function () { up('gateQr', ''); }
             }, '清除 QR 碼') : null
           ),
-          E('p', { className: 'mb-3 text-[11px] leading-relaxed ' + T3 }, '不必逐場上傳：未設定自訂圖片時，前台會直接使用系統門禁 QR，並依本場活動日期顯示。只有球館換碼時才需要上傳自訂 QR。'),
+          E('p', { className: 'mb-3 text-[11px] leading-relaxed ' + T3 }, ('不必逐場上傳：未設定自訂圖片時，前台會套用系統內建的球館公用門禁碼（' + DEFAULT_GATE_QR_MONTH.replace('-', ' 年 ') + ' 月）。球館每月換碼，活動若不在該月份，前台不會顯示 QR，請改上傳當月自訂圖片。')),
           D('grid grid-cols-1 sm:grid-cols-2 gap-3',
             E(Field, { label: 'QR 碼有效日期' },
               E('input', {
