@@ -67,43 +67,43 @@
     color-scheme: dark;
   }
 
-  /* 淺色模式：宣紙沉香、青碧冷玉 */
+  /* 淺色模式：宣紙沉香、青碧冷玉高對比 */
   html[data-theme="light"] {
-    --ink-0: #E8E0D1;
-    --ink-1: #F3EDE1;
-    --ink-2: #DED4C3;
-    --mist-1: #24382F;
-    --mist-2: #4A6056;
-    --mist-3: #4F665C;
-    --jade-100: #174737;
-    --jade-300: #2E7055;
-    --jade-500: #477E65;
-    --jade-700: #285C48;
+    --ink-0: #EDE6D8;
+    --ink-1: #F5EFE3;
+    --ink-2: #E2D7C3;
+    --mist-1: #162822;
+    --mist-2: #384F45;
+    --mist-3: #566D63;
+    --jade-100: #134636;
+    --jade-300: #1E664E;
+    --jade-500: #388467;
+    --jade-700: #1B4E3C;
     --jade-900: #DBE2D6;
-    --gold: #8C651C;
-    --gold-dim: #6A4B13;
-    --cinnabar: #A64E41;
-    --cinnabar-dim: #7C372E;
-    --amethyst: #66558D;
-    --hair: rgba(76,65,45,.16);
-    --hair-2: rgba(57,82,68,.27);
-    --sheen: rgba(255,252,244,.56);
-    --male-text: #285F73;
-    --male-border: rgba(40,95,115,.28);
-    --male-high: rgba(75,145,167,.18);
-    --male-low: rgba(75,145,167,.07);
-    --female-text: #8B4960;
-    --female-border: rgba(139,73,96,.27);
-    --female-high: rgba(180,104,129,.17);
-    --female-low: rgba(180,104,129,.06);
+    --gold: #7E5710;
+    --gold-dim: #63430A;
+    --cinnabar: #B23829;
+    --cinnabar-dim: #842519;
+    --amethyst: #58437D;
+    --hair: rgba(60, 48, 30, 0.18);
+    --hair-2: rgba(45, 68, 55, 0.32);
+    --sheen: rgba(255, 252, 244, 0.72);
+    --male-text: #1F5264;
+    --male-border: rgba(31, 82, 100, 0.32);
+    --male-high: rgba(55, 125, 147, 0.20);
+    --male-low: rgba(55, 125, 147, 0.08);
+    --female-text: #7D3B52;
+    --female-border: rgba(125, 59, 82, 0.30);
+    --female-high: rgba(165, 89, 114, 0.19);
+    --female-low: rgba(165, 89, 114, 0.07);
 
     --court-bg: radial-gradient(ellipse at 50% 50%, #1c6651 0%, #124738 100%);
-    --court-line: rgba(255, 255, 255, 0.92);
-    --court-line-sub: rgba(255, 255, 255, 0.65);
-    --court-border: rgba(31, 107, 85, 0.4);
+    --court-line: rgba(255, 255, 255, 0.94);
+    --court-line-sub: rgba(255, 255, 255, 0.68);
+    --court-border: rgba(31, 107, 85, 0.45);
 
-    --surface-overlay: rgba(246, 240, 228, 0.97);
-    --surface-sunken: rgba(234, 225, 208, 0.75);
+    --surface-overlay: rgba(247, 242, 232, 0.98);
+    --surface-sunken: rgba(234, 225, 208, 0.85);
 
     color-scheme: light;
   }
@@ -315,11 +315,37 @@
     .animate-pulse, .animate-bounce { animation: none; }
   }
 
-  /* 按鈕手感 */
+  /* 按鈕手感與靈氣微動態反饋 (Auric Ripple) */
   .btn {
+    position: relative;
+    overflow: hidden;
     transition: transform .3s var(--ease), background .3s var(--ease), border-color .3s var(--ease), box-shadow .3s var(--ease);
   }
   .btn:active:not(:disabled) { transform: scale(.975); }
+  .btn::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    background: radial-gradient(circle at center, rgba(155, 195, 174, 0.35) 0%, rgba(155, 195, 174, 0) 70%);
+    opacity: 0; transform: scale(0.3);
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease-out;
+  }
+  .btn:active::after {
+    opacity: 1; transform: scale(1.6); transition: 0s;
+  }
+  html[data-theme="light"] .btn::after {
+    background: radial-gradient(circle at center, rgba(46, 112, 85, 0.3) 0%, rgba(46, 112, 85, 0) 70%);
+  }
+  /* 仙門朱砂金印印章 (Talisman Seal Stamp) */
+  .card-stamp {
+    position: absolute; right: 1.25rem; top: 1.25rem; pointer-events: none;
+    border: 2px solid rgba(208, 122, 108, 0.65); background: rgba(208, 122, 108, 0.08); color: #E28A7C;
+    border-radius: 8px; padding: 0.15rem 0.5rem; font-size: 11px; font-weight: 700; letter-spacing: 0.2em;
+    transform: rotate(12deg) scale(0.95); box-shadow: 0 0 12px rgba(208, 122, 108, 0.25), inset 0 0 6px rgba(208, 122, 108, 0.2);
+    font-family: 'LXGW WenKai TC', 'Noto Serif TC', serif;
+  }
+  html[data-theme="light"] .card-stamp {
+    border-color: rgba(178, 56, 41, 0.8); background: rgba(178, 56, 41, 0.08); color: #9C2618;
+    box-shadow: 0 0 10px rgba(178, 56, 41, 0.2), inset 0 0 6px rgba(178, 56, 41, 0.15);
+  }
 
   /* ---------------- 碧玉演武場 (Jade Court) ---------------- */
   .badminton-court {
@@ -638,13 +664,25 @@
   .sword-qr-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; border-radius: 8px; }
   .sword-qr-wrap.is-fallback { width: auto; aspect-ratio: auto; }
   .sword-qr-wrap.is-fallback .sword-qr-host { display: none; }
-  .sword-qr-wrap.is-fallback .sword-qr-img { position: static; width: auto; height: auto; max-height: 350px; max-width: 270px; }
+  .entry-portal{
+    position:fixed;left:50%;top:46%;z-index:90;width:min(68vmin,26rem);height:min(68vmin,26rem);pointer-events:none;opacity:0;
+    border:1.5px solid rgba(155,195,174,.55);border-radius:50%;
+    background:radial-gradient(circle,rgba(201,169,97,.2) 0 3%,rgba(155,195,174,.16) 4% 9%,transparent 10% 24%,rgba(155,195,174,.15) 25% 27%,transparent 28% 42%,rgba(201,169,97,.2) 43% 45%,transparent 46%);
+    box-shadow:0 0 4.5rem rgba(155,195,174,.35),inset 0 0 3.5rem rgba(201,169,97,.18);
+    animation:portal-open 1.6s var(--ease) both;
+  }
+  .entry-portal::before,.entry-portal::after{content:"";position:absolute;border-radius:50%;inset:2.2rem;border:1.5px dashed rgba(201,169,97,.5)}
+  .entry-portal::after{inset:5.2rem;border-style:solid;border-color:rgba(127,214,160,.65);box-shadow:0 0 20px rgba(127,214,160,.3);animation:orbit 6s linear infinite}
+  @keyframes portal-open{0%{opacity:0;transform:translate3d(-50%,-50%,0) scale(.38) rotate(-35deg)}28%{opacity:.96}68%{opacity:.45;transform:translate3d(-50%,-50%,0) scale(1.1) rotate(22deg)}100%{opacity:0;transform:translate3d(-50%,-50%,0) scale(1.32) rotate(35deg)}}
+  @keyframes orbit{to{transform:rotate(360deg)}}
   @media (prefers-reduced-motion: reduce) {
-    .talisman-frame::after, .talisman-scanner-beam { animation: none; }
+    .talisman-frame::after, .talisman-scanner-beam, .entry-portal, .entry-portal::after { animation: none; }
+    .entry-portal { display: none; }
   }
 </style>
 </head>
 <body>
+<div class="entry-portal" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 <div id="root" class="relative z-10 min-h-screen"></div>
 
@@ -4379,6 +4417,8 @@
 
   function start() {
     var rootEl = document.getElementById('root');
+    var portal = document.querySelector('.entry-portal');
+    if (portal) portal.addEventListener('animationend', function (ev) { if (ev.target === portal && ev.animationName === 'portal-open' && portal.parentNode) portal.parentNode.removeChild(portal); });
     if (ReactDOM.createRoot) {
       ReactDOM.createRoot(rootEl).render(E(BoardApp));
     } else {
