@@ -13,6 +13,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lucide@1.41.0/dist/umd/lucide.min.js"></script>
+<!-- 門禁 QR 飛劍劍陣；jsQR 只在打開門禁彈窗時才延遲載入。 -->
+<script defer src="/sword-qr.js"></script>
 <script>
   (function(){try{var p=(new URLSearchParams(location.search)).get('theme');var t=p||localStorage.getItem('luoyun-theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='dark';}})();
 </script>
@@ -127,6 +129,11 @@
                 radial-gradient(ellipse at 50% 48%, rgba(6,17,20,.44), transparent 76%);
   }
   html[data-theme="light"] body::before { background-image: url('/assets/yunmeng-light-v1.jpg'); }
+  /* 窄螢幕改用直式小圖：瀏覽器只下載最後算出的那張，手機不必再抓橫式大圖 */
+  @media (max-width: 640px) {
+    body::before { background-image: url('/assets/yunmeng-dark-small-v1.jpg'); background-position: 22% center; }
+    html[data-theme="light"] body::before { background-image: url('/assets/yunmeng-light-small-v1.jpg'); }
+  }
   html[data-theme="light"] body::after {
     background: linear-gradient(180deg, rgba(243,237,224,.28), rgba(235,229,212,.45)),
                 radial-gradient(ellipse at 50% 48%, rgba(247,242,231,.66), transparent 80%);
@@ -304,6 +311,8 @@
   @media (prefers-reduced-motion: reduce) {
     .level-badge, .level-badge::before, .level-badge::after { animation: none; }
     .level-badge-wrap .realm-tooltip { transition: none; }
+    /* Tailwind 的無限循環提示（呼吸燈、跳動）在減少動態時也停下 */
+    .animate-pulse, .animate-bounce { animation: none; }
   }
 
   /* 按鈕手感 */
@@ -367,7 +376,7 @@
     border-radius: 14px;
     background: rgba(10, 24, 20, 0.4);
     backdrop-filter: blur(4px);
-    transition: all .25s var(--ease);
+    transition: border-color .25s var(--ease), background-color .25s var(--ease), transform .25s var(--ease), box-shadow .25s var(--ease), opacity .25s var(--ease);
     display: flex; flex-direction: column; justify-content: space-between;
     padding: .65rem .85rem;
     cursor: pointer;
@@ -393,8 +402,8 @@
     background: linear-gradient(180deg, rgba(20, 44, 38, 0.94), rgba(11, 26, 22, 0.90));
     border: 1px solid rgba(155, 195, 174, 0.35);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 8px 18px -4px rgba(0, 0, 0, 0.45);
-    backdrop-filter: blur(8px);
-    transition: all .25s var(--ease);
+    /* 底色已近乎不透明，backdrop-filter 看不出差別卻會在 hover／拖曳位移時每幀重算模糊，故不再使用 */
+    transition: border-color .25s var(--ease), background-color .25s var(--ease), transform .25s var(--ease), box-shadow .25s var(--ease), opacity .25s var(--ease);
     display: flex; flex-direction: column; justify-content: space-between;
     padding: .65rem .85rem;
     cursor: grab;
@@ -559,7 +568,7 @@
     height: 4px;
     border-radius: 9999px;
     background-color: rgba(228, 235, 232, 0.28);
-    transition: all 0.2s ease;
+    transition: width 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
   }
   .board-resizer-bar:hover .board-resizer-handle, .board-resizer-bar:active .board-resizer-handle {
     width: 84px;
@@ -567,50 +576,52 @@
     box-shadow: 0 0 10px rgba(201, 169, 97, 0.6);
   }
 
-  /* ---------------- 仙門通行玉令動態特效 (Talisman & Scanner FX) ---------------- */
+  /* ---------------- 仙門通行玉令動態特效 (Talisman & Scanner FX) ----------------
+     只動 opacity / transform：外光暈固定，呼吸流光交給 ::after 的 opacity，
+     掃描光束用 translateY，不再每幀重算 box-shadow 與 top。 */
   @keyframes talismanPulse {
-    0%, 100% {
-      box-shadow: 0 0 20px rgba(201, 169, 97, 0.25), 0 0 40px rgba(110, 158, 136, 0.15);
-      border-color: rgba(201, 169, 97, 0.45);
-    }
-    50% {
-      box-shadow: 0 0 32px rgba(201, 169, 97, 0.5), 0 0 60px rgba(75, 181, 189, 0.3);
-      border-color: rgba(201, 169, 97, 0.85);
-    }
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
   }
   @keyframes scanBeam {
-    0% {
-      top: 0%;
-      opacity: 0.15;
-    }
-    50% {
-      top: calc(100% - 3px);
-      opacity: 0.9;
-    }
-    100% {
-      top: 0%;
-      opacity: 0.15;
-    }
+    0% { transform: translateY(calc(-100% + 3px)); opacity: 0.15; }
+    50% { transform: translateY(0); opacity: 0.9; }
+    100% { transform: translateY(calc(-100% + 3px)); opacity: 0.15; }
   }
   .talisman-frame {
     position: relative;
     border-radius: 18px;
     background: #ffffff;
-    border: 2px solid rgba(201, 169, 97, 0.45);
-    animation: talismanPulse 3.6s ease-in-out infinite;
+    border: 2px solid rgba(201, 169, 97, 0.6);
+    box-shadow: 0 0 24px rgba(201, 169, 97, 0.32), 0 0 48px rgba(75, 181, 189, 0.18);
     overflow: hidden;
   }
+  .talisman-frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 2px rgba(201, 169, 97, 0.85), inset 0 0 16px rgba(75, 181, 189, 0.28);
+    opacity: 0;
+    animation: talismanPulse 3.6s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 6;
+  }
+  /* 光束圖層與外框同高，亮線畫在圖層底緣；translateY 百分比 = 框高，任何尺寸都掃到底 */
   .talisman-scanner-beam {
     position: absolute;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, transparent 0%, rgba(75, 181, 189, 0.9) 30%, rgba(201, 169, 97, 0.95) 70%, transparent 100%);
-    box-shadow: 0 0 10px rgba(75, 181, 189, 0.8), 0 0 4px rgba(201, 169, 97, 0.9);
+    inset: 0;
+    background:
+      linear-gradient(90deg, transparent 0%, rgba(75, 181, 189, 0.95) 30%, rgba(201, 169, 97, 1) 70%, transparent 100%) bottom / 100% 3px no-repeat,
+      linear-gradient(0deg, rgba(75, 181, 189, 0.30), transparent 16px) bottom / 100% 16px no-repeat;
     animation: scanBeam 2.8s ease-in-out infinite;
+    will-change: transform;
     pointer-events: none;
     z-index: 10;
   }
+  /* 飛劍劍陣就緒後由劍光取代掃描光束 */
+  .talisman-frame:has(.sword-qr-wrap.is-ready) .talisman-scanner-beam { display: none; }
+  .talisman-frame:has(.sword-qr-wrap.is-ready:not(.is-bright)) { background: #F4EEE0; }
   .talisman-corner {
     position: absolute;
     width: 14px;
@@ -618,6 +629,18 @@
     border-color: var(--gold);
     pointer-events: none;
     z-index: 5;
+  }
+
+  /* 萬劍歸宗 QR 劍陣（public/sword-qr.js） */
+  .sword-qr-wrap { position: relative; width: min(270px, 72vw); aspect-ratio: 1 / 1; }
+  .sword-qr-host { position: absolute; inset: 0; border-radius: 10px; overflow: hidden; opacity: 0; transition: opacity .35s var(--ease); }
+  .sword-qr-wrap.is-ready .sword-qr-host { opacity: 1; }
+  .sword-qr-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; border-radius: 8px; }
+  .sword-qr-wrap.is-fallback { width: auto; aspect-ratio: auto; }
+  .sword-qr-wrap.is-fallback .sword-qr-host { display: none; }
+  .sword-qr-wrap.is-fallback .sword-qr-img { position: static; width: auto; height: auto; max-height: 350px; max-width: 270px; }
+  @media (prefers-reduced-motion: reduce) {
+    .talisman-frame::after, .talisman-scanner-beam { animation: none; }
   }
 </style>
 </head>
@@ -670,6 +693,24 @@
   function gateQrDateOf(ev) {
     if (!ev) return '';
     return String(ev.gateQr ? (ev.gateQrDate || ev.dateText || ev.date) : (ev.date || ev.dateText || ev.gateQrDate || '')).replace(/-/g, '/');
+  }
+
+  /* 萬劍歸宗 QR 劍陣：由 /sword-qr.js 把門禁 QR 化為飛劍陣（與 console.html 同一份元件）。
+     解析中先顯示原圖；解析或「劍陣自檢解碼」失敗就一直顯示原圖，入場永遠不受影響。 */
+  function SwordQrSeal(p) {
+    var hostRef = useRef(null), ctlRef = useRef(null);
+    var modeState = useState('loading'), mode = modeState[0], setMode = modeState[1];
+    useEffect(function () {
+      if (!window.SwordQR || !hostRef.current) { setMode('fallback'); return; }
+      setMode('loading');
+      var ctl = window.SwordQR.create(hostRef.current, { src: p.src, bright: !!p.bright, onState: setMode });
+      ctlRef.current = ctl;
+      return function () { ctl.destroy(); ctlRef.current = null; };
+    }, [p.src]);
+    useEffect(function () { if (ctlRef.current) ctlRef.current.setBright(!!p.bright); }, [p.bright]);
+    return D('sword-qr-wrap is-' + mode + (p.bright ? ' is-bright' : ''),
+      E('div', { ref: hostRef, className: 'sword-qr-host' }),
+      mode !== 'ready' ? E('img', { src: p.src, alt: p.alt || '門禁 QR Code', className: 'sword-qr-img select-none' }) : null);
   }
 
   /* 極細精準 Lucide 圖示 */
@@ -938,6 +979,14 @@
     }, name.slice(0, 1));
   }
 
+  /* 純展示元件的 props 都是字串／數字：用 React.memo 包起來，
+     比賽計時每秒重繪、輪詢更新時，上百個圖示與境界徽章就不必重新協調 */
+  if (React.memo) {
+    Icon = React.memo(Icon);
+    LevelBadge = React.memo(LevelBadge);
+    Avatar = React.memo(Avatar);
+  }
+
   /* ---------------- 主程式 BoardApp ---------------- */
   function BoardApp() {
     var dataState = useState(null), data = dataState[0], setData = dataState[1];
@@ -1028,20 +1077,31 @@
       document.body.style.cursor = 'row-resize';
       document.body.style.userSelect = 'none';
 
-      function onPointerMove(ev) {
-        if (!isResizingRef.current || !topRowContainerRef.current) return;
+      /* pointermove 可能一幀觸發好幾次（高回報率滑鼠／觸控筆）：
+         只記下最新座標，每個畫格才量一次版面、setState 一次 */
+      var pendingY = null, rafId = 0;
+      function applyResize() {
+        rafId = 0;
+        if (!isResizingRef.current || !topRowContainerRef.current || pendingY === null) return;
         var rect = topRowContainerRef.current.getBoundingClientRect();
-        var clientY = ev.clientY;
-        if (clientY === undefined && ev.touches && ev.touches[0]) clientY = ev.touches[0].clientY;
-        if (clientY === undefined) return;
-        var offset = clientY - rect.top;
+        var offset = pendingY - rect.top;
         var pct = Math.round((offset / rect.height) * 100);
         var clamped = Math.max(35, Math.min(65, pct));
         setCourtSplitRatio(clamped);
       }
 
+      function onPointerMove(ev) {
+        if (!isResizingRef.current || !topRowContainerRef.current) return;
+        var clientY = ev.clientY;
+        if (clientY === undefined && ev.touches && ev.touches[0]) clientY = ev.touches[0].clientY;
+        if (clientY === undefined) return;
+        pendingY = clientY;
+        if (!rafId) rafId = requestAnimationFrame(applyResize);
+      }
+
       function onPointerEnd() {
         if (!isResizingRef.current) return;
+        if (rafId) { cancelAnimationFrame(rafId); rafId = 0; applyResize(); }
         isResizingRef.current = false;
         document.body.style.cursor = '';
         document.body.style.userSelect = '';
@@ -1153,23 +1213,37 @@
       setTheme(next);
     }
 
+    /* courts 每次 render 都是新陣列，若放進依賴，計時器會每秒被拆掉重建；
+       改由 ref 讀最新值，計時器只建一次。分頁隱藏時不重繪，回到前景下一秒就會追上 */
+    var courtsRef = useRef([]);
     useEffect(function () {
       var t = setInterval(function () {
-        if (courts.some(function (c) { return c.status === 'playing'; })) {
+        if (document.hidden) return;
+        if (courtsRef.current.some(function (c) { return c.status === 'playing'; })) {
           setNowTime(Date.now());
         }
       }, 1000);
       return function () { clearInterval(t); };
-    }, [courts]);
+    }, []);
 
+    /* 輪詢結果與上次一字不差時不 setData，整棵看板就不必每 3.5 秒重繪一次 */
+    var lastPublicTextRef = useRef(null);
+    var lastSessionTextRef = useRef(null);
     function refresh(includeSession) {
       if (document.hidden) return;
-      fetch('/api/public').then(function (r) { return r.json(); }).then(function (res) {
+      fetch('/api/public').then(function (r) { return r.text(); }).then(function (text) {
+        if (text === lastPublicTextRef.current) return;
+        var res = JSON.parse(text);
+        lastPublicTextRef.current = text;
         setData(res);
       }).catch(function () {});
       if (includeSession) {
         fetch('/api/session').then(function (r) { return r.json(); }).then(function (res) {
-          setMe(res.me || null);
+          var nextMe = res.me || null;
+          var key = JSON.stringify(nextMe);
+          if (key === lastSessionTextRef.current) return;
+          lastSessionTextRef.current = key;
+          setMe(nextMe);
         }).catch(function () {});
       }
     }
@@ -1203,6 +1277,7 @@
     while (courts.length < numCourts) {
       courts.push({ courtNum: courts.length + 1, status: 'idle', mode: 'balanced', teamA: [], teamB: [] });
     }
+    courtsRef.current = courts;
 
     var sortedCourts = (function () {
       if (!courtOrder || !Array.isArray(courtOrder)) return courts;
@@ -4228,11 +4303,7 @@
               D('talisman-corner right-1.5 top-1.5 border-r-2 border-t-2'),
               D('talisman-corner left-1.5 bottom-1.5 border-l-2 border-b-2'),
               D('talisman-corner right-1.5 bottom-1.5 border-r-2 border-b-2'),
-              E('img', {
-                src: gateQrOf(activeEvent),
-                alt: '仙門通行玉令',
-                className: 'object-contain select-none max-h-[350px] max-w-[270px] rounded-lg'
-              })
+              E(SwordQrSeal, { src: gateQrOf(activeEvent), bright: qrBright, alt: '仙門通行玉令' })
             ),
 
             /* 活動與日期資訊 */

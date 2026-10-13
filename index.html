@@ -65,10 +65,11 @@
     from{transform:translate3d(-2%,-1.5%,0) scale(1)}
     to{transform:translate3d(2.5%,2%,0) scale(1.08)}
   }
-  @keyframes sect-arrive{from{opacity:0;transform:translateY(14px);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
+  /* 進場只動 transform／opacity：filter:blur 套在整個 #app 上會讓整頁每幀重新光柵化 */
+  @keyframes sect-arrive{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
   @keyframes portal-open{0%{opacity:0;transform:translate(-50%,-50%) scale(.58) rotate(-28deg)}28%{opacity:.92}72%{opacity:.34;transform:translate(-50%,-50%) scale(1.06) rotate(20deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.2) rotate(32deg)}}
   @keyframes seal-flash{0%{box-shadow:0 0 0 0 rgba(155,195,174,0)}45%{box-shadow:0 0 0 7px rgba(155,195,174,.14),0 0 24px rgba(155,195,174,.28)}100%{box-shadow:0 0 0 15px rgba(155,195,174,0),0 0 0 rgba(155,195,174,0)}}
-  @keyframes scroll-unfurl{from{opacity:0;transform:translateY(22px) scaleY(.9);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
+  @keyframes scroll-unfurl{from{opacity:0;transform:translateY(22px) scaleY(.9)}to{opacity:1;transform:none}}
   @keyframes orbit{to{transform:rotate(360deg)}}
   @keyframes cloud-drift-a{from{transform:translate3d(-7%,-3%,0) scale(1)}to{transform:translate3d(7%,4%,0) scale(1.1)}}
   @keyframes cloud-drift-b{from{transform:translate3d(6%,4%,0) scale(1.08)}to{transform:translate3d(-6%,-3%,0) scale(1)}}
@@ -265,7 +266,7 @@
     border:1px solid var(--hair);font-size:.79rem;color:var(--mist-3);line-height:1.8}
   .foot strong{color:var(--mist-2)}
 
-  .event-card{position:relative;overflow:hidden;transition:border-color .3s var(--ease),box-shadow .3s var(--ease),transform .3s var(--ease);transform-origin:center}.event-card::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(18rem circle at var(--mx,50%) var(--my,20%),rgba(211,237,222,.13),transparent 38%);transition:opacity .2s var(--ease)}.event-card.reveal-wait{opacity:0;transform:translateY(22px) scaleY(.9);filter:blur(3px)}.event-card.reveal-in{animation:scroll-unfurl .44s var(--ease) both}@media (hover:hover) and (pointer:fine){.event-card.reveal-in:hover{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-3px);border-color:rgba(155,195,174,.27);box-shadow:0 24px 42px -31px rgba(0,0,0,.92),0 0 0 1px rgba(155,195,174,.08)}.event-card:hover::after{opacity:1}}.full-seal{position:absolute;right:-2.15rem;top:1.15rem;z-index:2;width:9rem;transform:rotate(38deg);overflow:hidden;padding:.26rem .5rem;text-align:center;letter-spacing:.22em;color:#382B0E;background:linear-gradient(180deg,#F0D783,#C9A961);box-shadow:0 5px 18px -8px rgba(201,169,97,.9);font:700 11px 'Noto Serif TC',serif}.full-seal::after{content:"";position:absolute;inset:0;transform:translateX(-120%);background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.72),transparent 66%);animation:seal-sweep 3.8s ease-in-out infinite}
+  .event-card{position:relative;overflow:hidden;transition:border-color .3s var(--ease),box-shadow .3s var(--ease),transform .3s var(--ease);transform-origin:center}.event-card::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(18rem circle at var(--mx,50%) var(--my,20%),rgba(211,237,222,.13),transparent 38%);transition:opacity .2s var(--ease)}.event-card.reveal-wait{opacity:0;transform:translateY(22px) scaleY(.9)}.event-card.reveal-in{animation:scroll-unfurl .44s var(--ease) backwards}@media (hover:hover) and (pointer:fine){.event-card.reveal-in:hover{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-3px);border-color:rgba(155,195,174,.27);box-shadow:0 24px 42px -31px rgba(0,0,0,.92),0 0 0 1px rgba(155,195,174,.08)}.event-card:hover::after{opacity:1}}.full-seal{position:absolute;right:-2.15rem;top:1.15rem;z-index:2;width:9rem;transform:rotate(38deg);overflow:hidden;padding:.26rem .5rem;text-align:center;letter-spacing:.22em;color:#382B0E;background:linear-gradient(180deg,#F0D783,#C9A961);box-shadow:0 5px 18px -8px rgba(201,169,97,.9);font:700 11px 'Noto Serif TC',serif}.full-seal::after{content:"";position:absolute;inset:0;transform:translateX(-120%);background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.72),transparent 66%);animation:seal-sweep 3.8s ease-in-out infinite}
   .action-row{display:flex;flex-wrap:wrap;align-items:center;gap:.55rem;margin-top:.85rem}
   .action-row .share{margin-top:0}
   .signup{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:.45rem 1rem;border:0;border-radius:999px;color:#08120e;background:linear-gradient(180deg,#A8CFBA,#6E9E88);font:700 .76rem 'Noto Sans TC',sans-serif;cursor:pointer;box-shadow:0 12px 28px -16px rgba(110,158,136,.9);transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
@@ -297,7 +298,7 @@
   .venue-extra a{color:var(--jade-300);font-weight:600;text-decoration:none}
   .masthead,#app,.foot{animation:sect-arrive .7s var(--ease) both}#app{animation-delay:.12s}.foot{animation-delay:.22s}
 
-  @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}body::before,.entry-portal,.qi-ring::before,.cloud-bank,.realm-badge::before,.realm-badge::after,.flow i::before,.flow i::after,.full-seal::after{animation:none}.realm-badge-wrap .realm-tooltip{transition:none}.entry-portal{display:none}.event-card::after{display:none}}
+  @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}body::before,.entry-portal,.entry-portal::after,.qi-ring::before,.cloud-bank,.realm-badge,.realm-badge::before,.realm-badge::after,.ro::before,.flow i::before,.flow i::after,.full-seal::after{animation:none}.realm-badge-wrap .realm-tooltip{transition:none}.entry-portal{display:none}.event-card::after{display:none}}
   .realm-refined{--realm-a:#3C7F87;--realm-b:#B6EEF0;--realm-c:#24515B;--realm-text:#C7F6F0;--realm-glow:rgba(94,208,211,.78);--realm-speed:21s;--realm-sheen:9s}.realm-fusion{--realm-a:#496C9B;--realm-b:#C8DFFF;--realm-c:#2F4168;--realm-text:#D9E8FF;--realm-glow:rgba(116,168,236,.82);--realm-speed:23s;--realm-sheen:10s}.realm-mahayana{--realm-a:#8F5367;--realm-b:#FFD2D9;--realm-c:#5B2E49;--realm-text:#FFE0E7;--realm-glow:rgba(235,137,160,.84);--realm-speed:25s;--realm-sheen:11s}.realm-tribulation{--realm-a:#8B3128;--realm-b:#FFE0A1;--realm-c:#C85B32;--realm-text:#FFE9B7;--realm-glow:rgba(239,145,78,.96);--realm-speed:27s;--realm-sheen:12s}
   .realm-badge-wrap{position:relative;display:inline-flex;vertical-align:middle;z-index:0}.realm-badge-wrap:hover,.realm-badge-wrap:focus-within{z-index:40}.realm-badge{cursor:help}.realm-badge:focus-visible{outline:2px solid var(--realm-b);outline-offset:3px}.realm-badge-wrap .realm-tooltip{position:absolute;left:50%;bottom:calc(100% + .65rem);z-index:60;width:min(19rem,calc(100vw - 2rem));padding:.7rem .8rem;border:1px solid color-mix(in srgb,var(--realm-b) 48%,transparent);border-radius:14px;background:linear-gradient(180deg,rgba(16,27,30,.98),rgba(9,17,19,.98));box-shadow:0 16px 34px -18px rgba(0,0,0,.9),0 0 22px -8px var(--realm-glow);color:#dbece3;font:500 11px/1.55 'Noto Sans TC',sans-serif;opacity:0;pointer-events:none;transform:translate(-50%,6px) scale(.96);transform-origin:bottom center;transition:opacity .18s var(--ease),transform .18s var(--ease)}.realm-badge-wrap .realm-tooltip::after{content:'';position:absolute;left:50%;bottom:-6px;width:10px;height:10px;border-right:1px solid color-mix(in srgb,var(--realm-b) 48%,transparent);border-bottom:1px solid color-mix(in srgb,var(--realm-b) 48%,transparent);background:#0b1719;transform:translateX(-50%) rotate(45deg)}.realm-badge-wrap:hover .realm-tooltip,.realm-badge-wrap:focus-within .realm-tooltip{opacity:1;transform:translate(-50%,0) scale(1)}.realm-tooltip-title{display:block;margin-bottom:.2rem;color:var(--realm-text);font:700 11px 'Noto Serif TC',Georgia,serif;letter-spacing:.05em}.realm-tooltip-text{display:block;color:#dbece3}
 </style>
@@ -1652,15 +1653,20 @@
   function revealCards() {
     var cards = Array.from(document.querySelectorAll('.event-card'));
     if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) { cards.forEach(function (x) { x.classList.add('reveal-in'); }); return; }
-    var observer = new IntersectionObserver(function (entries) { entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('reveal-in'); observer.unobserve(e.target); } }); }, { threshold:.08 });
+    var observer = new IntersectionObserver(function (entries) { entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('reveal-in'); e.target.classList.remove('reveal-wait'); observer.unobserve(e.target); } }); }, { threshold:.08 });
     cards.forEach(function (x) { x.classList.add('reveal-wait'); observer.observe(x); });
   }
-  function bindCardAura(){if(matchMedia('(prefers-reduced-motion: reduce)').matches||!matchMedia('(hover:hover) and (pointer:fine)').matches)return;document.querySelectorAll('.event-card').forEach(function(card){card.addEventListener('pointermove',function(ev){var b=card.getBoundingClientRect(),x=(ev.clientX-b.left)/b.width,y=(ev.clientY-b.top)/b.height;card.style.setProperty('--mx',(x*100)+'%');card.style.setProperty('--my',(y*100)+'%');card.style.setProperty('--rx',((.5-y)*3.2)+'deg');card.style.setProperty('--ry',((x-.5)*3.2)+'deg');});card.addEventListener('pointerleave',function(){card.style.removeProperty('--rx');card.style.removeProperty('--ry');});});}
+  /* 卡片光暈／傾斜：pointermove 只記座標，每個畫格最多量一次 rect、寫一次 CSS 變數；
+     在 rAF 開頭先讀後寫，捲動或展開名單後也不會拿到過期尺寸 */
+  function bindCardAura(){if(matchMedia('(prefers-reduced-motion: reduce)').matches||!matchMedia('(hover:hover) and (pointer:fine)').matches)return;document.querySelectorAll('.event-card').forEach(function(card){var px=0,py=0,raf=0;function paint(){raf=0;var b=card.getBoundingClientRect();if(!b.width||!b.height)return;var x=(px-b.left)/b.width,y=(py-b.top)/b.height;card.style.setProperty('--mx',(x*100)+'%');card.style.setProperty('--my',(y*100)+'%');card.style.setProperty('--rx',((.5-y)*3.2)+'deg');card.style.setProperty('--ry',((x-.5)*3.2)+'deg');}card.addEventListener('pointermove',function(ev){px=ev.clientX;py=ev.clientY;if(!raf)raf=requestAnimationFrame(paint);});card.addEventListener('pointerleave',function(){if(raf){cancelAnimationFrame(raf);raf=0;}card.style.removeProperty('--rx');card.style.removeProperty('--ry');});});}
   function animateCounters(){var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;document.querySelectorAll('.countup').forEach(function(node){var end=Number(node.dataset.countTo)||0;if(reduce){node.textContent=end;return;}var start=performance.now(),duration=320;function step(now){var t=Math.min(1,(now-start)/duration),eased=1-Math.pow(1-t,3);node.textContent=Math.round(end*eased);if(t<1)requestAnimationFrame(step);}requestAnimationFrame(step);});}
   function disclosureState(){return Array.from(document.querySelectorAll('[data-disclosure][open]')).map(function(node){return node.getAttribute('data-disclosure');});}
   function restoreDisclosures(opened){var mobile=matchMedia('(max-width:639px)').matches;document.querySelectorAll('[data-disclosure]').forEach(function(node){var key=node.getAttribute('data-disclosure'), wasOpen=opened.indexOf(key)>=0, shouldOpen=node.classList.contains('event-info')?(!mobile||wasOpen):wasOpen;if(shouldOpen)node.setAttribute('open','');else node.removeAttribute('open');});}
+  /* 輪詢只保留一個計時器：分頁切回前景時可以立刻補抓，又不會疊出第二條輪詢 */
+  var pollTimer = 0;
+  function schedule() { clearTimeout(pollTimer); pollTimer = setTimeout(render, 5000); }
   async function render() {
-    if (live && document.hidden && lastData) { setTimeout(render, 5000); return; }
+    if (live && document.hidden && lastData) { schedule(); return; }
     var app = document.getElementById('app'), stamp = document.getElementById('stamp'), data;
     try {
       if (live) {
@@ -1684,8 +1690,13 @@
     } catch (e) {
       stamp.textContent = lastData ? '連線中斷，顯示上次載入的名單；正在重試…' : '無法取得最新名單，正在重試…';
       if (!lastData) app.innerHTML = '<div class="empty" role="alert">名單暫時無法讀取，請稍後再試或聯絡管理者。</div>';
-    } finally { if (live) setTimeout(render, 5000); }
+    } finally { if (live) schedule(); }
   }
+  if (live) document.addEventListener('visibilitychange', function () { if (!document.hidden && lastData) { clearTimeout(pollTimer); render(); } });
+
+  /* 開門法陣只播一次；播完就移除，免得透明的 ::after 軌道與大陰影圖層一直留在合成器裡 */
+  var portal = document.querySelector('.entry-portal');
+  if (portal) portal.addEventListener('animationend', function (ev) { if (ev.target === portal && ev.animationName === 'portal-open' && portal.parentNode) portal.parentNode.removeChild(portal); });
 
   document.addEventListener('click', async function (ev) {
     var share = ev.target.closest('[data-event]');

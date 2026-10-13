@@ -35,6 +35,7 @@ export function createApp({ dataDir = process.env.DATA_DIR || resolve(root, 'dat
   ];
   const backgrounds = new Map(bgNames.map(name => ['/assets/' + name, readFileSync(resolve(root, 'public/assets', name))]));
   const gateQr = readFileSync(resolve(root, 'public/gate-qr.png'));
+  const swordQrJs = readFileSync(resolve(root, 'public/sword-qr.js'));
   const tailwindCssPath = resolve(root, 'public/tailwind.css');
   const tailwindCss = existsSync(tailwindCssPath) ? readFileSync(tailwindCssPath) : null;
   const server = http.createServer(async (req, res) => {
@@ -47,6 +48,14 @@ export function createApp({ dataDir = process.env.DATA_DIR || resolve(root, 'dat
       res.writeHead(200, { 'Content-Type': 'text/css; charset=utf-8', 'Content-Length': tailwindCss.length,
         'Cache-Control': 'public, max-age=3600', 'X-Content-Type-Options': 'nosniff' });
       return res.end(req.method === 'HEAD' ? undefined : tailwindCss);
+    }
+    if (url.pathname === '/sword-qr.js') {
+      if (!['GET', 'HEAD'].includes(req.method)) {
+        res.writeHead(405, { Allow: 'GET, HEAD' }); return res.end();
+      }
+      res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Content-Length': swordQrJs.length,
+        'Cache-Control': 'public, max-age=3600', 'X-Content-Type-Options': 'nosniff' });
+      return res.end(req.method === 'HEAD' ? undefined : swordQrJs);
     }
     if (backgrounds.has(url.pathname)) {
       if (!['GET', 'HEAD'].includes(req.method)) {
