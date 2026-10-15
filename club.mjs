@@ -429,10 +429,10 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
         if (!['GET', 'HEAD'].includes(req.method)) reject('不支援的請求', 405);
         // The console is now the single visitor entry point.  The original public
         // page remains available only as the animation source embedded by the console.
-        if (path === '/' || path === '/index.html') {
+        if (path === '/' || path === '/index.html' || path === '/board.html' || path === '/court.html') {
           res.writeHead(307, { Location: '/console.html' }); return res.end();
         }
-        const files = { '/console.html': 'console.html', '/board.html': 'board.html', '/court.html': 'court.html', '/rite.html': 'index.html', '/health': null };
+        const files = { '/console.html': 'console.html', '/rite.html': 'index.html', '/health': null };
         if (!Object.hasOwn(files, path)) reject('找不到頁面', 404);
         if (path === '/health') return json({ ok: true });
         let html = readHtml(files[path]);

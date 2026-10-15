@@ -40,10 +40,9 @@ test('shared club: authentication, permissions, persistence, validation and conf
     const root = await fetch(base + '/', { redirect: 'manual' });
     assert.equal(root.status, 307); assert.equal(root.headers.get('location'), '/console.html');
     const html = await fetch(base + '/console.html'); assert.match(await html.text(), /name="club-live"/);
-    const board = await fetch(base + '/board.html');
-    assert.equal(board.status, 200);
-    assert.match(board.headers.get('content-type'), /text\/html/);
-    assert.match(await board.text(), /戰術大板/);
+    const board = await fetch(base + '/board.html', { redirect: 'manual' });
+    assert.equal(board.status, 307);
+    assert.equal(board.headers.get('location'), '/console.html');
     assert.equal((await fetch(base + '/data/club.sqlite')).status, 404);
     assert.equal((await fetch(base + '/server.mjs')).status, 404);
   });

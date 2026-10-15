@@ -1176,7 +1176,7 @@
       '🚫 禁止勝負魔人：開心流汗為主，輸贏放輕鬆，殺球前看一下對面是不是新手 🙏',
       '🚫 禁止換球魔人：球還能打就別一直喊換球',
       '🏸 換球規則：所有球統一拿到團長平板旁更換，一顆舊球換一顆新球，方便統計用球量與費用，請勿自行從球筒拿新球',
-      '🔄 輪場規則：以平衡強弱或隨機為原則；要自行更動請至平板調整，一律從當前排場最後一組去調整，不要直接往前拉影響球友次序',
+      '🔄 輪場規則：以平衡強弱或隨機為原則；需要更動請先告知團長或長老，請勿自行往前插隊影響球友次序',
       '⏰ 準時報到：臨時無法到請提早告知，方便結算分攤',
       '👟 鞋款限制：為了安全請穿羽球鞋，非羽球鞋恕無法上場 🙏',
       '🗑️ 場館整潔：垃圾請自行分類處理'
@@ -1582,7 +1582,7 @@
     var g = useState(function () {
       try {
         var p = new URLSearchParams(window.location.search).get('tab');
-        if (p === 'board' || p === 'events' || p === 'members' || p === 'venues' || p === 'admins' || p === 'logs') return p;
+        if (p === 'events' || p === 'members' || p === 'venues' || p === 'admins' || p === 'logs') return p;
         return 'events';
       } catch (e) { return 'events'; }
     }), tab = g[0], setTab = g[1];
@@ -1693,7 +1693,7 @@
         if (requestEpoch !== epoch.current) return;
         version.current = publicData.version;
         setSyncLabel('公開佈告・每 5 秒更新');
-        setTab(function (curr) { return (curr === 'board' || curr === 'events') ? curr : 'events'; });
+        setTab('events');
         if (sameSnap('public:', publicData)) return;
         setMe(null);
         setState({ members: [], events: publicData.events || [], venues: publicData.venues || [], intents: [], admins: [], logs: [] });
@@ -1806,8 +1806,6 @@
       body = E(EventDetail, Object.assign({ ev: openEvent }, ctx));
     } else if (tab === 'events') {
       body = E(EventsList, ctx);
-    } else if (tab === 'board') {
-      body = E(BoardTab, ctx);
     } else if (tab === 'members') {
       body = E(MembersPage, ctx);
     } else if (tab === 'venues') {
@@ -1930,7 +1928,6 @@
   function TopBar(p) {
     var tabs = [
       { k: 'events', label: '試煉佈告', icon: 'CalendarDays' },
-      { k: 'board', label: '戰術排位', icon: 'LayoutGrid' },
       { k: 'members', label: '弟子名冊', icon: 'Users' },
       { k: 'venues', label: '洞府場館', icon: 'MapPinned' },
       { k: 'admin', label: '掌門殿', icon: 'Settings' }
@@ -1998,7 +1995,7 @@
               E(Btn, { variant: 'ghost', size: 'sm', icon: 'LogOut', onClick: p.logout }, '離殿'))
             : E(Btn, { variant: 'primary', size: 'sm', icon: 'Shield', onClick: function () { p.setModal({ type: 'login' }); } }, '入殿'))),
       D('scroll-x mx-auto flex max-w-5xl gap-1 overflow-x-auto px-4 pb-3 sm:px-6',
-        tabs.filter(function (t) { return p.isAdmin || t.k === 'events' || t.k === 'board'; }).map(function (t) {
+        tabs.filter(function (t) { return p.isAdmin || t.k === 'events'; }).map(function (t) {
           var active = p.tab === t.k && !p.openEvent;
           return E('button', {
             key: t.k,
@@ -2428,7 +2425,6 @@
   /* ---------------- event detail ---------------- */
   function EventDetail(p) {
     var ev = p.ev;
-    var tabState = useState('roster'), detailTab = tabState[0], setDetailTab = tabState[1];
     var filterState = useState('all'), rosterFilter = filterState[0], setRosterFilter = filterState[1];
     var pageState = useState(1), rosterPage = pageState[0], setRosterPage = pageState[1];
     var rosterListTop = useRef(null);
@@ -2617,27 +2613,12 @@
             E('h3', { className: 'disp text-[15px] font-semibold ' + T1 }, '門規')),
           E(RuleRows, { rules: rulesOf() }))),
 
-      /* 分頁切換：出陣名單 vs 試煉排位戰術板 */
       D('mt-8 mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-[var(--hair)] pb-3',
-        D('flex flex-wrap items-center gap-2',
-          E('button', {
-            type: 'button',
-            onClick: function () { setDetailTab('roster'); },
-            className: 'btn rounded-full px-4 py-2 text-sm font-semibold ' +
-              (detailTab === 'roster' ? 'bg-[rgba(155,195,174,.18)] text-[var(--jade-100)] border border-[rgba(155,195,174,.30)]' : T3 + ' hover:text-[var(--mist-1)] hover:bg-[rgba(228,235,232,.04)]')
-          }, E(Icon, { name: 'Users', size: 14, className: 'mr-1.5 inline' }), '出陣名單 (' + roster.length + ')'),
-          E('button', {
-            type: 'button',
-            onClick: function () { setDetailTab('lineup'); },
-            className: 'btn rounded-full px-4 py-2 text-sm font-semibold ' +
-              (detailTab === 'lineup' ? 'bg-[linear-gradient(180deg,rgba(201,169,97,.22),rgba(201,169,97,.08))] text-[var(--gold)] border border-[rgba(201,169,97,.34)]' : T3 + ' hover:text-[var(--mist-1)] hover:bg-[rgba(228,235,232,.04)]')
-          }, E(Icon, { name: 'Trophy', size: 14, className: 'mr-1.5 inline text-[var(--gold)]' }), '試煉排位戰術板 (' + ev.courts + ' 面場)')
-        )
+        E('h3', { className: 'disp text-sm font-semibold ' + T1 },
+          E(Icon, { name: 'Users', size: 14, className: 'mr-1.5 inline' }), '出陣名單 (' + roster.length + ')')
       ),
 
-      detailTab === 'lineup'
-        ? E(CourtTacticsBoard, Object.assign({}, p, { ev: ev, roster: roster, going: going }))
-        : D('',
+      D('',
             p.isAdmin ? D('mt-6 flex flex-wrap gap-2.5',
               E(Btn, {
                 variant: 'primary', icon: 'ListPlus', nub: 'ArrowRight',

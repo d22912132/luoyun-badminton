@@ -3,10 +3,8 @@ import { createHandler, seed } from './club.mjs';
 import { getOfficialCalendar, supportedCalendarYears } from './calendar.mjs';
 import indexHtml from './index.html';
 import consoleHtml from './console.html';
-import boardHtml from './board.html';
-import courtHtml from './court.html';
 
-const pages = { '/console.html': consoleHtml, '/board.html': boardHtml, '/court.html': courtHtml, '/rite.html': indexHtml };
+const pages = { '/console.html': consoleHtml, '/rite.html': indexHtml };
 const snapshot = JSON.parse(indexHtml.match(/id="snapshot">\s*([\s\S]*?)<\/script>/)[1]);
 const headers = { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store',
   'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'SAMEORIGIN', 'Referrer-Policy': 'same-origin' };
@@ -71,7 +69,8 @@ export default {
     if (path.startsWith('/api/')) return env.CLUB.get(env.CLUB.idFromName('luoyun')).fetch(request);
     if (path === '/health') return Response.json({ ok: true });
     if (!['GET', 'HEAD'].includes(request.method)) return new Response('Method not allowed', { status: 405 });
-    if (path === '/' || path === '/index.html') return new Response(null, { status: 307, headers: { ...headers, Location: '/console.html' } });
+    // 排位功能暫停公開，舊書籤一併導回佈告，保留程式與資料供後續開發。
+    if (path === '/' || path === '/index.html' || path === '/board.html' || path === '/court.html') return new Response(null, { status: 307, headers: { ...headers, Location: '/console.html' } });
     if (Object.hasOwn(pages, path)) {
       const html = pages[path].replace('<head>', '<head><meta name="club-live" content="true">')
         .replace(/(<script type="application\/json" id="snapshot">)[\s\S]*?(<\/script>)/, '$1{}$2');
