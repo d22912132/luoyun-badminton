@@ -2479,7 +2479,7 @@
     var pct = fillPct(going, cap);
     var status = eventLabel(ev, going, cap);
 
-    return E('button', {
+    var card = E('button', {
       onClick: function () { p.setOpenEventId(ev.id); },
       className: CARD + ' ' + CARD_HOVER + ' event-card group min-w-0 w-full p-5 text-left sm:p-6'
     },
@@ -2515,6 +2515,20 @@
           S('num text-[11px] font-medium ' + (over ? CIN : T3),
             over ? '超出上限 ' + (going - cap) + ' 人' : pct + '%')),
         flow(going, cap, true)));
+    if (!p.isAdmin || p.eventList !== 'history' || !eventEnded(ev)) return card;
+    return E('article', null, card,
+      D('mt-2 flex justify-end', E(Btn, {
+        variant: 'danger', size: 'sm', icon: 'Trash2', className: 'h-11',
+        ariaLabel: '刪除歷史活動：' + ev.title,
+        onClick: function () {
+          if (!p.needAdmin()) return;
+          p.setModal({
+            type: 'confirm', title: '刪除歷史活動', danger: true, ok: '確認刪除',
+            body: '將永久刪除「' + ev.dateText + ' ' + ev.title + '」與其 ' + roster.length + ' 筆出席名單，無法復原。只是不想公開的話，也可進入活動修改為草稿。確定要刪除嗎？',
+            run: function () { return p.removeEvent(ev); }
+          });
+        }
+      }, '刪除活動')));
   }
 
   /* ---------------- event detail ---------------- */

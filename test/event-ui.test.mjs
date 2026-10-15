@@ -4,6 +4,36 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const html = readFileSync(new URL('../console.html', import.meta.url), 'utf8');
+
+test('歷史卡片僅供管理者刪除，先確認才執行，且刪除按鈕不嵌在開啟按鈕內', async () => {
+  let ended = true, confirmed, deleted = 0, opened = 0, allowed = true;
+  const E = (tag, props, ...children) => ({ tag, props, children });
+  const ctx = vm.createContext({ E, D: (cls, ...children) => E('div', { className: cls }, ...children), S: () => null,
+    capacityOf: () => 7, fillPct: () => 0, eventLabel: () => ({}), eventEnded: () => ended,
+    gateQrOf: () => '', metaLine: () => null, flow: () => null,
+    CARD: '', CARD_HOVER: '', JADE: '', GOLD: '', CIN: '', T1: '', T3: '',
+    DateSeal: 'DateSeal', CapacityPill: 'CapacityPill', Icon: 'Icon', Btn: 'Btn' });
+  vm.runInContext(html.slice(html.indexOf('  function EventCard('), html.indexOf('  /* ---------------- event detail')), ctx);
+  const ev = { id: 'history-test', title: '測試活動', dateText: '10/1', roster: [{}] };
+  const p = { isAdmin: true, eventList: 'history', needAdmin: () => allowed,
+    setModal: m => { confirmed = m; }, removeEvent: async row => { assert.equal(row, ev); deleted++; return true; },
+    setOpenEventId: () => opened++ };
+  const card = ctx.EventCard({ ev, p });
+  assert.equal(card.tag, 'article');
+  assert.equal(card.children[0].tag, 'button');
+  const button = card.children[1].children[0];
+  assert.equal(button.tag, 'Btn'); assert.equal(button.props.ariaLabel, '刪除歷史活動：測試活動');
+  button.props.onClick();
+  assert.equal(deleted, 0); assert.equal(opened, 0);
+  assert.equal(confirmed.type, 'confirm'); assert.equal(confirmed.danger, true);
+  assert.match(confirmed.body, /1 筆出席名單，無法復原/);
+  await confirmed.run(); assert.equal(deleted, 1);
+  confirmed = undefined; allowed = false; button.props.onClick(); assert.equal(confirmed, undefined);
+  for (const fields of [{ isAdmin: false }, { eventList: 'upcoming' }, { eventList: 'drafts' }]) {
+    assert.equal(ctx.EventCard({ ev, p: { ...p, ...fields } }).tag, 'button');
+  }
+  ended = false; assert.equal(ctx.EventCard({ ev, p }).tag, 'button');
+});
 function rules() {
   class Clock extends Date { static now() { return Date.parse('2026-10-15T12:00:00+08:00'); } }
   const ctx = vm.createContext({ Date: Clock, URLSearchParams, location: { search: '' }, GOLD: 'gold', T3: 'muted', JADE: 'jade' });
