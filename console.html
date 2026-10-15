@@ -926,7 +926,19 @@
   function uid(p) { return p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
   function nowISO() { return new Date().toISOString(); }
   function pad2(n) { return ('0' + n).slice(-2); }
-  function todayKey() { var d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+  function todayKey() { return new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10); }
+  function eventEnded(ev) { return !!ev.date && Date.parse(ev.date + 'T' + (ev.endTime || '23:59') + ':00+08:00') < Date.now(); }
+  function eventLabel(ev, going, cap) {
+    if (ev.publication === 'draft') return { label: '草稿・尚未公開', tone: GOLD };
+    if (eventEnded(ev)) return { label: '已結束', tone: T3 };
+    return deadlineInfo(ev.signupDeadline, going, cap);
+  }
+  function readRoute() {
+    var q = new URLSearchParams(location.search), t = q.get('tab');
+    if (t === 'admins' || t === 'logs') t = 'admin';
+    return { tab: ['events', 'members', 'venues', 'admin'].indexOf(t) >= 0 ? t : 'events',
+      event: q.get('event') || null, list: ['history', 'drafts'].indexOf(q.get('list')) >= 0 ? q.get('list') : 'upcoming' };
+  }
   var DEFAULT_GATE_QR = '/gate-qr.png';
   var GATE_QR_MAX_AGE = 3 * 86400000;
   /* 球館每月換一次門禁碼，public/gate-qr.png 只在這個月有效。換月時三處要一起更新：
@@ -937,18 +949,32 @@
     var m = String((ev && ev.date) || '').split('/').join('-').slice(0, 7);
     return (m.length === 7 && m.charAt(4) === '-') ? m : '';
   }
-  function defaultGateQrFresh(ev) {
-    /* 活動沒填日期時，以今天所在月份判斷 */
-    return (monthOfEvent(ev) || todayKey().slice(0, 7)) === DEFAULT_GATE_QR_MONTH;
+  function defaultGateQrFresh(ev, venues) {
+    var venue = (venues || []).find(function (v) { return v.id === ev.venueId; }) || ev.venue;
+    return !!venue && venue.name.replace(/[－—–-]/g, '') === '亞伯林羽球館東區振興店'
+      && monthOfEvent(ev) === DEFAULT_GATE_QR_MONTH && todayKey().slice(0, 7) === DEFAULT_GATE_QR_MONTH;
   }
-  function gateQrOf(ev) {
+  function gateQrOf(ev, venues) {
     if (!ev) return '';
     if (ev.date) {
       var stamp = Date.parse(String(ev.date).replace(/\//g, '-') + 'T23:59:59+08:00');
       if (Number.isFinite(stamp) && stamp < Date.now() - GATE_QR_MAX_AGE) return '';
     }
-    if (ev.gateQr) return ev.gateQr;
-    return defaultGateQrFresh(ev) ? DEFAULT_GATE_QR : '';
+    if (ev.gateQrUnavailable) return '';
+    if (ev.gateQr) {
+      var until = String(ev.gateQrDate || ev.date || '').replace(/\//g, '-');
+      var from = String(ev.gateQrFrom || until).replace(/\//g, '-'), today = todayKey();
+      var binding = ev.gateQrVenue || ev.venueId || ev.place;
+      return from && until && from <= today && today <= until && (!ev.date || (from <= ev.date && ev.date <= until))
+        && binding === (ev.venueId || ev.place) ? ev.gateQr : '';
+    }
+    return defaultGateQrFresh(ev, venues) ? DEFAULT_GATE_QR : '';
+  }
+  function gateQrHint(ev) {
+    if (ev.gateQrUnavailable) return '自訂門禁碼尚未生效、已過期或不適用此場活動，請向長老確認。';
+    if (ev.gateQr && ev.gateQrVenue && ev.gateQrVenue !== (ev.venueId || ev.place)) return '門禁碼所屬場館與此活動不同，請重新設定。';
+    if (ev.gateQr) return '請確認門禁碼的有效起迄日包含今天及活動日期。';
+    return '尚無適用此場館與活動日期的門禁碼，請向掌門或長老確認。';
   }
   function gateQrDateOf(ev) {
     if (!ev) return '';
@@ -982,6 +1008,7 @@
     catch (e) { return iso; }
   }
   function deadlineInfo(value, going, cap) {
+    if (value && Date.now() >= Date.parse(value + ':00+08:00')) return { label: '報名已截止', tone: GOLD, closed: true };
     if (going >= cap) return { label: '已額滿', tone: GOLD, closed: true };
     return { label: '尚餘 ' + Math.max(0, cap - going) + ' 席', tone: JADE, closed: false };
   }
@@ -1185,7 +1212,7 @@
   /* 補充事項：該場專屬（用球、截止、場館提醒、導航），與門規分開 */
   function notesOf(ev) {
     if (!ev.note) return [];
-    return String(ev.note).split(/[｜|\r?\n]/).map(function (t) { return t.trim(); }).filter(Boolean);
+    return String(ev.note).split(/[｜|\r\n]+/).map(function (t) { return t.trim(); }).filter(Boolean);
   }
   /* 拆成 符號 / 標題 / 內文 三層，供門規卡片列建立視覺階層 */
   function parseRule(s) {
@@ -1416,6 +1443,19 @@
       }));
   }
 
+  function useFormGuard(p, value) {
+    var initial = useRef(JSON.stringify(value)), dirty = initial.current !== JSON.stringify(value);
+    useEffect(function () {
+      if (p.unsavedRef) p.unsavedRef.current = dirty;
+      function warn(ev) { ev.preventDefault(); ev.returnValue = ''; }
+      if (dirty) window.addEventListener('beforeunload', warn);
+      return function () { window.removeEventListener('beforeunload', warn); if (p.unsavedRef) p.unsavedRef.current = false; };
+    }, [dirty]);
+    return { dirty: dirty, saved: function () { initial.current = JSON.stringify(value); if (p.unsavedRef) p.unsavedRef.current = false; }, close: function () {
+      if (p.busy) return;
+      if (dirty) p.requestDiscard(p.close); else p.close();
+    } };
+  }
   function Modal(p) {
     var dialog = useRef(null), closer = useRef(p.onClose); closer.current = p.onClose;
     useEffect(function () {
@@ -1424,6 +1464,8 @@
       function controls() { return Array.from(dialog.current.querySelectorAll('button:not(:disabled),input:not(:disabled),textarea:not(:disabled),select:not(:disabled),a[href],[tabindex="0"]')).filter(function (el) { return el.offsetParent !== null; }); }
       var initial = dialog.current.querySelector(p.initialSelector || 'input,textarea,select') || controls()[0]; if (initial) initial.focus();
       function key(ev) {
+        var dialogs = document.querySelectorAll('[role="dialog"]');
+        if (dialogs[dialogs.length - 1] !== dialog.current) return;
         if (ev.key === 'Escape') closer.current();
         if (ev.key !== 'Tab') return;
         var list = controls(), first = list[0], last = list[list.length - 1];
@@ -1447,7 +1489,7 @@
             className: 'btn rounded-full p-2 ' + T3 + ' hover:bg-[rgba(228,235,232,.06)] hover:text-[var(--mist-1)]'
           }, E(Icon, { name: 'X', size: 16 }))),
         D('scroll-x min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5 sm:px-6 sm:py-6', p.children),
-        p.footer ? D('modal-footer shrink-0 flex items-center justify-end gap-2 border-t border-[var(--hair)] bg-[rgba(6,10,12,.35)] px-5 py-3.5 sm:px-6 sm:py-4', p.footer) : null)), document.body);
+        p.footer ? D('modal-footer shrink-0 flex flex-wrap items-center justify-end gap-2 border-t border-[var(--hair)] bg-[rgba(6,10,12,.35)] px-5 py-3.5 sm:px-6 sm:py-4', p.footer) : null)), document.body);
   }
 
   function LoadingSkeleton() { return D('grid gap-4 py-5',{role:'status','aria-label':'正在讀取管理資料'},D('grid gap-3 sm:grid-cols-[1fr_auto]',D('skeleton h-9 w-44 rounded-xl'),D('skeleton h-10 w-28 rounded-full')),D('skeleton h-20 rounded-[20px]'),D('skeleton h-44 rounded-[20px]'),D('grid gap-3 sm:grid-cols-2',D('skeleton h-32 rounded-[20px]'),D('skeleton h-32 rounded-[20px]')),E('p',{className:'mt-2 text-center text-[12px] ' + T3},'正在接引宗門靈脈…')); }
@@ -1579,17 +1621,13 @@
   function App() {
     var a = useState({ members: [], events: [], venues: [], intents: [], admins: [], logs: [] }), state = a[0], setState = a[1];
     var b = useState(false), ready = b[0], setReady = b[1];
-    var g = useState(function () {
-      try {
-        var p = new URLSearchParams(window.location.search).get('tab');
-        if (p === 'events' || p === 'members' || p === 'venues' || p === 'admins' || p === 'logs') return p;
-        return 'events';
-      } catch (e) { return 'events'; }
-    }), tab = g[0], setTab = g[1];
-    var h = useState(null), openEventId = h[0], setOpenEventId = h[1];
+    var g = useState(readRoute), route = g[0], setRoute = g[1], tab = route.tab, openEventId = route.event;
+    var routeRef = useRef(route), routeUrl = useRef(location.href), unsavedRef = useRef(false);
+    routeRef.current = route;
     var i2 = useState(null), me = i2[0], setMe = i2[1];
     var j = useState([]), toasts = j[0], setToasts = j[1];
     var k = useState(null), modal = k[0], setModalState = k[1];
+    var discardState = useState(null), discard = discardState[0], setDiscard = discardState[1];
     var fxState = useState(null), fx = fxState[0], setFx = fxState[1];
     var riteEpochState = useState(0), riteEpoch = riteEpochState[0], setRiteEpoch = riteEpochState[1];
     var riteState = useState(function () {
@@ -1658,6 +1696,37 @@
     function setModal(value) {
       setError(''); setModalState(value ? Object.assign({ version: version.current }, value) : null);
     }
+    function requestDiscard(run) { setDiscard({ run: run }); }
+    function navigate(nextTab, nextEvent, replace, list) {
+      if (unsavedRef.current) { requestDiscard(function () { navigate(nextTab, nextEvent, replace, list); }); return false; }
+      var next = { tab: nextTab, event: nextEvent || null, list: list || routeRef.current.list }, url = new URL(location.href);
+      if (next.tab === 'events') url.searchParams.delete('tab'); else url.searchParams.set('tab', next.tab);
+      if (next.event) url.searchParams.set('event', next.event); else url.searchParams.delete('event');
+      if (next.list === 'upcoming') url.searchParams.delete('list'); else url.searchParams.set('list', next.list);
+      if (url.href !== location.href) history[replace ? 'replaceState' : 'pushState'](null, '', url.href);
+      routeUrl.current = url.href; routeRef.current = next; setRoute(next);
+      unsavedRef.current = false; setModal(null);
+      window.scrollTo({ top: 0, behavior: 'auto' });
+      return true;
+    }
+    function setTab(value) { return navigate(value, null); }
+    function setOpenEventId(id) { return navigate('events', id); }
+    useEffect(function () {
+      function onPop() {
+        if (unsavedRef.current) {
+          var targetUrl = location.href, target = readRoute();
+          history.pushState(null, '', routeUrl.current);
+          requestDiscard(function () {
+            history.replaceState(null, '', targetUrl); routeUrl.current = targetUrl;
+            routeRef.current = target; setRoute(target); setModal(null); window.scrollTo({ top: 0, behavior: 'auto' });
+          }); return;
+        }
+        routeUrl.current = location.href; var next = readRoute(); routeRef.current = next; setRoute(next);
+        unsavedRef.current = false; setModal(null); window.scrollTo({ top: 0, behavior: 'auto' });
+      }
+      window.addEventListener('popstate', onPop);
+      return function () { window.removeEventListener('popstate', onPop); };
+    }, []);
     async function api(path, body) {
       var response = await fetch('/api/' + path, {
         method: body === undefined ? 'GET' : 'POST', credentials: 'same-origin', cache: 'no-store',
@@ -1671,7 +1740,8 @@
     /* 輪詢去重：內容與上次相同就不 setState，避免每 5 秒整頁重新 render。 */
     function sameSnap(key, data) {
       var snap = '';
-      try { snap = key + JSON.stringify(data); } catch (e) { snap = ''; }
+      // 即使名單未變，也每分鐘重算活動結束、截止與 QR 效期狀態。
+      try { snap = key + Math.floor(Date.now() / 60000) + JSON.stringify(data); } catch (e) { snap = ''; }
       if (snap && snap === lastSnap.current) return true;
       lastSnap.current = snap;
       return false;
@@ -1693,7 +1763,7 @@
         if (requestEpoch !== epoch.current) return;
         version.current = publicData.version;
         setSyncLabel('公開佈告・每 5 秒更新');
-        setTab('events');
+        if (routeRef.current.tab !== 'events' || routeRef.current.list === 'drafts') navigate('events', routeRef.current.event, true, 'upcoming');
         if (sameSnap('public:', publicData)) return;
         setMe(null);
         setState({ members: [], events: publicData.events || [], venues: publicData.venues || [], intents: [], admins: [], logs: [] });
@@ -1743,8 +1813,10 @@
       try {
         var data = await api('action', Object.assign({ action: name, version: modal ? modal.version : version.current }, payload));
         accept(data);
+        unsavedRef.current = false;
+        setModalState(function (old) { return old ? Object.assign({}, old, { version: data.version }) : null; });
         var ritual = { saveMember:'member', saveEvent:'event', writeRoster:'roster', addGuest:'member', saveVenue:'venue', saveAdmin:'seal', changePin:'seal', removeMember:'seal', removeEvent:'seal', removeVenue:'seal', removeAdmin:'seal', updateLineup:'roster', callLineup:'ward' }[name] || 'seal';
-        flash('玉印已落・公開名單已同步', 'ok', ritual); return data.resultId || true;
+        flash(name === 'saveEvent' && payload.row.publication === 'draft' ? '草稿已儲存・尚未公開' : '玉印已落・變更已同步', 'ok', ritual); return data.resultId || true;
       } catch (err) {
         setError(err.message); flash(err.message, 'bad');
         if (err.status === 409 || err.status === 401) { try { await refresh(); } catch (_) {} }
@@ -1797,11 +1869,15 @@
       saveVenue: saveVenue, removeVenue: removeVenue, approveIntent: approveIntent, rejectIntent: rejectIntent,
       login: login, logout: logout, loadLogs: loadLogs,
       setTab: setTab, setOpenEventId: setOpenEventId, theme: theme, toggleTheme: toggleTheme,
+      navigate: navigate, eventList: route.list, unsavedRef: unsavedRef, requestDiscard: requestDiscard,
       playTabRitual: playTabRitual
     };
 
     var body;
     if (!ready) { body = E(LoadingSkeleton);
+    } else if (openEventId && !openEvent) {
+      body = E('div', null, E(Empty, { icon: 'CalendarX2', title: '此活動不存在或尚未公開', hint: '可能是草稿、已撤除，或你目前沒有查看權限。' }),
+        E(Btn, { onClick: function () { navigate('events', null, true); } }, '返回佈告欄'));
     } else if (openEvent) {
       body = E(EventDetail, Object.assign({ ev: openEvent }, ctx));
     } else if (tab === 'events') {
@@ -1823,6 +1899,12 @@
       toasts.length ? D('toast-stack', { 'aria-live': 'polite' }, toasts.map(function(toast){return D('rise glass seal-toast flex items-center gap-3 rounded-2xl px-4 py-3.5 text-sm ' + (toast.kind === 'bad' ? CIN : T1), {key:toast.id}, E(Icon,{name:toast.kind === 'bad' ? 'TriangleAlert' : 'CircleCheck',size:16,className:toast.kind === 'bad' ? CIN : JADE}), E('span',{className:'flex-1',role:'status'},toast.msg));})) : null,
       modal ? E('div', null, E(Modals, Object.assign({ modal: modal, close: function () { if (!lock.current) setModal(null); } }, ctx)),
         error ? E('p', { role: 'alert', className: 'fixed top-3 left-1/2 z-[70] w-[min(92vw,40rem)] -translate-x-1/2 rounded-2xl glass p-4 ' + CIN }, error) : null) : null,
+      discard ? E(Modal, { title: '放棄尚未儲存的內容？', onClose: function () { setDiscard(null); },
+        footer: [E(Btn, { key: 'stay', variant: 'primary', onClick: function () { setDiscard(null); } }, '繼續編輯'),
+          E(Btn, { key: 'leave', variant: 'danger', onClick: function () {
+            var run = discard.run; unsavedRef.current = false; setDiscard(null); run();
+          } }, '放棄變更')]
+      }, E('p', { className: 'text-sm ' + T2 }, '離開後，尚未儲存的內容會遺失。你可以返回繼續編輯。')) : null,
        riteMounted ? E('iframe', { key: 'rite-frame-' + riteEpoch, ref:riteFrame, className:'console-rite-frame' + (fx && fx.kind === 'landing' ? ' is-active' : ''), src:'/rite.html?rite=1&embedded=1&hold=1', scrolling:'no', title:'青竹流雲拍・入陣禮' }) : null,
        fx && fx.kind === 'landing-wait' ? D('rite-prep', S(null, '雲門凝聚中')) : null,
        fx && fx.kind !== 'landing' && fx.kind !== 'landing-wait' ? E(SectEffect, { key: fx.key, kind: fx.kind, onSkip: function () { clearTimeout(fxTimer.current); setFx(null); } }) : null,
@@ -1945,8 +2027,7 @@
               if (p.playTabRitual) p.playTabRitual('events');
               else if (typeof playTabRitual === 'function') playTabRitual('events');
             }
-            p.setOpenEventId(null);
-            p.setTab('events');
+            p.navigate('events', null);
             window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
           },
           className: 'btn group/brand -m-1 flex items-center gap-2.5 rounded-[18px] p-1 pr-3 text-left hover:bg-[rgba(155,195,174,.06)]'
@@ -2004,8 +2085,7 @@
                 if (p.playTabRitual) p.playTabRitual(t.k);
                 else if (typeof playTabRitual === 'function') playTabRitual(t.k);
               }
-              p.setOpenEventId(null);
-              p.setTab(t.k);
+              p.navigate(t.k, null);
             },
             className: 'btn inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-[13px] font-medium ' +
               (active ? 'nav-seal-active ' : '') +
@@ -2152,19 +2232,34 @@
 
   /* ---------------- events list ---------------- */
   function EventsList(p) {
+    var kind = p.eventList || 'upcoming';
+    var groups = { upcoming: [], history: [], drafts: [] };
+    p.events.forEach(function (ev) { groups[ev.publication === 'draft' ? 'drafts' : (eventEnded(ev) ? 'history' : 'upcoming')].push(ev); });
+    Object.keys(groups).forEach(function (k) { groups[k].sort(function (a, b) {
+      var order = ((a.date || '') + (a.startTime || '')).localeCompare((b.date || '') + (b.startTime || ''));
+      return k === 'history' ? -order : order;
+    }); });
+    var rows = groups[kind] || groups.upcoming;
     return D('',
       E(PageHead, {
-        eyebrow: '試煉佈告', title: '宗門集結', sub: '共 ' + p.events.length + ' 場試煉・名單由長老統一維護',
+        eyebrow: '試煉佈告', title: '宗門集結', sub: '目前 ' + groups.upcoming.length + ' 場集結・名單由長老統一維護',
         action: p.isAdmin ? E(Btn, {
           variant: 'primary', icon: 'Plus', nub: 'ArrowRight',
           onClick: function () { p.setModal({ type: 'event', row: null }); }
         }, '開壇集結') : null
       }),
       E(TrialCalendar, { p: p }),
+      D('mb-5 flex flex-wrap gap-2', [['upcoming', '即將開打'], ['history', '歷史活動']].concat(p.isAdmin ? [['drafts', '草稿']] : []).map(function (item) {
+        return E('button', { key: item[0], type: 'button', 'aria-pressed': kind === item[0],
+          onClick: function () { p.navigate('events', null, false, item[0]); },
+          className: 'btn rounded-full border border-[var(--hair)] px-4 py-2 text-sm ' + (kind === item[0] ? JADE : T3)
+        }, item[1] + ' ' + groups[item[0]].length);
+      })),
       p.events.length === 0
         ? (p.isAdmin ? E(FirstRun, { p: p }) : E(Empty, { icon: 'CalendarX2', title: '目前沒有試煉佈告', hint: '請稍後再回來查看最新集結。' }))
-        : D('grid gap-3.5',
-          p.events.map(function (ev) { return E(EventCard, { key: ev.id, ev: ev, p: p }); })),
+        : (rows.length ? D('grid gap-3.5', rows.map(function (ev) { return E(EventCard, { key: ev.id, ev: ev, p: p }); }))
+          : E(Empty, { icon: 'CalendarDays', title: kind === 'drafts' ? '尚無草稿' : (kind === 'history' ? '尚無歷史活動' : '目前沒有即將開打的活動'),
+            hint: p.isAdmin ? '可用「開壇集結」新增活動，或切換上方分類查看。' : '請稍後查看，過往場次可在「歷史活動」找到。' })),
       p.logs.length ? D('mt-6 rounded-[20px] inlay p-5',
         D('mb-3 flex items-center gap-2 ' + T3, E(Icon, { name: 'History', size: 14 }), S('text-[11px] tracking-wide', '近期共編異動')),
         p.logs.slice(0, 4).map(function (l, i) {
@@ -2382,7 +2477,7 @@
     var cap = capacityOf(ev.courts);
     var over = going > cap;
     var pct = fillPct(going, cap);
-    var status = deadlineInfo(ev.signupDeadline, going, cap);
+    var status = eventLabel(ev, going, cap);
 
     return E('button', {
       onClick: function () { p.setOpenEventId(ev.id); },
@@ -2394,7 +2489,7 @@
           D('flex flex-wrap items-center gap-2',
             E('h3', { className: 'disp brush truncate text-[20px] font-bold leading-tight ' + T1 }, ev.title),
             E('span', { className: 'tier ' + status.tone }, status.label),
-            gateQrOf(ev) ? E('span', { className: 'tier inline-flex items-center gap-1 text-[var(--gold)] border-[rgba(201,169,97,.3)] bg-[rgba(201,169,97,.08)]' }, E(Icon, { name: 'QrCode', size: 11 }), '門禁碼') : null),
+            gateQrOf(ev, p.venues) ? E('span', { className: 'tier inline-flex items-center gap-1 text-[var(--gold)] border-[rgba(201,169,97,.3)] bg-[rgba(201,169,97,.08)]' }, E(Icon, { name: 'QrCode', size: 11 }), '門禁碼') : null),
           D('mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5',
             metaLine('Clock', ev.startTime + '–' + ev.endTime),
             metaLine('MapPin', ev.place),
@@ -2437,7 +2532,7 @@
     var goFemale = going.filter(function (r) { return r.gender === 'female'; }).length;
     var over = going.length > cap;
     var pct = fillPct(going.length, cap);
-    var recruitment = deadlineInfo(ev.signupDeadline, going.length, cap);
+    var recruitment = eventLabel(ev, going.length, cap);
     var venueRow = p.venues.find(function (v) { return v.id === ev.venueId; }) || ev.venue;
 
     function setStatus(r, kk) {
@@ -2465,6 +2560,9 @@
       L.push('🏸 場地：' + ev.courts + ' 面場（上限 ' + cap + ' 人）');
       L.push('💰 費用：$' + ev.fee + ' / 人（均分預估，多補少退，依實際人數結算）');
       L.push('ℹ️ 名單異動請聯絡管理長老');
+      if (ev.signupDeadline) L.push('報名截止：' + ev.signupDeadline.replace('T', ' ') + '（台灣時間）');
+      if (ev.cancellationDeadline) L.push('免費取消期限：' + ev.cancellationDeadline.replace('T', ' ') + '（台灣時間）');
+      L.push('活動連結：' + location.origin + '/console.html?event=' + encodeURIComponent(ev.id));
       var ns = notesOf(ev);
       if (ns.length) {
         L.push(''); L.push('ℹ️ 補充事項');
@@ -2508,9 +2606,13 @@
         E(Btn, { variant: 'ghost', icon: 'ChevronLeft', onClick: function () { p.setOpenEventId(null); } }, '返回佈告欄'),
         D('flex flex-wrap items-center gap-1.5',
           E(Btn, {
-            variant: gateQrOf(ev) ? 'soft' : 'ghost', size: 'sm', icon: 'QrCode',
+            variant: gateQrOf(ev, p.venues) ? 'soft' : 'ghost', size: 'sm', icon: 'QrCode',
             onClick: function () { p.setModal({ type: 'gateQr', ev: ev }); }
-          }, gateQrOf(ev) ? '門禁碼 (' + gateQrDateOf(ev) + ')' : '門禁碼'),
+          }, gateQrOf(ev, p.venues) ? '門禁碼 (' + gateQrDateOf(ev) + ')' : '門禁碼'),
+          ev.publication !== 'draft' ? E(Btn, { variant: 'ghost', size: 'sm', icon: 'Link', onClick: async function () {
+            var ok = await copyText(location.origin + '/console.html?event=' + encodeURIComponent(ev.id));
+            p.flash(ok ? '活動連結已複製' : '複製失敗，請複製網址列連結', ok ? 'ok' : 'bad');
+          } }, '複製活動連結') : null,
           p.isAdmin ? D('flex items-center gap-1',
             E(Btn, {
               variant: 'ghost', size: 'sm', icon: 'CopyPlus',
@@ -2596,6 +2698,8 @@
             E(InfoRow, { icon: 'Clock', label: '時間', value: ev.startTime + ' – ' + ev.endTime }),
             E(InfoRow, { icon: 'Users', label: '場地', value: ev.courts + ' 面場（上限 ' + cap + ' 人）' }),
             E(InfoRow, { icon: 'DollarSign', label: '費用', value: '$' + ev.fee + ' / 人（預估，多補少退）' }),
+            ev.signupDeadline ? E(InfoRow, { icon: 'Clock', label: '報名截止（台灣時間）', value: ev.signupDeadline.replace('T', ' ') }) : null,
+            ev.cancellationDeadline ? E(InfoRow, { icon: 'Clock', label: '免費取消期限（台灣時間）', value: ev.cancellationDeadline.replace('T', ' ') }) : null,
             venueRow && venueRow.mapUrl ? E('a', { href: venueRow.mapUrl, target: '_blank', rel: 'noopener', className: BTN + ' ' + BTN_SIZE.sm + ' ' + BTN_VAR.outline }, '開啟導航') : null),
           notesOf(ev).length
             ? D('mt-4 border-t border-[var(--hair)] pt-4',
@@ -2706,7 +2810,7 @@
           S('disp truncate text-[15.5px] font-semibold ' + T1, r.nickname),
           E(GenderTag, { g: r.gender }),
           E(LevelBadge, { level: r.level }),
-          r.memberId ? null : E('span', { className: 'tier', style: { '--tc': 'var(--mist-3)', '--tb': 'rgba(228,235,232,.10)', '--th': 'rgba(228,235,232,.05)', '--tl': 'rgba(228,235,232,.015)' } }, '散修')),
+          (r.isMember || r.memberId) ? null : E('span', { className: 'tier', style: { '--tc': 'var(--mist-3)', '--tb': 'rgba(228,235,232,.10)', '--th': 'rgba(228,235,232,.05)', '--tl': 'rgba(228,235,232,.015)' } }, '散修')),
         E('p', { className: 'mt-1.5 truncate text-[11.5px] ' + T3 },
           r.referrer ? '引薦人／備註：' + r.referrer : '—')),
       D('ml-auto flex items-center gap-1.5',
@@ -4489,35 +4593,41 @@
 
   /* ---------------- gate qr code modal (門禁QRCode) ---------------- */
   function GateQrModal(p) {
-    var ev = p.modal.ev;
+    var ev = p.events.find(function (x) { return x.id === p.modal.ev.id; }) || p.modal.ev;
     var fileInputRef = useRef(null);
-    var qrData = gateQrOf(ev);
+    var dates = useState({ from: ev.gateQrFrom || todayKey(), until: ev.gateQrDate || ev.date || todayKey() }), period = dates[0], setPeriod = dates[1];
+    var guard = useFormGuard(p, period);
+    var validPeriod = period.from && period.until && period.from <= period.until;
+    var qrData = gateQrOf(ev, p.venues);
     var qrDate = gateQrDateOf(ev);
     var autoQr = !!qrData && !ev.gateQr;
     var fullBrightnessState = useState(false), fullBright = fullBrightnessState[0], setFullBright = fullBrightnessState[1];
 
-    function handleFile(file) {
+    async function saveQr(src) {
+      if (src && !validPeriod) { p.flash('請設定正確的門禁有效起迄日', 'bad'); return false; }
+      var ok = await p.saveEvent(Object.assign({}, ev, { gateQr: src, gateQrFrom: src ? period.from : '',
+        gateQrDate: src ? period.until : '', gateQrVenue: src ? (ev.venueId || ev.place) : '' }), false);
+      if (ok) { guard.saved(); p.flash(src ? '門禁 QR Code 與有效期間已更新' : '門禁碼已清除', 'ok'); }
+      return !!ok;
+    }
+    async function handleFile(file) {
       if (!file) return;
-      compressImage(file, 400, 400, 0.85, function (dataUrl) {
-        p.saveEvent(Object.assign({}, ev, { gateQr: dataUrl }), false).then(function () {
-          p.flash('門禁 QR Code 已更新', 'ok');
-        });
-      });
+      try { await saveQr(await compressImage(file, 400, 400, 0.85)); }
+      catch (err) { p.flash('圖片處理失敗，請選擇有效圖片', 'bad'); }
     }
 
     function clearQr() {
-      p.saveEvent(Object.assign({}, ev, { gateQr: '', gateQrDate: '' }), false).then(function () {
-        p.flash('門禁碼已清除', 'ok');
-      });
+      return saveQr('');
     }
 
     return E(Modal, {
       title: '門禁QRCode 通行證',
       sub: ev.title + '・' + ev.place,
-      onClose: p.close,
+      onClose: guard.close,
       footer: [
         p.isAdmin && ev.gateQr ? E(Btn, { key: 'del', variant: 'ghost', icon: 'Trash2', onClick: clearQr }, '清除自訂 QR') : null,
         p.isAdmin ? E(Btn, { key: 'up', variant: 'outline', icon: 'Upload', onClick: function () { fileInputRef.current && fileInputRef.current.click(); } }, ev.gateQr ? '更換自訂 QR' : '使用自訂 QR') : null,
+        p.isAdmin && ev.gateQr ? E(Btn, { key: 'period', variant: 'outline', disabled: !validPeriod, onClick: function () { saveQr(ev.gateQr); } }, '儲存效期') : null,
         qrData ? E('a', {
           key: 'dl',
           href: qrData,
@@ -4525,9 +4635,13 @@
           className: 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[var(--hair-2)] hover:border-[var(--gold)] text-xs font-semibold transition text-[var(--mist-2)] hover:text-white'
         }, E(Icon, { name: 'Download', size: 14 }), '下載') : null,
         qrData ? E(Btn, { key: 'br', variant: fullBright ? 'primary' : 'ghost', icon: 'Sun', onClick: function () { setFullBright(!fullBright); } }, fullBright ? '高亮中' : '螢幕增亮') : null,
-        E(Btn, { key: 'c', variant: 'primary', onClick: p.close }, '完成')
+        E(Btn, { key: 'c', variant: 'primary', onClick: guard.close }, '完成')
       ]
     },
+      p.isAdmin ? D('mb-4 grid gap-3 sm:grid-cols-2',
+        E(Field, { label: '門禁有效起日' }, E('input', { type: 'date', value: period.from, className: INPUT, onChange: function (e) { setPeriod(Object.assign({}, period, { from: e.target.value })); } })),
+        E(Field, { label: '門禁有效迄日' }, E('input', { type: 'date', value: period.until, className: INPUT, onChange: function (e) { setPeriod(Object.assign({}, period, { until: e.target.value })); } })),
+        E('p', { className: 'sm:col-span-2 text-xs ' + T3 }, '自訂碼綁定本活動場館；有效期間須涵蓋今天及活動日期。')) : null,
       D('flex flex-col items-center justify-center gap-4 py-2 ' + (fullBright ? 'p-4 bg-white/95 rounded-2xl text-black' : ''),
         p.isAdmin ? E('input', {
           ref: fileInputRef, type: 'file', accept: 'image/*', className: 'hidden',
@@ -4546,8 +4660,8 @@
             E('span', { className: 'mt-0.5 block text-xs ' + (fullBright ? 'text-gray-700' : T3) }, '(日期：' + (qrDate || '依活動日期') + ')'))
         ) : D('flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--hair-2)] p-10 text-center',
           E(Icon, { name: 'QrCode', size: 48, className: 'text-[var(--mist-3)] mb-3 opacity-60' }),
-          E('p', { className: 'disp font-semibold ' + T1 }, '此活動的門禁碼已過期'),
-          E('p', { className: 'mt-1 text-xs ' + T3 }, p.isAdmin ? '若球館已換碼，請使用下方「使用自訂 QR」更新。' : '請向掌門或長老確認最新門禁碼。')
+          E('p', { className: 'disp font-semibold ' + T1 }, '目前沒有可用的門禁碼'),
+          E('p', { className: 'mt-1 text-xs ' + T3 }, gateQrHint(ev))
         ),
         qrData ? D('mt-2 flex items-center gap-2 text-center text-xs ' + (fullBright ? 'text-gray-700' : T3),
           E(Icon, { name: 'Info', size: 14, className: 'shrink-0 text-[var(--gold)]' }),
@@ -4587,6 +4701,19 @@
   function AdminPage(p) {
     var a = useState('admins'), sub = a[0], setSub = a[1];
     var b = useState(''), q = b[0], setQ = b[1];
+    var backing = useState(false), backingUp = backing[0], setBackingUp = backing[1];
+    async function downloadBackup() {
+      if (backingUp) return;
+      setBackingUp(true);
+      try {
+        var data = await p.api('backup'), blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        var url = URL.createObjectURL(blob), link = document.createElement('a');
+        link.href = url; link.download = 'luoyun-backup-' + todayKey() + '.json'; document.body.appendChild(link); link.click(); link.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+        p.flash('資料備份已下載；不含密碼與登入憑證', 'ok');
+      } catch (err) { p.flash(err.message || '備份下載失敗，請重新登入後再試', 'bad'); }
+      finally { setBackingUp(false); }
+    }
 
     useEffect(function () { if (sub === 'logs') p.loadLogs(); }, [sub]);
 
@@ -4610,7 +4737,8 @@
 
 
     return D('',
-      E(PageHead, { eyebrow: '掌門殿', title: '宗門執事', sub: '長老名冊、口令與全宗操作日誌' }),
+      E(PageHead, { eyebrow: '掌門殿', title: '宗門執事', sub: '長老名冊、口令與全宗操作日誌',
+        action: p.isSuper ? E(Btn, { icon: 'Download', disabled: backingUp, onClick: downloadBackup }, backingUp ? '準備備份中…' : '下載資料備份') : null }),
       D('flex gap-1',
         [['admins', '長老名冊', 'Users'], ['logs', '宗門日誌', 'ScrollText']].map(function (t) {
           var on = sub === t[0];
@@ -4651,7 +4779,7 @@
       })),
       D('mt-4 flex items-start gap-3 rounded-[20px] inlay px-4 py-3.5 text-[12.5px] leading-relaxed ' + T2,
         E(Icon, { name: 'Info', size: 14, className: 'mt-0.5 ' + T3 }),
-        S('', '口令是宗門內部的分工識別碼，用來記錄「是哪位長老做的」，不是資安等級的密碼。能開這個連結的人本來就看得到全部資料，機密請勿放入。')));
+        S('', '每位長老應使用自己的身分登入，以便追蹤異動。訪客僅能查看公開活動與出席資訊；草稿、內部備註及資料備份受權限保護。請勿在公開活動填入機密資料。')));
   }
 
   function AdminCard(props) {
@@ -4871,6 +4999,7 @@
     var isNew = !row;
     var st = useState(row ? Object.assign({}, row) : { nickname: '', gender: 'male', level: 5, referrer: '' });
     var f = st[0], setF = st[1];
+    var guard = useFormGuard(p, f);
     function up(kk, v) { setF(function (x) { var n = Object.assign({}, x); n[kk] = v; return n; }); }
     var dup = p.members.some(function (m) {
       return m.id !== (row && row.id) && m.nickname.trim() === f.nickname.trim() && f.nickname.trim();
@@ -4878,9 +5007,9 @@
     return E(Modal, {
       title: isNew ? '收錄弟子' : '修改弟子',
       sub: isNew ? '建檔後開壇就能一鍵點將' : ('最後更新者：' + (row.updatedBy || row.createdBy || '—')),
-      onClose: p.close,
+      onClose: guard.close,
       footer: [
-        E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
+        E(Btn, { key: 'c', variant: 'ghost', onClick: guard.close }, '取消'),
         E(Btn, {
           key: 'o', variant: 'primary', icon: 'Check', disabled: !f.nickname.trim() || dup,
           onClick: async function () { if (await p.saveMember(f, isNew)) p.close(); }
@@ -4895,7 +5024,7 @@
           })),
         dup ? E('p', { className: 'text-[12px] font-medium ' + CIN }, '這個道號已經有人用了，換一個以免點名搞混。') : null,
         E(Field, { label: '性別' }, E(GenderPick, { value: f.gender, onPick: function (v) { up('gender', v); } })),
-        E(Field, { label: '修為境界（1 – 8）' }, E(LevelPick, { value: f.level, onPick: function (v) { up('level', v); } })),
+        E(Field, { label: '修為境界（1 – 10）' }, E(LevelPick, { value: f.level, onPick: function (v) { up('level', v); } })),
         E(Field, { label: '引薦人／備註（選填）' },
           E('input', {
             value: f.referrer, onChange: function (ev) { up('referrer', ev.target.value); },
@@ -4905,8 +5034,9 @@
 
   function VenueModal(p) {
     var row = p.modal.row, isNew = !row;
-    var st = useState(row ? Object.assign({}, row) : { name: '', address: '', mapUrl: '', parking: '', facilities: '', gateQr: '', defaultCourts: 5, defaultFee: 220, note: '' });
+    var st = useState(row ? Object.assign({}, row) : { name: '', address: '', mapUrl: '', parking: '', facilities: '', gateQr: '', gateQrFrom: '', gateQrDate: '', defaultCourts: 5, defaultFee: 220, note: '' });
     var f = st[0], setF = st[1];
+    var guard = useFormGuard(p, f);
     function up(k, v) { setF(function (old) { var n = Object.assign({}, old); n[k] = v; return n; }); }
     function takeGateQr(fileOrBlob) {
       if (!fileOrBlob) return;
@@ -4919,9 +5049,10 @@
         if (items[i].type && items[i].type.indexOf('image') === 0) { takeGateQr(items[i].getAsFile()); return; }
       }
     }
-    var ok = f.name.trim() && Number(f.defaultCourts) >= 1 && Number(f.defaultCourts) <= 12 && Number(f.defaultFee) >= 0 && (!f.mapUrl || /^https:\/\//i.test(f.mapUrl));
-    return E(Modal, { title: isNew ? '新增洞府場館' : '修改洞府場館', wide: true, sub: '儲存後，開壇時可一鍵帶入常用資訊', onClose: p.close,
-      footer: [E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
+    var qrOk = !f.gateQr || (f.gateQrFrom && f.gateQrDate && f.gateQrFrom <= f.gateQrDate);
+    var ok = f.name.trim() && Number(f.defaultCourts) >= 1 && Number(f.defaultCourts) <= 12 && Number(f.defaultFee) >= 0 && (!f.mapUrl || /^https:\/\//i.test(f.mapUrl)) && qrOk;
+    return E(Modal, { title: isNew ? '新增洞府場館' : '修改洞府場館', wide: true, sub: '儲存後，開壇時可一鍵帶入常用資訊', onClose: guard.close,
+      footer: [E(Btn, { key: 'c', variant: 'ghost', onClick: guard.close }, '取消'),
         E(Btn, { key: 'o', variant: 'primary', icon: 'Check', disabled: !ok, onClick: async function () { if (await p.saveVenue(f, isNew)) p.close(); } }, '儲存場館')] },
       D('grid grid-cols-1 gap-5 sm:grid-cols-2', { onPaste: pasteGateQr },
         D('sm:col-span-2', E(Field, { label: '場館名稱' }, E('input', { value: f.name, onChange: function (e) { up('name', e.target.value); }, className: INPUT, autoFocus: true, placeholder: '例如：亞伯林羽球館－東區振興店' }))),
@@ -4939,7 +5070,11 @@
               E('span', { className: 'text-sm font-semibold ' + T1 }, '目前的門禁 QR（選填）')),
             f.gateQr ? E(Btn, { variant: 'danger', size: 'sm', icon: 'Trash2', onClick: function () { up('gateQr', ''); } }, '清除') : null),
           E('p', { className: 'text-[11px] leading-relaxed ' + T3 },
-            '球館的門禁碼大約兩週換一次。換碼時在這裡換一張，之後每次開壇都會自動帶入，不必再逐場上傳。'),
+            '設定球館提供的門禁圖與有效期間，之後開團會一併帶入；已建立的活動保留原本設定。'),
+          !qrOk ? E('p', { className: 'mt-2 text-xs ' + CIN }, '門禁圖必須設定正確的有效起迄日。') : null,
+          D('mt-3 grid gap-3 sm:grid-cols-2',
+            E(Field, { label: '預設門禁有效起日' }, E('input', { type: 'date', value: f.gateQrFrom || '', className: INPUT, onChange: function (e) { up('gateQrFrom', e.target.value); } })),
+            E(Field, { label: '預設門禁有效迄日' }, E('input', { type: 'date', value: f.gateQrDate || '', className: INPUT, onChange: function (e) { up('gateQrDate', e.target.value); } }))),
           D('mt-3 flex items-center gap-3',
             E('label', { className: 'cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-[rgba(108,160,135,.15)] text-[var(--jade-3)] hover:bg-[rgba(108,160,135,.25)] transition' },
               E(Icon, { name: 'Upload', size: 14 }),
@@ -4955,15 +5090,20 @@
     var row = p.modal.row;
     var isNew = !row || !!p.modal.duplicate;
     var firstVenue = p.venues[0] || null;
-    var initialDate = row ? (row.date || '') : (p.modal.prefillDate || '');
+    var initialDate = p.modal.duplicate ? '' : (row ? (row.date || '') : (p.modal.prefillDate || ''));
     var venueQr = firstVenue && firstVenue.gateQr ? firstVenue.gateQr : '';
-    var st = useState(row ? (p.modal.duplicate ? Object.assign({}, row, { id: undefined, roster: [], lineup: null, gateQr: venueQrOf(p.venues, row.venueId), gateQrDate: initialDate }) : Object.assign({}, row)) : {
+    var copyVenue = row && p.venues.find(function (v) { return v.id === row.venueId; });
+    var st = useState(row ? (p.modal.duplicate ? Object.assign({}, row, { id: undefined, date: '', dateText: '', roster: [], lineup: null,
+      signupDeadline: '', cancellationDeadline: '', publication: 'draft', gateQr: venueQrOf(p.venues, row.venueId),
+      gateQrFrom: copyVenue && copyVenue.gateQrFrom || '', gateQrDate: copyVenue && copyVenue.gateQrDate || '', gateQrVenue: row.venueId || row.place }) : Object.assign({ publication: 'published' }, row)) : {
       title: '', date: initialDate, dateText: displayEventDate(initialDate), startTime: '10:00', endTime: '13:00',
       place: venuePlace(firstVenue) || '亞伯林羽球館－東區振興店', venueId: firstVenue ? firstVenue.id : '',
       courts: firstVenue ? firstVenue.defaultCourts : 5, fee: firstVenue ? firstVenue.defaultFee : 220,
-      note: '', roster: [], gateQr: venueQr, gateQrDate: initialDate
+      note: '', roster: [], publication: 'published', signupDeadline: '', cancellationDeadline: '', gateQr: venueQr,
+      gateQrFrom: firstVenue && firstVenue.gateQrFrom || '', gateQrDate: firstVenue && firstVenue.gateQrDate || '', gateQrVenue: firstVenue ? firstVenue.id : ''
     });
     var f = st[0], setF = st[1];
+    var guard = useFormGuard(p, f);
     function up(kk, v) { setF(function (x) { var n = Object.assign({}, x); n[kk] = v; return n; }); }
 
     function handlePaste(ev) {
@@ -4975,32 +5115,38 @@
           if (blob) {
             compressImage(blob, 400, 400, 0.85).then(function (b64) {
               up('gateQr', b64);
-              if (!f.gateQrDate) up('gateQrDate', f.date || '');
+              up('gateQrVenue', f.venueId || f.place);
+              if (!f.gateQrFrom) up('gateQrFrom', todayKey());
+              if (!f.gateQrDate) up('gateQrDate', f.date || todayKey());
               p.flash('已由剪貼簿貼上門禁 QR Code', 'ok');
-            });
+            }).catch(function () { p.flash('圖片處理失敗，請選擇有效圖片', 'bad'); });
             break;
           }
         }
       }
     }
 
-    var ok = f.title.trim() && f.date && f.dateText.trim() && f.place.trim() && f.startTime && f.endTime > f.startTime && Number.isInteger(Number(f.courts)) && Number(f.courts) >= 1 && Number(f.courts) <= 12 && f.fee !== '' && Number.isInteger(Number(f.fee)) && Number(f.fee) >= 0;
+    var startsAt = f.date && f.date + 'T' + f.startTime;
+    var deadlineOk = (!f.signupDeadline || f.signupDeadline <= startsAt) && (!f.cancellationDeadline || f.cancellationDeadline <= startsAt);
+    var qrOk = !f.gateQr || (f.gateQrFrom && f.gateQrDate && f.gateQrFrom <= f.gateQrDate);
+    var ok = f.title.trim() && f.date && f.dateText.trim() && f.place.trim() && f.startTime && f.endTime > f.startTime && Number.isInteger(Number(f.courts)) && Number(f.courts) >= 1 && Number(f.courts) <= 12 && f.fee !== '' && Number.isInteger(Number(f.fee)) && Number(f.fee) >= 0 && deadlineOk && qrOk;
     return E(Modal, {
       title: p.modal.duplicate ? '複製開團' : (isNew ? '開壇集結' : '修改集結'), wide: true,
       sub: p.modal.duplicate ? '已帶入原活動的場地、時間與費用；請設定新的日期，出席名單不會複製。' : '場地上限自動以「面數 × 7 人」計算，目前 ' + capacityOf(f.courts) + ' 人',
       initialSelector: p.modal.duplicate ? '[data-copy-date]' : undefined,
-      onClose: p.close,
+      onClose: guard.close,
       footer: [
-        E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
+        E(Btn, { key: 'c', variant: 'ghost', onClick: guard.close }, '取消'),
         E(Btn, {
           key: 'o', variant: 'primary', icon: 'Check', disabled: !ok,
           onClick: async function () {
             var id = await p.saveEvent(f, isNew);
             if (!id) return;
-            if (isNew) { p.setTab('events'); p.setOpenEventId(id); }
+            guard.saved();
+            p.navigate('events', isNew ? id : f.id, !isNew, f.publication === 'draft' ? 'drafts' : (eventEnded(f) ? 'history' : 'upcoming'));
             p.close();
           }
-        }, p.modal.duplicate ? '建立新活動' : (isNew ? '開壇' : '儲存'))
+        }, f.publication === 'draft' ? '儲存草稿' : (isNew ? '公開開壇' : '儲存'))
       ]
     },
       D('grid grid-cols-1 gap-5 sm:grid-cols-2', { onPaste: handlePaste },
@@ -5013,9 +5159,11 @@
             value: f.title, onChange: function (ev) { up('title', ev.target.value); },
             placeholder: '例如：中秋節羽球團', className: INPUT, autoFocus: true
           }))),
+        D('sm:col-span-2', E(Field, { label: '公開狀態' }, E('select', { value: f.publication || 'published', className: INPUT, onChange: function (e) { up('publication', e.target.value); } },
+          E('option', { value: 'published' }, '公開・球友可查看'), E('option', { value: 'draft' }, '草稿・僅管理者可查看')))),
         E(Field, { label: p.modal.duplicate ? '新活動日期（必填）' : '活動日期' },
           E('input', {
-            type: 'date', value: f.date || '', onChange: function (ev) { var value = ev.target.value; setF(function (old) { return Object.assign({}, old, { date: value, dateText: displayEventDate(value), gateQrDate: old.gateQr ? old.gateQrDate : value }); }); },
+            type: 'date', value: f.date || '', onChange: function (ev) { var value = ev.target.value; setF(function (old) { return Object.assign({}, old, { date: value, dateText: displayEventDate(value) }); }); },
             className: INPUT, 'data-copy-date': p.modal.duplicate ? 'true' : undefined
           })),
         E(Field, { label: '場地面數' },
@@ -5029,13 +5177,18 @@
           E('input', { type: 'time', value: f.startTime, onChange: function (ev) { up('startTime', ev.target.value); }, className: INPUT })),
         E(Field, { label: '結束時間（須晚於開始時間）' },
           E('input', { type: 'time', value: f.endTime, onChange: function (ev) { up('endTime', ev.target.value); }, className: INPUT })),
+        E(Field, { label: '報名截止（台灣時間・選填）' }, E('input', { type: 'datetime-local', value: f.signupDeadline || '', max: startsAt || undefined, className: INPUT, onChange: function (e) { up('signupDeadline', e.target.value); } })),
+        E(Field, { label: '免費取消期限（台灣時間・選填）' }, E('input', { type: 'datetime-local', value: f.cancellationDeadline || '', max: startsAt || undefined, className: INPUT, onChange: function (e) { up('cancellationDeadline', e.target.value); } })),
+        E('p', { className: 'sm:col-span-2 text-xs ' + (deadlineOk ? T3 : CIN) }, deadlineOk ? '報名截止後顯示停止收人；管理者仍可調整名單。免費取消期限僅供規則告知，不會自動扣款。' : '報名截止及免費取消期限都不可晚於活動開始。'),
         p.venues.length ? D('sm:col-span-2', E(Field, { label: '從洞府場館帶入（選填）' },
           E('select', { value: f.venueId || '', className: INPUT, onChange: function (ev) {
             var id = ev.target.value, v = p.venues.find(function (x) { return x.id === id; });
-            setF(function (old) { return Object.assign({}, old, v ? { venueId: v.id, place: venuePlace(v), courts: v.defaultCourts, fee: v.defaultFee, gateQr: v.gateQr || '' } : { venueId: '' }); });
+            setF(function (old) { return Object.assign({}, old, v ? { venueId: v.id, place: venuePlace(v), courts: v.defaultCourts, fee: v.defaultFee,
+              gateQr: v.gateQr || '', gateQrFrom: v.gateQrFrom || '', gateQrDate: v.gateQrDate || '', gateQrVenue: v.id }
+              : { venueId: '', gateQr: '', gateQrFrom: '', gateQrDate: '', gateQrVenue: '' }); });
           } }, [E('option', { key: '', value: '' }, '自行輸入地點')].concat(p.venues.map(function (v) { return E('option', { key: v.id, value: v.id }, v.name); }))))) : null,
         D('sm:col-span-2', E(Field, { label: '地點' },
-          E('input', { value: f.place, onChange: function (ev) { setF(function (old) { return Object.assign({}, old, { place: ev.target.value, venueId: '' }); }); }, className: INPUT }))),
+          E('input', { value: f.place, onChange: function (ev) { setF(function (old) { return Object.assign({}, old, { place: ev.target.value, venueId: '', gateQr: '', gateQrFrom: '', gateQrDate: '', gateQrVenue: '' }); }); }, className: INPUT }))),
         E(Field, { label: '每人費用（元）' },
           E('input', { type: 'number', min: 0, step: 10, value: f.fee, onChange: function (ev) { up('fee', ev.target.value); }, className: INPUT })),
         D('sm:col-span-2', E(Field, { label: '補充事項（可換行或用「｜」分成多條）' },
@@ -5056,11 +5209,12 @@
               onClick: function () { up('gateQr', ''); }
             }, '清除 QR 碼') : null
           ),
-          E('p', { className: 'mb-3 text-[11px] leading-relaxed ' + T3 }, ('不必逐場上傳：未設定自訂圖片時，前台會套用系統內建的球館公用門禁碼（' + DEFAULT_GATE_QR_MONTH.replace('-', ' 年 ') + ' 月）。球館每月換碼，活動若不在該月份，前台不會顯示 QR，請改上傳當月自訂圖片。')),
+          E('p', { className: 'mb-3 text-xs leading-relaxed ' + T3 }, ('內建公用碼僅適用亞伯林振興店 ' + DEFAULT_GATE_QR_MONTH + ' 的活動；其他場館請設定自訂碼。自訂有效期間須涵蓋今天與活動日期，無效時不會顯示。')),
           D('grid grid-cols-1 sm:grid-cols-2 gap-3',
-            E(Field, { label: 'QR 碼有效日期' },
+            E(Field, { label: 'QR 碼有效起日' }, E('input', { type: 'date', value: f.gateQrFrom || '', className: INPUT, onChange: function (ev) { up('gateQrFrom', ev.target.value); } })),
+            E(Field, { label: 'QR 碼有效迄日' },
               E('input', {
-                type: 'date', value: f.gateQrDate || f.date || '',
+                type: 'date', value: f.gateQrDate || '',
                 onChange: function (ev) { up('gateQrDate', ev.target.value); },
                 className: INPUT
               })
@@ -5078,7 +5232,9 @@
                       if (!file) return;
                       compressImage(file, 400, 400, 0.85).then(function (b64) {
                         up('gateQr', b64);
-                        if (!f.gateQrDate) up('gateQrDate', f.date || '');
+                        up('gateQrVenue', f.venueId || f.place);
+                        if (!f.gateQrFrom) up('gateQrFrom', todayKey());
+                        if (!f.gateQrDate) up('gateQrDate', f.date || todayKey());
                       }).catch(function (err) { alert('圖片處理失敗：' + err.message); });
                     }
                   })
@@ -5087,6 +5243,7 @@
               )
             )
           ),
+          !qrOk ? E('p', { className: 'mt-3 text-xs ' + CIN }, '自訂門禁圖必須設定正確的有效起迄日。') : null,
           f.gateQr ? D('mt-3 flex items-center gap-3 p-2.5 rounded-xl bg-[rgba(0,0,0,.2)] border border-[rgba(255,255,255,.05)]',
             E('img', { src: f.gateQr, alt: 'QR Preview', className: 'w-16 h-16 object-contain rounded-lg bg-white p-1' }),
             D('flex-1 text-xs ' + T2,
@@ -5107,6 +5264,7 @@
     var b = useState(''), q = b[0], setQ = b[1];
     var c = useState('going'), st = c[0], setSt = c[1];
     var d = useState('all'), tier = d[0], setTier = d[1];
+    var guard = useFormGuard(p, { selected: Object.keys(sel).filter(function (id) { return sel[id]; }).sort(), status: st });
 
     var pool = byGender(p.members.filter(function (m) {
       if (taken[m.id]) return false;
@@ -5143,11 +5301,11 @@
 
     return E(Modal, {
       title: '自名冊點將', wide: true,
-      sub: '已在陣列中的弟子不會重複出現', onClose: p.close,
+      sub: '已在陣列中的弟子不會重複出現', onClose: guard.close,
       footer: [
         E('span', { key: 'n', className: 'mr-auto text-[12px] ' + T3 },
           '已點 ', S('disp num text-[16px] font-semibold ' + JADE, String(selCount)), ' 位'),
-        E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
+        E(Btn, { key: 'c', variant: 'ghost', onClick: guard.close }, '取消'),
         E(Btn, { key: 'o', variant: 'primary', icon: 'ListPlus', disabled: !selCount, onClick: commit }, '納入陣列')
       ]
     },
@@ -5204,14 +5362,15 @@
     var ev = p.modal.ev;
     var st = useState({ nickname: '', gender: 'male', level: 4, referrer: '', status: 'going', addToDb: false });
     var f = st[0], setF = st[1];
+    var guard = useFormGuard(p, f);
     function up(kk, v) { setF(function (x) { var n = Object.assign({}, x); n[kk] = v; return n; }); }
     async function commit() {
       if (await p.addGuest(ev, f)) p.close();
     }
     return E(Modal, {
-      title: '納入散修', sub: '只加在這一場，不會自動進弟子名冊', onClose: p.close,
+      title: '納入散修', sub: '只加在這一場，不會自動進弟子名冊', onClose: guard.close,
       footer: [
-        E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
+        E(Btn, { key: 'c', variant: 'ghost', onClick: guard.close }, '取消'),
         E(Btn, { key: 'o', variant: 'primary', icon: 'UserPlus', disabled: !f.nickname.trim(), onClick: commit }, '納入陣列')
       ]
     },
@@ -5222,7 +5381,7 @@
             placeholder: '例如：阿凱（阿標道友）', className: INPUT, autoFocus: true
           })),
         E(Field, { label: '性別' }, E(GenderPick, { value: f.gender, onPick: function (v) { up('gender', v); } })),
-        E(Field, { label: '修為境界（1 – 8）' }, E(LevelPick, { value: f.level, onPick: function (v) { up('level', v); } })),
+        E(Field, { label: '修為境界（1 – 10）' }, E(LevelPick, { value: f.level, onPick: function (v) { up('level', v); } })),
         E(Field, { label: '引薦人／備註' },
           E('input', {
             value: f.referrer, onChange: function (ev2) { up('referrer', ev2.target.value); },

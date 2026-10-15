@@ -16,6 +16,35 @@ function number(value, label, min, max) {
   if (!Number.isInteger(n) || n < min || n > max) reject(label + '超出範圍');
   return n;
 }
+function isoDate(value, label) {
+  const s = text(value ?? '', label, 10, true).replace(/\//g, '-');
+  if (!s) return '';
+  const d = new Date(s + 'T00:00:00Z');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s) || !Number.isFinite(d.getTime()) || d.toISOString().slice(0, 10) !== s) reject(label + '格式不正確');
+  return s;
+}
+function deadline(value, label) {
+  const s = text(value ?? '', label, 16, true);
+  if (!s) return '';
+  if (!/^\d{4}-\d{2}-\d{2}T(?:[01]\d|2[0-3]):[0-5]\d$/.test(s)) reject(label + '格式不正確');
+  isoDate(s.slice(0, 10), label);
+  return s;
+}
+function qrFields(row, fallbackDate = '', binding = '') {
+  const gateQr = typeof row.gateQr === 'string' && row.gateQr.length <= 500000 ? row.gateQr.trim() : '';
+  // 舊資料的門禁日期視為單日有效；不自行延長未知門禁碼的效期。
+  const legacyDate = /^\d{4}[-/]\d{2}[-/]\d{2}$/.test(row.gateQrDate || '') ? row.gateQrDate : '';
+  const gateQrDate = isoDate(legacyDate || fallbackDate, '門禁有效迄日');
+  const gateQrFrom = isoDate(row.gateQrFrom || legacyDate || fallbackDate, '門禁有效起日');
+  if (gateQrFrom && gateQrDate && gateQrFrom > gateQrDate) reject('門禁有效迄日不可早於起日');
+  return { gateQr, gateQrFrom, gateQrDate, gateQrVenue: text(gateQr ? (row.gateQrVenue || binding) : binding, '門禁所屬場館', 300, true) };
+}
+function usableCustomQr(ev) {
+  const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Taipei' });
+  return !!ev.gateQr && !!ev.gateQrFrom && !!ev.gateQrDate && ev.gateQrFrom <= today && today <= ev.gateQrDate
+    && (!ev.date || (ev.gateQrFrom <= ev.date && ev.date <= ev.gateQrDate))
+    && ev.gateQrVenue === (ev.venueId || ev.place);
+}
 function password(value) {
   const valid = typeof value === 'string' && value.length <= 128 && (/^\d{4,8}$/.test(value) || value.length >= 8);
   if (!valid) reject('口令需為 4–8 位數 PIN，或 8–128 個字元密碼');
@@ -83,32 +112,33 @@ function event(row) {
   if (!row || typeof row !== 'object') reject('活動資料格式不正確');
   const time = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
   if (!time.test(row.startTime) || !time.test(row.endTime) || row.endTime <= row.startTime) reject('結束時間必須晚於開始時間（同日）');
-  const signupDeadline = text(row.signupDeadline ?? '', '報名截止時間', 40, true);
-  if (signupDeadline && !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(signupDeadline)) reject('報名截止時間格式不正確');
+  const signupDeadline = deadline(row.signupDeadline, '報名截止時間');
+  const cancellationDeadline = deadline(row.cancellationDeadline, '免費取消期限');
+  const publication = row.publication ?? 'published';
+  if (!['draft', 'published'].includes(publication)) reject('活動公開狀態不正確');
   const date = text(row.date ?? '', '活動日期', 10, true);
   if (date) {
     const m = date.match(/^(\d{4})-(\d{2})-(\d{2})$/), d = m && new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])));
     if (!m || d.getUTCFullYear() !== Number(m[1]) || d.getUTCMonth() !== Number(m[2]) - 1 || d.getUTCDate() !== Number(m[3])) reject('活動日期格式不正確');
   }
-  const gateQr = typeof row.gateQr === 'string' && row.gateQr.length <= 500000 ? row.gateQr.trim() : '';
-  const gateQrDate = text(row.gateQrDate ?? '', '門禁日期', 40, true);
+  const qr = qrFields(row, date, row.venueId || row.place || '');
   const lineup = lineupData(row.lineup);
   return { title: text(row.title, '名稱'), date, dateText: text(row.dateText, '日期', 40),
     startTime: row.startTime, endTime: row.endTime, place: text(row.place, '地點', 300),
     courts: number(row.courts, '場地面數', 1, 12), fee: number(row.fee, '費用', 0, 100000),
     note: text(row.note ?? '', '補充事項', 4000, true),
-    venueId: text(row.venueId ?? '', '場館識別碼', 100, true), signupDeadline,
-    gateQr, gateQrDate, lineup };
+    venueId: text(row.venueId ?? '', '場館識別碼', 100, true), signupDeadline, cancellationDeadline, publication,
+    ...qr, lineup };
 }
 function venue(row) {
   if (!row || typeof row !== 'object') reject('場館資料格式不正確');
   const mapUrl = text(row.mapUrl ?? '', '地圖連結', 1000, true);
   if (mapUrl && !/^https:\/\//i.test(mapUrl)) reject('地圖連結必須使用 https://');
-  const gateQr = typeof row.gateQr === 'string' && row.gateQr.length <= 500000 ? row.gateQr.trim() : '';
+  const qr = qrFields(row);
   return { name: text(row.name, '場館名稱', 120), address: text(row.address ?? '', '地址', 300, true),
     mapUrl, parking: text(row.parking ?? '', '停車資訊', 500, true),
     facilities: text(row.facilities ?? '', '設施資訊', 500, true),
-    gateQr,
+    gateQr: qr.gateQr, gateQrFrom: qr.gateQrFrom, gateQrDate: qr.gateQrDate,
     defaultCourts: number(row.defaultCourts ?? 1, '預設場地面數', 1, 12),
     defaultFee: number(row.defaultFee ?? 0, '預設費用', 0, 100000), note: text(row.note ?? '', '場館備註', 1000, true) };
 }
@@ -174,16 +204,18 @@ function publicData(state) {
   const publicVenue = v => v ? ({ id: v.id, name: v.name, address: v.address, mapUrl: v.mapUrl,
     parking: v.parking, facilities: v.facilities, note: v.note }) : null;
   const threeDaysAgo = Date.now() - 3 * 86400000;
-  return { generatedAt: state.updatedAt, version: state.version, venues: state.venues.map(publicVenue), events: state.events.map(ev => {
+  return { generatedAt: state.updatedAt, version: state.version, venues: state.venues.map(publicVenue), events: state.events.filter(ev => ev.publication !== 'draft').map(ev => {
     const raw = event(ev);
-    if (raw.date && Date.parse(raw.date + 'T23:59:59+08:00') < threeDaysAgo) {
+    if (!usableCustomQr(raw) || (raw.date && Date.parse(raw.date + 'T23:59:59+08:00') < threeDaysAgo)) {
+      raw.gateQrUnavailable = !!raw.gateQr;
       raw.gateQr = '';
     }
     return {
       id: ev.id, ...raw,
       venue: publicVenue(state.venues.find(v => v.id === ev.venueId)), roster: ev.roster.map(r => {
         const m = state.members.find(m => m.id === r.memberId) || r;
-        return { nickname: m.nickname, gender: m.gender, level: m.level, status: r.status };
+        return { nickname: m.nickname, gender: m.gender, level: m.level, status: r.status,
+          isMember: state.members.some(member => member.id === r.memberId) };
       })
     };
   }) };
@@ -306,6 +338,10 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
     } else if (action === 'saveEvent') {
       const fields = event(row);
       if (fields.venueId && !state.venues.some(v => v.id === fields.venueId)) reject('所選場館已不存在');
+      const startsAt = fields.date && fields.date + 'T' + fields.startTime;
+      if (startsAt && fields.signupDeadline > startsAt) reject('報名截止時間不可晚於活動開始');
+      if (startsAt && fields.cancellationDeadline > startsAt) reject('免費取消期限不可晚於活動開始');
+      if (fields.gateQr && fields.gateQrVenue !== (fields.venueId || fields.place)) reject('門禁碼所屬場館與活動不同，請重新設定');
       const oldEv = id ? find(state.events) : null;
       upsert(state.events, { ...fields, roster: oldEv ? oldEv.roster : [], lineup: oldEv ? (fields.lineup || oldEv.lineup || null) : null }); target = fields.title;
     } else if (action === 'updateLineup') {
@@ -472,7 +508,7 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
         db.transaction(() => {
           state = getState();
           const ev = state.events.find(x => x.id === eventId);
-          if (!ev) reject('活動已不存在', 404);
+          if (!ev || ev.publication === 'draft') reject('活動已不存在', 404);
           const attendee = ev.roster.find(r => {
             const m = state.members.find(x => x.id === r.memberId) || r;
             return m.nickname.toLowerCase() === cleanName.toLowerCase();

@@ -35,7 +35,7 @@ test('shared club: authentication, permissions, persistence, validation and conf
     assert.equal((await request('/api/state', undefined, '')).status, 401);
     const res = await request('/api/public', undefined, '');
     assert.equal(res.status, 200); assert.ok(res.body.events[0].roster.length > 0);
-    for (const row of res.body.events[0].roster) assert.deepEqual(Object.keys(row).sort(), ['gender', 'level', 'nickname', 'status']);
+    for (const row of res.body.events[0].roster) assert.deepEqual(Object.keys(row).sort(), ['gender', 'isMember', 'level', 'nickname', 'status']);
     assert.equal(res.body.admins, undefined); assert.equal(res.body.logs, undefined);
     const root = await fetch(base + '/', { redirect: 'manual' });
     assert.equal(root.status, 307); assert.equal(root.headers.get('location'), '/console.html');
@@ -120,7 +120,7 @@ test('shared club: authentication, permissions, persistence, validation and conf
   await t.test('venue presets and the public page remains read-only', async () => {
     venueId = (await act('saveVenue', { row: { name: '測試仙山球館', address: '測試路 1 號', mapUrl: 'https://maps.google.com/?q=test', parking: '地下停車場', facilities: '飲水機', gateQr: 'data:image/webp;base64,venueqr', defaultCourts: 3, defaultFee: 180, note: '二樓集合' } })).body.resultId;
     const ev = state.events.find(e => e.id === eventId);
-    await act('saveEvent', { id: eventId, row: { ...ev, venueId, place: '測試仙山球館（測試路 1 號）', signupDeadline: '2099-12-31T23:59' } });
+    await act('saveEvent', { id: eventId, row: { ...ev, venueId, place: '測試仙山球館（測試路 1 號）', signupDeadline: '2099-09-29T23:59' } });
     const signup = { eventId, nickname: '訪客小羽', gender: 'female', level: 3, status: 'maybe', note: '朋友介紹' };
     assert.equal((await request('/api/intent', signup, '')).status, 403);
     state = (await request('/api/state')).body;
@@ -138,13 +138,15 @@ test('shared club: authentication, permissions, persistence, validation and conf
     await act('writeRoster', { id: eventId, roster: [{ rid: 'r-test', memberId, nickname: '偽造名稱', gender: 'male', level: 1, status: 'going' }] });
     const pub = (await request('/api/public')).body.events.find(e => e.title === '測試活動');
     assert.equal(pub.roster[0].nickname, '測試弟子'); assert.equal(pub.roster[0].referrer, undefined);
+    assert.equal(pub.roster[0].isMember, true);
+    assert.equal(pub.roster[0].memberId, undefined);
     const ev = state.events.find(e => e.id === eventId);
     await act('writeRoster', { id: eventId, roster: [...ev.roster, { ...ev.roster[0], rid: 'another' }] }, ownerCookie, 400);
     await act('writeRoster', { id: eventId, roster: [{ ...ev.roster[0], status: 'bad' }] }, ownerCookie, 400);
   });
   await t.test('gateQr and lineup actions work and appear in publicData', async () => {
     const ev = state.events.find(e => e.id === eventId);
-    await act('saveEvent', { id: eventId, row: { ...ev, gateQr: 'data:image/webp;base64,mockqr', gateQrDate: '2026/09/25' } });
+    await act('saveEvent', { id: eventId, row: { ...ev, gateQr: 'data:image/webp;base64,mockqr', gateQrFrom: '2000-01-01', gateQrDate: '2099/09/30' } });
     
     // Atomic callLineup with courtNum and lineup (and startedAt conversion)
     const startTimeNum = Date.now() - 5000;
@@ -167,7 +169,7 @@ test('shared club: authentication, permissions, persistence, validation and conf
     
     let pub = (await request('/api/public')).body.events.find(e => e.id === eventId);
     assert.equal(pub.gateQr, 'data:image/webp;base64,mockqr');
-    assert.equal(pub.gateQrDate, '2026/09/25');
+    assert.equal(pub.gateQrDate, '2099-09-30');
     assert.equal(pub.lineup.courts[0].courtNum, 1);
     assert.equal(pub.lineup.courts[0].status, 'idle'); // 'waiting' normalized to 'idle'
     assert.ok(pub.lineup.courts[0].matchStart); // startedAt normalized to matchStart
@@ -225,6 +227,48 @@ test('shared club: authentication, permissions, persistence, validation and conf
     assert.deepEqual(restOff.body.resting, []);
     state = (await request('/api/state')).body;
   });
+  await t.test('草稿只供管理者查看，公開與收回公開保留名單，備份仍包含草稿', async () => {
+    const original = state.events.find(e => e.id === eventId);
+    const id = (await act('saveEvent', { row: { ...original, title: '尚未公開的測試', publication: 'draft' } })).body.resultId;
+    await act('writeRoster', { id, roster: [{ rid: 'draft-row', memberId, status: 'going' }] });
+    assert.ok(state.events.some(e => e.id === id));
+    assert.equal((await request('/api/public', undefined, '')).body.events.some(e => e.id === id), false);
+    assert.equal((await request('/api/rest', { eventId: id, nickname: '測試弟子', resting: true }, '')).status, 404);
+    assert.ok((await request('/api/backup')).body.events.some(e => e.id === id));
+    await act('saveEvent', { id, row: { ...state.events.find(e => e.id === id), publication: 'published' } });
+    const published = (await request('/api/public', undefined, '')).body.events.find(e => e.id === id);
+    assert.equal(published.roster.length, 1);
+    assert.equal(published.roster[0].isMember, true);
+    await act('saveEvent', { id, row: { ...state.events.find(e => e.id === id), publication: 'draft' } });
+    assert.equal(state.events.find(e => e.id === id).roster.length, 1);
+    assert.equal((await request('/api/public', undefined, '')).body.events.some(e => e.id === id), false);
+    await act('removeEvent', { id });
+  });
+  await t.test('兩種期限各自儲存，拒絕不可能日期、晚於開打的期限與非法公開狀態', async () => {
+    const row = state.events.find(e => e.id === eventId);
+    for (const fields of [{ signupDeadline: '2099-02-31T12:00' }, { signupDeadline: '2099-09-30T10:01' },
+      { cancellationDeadline: '2099-09-30T12:00' }, { publication: 'secret' }]) {
+      await act('saveEvent', { id: eventId, row: { ...row, ...fields } }, ownerCookie, 400);
+    }
+    await act('saveEvent', { id: eventId, row: { ...row, cancellationDeadline: '2099-09-28T23:00' } });
+    const published = (await request('/api/public', undefined, '')).body.events.find(e => e.id === eventId);
+    assert.equal(published.signupDeadline, '2099-09-29T23:59');
+    assert.equal(published.cancellationDeadline, '2099-09-28T23:00');
+  });
+  await t.test('門禁碼同時驗證場館、今天及活動日期，不合用的自訂圖不傳到公開資料', async () => {
+    const original = state.events.find(e => e.id === eventId);
+    await act('saveEvent', { id: eventId, row: { ...original, gateQrVenue: 'other-venue' } }, ownerCookie, 400);
+    await act('saveEvent', { id: eventId, row: { ...original, gateQrFrom: '2099-10-01', gateQrDate: '2099-09-30' } }, ownerCookie, 400);
+    for (const period of [{ gateQrFrom: '2000-01-01', gateQrDate: '2001-01-01' },
+      { gateQrFrom: '2098-01-01', gateQrDate: '2099-12-31' }]) {
+      await act('saveEvent', { id: eventId, row: { ...original, ...period } });
+      const pub = (await request('/api/public', undefined, '')).body.events.find(e => e.id === eventId);
+      assert.equal(pub.gateQr, ''); assert.equal(pub.gateQrUnavailable, true);
+      assert.ok(state.events.find(e => e.id === eventId).gateQr, '仍保留管理者原圖');
+    }
+    await act('saveEvent', { id: eventId, row: original });
+    assert.ok((await request('/api/public', undefined, '')).body.events.find(e => e.id === eventId).gateQr);
+  });
   await t.test('stale editor rejected; only one concurrent edit wins', async () => {
     const version = state.version;
     const payload = { version, action: 'saveEvent', id: eventId, row: state.events.find(e => e.id === eventId) };
@@ -251,6 +295,7 @@ test('shared club: authentication, permissions, persistence, validation and conf
     await act('saveEvent', { id: newId, row: {
       ...createdEv,
       date: '2000-01-01',
+      signupDeadline: '', cancellationDeadline: '',
       gateQr: 'data:image/webp;base64,ancientqr'
     } });
     const pub = (await request('/api/public')).body.events.find(e => e.id === newId);

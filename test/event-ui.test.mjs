@@ -1,0 +1,113 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
+
+const html = readFileSync(new URL('../console.html', import.meta.url), 'utf8');
+function rules() {
+  class Clock extends Date { static now() { return Date.parse('2026-10-15T12:00:00+08:00'); } }
+  const ctx = vm.createContext({ Date: Clock, URLSearchParams, location: { search: '' }, GOLD: 'gold', T3: 'muted', JADE: 'jade' });
+  vm.runInContext(html.slice(html.indexOf('  function todayKey()'), html.indexOf('  /* 萬劍歸宗 QR 劍陣：')), ctx);
+  vm.runInContext(html.match(/  function deadlineInfo\([^]*?\n  \}/)[0], ctx);
+  return ctx;
+}
+
+test('門禁內建碼只供指定場館當月使用，自訂圖依場館、今天與活動日期判斷', () => {
+  const ctx = rules(), venue = { id: 'v1', name: '亞伯林羽球館－東區振興店' };
+  const event = { date: '2026-10-26', venueId: 'v1', place: '亞伯林羽球館', venue };
+  assert.equal(ctx.gateQrOf(event), '/gate-qr.png');
+  assert.equal(ctx.gateQrOf({ ...event, venue: undefined }, [venue]), '/gate-qr.png');
+  assert.equal(ctx.gateQrOf({ ...event, venue: { id: 'v1', name: '其他場館' } }), '');
+  assert.equal(ctx.gateQrOf({ ...event, date: '2026-11-01' }), '');
+  const custom = { ...event, gateQr: 'custom', gateQrVenue: 'v1', gateQrFrom: '2026-10-01', gateQrDate: '2026-10-31' };
+  assert.equal(ctx.gateQrOf(custom), 'custom');
+  for (const fields of [{ gateQrVenue: 'v2' }, { gateQrFrom: '2026-10-20' }, { gateQrDate: '2026-10-14' },
+    { date: '2026-11-01' }, { gateQrUnavailable: true }]) assert.equal(ctx.gateQrOf({ ...custom, ...fields }), '');
+  assert.equal(ctx.gateQrOf({ ...event, gateQrUnavailable: true }), '', '無效自訂圖不可退回看似可用的內建圖');
+});
+
+test('活動結束與報名截止使用台灣時間，草稿優先顯示未公開', () => {
+  const ctx = rules();
+  assert.equal(ctx.eventEnded({ date: '2026-10-15', endTime: '11:59' }), true);
+  assert.equal(ctx.eventEnded({ date: '2026-10-15', endTime: '12:01' }), false);
+  assert.equal(ctx.deadlineInfo('2026-10-15T12:00', 1, 35).closed, true);
+  assert.equal(ctx.deadlineInfo('2026-10-15T12:01', 1, 35).closed, false);
+  assert.equal(ctx.eventLabel({ publication: 'draft' }, 1, 35).label, '草稿・尚未公開');
+});
+
+test('活動專屬連結可還原場次及歷史分類，舊戰術分頁回到佈告', () => {
+  const ctx = rules();
+  ctx.location.search = '?event=event-42&list=history';
+  assert.deepEqual(JSON.parse(JSON.stringify(ctx.readRoute())), { tab: 'events', event: 'event-42', list: 'history' });
+  ctx.location.search = '?tab=board';
+  assert.equal(ctx.readRoute().tab, 'events');
+});
+
+test('補充事項保留問號、網址與查詢參數，只依換行或分隔線拆段', () => {
+  for (const file of ['console.html', 'index.html']) {
+    const source = readFileSync(new URL('../' + file, import.meta.url), 'utf8');
+    const ctx = vm.createContext({});
+    vm.runInContext(source.match(/  function notesOf\([^]*?\n  \}/)[0], ctx);
+    const result = ctx.notesOf({ note: '導航：https://maps.google.com/?cid=123&x=1\n要帶水嗎？｜請自備' });
+    assert.deepEqual(Array.from(result), ['導航：https://maps.google.com/?cid=123&x=1', '要帶水嗎？', '請自備']);
+  }
+});
+
+test('未儲存表單的取消、離開與重新整理提醒可保留內容，成功儲存後解除提醒', () => {
+  const initial = { current: undefined }, listeners = new Set(); let closed = 0, discard;
+  const ctx = vm.createContext({
+    useRef(value) { if (initial.current === undefined) initial.current = value; return initial; },
+    useEffect(fn) { fn(); }, window: {
+      addEventListener: type => listeners.add(type), removeEventListener: type => listeners.delete(type) }
+  });
+  vm.runInContext(html.slice(html.indexOf('  function useFormGuard('), html.indexOf('  function Modal(')), ctx);
+  const p = { close() { closed++; }, requestDiscard(run) { discard = run; }, unsavedRef: { current: false } };
+  ctx.useFormGuard(p, { title: '' });
+  const guard = ctx.useFormGuard(p, { title: '尚未完成' });
+  assert.equal(guard.dirty, true); assert.equal(p.unsavedRef.current, true);
+  assert.ok(listeners.has('beforeunload'));
+  guard.close(); assert.equal(closed, 0);
+  assert.equal(typeof discard, 'function'); discard(); assert.equal(closed, 1);
+  guard.saved(); assert.equal(p.unsavedRef.current, false);
+  assert.equal(ctx.useFormGuard(p, { title: '尚未完成' }).dirty, false);
+});
+
+test('QR 儲存失敗不誤報成功，彈窗重新渲染時讀取最新活動圖片', async () => {
+  let succeeded = false, seen; const messages = [];
+  const ctx = vm.createContext({ useRef: () => ({ current: null }), useState: v => [v, () => {}],
+    useFormGuard: () => ({ close() {}, saved() {} }), todayKey: () => '2026-10-15', gateQrOf: ev => { seen = ev.gateQr; return ev.gateQr; },
+    gateQrDateOf: () => '', gateQrHint: () => '', E: (tag, props, ...children) => ({ tag, props, children }), D: () => null, S: () => null,
+    Modal: 'Modal', Btn: 'Btn', Icon: 'Icon', Field: 'Field', SwordQrSeal: 'SwordQrSeal', INPUT: '', T1: '', T3: '', DEFAULT_GATE_QR_MONTH: '2026-10' });
+  vm.runInContext(html.slice(html.indexOf('  function GateQrModal('), html.indexOf('  /* ---------------- venue page')), ctx);
+  const old = { id: 'e1', gateQr: 'old', date: '2026-10-26' };
+  const p = { events: [{ ...old, gateQr: 'latest' }], venues: [], modal: { ev: old }, isAdmin: true,
+    saveEvent: async () => succeeded, flash: msg => messages.push(msg) };
+  let modal = ctx.GateQrModal(p);
+  assert.equal(seen, 'latest');
+  await modal.props.footer.find(item => item?.props.key === 'del').props.onClick();
+  assert.deepEqual(messages, []);
+  succeeded = true; modal = ctx.GateQrModal(p);
+  await modal.props.footer.find(item => item?.props.key === 'del').props.onClick();
+  assert.deepEqual(messages, ['門禁碼已清除']);
+});
+
+test('備份下載建立 JSON 檔並釋放暫存網址，失敗時不產生檔案且可重試', async () => {
+  const clicked = [], messages = [], busy = [], revoked = [];
+  let fail = false;
+  const ctx = vm.createContext({ backingUp: false, Blob,
+    setBackingUp: value => busy.push(value), todayKey: () => '2026-10-15',
+    URL: { createObjectURL: blob => { assert.equal(blob.type, 'application/json'); return 'blob:backup'; }, revokeObjectURL: url => revoked.push(url) },
+    document: { createElement: () => ({ click() { clicked.push({ href: this.href, name: this.download }); }, remove() {} }), body: { appendChild() {} } },
+    setTimeout: fn => fn(), p: { api: async () => { if (fail) throw new Error('需要掌門權限'); return { format: 'luoyun-data-v1', events: [] }; },
+      flash: (message, type) => messages.push({ message, type }) }
+  });
+  vm.runInContext(html.match(/    async function downloadBackup\([^]*?\n    \}/)[0], ctx);
+  await ctx.downloadBackup();
+  assert.deepEqual(clicked, [{ href: 'blob:backup', name: 'luoyun-backup-2026-10-15.json' }]);
+  assert.deepEqual(revoked, ['blob:backup']);
+  assert.equal(messages[0].type, 'ok');
+  fail = true; await ctx.downloadBackup();
+  assert.equal(clicked.length, 1);
+  assert.deepEqual(messages[1], { message: '需要掌門權限', type: 'bad' });
+  assert.deepEqual(busy, [true, false, true, false]);
+});

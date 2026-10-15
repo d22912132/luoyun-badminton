@@ -19,11 +19,11 @@ test('內建門禁 QR 只在當月有效，過月就不給圖', () => {
 
   for (const [name, html] of [['console.html', consoleHtml], ['board.html', boardHtml]]) {
     assert.ok(html.includes("var DEFAULT_GATE_QR = '/gate-qr.png'"), name + ' 要有內建門禁圖');
-    assert.ok(html.includes('function gateQrOf(ev)'), name + ' 要有 gateQrOf');
+    assert.match(html, /function gateQrOf\(ev(?:, venues)?\)/, name + ' 要有 gateQrOf');
     // 球館每月換碼；少了月份守門，過期的碼會被當成有效的發出去
-    assert.ok(html.includes('function defaultGateQrFresh(ev)'), name + ' 要有月份守門');
-    assert.ok(html.includes("return defaultGateQrFresh(ev) ? DEFAULT_GATE_QR : '';"),
-      name + ' 要先問過月份才可以退回內建圖');
+    assert.match(html, /function defaultGateQrFresh\(ev(?:, venues)?\)/, name + ' 要有月份守門');
+    assert.match(html, /return defaultGateQrFresh\(ev(?:, venues)?\) \? DEFAULT_GATE_QR : '';/,
+      name + ' 要先問過月份與場館才可以退回內建圖');
     assert.ok(!html.includes('return ev.gateQr || DEFAULT_GATE_QR;'),
       name + ' 不可以略過月份判斷直接退回內建圖');
   }
