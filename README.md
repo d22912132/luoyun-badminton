@@ -136,6 +136,7 @@ npm test
 - `worker.mjs`、`wrangler.jsonc`：Cloudflare 免費雲端執行與持久儲存。
 - `console.html`：既有 React 18 UMD 管理介面，改接共用 API。
 - `index.html`：零 JavaScript 相依套件的公開名單；伺服器注入即時資料模式。
+- `public/sword-qr.js`：門禁 QR「萬劍歸宗」劍陣。打開門禁彈窗時才從 CDN 延遲載入 jsQR，把 QR 圖片取樣回模組矩陣，再以飛劍拼成可掃描的劍陣；完成前會先自我解碼驗證，失敗或離線時自動顯示原圖。輕觸劍陣可略過或重播動畫，「螢幕增亮」會立即定格成白底高對比。
 - `test/server.test.mjs`：API 整合測試，GitHub Actions 自動執行。
 - `Dockerfile`：單容器部署，資料放在獨立持久磁碟。
 

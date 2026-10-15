@@ -7,18 +7,25 @@
 <title>落雲宗羽球團・管理後台</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<script>
+  (function(){try{var p=(new URLSearchParams(location.search)).get('theme');var t=p||localStorage.getItem('luoyun-theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='dark';}})();
+  /* 背景仙山圖：依主題與螢幕寬度（與 body::before 的 640px media query 一致）提早預載，小螢幕只抓 small 版。 */
+  (function(){try{var l=document.createElement('link');l.rel='preload';l.as='image';l.href='/assets/yunmeng-'+(document.documentElement.dataset.theme==='light'?'light':'dark')+(matchMedia('(max-width: 640px)').matches?'-small':'')+'-v1.jpg';document.head.appendChild(l);}catch(e){}})();
+</script>
 <!-- 標題字型不阻塞管理後台首次繪製；慢網路時維持既有 serif fallback。 -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@700&display=optional">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@400;600;700&display=swap">
 <link rel="stylesheet" href="/tailwind.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lucide@1.41.0/dist/umd/lucide.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script>
-  (function(){try{var p=(new URLSearchParams(location.search)).get('theme');var t=p||localStorage.getItem('luoyun-theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='dark';}})();
-</script>
+<!-- 圖示與入殿劍陣函式庫只在 render / 動畫時讀取 window.*；defer 會在 DOMContentLoaded（即 start()）前依序執行完畢，不阻塞首次解析。 -->
+<script defer src="https://cdn.jsdelivr.net/npm/lucide@1.41.0/dist/umd/lucide.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<!-- 門禁 QR 飛劍劍陣；jsQR 只在打開門禁彈窗時才延遲載入。 -->
+<script defer src="/sword-qr.js"></script>
 
 <style>
   /* ================================================================
@@ -96,7 +103,8 @@
   @media(max-width:640px){
     body::before{background-image:url('/assets/yunmeng-dark-small-v1.jpg');background-position:22% center}
   }
-  @keyframes sect-arrive{from{opacity:0;transform:translateY(14px);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
+  /* 進場只動 opacity/transform（合成層），不再逐幀模糊整個頁面容器。 */
+  @keyframes sect-arrive{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
   @keyframes jade-seal{0%{box-shadow:0 0 0 0 rgba(155,195,174,.0)}45%{box-shadow:0 0 0 8px rgba(155,195,174,.16),0 0 26px rgba(155,195,174,.18)}100%{box-shadow:0 0 0 15px rgba(155,195,174,0),0 0 10px rgba(155,195,174,0)}}
   .sect-enter{animation:sect-arrive .64s var(--ease) both}.seal-toast{animation:jade-seal 1.1s var(--ease) both}
 
@@ -215,11 +223,12 @@
     background: linear-gradient(180deg, rgba(16,27,30,.96), rgba(9,17,19,.96)) padding-box,
       conic-gradient(from var(--level-realm-angle), var(--realm-a), var(--realm-b), var(--realm-c), var(--realm-a)) border-box;
     box-shadow: inset 0 1px 0 rgba(255,255,255,.15), 0 0 16px -7px var(--realm-glow);
-    animation: level-realm-border var(--realm-speed, 12s) linear infinite, level-realm-aura 3.6s ease-in-out infinite;
+    /* 呼吸光改由 ::before 的 opacity 驅動（合成層），不再無限循環重繪 box-shadow。 */
+    animation: level-realm-border var(--realm-speed, 12s) linear infinite;
     transition: transform .2s var(--ease), box-shadow .2s var(--ease), filter .2s var(--ease);
   }
   .level-badge:hover { transform: translateY(-1px); filter: saturate(1.12); box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 0 22px -5px var(--realm-glow); }
-  .level-badge::before { content: ''; position: absolute; inset: 1px; border-radius: inherit; pointer-events: none; background: radial-gradient(circle at 18% 0%, var(--realm-glow), transparent 42%); opacity: .22; }
+  .level-badge::before { content: ''; position: absolute; inset: 1px; border-radius: inherit; pointer-events: none; background: radial-gradient(circle at 18% 0%, var(--realm-glow), transparent 42%); opacity: .22; animation: level-realm-aura 3.6s ease-in-out infinite; }
   .level-badge::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(108deg, transparent 34%, rgba(255,255,255,.34) 49%, transparent 64%); transform: translateX(-145%); animation: level-realm-sheen var(--realm-sheen, 6s) var(--ease) infinite; }
   .level-badge > * { position: relative; z-index: 1; }
   .level-badge .realm-name { font-weight: 700; }
@@ -238,7 +247,7 @@
   .level-badge.realm-mahayana { --realm-a:#8F5367; --realm-b:#FFD2D9; --realm-c:#5B2E49; --realm-text:#FFE0E7; --realm-glow:rgba(235,137,160,.84); --realm-speed:25s; --realm-sheen:11s; }
   .level-badge.realm-tribulation { --realm-a:#8B3128; --realm-b:#FFE0A1; --realm-c:#C85B32; --realm-text:#FFE9B7; --realm-glow:rgba(239,145,78,.96); --realm-speed:27s; --realm-sheen:12s; }
   @keyframes level-realm-border { to { --level-realm-angle: 360deg; } }
-  @keyframes level-realm-aura { 50% { box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 0 22px -5px var(--realm-glow); } }
+  @keyframes level-realm-aura { 50% { opacity: .46; } }
   @keyframes level-realm-sheen { 0%,68% { transform: translateX(-145%); opacity: 0; } 76% { opacity: .72; } 100% { transform: translateX(145%); opacity: 0; } }
   .level-badge-wrap { position: relative; display: inline-flex; vertical-align: middle; z-index: 0; }
   .level-badge-wrap:hover { z-index: 40; }
@@ -262,19 +271,19 @@
   .realm-badge{--realm-angle:0deg;position:relative;isolation:isolate;overflow:hidden;border-color:transparent;color:var(--realm-text);text-shadow:0 0 10px var(--realm-glow);background:linear-gradient(180deg,rgba(16,27,30,.96),rgba(9,17,19,.96)) padding-box,conic-gradient(from var(--realm-angle),var(--realm-a),var(--realm-b),var(--realm-c),var(--realm-a)) border-box;box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 0 18px -7px var(--realm-glow);animation:realm-border var(--realm-speed,12s) linear infinite,realm-aura 3.6s ease-in-out infinite}.realm-badge::before{content:"";position:absolute;inset:1px;border-radius:inherit;pointer-events:none;background:radial-gradient(circle at 18% 0%,var(--realm-glow),transparent 42%);opacity:.2}.realm-badge::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(108deg,transparent 34%,rgba(255,255,255,.34) 49%,transparent 64%);transform:translateX(-145%);animation:realm-sheen var(--realm-sheen,6s) var(--ease) infinite}@keyframes realm-border{to{--realm-angle:360deg}}@keyframes realm-aura{50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 0 22px -5px var(--realm-glow)}}@keyframes realm-sheen{0%,68%{transform:translateX(-145%);opacity:0}76%{opacity:.72}100%{transform:translateX(145%);opacity:0}}.realm-qi{--realm-a:#6E9E88;--realm-b:#D5E7DC;--realm-c:#35594B;--realm-text:#CDE9DA;--realm-glow:rgba(155,195,174,.62);--realm-speed:9s;--realm-sheen:6s}.realm-foundation{--realm-a:#5C8B99;--realm-b:#D8F2F7;--realm-c:#385E69;--realm-text:#C9E5ED;--realm-glow:rgba(129,202,220,.68);--realm-speed:12s;--realm-sheen:7s}.realm-golden{--realm-a:#8A6824;--realm-b:#FFF0AE;--realm-c:#C3912D;--realm-text:#FFE8A0;--realm-glow:rgba(226,184,78,.78);--realm-speed:15s;--realm-sheen:8s}.realm-nascent{--realm-a:#6A5596;--realm-b:#E5DBFF;--realm-c:#9E8FC0;--realm-text:#E8DFFF;--realm-glow:rgba(174,145,235,.78);--realm-speed:19s;--realm-sheen:9s}.realm-transcendent{--realm-a:#7F5B13;--realm-b:#FFF7C8;--realm-c:#D6A93D;--realm-text:#FFF2B5;--realm-glow:rgba(255,205,88,.92);--realm-speed:24s;--realm-sheen:10s}
 
   @property --office-angle{syntax:"<angle>";inherits:false;initial-value:0deg}
-  .office-badge{--office-angle:0deg;position:relative;isolation:isolate;overflow:hidden;display:inline-flex;align-items:center;gap:.38rem;border:1px solid transparent;border-radius:999px;padding:.2rem .62rem .2rem .25rem;font:600 11px 'Noto Serif TC',serif;letter-spacing:.055em;color:var(--office-text);text-shadow:0 0 10px var(--office-glow);background:linear-gradient(180deg,rgba(17,28,30,.97),rgba(8,15,18,.97)) padding-box,conic-gradient(from var(--office-angle),var(--office-a),var(--office-b),var(--office-c),var(--office-a)) border-box;box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 0 18px -7px var(--office-glow);animation:office-border var(--office-speed) linear infinite,office-aura 3.2s ease-in-out infinite}
-  .office-badge::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 12% 40%,var(--office-glow),transparent 42%);opacity:.22}
+  .office-badge{--office-angle:0deg;position:relative;isolation:isolate;overflow:hidden;display:inline-flex;align-items:center;gap:.38rem;border:1px solid transparent;border-radius:999px;padding:.2rem .62rem .2rem .25rem;font:600 11px 'Noto Serif TC',serif;letter-spacing:.055em;color:var(--office-text);text-shadow:0 0 10px var(--office-glow);background:linear-gradient(180deg,rgba(17,28,30,.97),rgba(8,15,18,.97)) padding-box,conic-gradient(from var(--office-angle),var(--office-a),var(--office-b),var(--office-c),var(--office-a)) border-box;box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 0 18px -7px var(--office-glow);animation:office-border var(--office-speed) linear infinite}
+  .office-badge::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 12% 40%,var(--office-glow),transparent 42%);opacity:.22;animation:office-aura 3.2s ease-in-out infinite}
   .office-badge::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(108deg,transparent 34%,rgba(255,255,255,.38) 49%,transparent 64%);transform:translateX(-145%);animation:office-sheen var(--office-sheen) var(--ease) infinite}
   .office-badge>*{position:relative;z-index:1}.office-sigil{display:grid;place-items:center;width:1.45rem;height:1.45rem;border-radius:50%;border:1px solid currentColor;background:rgba(255,255,255,.055);font-size:10px;box-shadow:inset 0 0 8px var(--office-glow)}
   .office-master{--office-a:#80601D;--office-b:#FFF4B6;--office-c:#C79A37;--office-text:#FFE8A0;--office-glow:rgba(238,190,71,.8);--office-speed:15s;--office-sheen:7.5s}
   .office-elder{--office-a:#416F65;--office-b:#D5F5E8;--office-c:#749F8D;--office-text:#D1F0E1;--office-glow:rgba(125,205,170,.72);--office-speed:11s;--office-sheen:6.5s}
   /* 灰階：同一套三色描邊結構，只是彩度抽掉；轉速與掃光都放慢，低階自然比較沉靜 */
   .office-stone{--office-a:#49514E;--office-b:#DCE4E0;--office-c:#78837E;--office-text:#CFD8D3;--office-glow:rgba(188,202,195,.55);--office-speed:22s;--office-sheen:11s}
-  @keyframes office-border{to{--office-angle:360deg}}@keyframes office-aura{50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 0 24px -5px var(--office-glow)}}@keyframes office-sheen{0%,66%{transform:translateX(-145%);opacity:0}76%{opacity:.76}100%{transform:translateX(145%);opacity:0}}
+  @keyframes office-border{to{--office-angle:360deg}}@keyframes office-aura{50%{opacity:.48}}@keyframes office-sheen{0%,66%{transform:translateX(-145%);opacity:0}76%{opacity:.76}100%{transform:translateX(145%);opacity:0}}
 
   .theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;min-width:40px;height:40px;padding:0 .7rem;border-radius:999px;border:1px solid var(--hair-2);background:rgba(228,235,232,.035);color:var(--mist-2);font:600 11.5px 'Noto Sans TC',sans-serif;cursor:pointer;transition:color .24s var(--ease),border-color .24s var(--ease),background .24s var(--ease),transform .24s var(--ease)}.theme-toggle:hover{color:var(--jade-100);border-color:rgba(155,195,174,.34);background:rgba(155,195,174,.09);transform:translateY(-1px)}
 
-  html[data-theme="light"]{--ink-0:#E8E0D1;--ink-1:#F3EDE1;--ink-2:#DED4C3;--mist-1:#24382F;--mist-2:#4A6056;--mist-3:#4F665C;--jade-100:#174737;--jade-300:#2E7055;--jade-500:#477E65;--jade-700:#285C48;--jade-900:#DBE2D6;--gold:#8C651C;--gold-dim:#6A4B13;--cinnabar:#A64E41;--cinnabar-dim:#7C372E;--amethyst:#66558D;--hair:rgba(76,65,45,.16);--hair-2:rgba(57,82,68,.27);--sheen:rgba(255,252,244,.56);--court-line:rgba(255,255,255,.92);--court-line-sub:rgba(255,255,255,.65);--male-text:#285F73;--male-border:rgba(40,95,115,.28);--male-high:rgba(75,145,167,.18);--male-low:rgba(75,145,167,.07);--female-text:#8B4960;--female-border:rgba(139,73,96,.27);--female-high:rgba(180,104,129,.17);--female-low:rgba(180,104,129,.06);color-scheme:light}
+  html[data-theme="light"]{--ink-0:#EDE6D8;--ink-1:#F5EFE3;--ink-2:#E2D7C3;--mist-1:#162822;--mist-2:#384F45;--mist-3:#566D63;--jade-100:#134636;--jade-300:#1E664E;--jade-500:#388467;--jade-700:#1B4E3C;--jade-900:#DBE2D6;--gold:#7E5710;--gold-dim:#63430A;--cinnabar:#B23829;--cinnabar-dim:#842519;--amethyst:#58437D;--hair:rgba(60,48,30,.18);--hair-2:rgba(45,68,55,.32);--sheen:rgba(255,252,244,.72);--court-line:rgba(255,255,255,.94);--court-line-sub:rgba(255,255,255,.68);--male-text:#1F5264;--male-border:rgba(31,82,100,.32);--male-high:rgba(55,125,147,.20);--male-low:rgba(55,125,147,.08);--female-text:#7D3B52;--female-border:rgba(125,59,82,.30);--female-high:rgba(165,89,114,.19);--female-low:rgba(165,89,114,.07);color-scheme:light}
   html[data-theme="light"] body::before{background-image:url('/assets/yunmeng-light-v1.jpg')}
   html[data-theme="light"] body::after{background:linear-gradient(180deg,rgba(243,237,224,.28),rgba(235,229,212,.45)),radial-gradient(ellipse at 50% 48%,rgba(247,242,231,.66),transparent 80%)}
   @media(max-width:640px){html[data-theme="light"] body::before{background-image:url('/assets/yunmeng-light-small-v1.jpg');background-position:22% center}}
@@ -294,15 +303,15 @@
   html[data-theme="light"] .modal-footer .btn:not([class*="primary"]):not([class*="dangerSolid"]):hover{color:var(--jade-300)!important;background:rgba(61,101,85,.08)!important}
 
   /* ---------- 靈力槽 ---------- */
-  .flow{height:6px;border-radius:999px;background:rgba(228,235,232,.055);overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.34)}
+  .flow{height:7px;border-radius:999px;background:rgba(228,235,232,.06);overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.34)}
   .flow.slim{height:4px}
   .flow > i{
     position:relative;display:block;height:100%;border-radius:999px;
     background-position:left center;transition:width .55s var(--ease);
   }
   .flow > i::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(112deg,transparent 0 11px,rgba(255,255,255,.22) 14px,transparent 18px 28px);transform:translateX(-28px);animation:qi-current 2.4s linear infinite}
-  .flow > i::after{content:"";position:absolute;right:-1px;top:50%;width:7px;height:7px;border-radius:50%;transform:translateY(-50%);background:#EAF8F0;box-shadow:0 0 5px 1px rgba(213,231,220,.9),0 0 13px 3px var(--flow-glow,rgba(155,195,174,.55))}
-  .flow.is-near > i::after,.flow.is-full > i::after{background:#FFF1B8;box-shadow:0 0 6px 1px rgba(255,241,184,.95),0 0 17px 5px rgba(201,169,97,.55);animation:qi-pulse 1.8s ease-in-out infinite}.flow.is-full{box-shadow:inset 0 1px 2px rgba(0,0,0,.34),0 0 16px -6px rgba(201,169,97,.72)}.flow.is-empty > i::after{display:none}@keyframes qi-current{to{transform:translateX(0)}}@keyframes qi-pulse{50%{opacity:.58;transform:translateY(-50%) scale(.72)}}
+  .flow > i::after{content:"";position:absolute;right:-1px;top:50%;width:8px;height:8px;border-radius:50%;transform:translateY(-50%);background:#EAF8F0;box-shadow:0 0 6px 1px rgba(213,231,220,.95),0 0 15px 3px var(--flow-glow,rgba(155,195,174,.65))}
+  .flow.is-near > i::after,.flow.is-full > i::after{background:#FFF1B8;box-shadow:0 0 7px 2px rgba(255,241,184,1),0 0 18px 6px rgba(201,169,97,.65);animation:qi-pulse 1.8s ease-in-out infinite}.flow.is-full{box-shadow:inset 0 1px 2px rgba(0,0,0,.34),0 0 16px -4px rgba(201,169,97,.75)}.flow.is-empty > i::after{display:none}@keyframes qi-current{to{transform:translateX(0)}}@keyframes qi-pulse{50%{opacity:.58;transform:translateY(-50%) scale(.72)}}
 
   /* ---------- 門規列 ---------- */
   .rule{ display:grid; grid-template-columns:26px 1fr; gap:.7rem; padding:.7rem .25rem; }
@@ -314,9 +323,21 @@
     border:1px solid var(--hair); box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
   }
 
-  /* ---------- 按鈕物理感 ---------- */
-  .btn{ transition:transform .45s var(--ease), background .45s var(--ease), border-color .45s var(--ease), box-shadow .45s var(--ease), color .45s var(--ease); }
+  /* ---------- 按鈕物理感與靈氣波紋微動態 (Auric Ripple) ---------- */
+  .btn{ position:relative; overflow:hidden; transition:transform .45s var(--ease), background .45s var(--ease), border-color .45s var(--ease), box-shadow .45s var(--ease), color .45s var(--ease); }
   .btn:active:not(:disabled){ transform:scale(.975); }
+  .btn:not(.qi)::after, .theme-toggle::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    background: radial-gradient(circle at center, rgba(155, 195, 174, 0.35) 0%, rgba(155, 195, 174, 0) 70%);
+    opacity: 0; transform: scale(0.3);
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease-out;
+  }
+  .btn:not(.qi):active::after, .theme-toggle:active::after {
+    opacity: 1; transform: scale(1.6); transition: 0s;
+  }
+  html[data-theme="light"] .btn:not(.qi)::after, html[data-theme="light"] .theme-toggle::after {
+    background: radial-gradient(circle at center, rgba(46, 112, 85, 0.3) 0%, rgba(46, 112, 85, 0) 70%);
+  }
   .qi{ position:relative; overflow:hidden; }
   .qi::after{
     content:""; position:absolute; inset:0; pointer-events:none;
@@ -325,6 +346,18 @@
     transition:transform .95s var(--ease);
   }
   .qi:hover::after{ transform:translateX(140%); }
+  /* 仙門朱砂金印印章 (Talisman Seal Stamp) */
+  .card-stamp {
+    position: absolute; right: 1.25rem; top: 1.25rem; pointer-events: none;
+    border: 2px solid rgba(208, 122, 108, 0.65); background: rgba(208, 122, 108, 0.08); color: #E28A7C;
+    border-radius: 8px; padding: 0.15rem 0.5rem; font-size: 11px; font-weight: 700; letter-spacing: 0.2em;
+    transform: rotate(12deg) scale(0.95); box-shadow: 0 0 12px rgba(208, 122, 108, 0.25), inset 0 0 6px rgba(208, 122, 108, 0.2);
+    font-family: 'LXGW WenKai TC', 'Noto Serif TC', serif;
+  }
+  html[data-theme="light"] .card-stamp {
+    border-color: rgba(178, 56, 41, 0.8); background: rgba(178, 56, 41, 0.08); color: #9C2618;
+    box-shadow: 0 0 10px rgba(178, 56, 41, 0.2), inset 0 0 6px rgba(178, 56, 41, 0.15);
+  }
   /* 按鈕內嵌圓形圖示（button-in-button） */
   .nub{
     width:22px; height:22px; border-radius:999px; display:inline-flex; align-items:center; justify-content:center;
@@ -351,15 +384,16 @@
   .scroll-unfurl{position:relative;isolation:isolate;animation:scroll-unfurl .42s var(--ease) both}
   .scroll-unfurl::before{content:"";position:absolute;z-index:3;left:0;top:-1px;width:42%;height:1px;pointer-events:none;background:linear-gradient(90deg,transparent,var(--jade-300),var(--gold),transparent);filter:drop-shadow(0 0 7px rgba(155,195,174,.7));transform-origin:left;animation:meridian-reveal .48s var(--ease) both}.scroll-unfurl::after{content:"";position:absolute;z-index:-1;right:0;top:-2rem;width:17rem;height:7rem;border-radius:50%;pointer-events:none;background:radial-gradient(ellipse,rgba(155,195,174,.15),transparent 68%);filter:blur(16px);animation:page-mist .5s var(--ease) both}
   @keyframes scroll-unfurl{from{opacity:0;transform:translateY(13px) scale(.988);clip-path:inset(0 0 18% 0 round 18px)}to{opacity:1;transform:none;clip-path:inset(0 round 18px)}}@keyframes meridian-reveal{from{opacity:0;transform:scaleX(.05)}to{opacity:.75;transform:scaleX(1)}}@keyframes page-mist{from{opacity:0;transform:translateX(3rem)}to{opacity:.8;transform:none}}
-  .scroll-unfurl>div>*{animation:content-rise .34s var(--ease) both}.scroll-unfurl>div>*:nth-child(2){animation-delay:.04s}.scroll-unfurl>div>*:nth-child(3){animation-delay:.08s}.scroll-unfurl>div>*:nth-child(4){animation-delay:.12s}.scroll-unfurl>div>*:nth-child(5){animation-delay:.16s}.scroll-unfurl>div>*:nth-child(6){animation-delay:.2s}
+  .scroll-unfurl>div>*{animation:content-rise .34s var(--ease) both}.scroll-unfurl>div>*:nth-child(2){animation-delay:.04s}.scroll-unfurl>div>*:nth-child(3){animation-delay:.08s}.scroll-unfurl>div>*:nth-child(4){animation-delay:.12s}.scroll-unfurl>div>*:nth-child(5){animation-delay:.16s}.scroll-unfurl>div>*:nth-child(6){animation-delay:.2s}.scroll-unfurl>div>*:nth-child(n+7){animation-delay:.24s}
   @keyframes content-rise{ from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
-  .nav-seal-active{position:relative;animation:nav-seal-in .3s var(--ease) both}.nav-seal-active::after{content:"";position:absolute;left:50%;bottom:-5px;width:34%;height:1px;border-radius:99px;background:linear-gradient(90deg,transparent,var(--gold),transparent);box-shadow:0 0 8px rgba(201,169,97,.65);transform:translateX(-50%)}@keyframes nav-seal-in{from{filter:brightness(.75);transform:translateY(2px)}to{filter:none;transform:none}}
+  .nav-seal-active{position:relative;animation:nav-seal-in .3s var(--ease) both}.nav-seal-active::after{content:"";position:absolute;left:50%;bottom:-5px;width:34%;height:1px;border-radius:99px;background:linear-gradient(90deg,transparent,var(--gold),transparent);box-shadow:0 0 8px rgba(201,169,97,.65);transform:translateX(-50%)}@keyframes nav-seal-in{from{opacity:.75;transform:translateY(2px)}to{opacity:1;transform:none}}
   .event-card{ position:relative; overflow:hidden; }
   .event-card::before{ content:""; position:absolute; inset:0; pointer-events:none; opacity:0; border-radius:inherit; background:linear-gradient(118deg,transparent 22%,rgba(155,195,174,.18) 48%,transparent 70%); transform:translateX(-115%); transition:opacity .25s var(--ease); }
   .event-card:hover::before{ opacity:1; animation:card-sheen .9s var(--ease); }
   @keyframes card-sheen{ to{transform:translateX(115%)} }
-  .date-seal{ animation:seal-breathe 4.8s ease-in-out infinite; }
-  @keyframes seal-breathe{ 50%{ box-shadow:0 0 0 1px rgba(155,195,174,.1),0 0 20px -8px rgba(155,195,174,.55),inset 0 1px 0 rgba(255,255,255,.12); } }
+  /* 呼吸光：陰影畫在 ::after 上固定不變，只循環 opacity（可合成），不逐幀重繪 box-shadow。 */
+  .date-seal::after{ content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; box-shadow:0 0 0 1px rgba(155,195,174,.1),0 0 20px -8px rgba(155,195,174,.55),inset 0 1px 0 rgba(255,255,255,.12); opacity:0; animation:seal-breathe 4.8s ease-in-out infinite; }
+  @keyframes seal-breathe{ 50%{ opacity:1; } }
   .empty-scroll{ position:relative; overflow:hidden; isolation:isolate; }
   .empty-scroll::before,.empty-scroll::after{ content:""; position:absolute; z-index:-1; width:14rem; height:6rem; border-radius:50%; filter:blur(16px); opacity:.34; background:radial-gradient(ellipse,rgba(155,195,174,.17),transparent 68%); animation:mist-pass 11s ease-in-out infinite alternate; }
   .empty-scroll::before{ left:-3rem; bottom:1rem; }.empty-scroll::after{ right:-4rem; top:1rem; animation-delay:-5s; }
@@ -384,7 +418,7 @@
   @keyframes enter-veil{0%{opacity:0}10%{opacity:1}78%{opacity:1}100%{opacity:0}}@keyframes ritual-orbit{to{transform:rotate(1turn)}}@keyframes star-burst{0%{opacity:0;transform:translate3d(0,0,0) scale(.2)}24%{opacity:1}100%{opacity:0;transform:translate3d(var(--tx),var(--ty),0) scale(1.8)}}@keyframes evil-thunder{0%,22%{opacity:0}28%,43%{opacity:.96}31%,48%{opacity:.22}55%{opacity:.76}100%{opacity:0}}@keyframes rift-awaken{0%{opacity:0;transform:scale(.08) rotate(-40deg)}26%{opacity:1;transform:scale(1.15) rotate(18deg)}68%{opacity:1;transform:scale(.96) rotate(120deg)}100%{opacity:0;transform:scale(2.1) rotate(260deg)}}@keyframes rift-cut{0%{opacity:0;transform:rotate(var(--r)) scaleX(.04)}28%{opacity:1}75%{opacity:.7}100%{opacity:0;transform:rotate(var(--r)) scaleX(1.45)}}@keyframes sword-ascend{0%{opacity:0;transform:translate(-50%,-50%) rotate(var(--r)) translateY(58vh) scale(.55)}26%{opacity:1}65%{opacity:1;transform:translate(-50%,-50%) rotate(var(--r)) translateY(-4vh) scale(1.04)}100%{opacity:0;transform:translate(-50%,-50%) rotate(var(--r)) translateY(-82vh) scale(.72)}}@keyframes enter-title{0%{opacity:0;letter-spacing:.75em;transform:translate(-50%,-20%) scale(.75)}35%{opacity:1}100%{opacity:0;letter-spacing:normal;transform:translate(-50%,-20%) scale(1.08)}}@keyframes skip-glow{to{color:#effff7;text-shadow:0 0 10px rgba(155,195,174,.8)}}
   @media(max-width:640px){.enter-sword:nth-child(n+6){display:none}.enter-bolt{width:65vw;opacity:.8}.enter-title strong{letter-spacing:.16em;font-size:clamp(1.8rem,8vw,3.4rem)}.enter-title span{font-size:clamp(.72rem,2.2vw,.9rem);letter-spacing:.32em}.enter-rift{width:clamp(14rem,60vw,27rem)}.enter-stars i:nth-child(n+13){display:none}}
   /* ── 動畫重播膠囊（右下角，仙門令符風格） ── */
-  .rite-replay-fab{position:fixed;right:max(1.15rem,env(safe-area-inset-right));bottom:max(1.15rem,env(safe-area-inset-bottom));z-index:50;display:flex;align-items:center;gap:.45rem;padding:.55rem 1.05rem;border:1px solid rgba(155,195,174,.36);border-radius:999px;background:linear-gradient(180deg,rgba(16,28,30,.92),rgba(8,16,18,.95));box-shadow:0 10px 28px -8px rgba(0,0,0,.7),0 0 16px -4px rgba(110,158,136,.3),inset 0 1px 0 rgba(255,255,255,.16);color:var(--jade-100);font:600 .75rem 'Noto Serif TC',serif;letter-spacing:.12em;backdrop-filter:blur(16px);cursor:pointer;opacity:0;pointer-events:none;transform:translateY(8px);transition:all .32s var(--ease)}.rite-replay-fab.is-shown{opacity:1;pointer-events:auto;transform:translateY(0)}.rite-replay-fab:hover{border-color:rgba(155,195,174,.6);background:linear-gradient(180deg,rgba(24,44,40,.95),rgba(12,25,23,.98));color:#effff7;box-shadow:0 14px 34px -8px rgba(0,0,0,.8),0 0 24px -2px rgba(110,158,136,.55),inset 0 1px 0 rgba(255,255,255,.28);transform:translateY(-2px)}.rite-replay-fab:active{transform:scale(.96)}
+  .rite-replay-fab{position:fixed;right:max(1.15rem,env(safe-area-inset-right));bottom:max(1.15rem,env(safe-area-inset-bottom));z-index:50;display:flex;align-items:center;gap:.45rem;padding:.55rem 1.05rem;border:1px solid rgba(155,195,174,.36);border-radius:999px;background:linear-gradient(180deg,rgba(16,28,30,.92),rgba(8,16,18,.95));box-shadow:0 10px 28px -8px rgba(0,0,0,.7),0 0 16px -4px rgba(110,158,136,.3),inset 0 1px 0 rgba(255,255,255,.16);color:var(--jade-100);font:600 .75rem 'Noto Serif TC',serif;letter-spacing:.12em;backdrop-filter:blur(16px);cursor:pointer;opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .32s var(--ease),transform .32s var(--ease),border-color .32s var(--ease),background .32s var(--ease),color .32s var(--ease),box-shadow .32s var(--ease)}.rite-replay-fab.is-shown{opacity:1;pointer-events:auto;transform:translateY(0)}.rite-replay-fab:hover{border-color:rgba(155,195,174,.6);background:linear-gradient(180deg,rgba(24,44,40,.95),rgba(12,25,23,.98));color:#effff7;box-shadow:0 14px 34px -8px rgba(0,0,0,.8),0 0 24px -2px rgba(110,158,136,.55),inset 0 1px 0 rgba(255,255,255,.28);transform:translateY(-2px)}.rite-replay-fab:active{transform:scale(.96)}
   html[data-theme="light"] .rite-replay-fab{background:linear-gradient(180deg,rgba(248,243,234,.96),rgba(235,226,210,.95));border-color:rgba(46,112,85,.35);color:#174737;box-shadow:0 10px 24px -8px rgba(76,65,45,.25),inset 0 1px 0 rgba(255,255,255,.85)}
   html[data-theme="light"] .rite-replay-fab:hover{background:linear-gradient(180deg,rgba(255,251,245,.98),rgba(242,234,220,.97));border-color:rgba(46,112,85,.6);color:#08241b;box-shadow:0 14px 30px -8px rgba(76,65,45,.35),0 0 16px -2px rgba(70,140,110,.3),inset 0 1px 0 #fff}
   .seal-toast{ position:relative; overflow:hidden; }.seal-toast::after{ content:""; position:absolute; inset:0; pointer-events:none; background:radial-gradient(circle at 15% 50%,rgba(155,195,174,.16),transparent 42%); animation:toast-glow .85s var(--ease) both; }
@@ -392,6 +426,130 @@
   .enter-canvas-ritual{position:fixed;inset:0;z-index:90;overflow:hidden;background:#000;isolation:isolate}.enter-canvas-ritual canvas{display:block;width:100%;height:100%;touch-action:none}.ritual-skip{position:fixed;right:max(1.15rem,env(safe-area-inset-right));bottom:max(1.15rem,env(safe-area-inset-bottom));z-index:2;min-height:42px;padding:.65rem 1.05rem;border:1px solid rgba(201,255,224,.55);border-radius:999px;background:rgba(6,16,14,.72);box-shadow:0 0 18px rgba(127,214,160,.2),inset 0 1px 0 rgba(255,255,255,.14);color:#dfffee;font:600 .76rem 'Noto Serif TC',serif;letter-spacing:.18em;backdrop-filter:blur(10px);cursor:pointer;transition:transform .16s ease,background .16s ease}.ritual-skip:hover{background:rgba(39,108,78,.62);transform:translateY(-2px)}.ritual-skip:active{transform:scale(.96)}
   /* 入宗禮保留完整飛拍、裂縫、碎片與火星；由同源 iframe 隔離其繪製範圍。 */
   .console-rite-frame{position:fixed;inset:0;z-index:90;width:100%;height:100%;border:0;background:transparent;visibility:hidden;pointer-events:none}.console-rite-frame.is-active{visibility:visible}.rite-prep{position:fixed;inset:0;z-index:89;display:grid;place-items:center;background:radial-gradient(circle,rgba(67,125,96,.16),rgba(4,13,16,.92) 64%);color:var(--jade-100)}.rite-prep span{font:600 .7rem system-ui,sans-serif;letter-spacing:.24em;opacity:.7}
+
+  /* ---------------- 全螢幕獨立分頁御劍法術轉場層 (Cinematic Tabs FX) ---------------- */
+  #cinematic-fx {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 95;
+    overflow: hidden;
+  }
+  body.screen-shake {
+    animation: screenShake 0.38s ease-out both;
+  }
+  @keyframes screenShake {
+    0% { transform: translate(0, 0); }
+    20% { transform: translate(-5px, 6px); }
+    40% { transform: translate(6px, -4px); }
+    60% { transform: translate(-3px, 3px); }
+    80% { transform: translate(3px, -2px); }
+    100% { transform: translate(0, 0); }
+  }
+  .fx-sword-fly-1 {
+    position: absolute; top: 75vh; left: -15vw;
+    animation: flySwordAcross1 0.55s cubic-bezier(0.12, 0.9, 0.2, 1) both;
+    filter: drop-shadow(0 0 16px rgba(127,214,160,0.95)) drop-shadow(0 0 35px #3D6555);
+  }
+  .fx-sword-fly-2 {
+    position: absolute; top: 58vh; left: -20vw;
+    animation: flySwordAcross2 0.58s cubic-bezier(0.15, 0.92, 0.22, 1) 0.06s both;
+    filter: drop-shadow(0 0 20px rgba(155,195,174,1)) drop-shadow(0 0 45px #6E9E88);
+  }
+  .fx-sword-fly-3 {
+    position: absolute; top: 85vh; left: -15vw;
+    animation: flySwordAcross3 0.52s cubic-bezier(0.1, 0.88, 0.18, 1) 0.12s both;
+    filter: drop-shadow(0 0 14px rgba(201,255,224,0.85));
+  }
+  @keyframes flySwordAcross1 {
+    0% { transform: translate(0, 0) rotate(-32deg); opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { transform: translate(130vw, -85vh) rotate(-32deg); opacity: 0; }
+  }
+  @keyframes flySwordAcross2 {
+    0% { transform: translate(0, 0) rotate(-28deg) scale(1.25); opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { transform: translate(135vw, -80vh) rotate(-28deg) scale(1.25); opacity: 0; }
+  }
+  @keyframes flySwordAcross3 {
+    0% { transform: translate(0, 0) rotate(-36deg) scale(0.85); opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { transform: translate(125vw, -90vh) rotate(-36deg) scale(0.85); opacity: 0; }
+  }
+  .fx-sword-rift {
+    position: absolute; top: 48%; left: -10%; width: 120%; height: 3px;
+    background: linear-gradient(90deg, transparent 5%, rgba(127,214,160,0.2) 20%, #E8FFF2 50%, rgba(127,214,160,0.9) 75%, transparent 95%);
+    box-shadow: 0 0 25px rgba(127,214,160,0.95), 0 0 50px rgba(78,135,110,0.8);
+    transform: rotate(-30deg);
+    animation: slashRift 0.5s ease-out both;
+    transform-origin: center;
+  }
+  @keyframes slashRift {
+    0% { opacity: 0; transform: rotate(-30deg) scaleX(0.05); }
+    30% { opacity: 1; transform: rotate(-30deg) scaleX(1.15); }
+    70% { opacity: 0.85; transform: rotate(-30deg) scaleX(1.3); }
+    100% { opacity: 0; transform: rotate(-30deg) scaleX(1.5); }
+  }
+  .fx-constellation-sword {
+    position: absolute; top: -20vh;
+    animation: swordDropToOrbit 0.68s cubic-bezier(0.16, 1, 0.3, 1) both;
+    filter: drop-shadow(0 0 18px rgba(155,195,174,0.95));
+  }
+  @keyframes swordDropToOrbit {
+    0% { opacity: 0; transform: translate(var(--startX), 0) rotate(var(--rot)) scale(0.6); }
+    35% { opacity: 1; }
+    75% { opacity: 1; transform: translate(var(--endX), var(--endY)) rotate(var(--endRot)) scale(1); }
+    100% { opacity: 0; transform: translate(var(--endX), calc(var(--endY) - 30px)) rotate(var(--endRot)) scale(1.1); }
+  }
+  .fx-bagua-circle {
+    position: absolute; top: 50%; left: 50%;
+    width: min(88vmin, 38rem); aspect-ratio: 1; transform: translate(-50%, -50%);
+    animation: baguaBurst 0.72s cubic-bezier(0.12, 0.9, 0.25, 1) both;
+  }
+  @keyframes baguaBurst {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.15) rotate(0deg); }
+    35% { opacity: 0.95; }
+    75% { opacity: 0.85; transform: translate(-50%, -50%) scale(1.15) rotate(75deg); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.65) rotate(120deg); }
+  }
+  .fx-seal-drop {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    animation: imperialSealCrash 0.6s cubic-bezier(0.18, 0.9, 0.28, 1.15) both;
+  }
+  @keyframes imperialSealCrash {
+    0% { opacity: 0; transform: translate(-50%, -85vh) scale(1.8) rotate(-12deg); }
+    65% { opacity: 1; transform: translate(-50%, -50%) scale(0.92) rotate(0deg); }
+    80% { transform: translate(-50%, -53%) scale(1.04) rotate(0deg); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.12) rotate(0deg); }
+  }
+  .fx-seal-wave {
+    position: absolute; top: 50%; left: 50%;
+    width: min(92vmin, 40rem); aspect-ratio: 1;
+    border: 3px solid rgba(201,169,97,0.9); border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: shockwaveExpand 0.58s ease-out 0.32s both;
+  }
+  @keyframes shockwaveExpand {
+    0% { opacity: 0.95; transform: translate(-50%, -50%) scale(0.25); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.8); }
+  }
+  .fx-sigil-badge {
+    position: absolute; top: calc(50% + min(16vmin, 7.5rem)); left: 50%;
+    transform: translate(-50%, -50%);
+    animation: sigilBadgeIn 0.62s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
+  }
+  @keyframes sigilBadgeIn {
+    0% { opacity: 0; transform: translate(-50%, -30%) scale(0.7); filter: blur(6px); }
+    38% { opacity: 1; transform: translate(-50%, -50%) scale(1); filter: blur(0); }
+    82% { opacity: 0.95; }
+    100% { opacity: 0; transform: translate(-50%, -60%) scale(1.08); filter: blur(4px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #cinematic-fx, .screen-shake { display: none !important; animation: none !important; }
+  }
 
   /* ---------- 試煉行事曆 ---------- */
   .calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:var(--hair);border-top:1px solid var(--hair)}
@@ -452,7 +610,7 @@
   .court-net-post-l { left: -3px; } .court-net-post-r { right: -3px; }
   .slot-empty {
     height: 88px; border: 1.5px dashed rgba(255, 255, 255, 0.32); border-radius: 14px;
-    background: rgba(10, 24, 20, 0.4); backdrop-filter: blur(4px); transition: all .25s var(--ease);
+    background: rgba(10, 24, 20, 0.4); backdrop-filter: blur(4px); transition: transform .25s var(--ease), background-color .25s var(--ease), border-color .25s var(--ease);
     display: flex; flex-direction: column; justify-content: space-between; padding: .65rem .85rem; cursor: pointer;
   }
   .slot-empty:hover { border-color: var(--jade-300); background: rgba(22, 50, 42, 0.55); transform: translateY(-1px); }
@@ -461,7 +619,8 @@
     height: 88px; border-radius: 14px;
     background: linear-gradient(180deg, rgba(20, 44, 38, 0.94), rgba(11, 26, 22, 0.90));
     border: 1px solid rgba(155, 195, 174, 0.35); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 8px 18px -4px rgba(0, 0, 0, 0.45);
-    backdrop-filter: blur(8px); transition: all .25s var(--ease);
+    /* 底色已 90% 以上不透明，backdrop-filter 視覺差異極小卻每格多一層離屏模糊，故不使用。 */
+    transition: transform .25s var(--ease), border-color .25s var(--ease), box-shadow .25s var(--ease);
     display: flex; flex-direction: column; justify-content: space-between; padding: .65rem .85rem; cursor: grab;
   }
   .slot-occupied:hover { border-color: var(--jade-300); transform: translateY(-2px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24), 0 12px 24px -6px rgba(110, 158, 136, 0.5); }
@@ -512,58 +671,61 @@
   }
 
   @media (prefers-reduced-motion: reduce){
-    *{ animation-duration:.001ms !important; transition-duration:.001ms !important }
+    /* `*` 不含偽元素；且極短 duration 搭配 infinite 仍會不停重跑迭代，故一併限制為 1 次。 */
+    *,*::before,*::after{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; scroll-behavior:auto !important }
     body::before{ animation:none }
     .qi::after,.event-card::before,.empty-scroll::before,.empty-scroll::after,.seal-toast::after,.realm-badge::before,.realm-badge::after,.level-badge::before,.level-badge::after,.office-badge::after,.flow>i::before,.flow>i::after,.scroll-unfurl::before,.scroll-unfurl::after,.skeleton::after{display:none}
-    .level-badge{animation:none}
+    .level-badge,.office-badge,.office-badge::before,.date-seal::after{animation:none}
     .level-badge-wrap .realm-tooltip{transition:none}
     .enter-ritual{display:none}
   }
 
-  /* ---------------- 仙門通行玉令動態特效 (Talisman & Scanner FX) ---------------- */
+  /* ---------------- 仙門通行玉令動態特效 (Talisman & Scanner FX) ----------------
+     只動 opacity / transform：外光暈固定，呼吸流光交給 ::after 的 opacity，
+     掃描光束用 translateY，不再每幀重算 box-shadow 與 top。 */
   @keyframes talismanPulse {
-    0%, 100% {
-      box-shadow: 0 0 20px rgba(201, 169, 97, 0.25), 0 0 40px rgba(110, 158, 136, 0.15);
-      border-color: rgba(201, 169, 97, 0.45);
-    }
-    50% {
-      box-shadow: 0 0 32px rgba(201, 169, 97, 0.5), 0 0 60px rgba(75, 181, 189, 0.3);
-      border-color: rgba(201, 169, 97, 0.85);
-    }
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
   }
   @keyframes scanBeam {
-    0% {
-      top: 0%;
-      opacity: 0.15;
-    }
-    50% {
-      top: calc(100% - 3px);
-      opacity: 0.9;
-    }
-    100% {
-      top: 0%;
-      opacity: 0.15;
-    }
+    0% { transform: translateY(calc(-100% + 3px)); opacity: 0.15; }
+    50% { transform: translateY(0); opacity: 0.9; }
+    100% { transform: translateY(calc(-100% + 3px)); opacity: 0.15; }
   }
   .talisman-frame {
     position: relative;
     border-radius: 18px;
     background: #ffffff;
-    border: 2px solid rgba(201, 169, 97, 0.45);
-    animation: talismanPulse 3.6s ease-in-out infinite;
+    border: 2px solid rgba(201, 169, 97, 0.6);
+    box-shadow: 0 0 24px rgba(201, 169, 97, 0.32), 0 0 48px rgba(75, 181, 189, 0.18);
     overflow: hidden;
   }
+  .talisman-frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 2px rgba(201, 169, 97, 0.85), inset 0 0 16px rgba(75, 181, 189, 0.28);
+    opacity: 0;
+    animation: talismanPulse 3.6s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 6;
+  }
+  /* 光束圖層與外框同高，亮線畫在圖層底緣；translateY 百分比 = 框高，任何尺寸都掃到底 */
   .talisman-scanner-beam {
     position: absolute;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, transparent 0%, rgba(75, 181, 189, 0.9) 30%, rgba(201, 169, 97, 0.95) 70%, transparent 100%);
-    box-shadow: 0 0 10px rgba(75, 181, 189, 0.8), 0 0 4px rgba(201, 169, 97, 0.9);
+    inset: 0;
+    background:
+      linear-gradient(90deg, transparent 0%, rgba(75, 181, 189, 0.95) 30%, rgba(201, 169, 97, 1) 70%, transparent 100%) bottom / 100% 3px no-repeat,
+      linear-gradient(0deg, rgba(75, 181, 189, 0.30), transparent 16px) bottom / 100% 16px no-repeat;
     animation: scanBeam 2.8s ease-in-out infinite;
+    will-change: transform;
     pointer-events: none;
     z-index: 10;
   }
+  /* 飛劍劍陣就緒後由劍光取代掃描光束 */
+  .talisman-frame:has(.sword-qr-wrap.is-ready) .talisman-scanner-beam { display: none; }
+  .talisman-frame:has(.sword-qr-wrap.is-ready:not(.is-bright)) { background: #F4EEE0; }
   .talisman-corner {
     position: absolute;
     width: 14px;
@@ -571,6 +733,18 @@
     border-color: var(--gold);
     pointer-events: none;
     z-index: 5;
+  }
+
+  /* 萬劍歸宗 QR 劍陣（public/sword-qr.js） */
+  .sword-qr-wrap { position: relative; width: min(270px, 72vw); aspect-ratio: 1 / 1; }
+  .sword-qr-host { position: absolute; inset: 0; border-radius: 10px; overflow: hidden; opacity: 0; transition: opacity .35s cubic-bezier(.32,.72,0,1); }
+  .sword-qr-wrap.is-ready .sword-qr-host { opacity: 1; }
+  .sword-qr-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; border-radius: 8px; }
+  .sword-qr-wrap.is-fallback { width: auto; aspect-ratio: auto; }
+  .sword-qr-wrap.is-fallback .sword-qr-host { display: none; }
+  .sword-qr-wrap.is-fallback .sword-qr-img { position: static; width: auto; height: auto; max-height: 350px; max-width: 270px; }
+  @media (prefers-reduced-motion: reduce) {
+    .talisman-frame::after, .talisman-scanner-beam { animation: none; }
   }
 </style>
 
@@ -755,18 +929,47 @@
   function todayKey() { var d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
   var DEFAULT_GATE_QR = '/gate-qr.png';
   var GATE_QR_MAX_AGE = 3 * 86400000;
-  /* ponytail: 提供的產生器固定門禁編碼，日期是顯示／檔名；球館換碼時替換 public/gate-qr.png。 */
+  /* 球館每月換一次門禁碼，public/gate-qr.png 只在這個月有效。換月時三處要一起更新：
+     圖檔本身、scripts/generate_gate_qr.py 的 GATE_PASS_CODE，以及下面的月份。
+     沒更新就寧可不給圖——帶著過期的碼走到閘機前刷不過，比沒有碼更糟。 */
+  var DEFAULT_GATE_QR_MONTH = '2026-10';
+  function monthOfEvent(ev) {
+    var m = String((ev && ev.date) || '').split('/').join('-').slice(0, 7);
+    return (m.length === 7 && m.charAt(4) === '-') ? m : '';
+  }
+  function defaultGateQrFresh(ev) {
+    /* 活動沒填日期時，以今天所在月份判斷 */
+    return (monthOfEvent(ev) || todayKey().slice(0, 7)) === DEFAULT_GATE_QR_MONTH;
+  }
   function gateQrOf(ev) {
     if (!ev) return '';
     if (ev.date) {
       var stamp = Date.parse(String(ev.date).replace(/\//g, '-') + 'T23:59:59+08:00');
       if (Number.isFinite(stamp) && stamp < Date.now() - GATE_QR_MAX_AGE) return '';
     }
-    return ev.gateQr || DEFAULT_GATE_QR;
+    if (ev.gateQr) return ev.gateQr;
+    return defaultGateQrFresh(ev) ? DEFAULT_GATE_QR : '';
   }
   function gateQrDateOf(ev) {
     if (!ev) return '';
     return String(ev.gateQr ? (ev.gateQrDate || ev.dateText || ev.date) : (ev.date || ev.dateText || ev.gateQrDate || '')).replace(/-/g, '/');
+  }
+  /* 萬劍歸宗 QR 劍陣：由 /sword-qr.js 把門禁 QR 化為飛劍陣（與 board.html 同一份元件）。
+     解析中先顯示原圖；解析或「劍陣自檢解碼」失敗就一直顯示原圖，入場永遠不受影響。 */
+  function SwordQrSeal(p) {
+    var hostRef = useRef(null), ctlRef = useRef(null);
+    var modeState = useState('loading'), mode = modeState[0], setMode = modeState[1];
+    useEffect(function () {
+      if (!window.SwordQR || !hostRef.current) { setMode('fallback'); return; }
+      setMode('loading');
+      var ctl = window.SwordQR.create(hostRef.current, { src: p.src, bright: !!p.bright, onState: setMode });
+      ctlRef.current = ctl;
+      return function () { ctl.destroy(); ctlRef.current = null; };
+    }, [p.src]);
+    useEffect(function () { if (ctlRef.current) ctlRef.current.setBright(!!p.bright); }, [p.bright]);
+    return D('sword-qr-wrap is-' + mode + (p.bright ? ' is-bright' : ''),
+      E('div', { ref: hostRef, className: 'sword-qr-host' }),
+      mode !== 'ready' ? E('img', { src: p.src, alt: p.alt || '門禁 QR Code', className: 'sword-qr-img select-none' }) : null);
   }
   function displayEventDate(iso) {
     var m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -1249,6 +1452,129 @@
 
   function LoadingSkeleton() { return D('grid gap-4 py-5',{role:'status','aria-label':'正在讀取管理資料'},D('grid gap-3 sm:grid-cols-[1fr_auto]',D('skeleton h-9 w-44 rounded-xl'),D('skeleton h-10 w-28 rounded-full')),D('skeleton h-20 rounded-[20px]'),D('skeleton h-44 rounded-[20px]'),D('grid gap-3 sm:grid-cols-2',D('skeleton h-32 rounded-[20px]'),D('skeleton h-32 rounded-[20px]')),E('p',{className:'mt-2 text-center text-[12px] ' + T3},'正在接引宗門靈脈…')); }
 
+  /* ---------------- 仙道分頁御劍轉場動效 (Cinematic Tab Transitions) ---------------- */
+  function getSwordSvg() {
+    return '<svg class="w-10 sm:w-12 h-56 sm:h-64 drop-shadow-[0_0_20px_rgba(127,214,160,0.95)]" viewBox="0 0 40 220" fill="none">' +
+      '<path d="M20 0 L27 35 L25 155 L20 160 L15 155 L13 35 Z" fill="url(#bladeG)" />' +
+      '<path d="M20 5 L20 155" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" opacity="0.95"/>' +
+      '<rect x="7" y="157" width="26" height="8" rx="3" fill="url(#goldG)" stroke="#FFE8A0" stroke-width="1"/>' +
+      '<circle cx="20" cy="161" r="3.5" fill="#1B4D3E" stroke="#FFE8A0" stroke-width="1"/>' +
+      '<rect x="17" y="165" width="6" height="34" rx="2" fill="#11241D" stroke="#3D6555" stroke-width="1.2"/>' +
+      '<circle cx="20" cy="202" r="5" fill="url(#goldG)"/>' +
+      '<path d="M20 206 Q14 217 21 228" stroke="#9BC3AE" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<path d="M20 206 Q26 218 19 228" stroke="#C9A961" stroke-width="2" stroke-linecap="round"/>' +
+      '<defs>' +
+        '<linearGradient id="bladeG" x1="0" y1="0" x2="1" y2="0">' +
+          '<stop offset="0%" stop-color="#3D735C"/>' +
+          '<stop offset="50%" stop-color="#E2F8EE"/>' +
+          '<stop offset="100%" stop-color="#3D735C"/>' +
+        '</linearGradient>' +
+        '<linearGradient id="goldG" x1="0" y1="0" x2="1" y2="1">' +
+          '<stop offset="0%" stop-color="#FFEBB0"/>' +
+          '<stop offset="50%" stop-color="#C9A961"/>' +
+          '<stop offset="100%" stop-color="#7A5B18"/>' +
+        '</linearGradient>' +
+      '</defs>' +
+    '</svg>';
+  }
+
+  var _tabRitualTimer = null;
+  function playTabRitual(tabKey) {
+    try {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var overlay = document.getElementById('cinematic-fx');
+      if (!overlay) return;
+      if (_tabRitualTimer) clearTimeout(_tabRitualTimer);
+      overlay.innerHTML = '';
+      document.body.classList.remove('screen-shake');
+
+      if (tabKey === 'events') {
+        overlay.innerHTML =
+          '<div class="fx-sword-rift"></div>' +
+          '<div class="fx-sword-fly-1">' + getSwordSvg() + '</div>' +
+          '<div class="fx-sword-fly-2">' + getSwordSvg() + '</div>' +
+          '<div class="fx-sword-fly-3">' + getSwordSvg() + '</div>' +
+          '<div class="fx-sigil-badge pointer-events-none rounded-2xl border border-[rgba(155,195,174,.45)] bg-[rgba(8,18,15,.92)] px-6 py-3 text-center shadow-[0_0_40px_rgba(127,214,160,.45)] backdrop-blur-md">' +
+            '<span class="disp text-lg sm:text-xl font-black tracking-widest text-[#D7F7E6]">落雲宗 · 試煉戰帖</span>' +
+            '<span class="block text-[10px] sm:text-xs tracking-[.35em] text-[var(--jade-300)] mt-0.5">青竹飛劍 · 破空開壇</span>' +
+          '</div>';
+      } else if (tabKey === 'board') {
+        overlay.innerHTML =
+          '<div class="fx-bagua-circle flex items-center justify-center pointer-events-none">' +
+            '<svg class="w-full h-full text-[var(--jade-300)] drop-shadow-[0_0_45px_rgba(155,195,174,0.85)]" viewBox="0 0 400 400" fill="none">' +
+              '<circle cx="200" cy="200" r="185" stroke="currentColor" stroke-width="2.5" stroke-dasharray="8 6"/>' +
+              '<circle cx="200" cy="200" r="160" stroke="currentColor" stroke-width="1.8"/>' +
+              '<circle cx="200" cy="200" r="115" stroke="currentColor" stroke-width="2"/>' +
+              '<path d="M200 15 L200 40 M200 360 L200 385 M15 200 L40 200 M360 200 L385 200" stroke="currentColor" stroke-width="3"/>' +
+              '<path d="M200 85 A57.5 57.5 0 0 1 200 200 A57.5 57.5 0 0 0 200 315 A115 115 0 0 1 200 85 Z" fill="currentColor" opacity="0.3"/>' +
+              '<circle cx="200" cy="142.5" r="12" fill="currentColor" opacity="0.85"/>' +
+              '<circle cx="200" cy="257.5" r="12" stroke="currentColor" stroke-width="3"/>' +
+            '</svg>' +
+          '</div>' +
+          '<div class="fx-sigil-badge pointer-events-none rounded-2xl border border-[rgba(155,195,174,.45)] bg-[rgba(8,18,15,.92)] px-6 py-3 text-center shadow-[0_0_40px_rgba(155,195,174,.45)] backdrop-blur-md">' +
+            '<span class="disp text-lg sm:text-xl font-black tracking-widest text-[#D7F7E6]">天罡演武 · 乾坤排陣</span>' +
+            '<span class="block text-[10px] sm:text-xs tracking-[.35em] text-[var(--jade-300)] mt-0.5">羽球戰術 · 算無遺策</span>' +
+          '</div>';
+      } else if (tabKey === 'members') {
+        var swordsHtml = '';
+        var pos = [
+          { sx: '-35vw', ex: '-18vw', ey: '48vh', rot: '-20deg', erot: '12deg', del: '0s' },
+          { sx: '-16vw', ex: '-9vw', ey: '42vh', rot: '-10deg', erot: '25deg', del: '0.04s' },
+          { sx: '0vw', ex: '0vw', ey: '38vh', rot: '0deg', erot: '0deg', del: '0.08s' },
+          { sx: '16vw', ex: '9vw', ey: '42vh', rot: '10deg', erot: '-25deg', del: '0.05s' },
+          { sx: '35vw', ex: '18vw', ey: '48vh', rot: '20deg', erot: '-12deg', del: '0.02s' }
+        ];
+        pos.forEach(function(p) {
+          swordsHtml += '<div class="fx-constellation-sword" style="left:50%; --startX:' + p.sx + '; --endX:' + p.ex + '; --endY:' + p.ey + '; --rot:' + p.rot + '; --endRot:' + p.erot + '; animation-delay:' + p.del + ';">' + getSwordSvg() + '</div>';
+        });
+        overlay.innerHTML = swordsHtml +
+          '<div class="fx-sigil-badge pointer-events-none rounded-2xl border border-[rgba(155,195,174,.45)] bg-[rgba(8,18,15,.92)] px-6 py-3 text-center shadow-[0_0_40px_rgba(127,214,160,.45)] backdrop-blur-md">' +
+            '<span class="disp text-lg sm:text-xl font-black tracking-widest text-[#D7F7E6]">萬法玉簡 · 星宿列陣</span>' +
+            '<span class="block text-[10px] sm:text-xs tracking-[.35em] text-[var(--jade-300)] mt-0.5">弟子名籍 · 諸星歸位</span>' +
+          '</div>';
+      } else if (tabKey === 'venues') {
+        overlay.innerHTML =
+          '<div class="fx-bagua-circle flex items-center justify-center pointer-events-none">' +
+            '<svg class="w-full h-full text-[var(--gold)] drop-shadow-[0_0_45px_rgba(201,169,97,0.85)]" viewBox="0 0 400 400" fill="none">' +
+              '<circle cx="200" cy="200" r="185" stroke="currentColor" stroke-width="2.5" stroke-dasharray="8 6"/>' +
+              '<circle cx="200" cy="200" r="160" stroke="currentColor" stroke-width="1.8"/>' +
+              '<circle cx="200" cy="200" r="115" stroke="currentColor" stroke-width="2"/>' +
+              '<path d="M200 15 L200 40 M200 360 L200 385 M15 200 L40 200 M360 200 L385 200" stroke="currentColor" stroke-width="3"/>' +
+              '<path d="M200 85 A57.5 57.5 0 0 1 200 200 A57.5 57.5 0 0 0 200 315 A115 115 0 0 1 200 85 Z" fill="currentColor" opacity="0.3"/>' +
+              '<circle cx="200" cy="142.5" r="12" fill="currentColor" opacity="0.85"/>' +
+              '<circle cx="200" cy="257.5" r="12" stroke="currentColor" stroke-width="3"/>' +
+            '</svg>' +
+          '</div>' +
+          '<div class="fx-sigil-badge pointer-events-none rounded-2xl border border-[rgba(201,169,97,.45)] bg-[rgba(22,18,10,.92)] px-6 py-3 text-center shadow-[0_0_40px_rgba(201,169,97,.45)] backdrop-blur-md">' +
+            '<span class="disp text-lg sm:text-xl font-black tracking-widest text-[#FFF2CC]">洞天福地 · 乾坤八卦</span>' +
+            '<span class="block text-[10px] sm:text-xs tracking-[.35em] text-[var(--gold)] mt-0.5">尋龍定穴 · 洞府陣啟</span>' +
+          '</div>';
+      } else if (tabKey === 'admin' || tabKey === 'admins' || tabKey === 'logs') {
+        document.body.classList.add('screen-shake');
+        setTimeout(function(){ document.body.classList.remove('screen-shake'); }, 380);
+        overlay.innerHTML =
+          '<div class="fixed inset-0 bg-gradient-to-b from-[rgba(158,143,192,.35)] via-[rgba(201,169,97,.15)] to-transparent pointer-events-none animate-pulse"></div>' +
+          '<div class="fx-seal-drop pointer-events-none">' +
+            '<div class="h-28 w-28 sm:h-32 sm:w-32 rounded-3xl bg-gradient-to-br from-[#FFEBA0] via-[#C9A961] to-[#684C10] p-1 shadow-[0_0_60px_rgba(201,169,97,.9)] flex items-center justify-center border-2 border-[#FFF2CC]">' +
+              '<div class="h-full w-full rounded-[22px] border-2 border-[rgba(0,0,0,.3)] flex flex-col items-center justify-center text-[#1A1305]">' +
+                '<span class="disp text-3xl sm:text-4xl font-black tracking-widest">落雲</span>' +
+                '<span class="disp text-xs font-bold tracking-[.35em] mt-1">掌門之印</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="fx-seal-wave pointer-events-none"></div>' +
+          '<div class="fx-sigil-badge pointer-events-none rounded-2xl border border-[rgba(201,169,97,.55)] bg-[rgba(26,18,8,.94)] px-6 py-3 text-center shadow-[0_0_45px_rgba(201,169,97,.55)] backdrop-blur-md">' +
+            '<span class="disp text-lg sm:text-xl font-black tracking-widest text-[#FFF3D1]">掌門至尊 · 金印鎮天</span>' +
+            '<span class="block text-[10px] sm:text-xs tracking-[.35em] text-[var(--gold)] mt-0.5">紫氣浩蕩 · 萬法歸宗</span>' +
+          '</div>';
+      }
+
+      _tabRitualTimer = setTimeout(function() {
+        if (overlay) overlay.innerHTML = '';
+      }, 1050);
+    } catch(e) {}
+  }
+
   /* ---------------- app ---------------- */
   function App() {
     var a = useState({ members: [], events: [], venues: [], intents: [], admins: [], logs: [] }), state = a[0], setState = a[1];
@@ -1281,7 +1607,7 @@
     var errorState = useState(''), error = errorState[0], setError = errorState[1];
     var syncState = useState('連線中'), syncLabel = syncState[0], setSyncLabel = syncState[1];
     var themeState = useState(document.documentElement.dataset.theme || 'dark'), theme = themeState[0], setTheme = themeState[1];
-    var version = useRef(-1), lock = useRef(false), toastTimers = useRef([]), fxTimer = useRef(null), epoch = useRef(0), landingPlayed = useRef(false), riteFrame = useRef(null), riteReady = useRef(false), landingWaiting = useRef(false), landingTimer = useRef(null);
+    var version = useRef(-1), lock = useRef(false), toastTimers = useRef([]), fxTimer = useRef(null), epoch = useRef(0), landingPlayed = useRef(false), riteFrame = useRef(null), riteReady = useRef(false), landingWaiting = useRef(false), landingTimer = useRef(null), lastSnap = useRef('');
     var members = state.members || [], events = state.events || [], venues = state.venues || [], intents = state.intents || [], admins = state.admins || [], logs = state.logs || [];
     var isAdmin = !!me, isSuper = !!(me && me.superAdmin), dbx = true;
 
@@ -1328,7 +1654,7 @@
       setRiteEpoch(function (k) { return k + 1; });
       setRiteMounted(true);
     }
-    function flash(msg, kind, fxKind) { var item={id:Date.now()+Math.random(),msg:msg,kind:kind||'ok',fx:fxKind||''}; setToasts(function(old){return old.concat(item).slice(-3);}); invokeFx(fxKind); var timer=setTimeout(function(){setToasts(function(old){return old.filter(function(x){return x.id!==item.id;});});},4000); toastTimers.current.push(timer); }
+    function flash(msg, kind, fxKind) { var item={id:Date.now()+Math.random(),msg:msg,kind:kind||'ok',fx:fxKind||''}; setToasts(function(old){return old.concat(item).slice(-3);}); invokeFx(fxKind); var timer=setTimeout(function(){toastTimers.current=toastTimers.current.filter(function(t){return t!==timer;});setToasts(function(old){return old.filter(function(x){return x.id!==item.id;});});},4000); toastTimers.current.push(timer); }
     function setModal(value) {
       setError(''); setModalState(value ? Object.assign({ version: version.current }, value) : null);
     }
@@ -1342,9 +1668,19 @@
       if (!response.ok) throw Object.assign(new Error(data.error || '連線失敗'), { status: response.status });
       return data;
     }
+    /* 輪詢去重：內容與上次相同就不 setState，避免每 5 秒整頁重新 render。 */
+    function sameSnap(key, data) {
+      var snap = '';
+      try { snap = key + JSON.stringify(data); } catch (e) { snap = ''; }
+      if (snap && snap === lastSnap.current) return true;
+      lastSnap.current = snap;
+      return false;
+    }
     function accept(data) {
       if (data.version < version.current) return;
-      version.current = data.version; setState(data); setMe(data.me); setSyncLabel('已同步・每 5 秒更新');
+      version.current = data.version; setSyncLabel('已同步・每 5 秒更新');
+      if (sameSnap('state:', data)) return;
+      setState(data); setMe(data.me);
     }
     async function refresh() {
       var requestEpoch = epoch.current, session = await api('session');
@@ -1355,10 +1691,12 @@
       } else {
         var publicData = await api('public');
         if (requestEpoch !== epoch.current) return;
-        version.current = publicData.version; setMe(null);
-        setState({ members: [], events: publicData.events || [], venues: publicData.venues || [], intents: [], admins: [], logs: [] });
-        setTab(function (curr) { return (curr === 'board' || curr === 'events') ? curr : 'events'; });
+        version.current = publicData.version;
         setSyncLabel('公開佈告・每 5 秒更新');
+        setTab(function (curr) { return (curr === 'board' || curr === 'events') ? curr : 'events'; });
+        if (sameSnap('public:', publicData)) return;
+        setMe(null);
+        setState({ members: [], events: publicData.events || [], venues: publicData.venues || [], intents: [], admins: [], logs: [] });
       }
     }
     useEffect(function () {
@@ -1458,7 +1796,8 @@
       saveAdmin: saveAdmin, removeAdmin: removeAdmin, changePin: changePin, changeHonorific: changeHonorific,
       saveVenue: saveVenue, removeVenue: removeVenue, approveIntent: approveIntent, rejectIntent: rejectIntent,
       login: login, logout: logout, loadLogs: loadLogs,
-      setTab: setTab, setOpenEventId: setOpenEventId, theme: theme, toggleTheme: toggleTheme
+      setTab: setTab, setOpenEventId: setOpenEventId, theme: theme, toggleTheme: toggleTheme,
+      playTabRitual: playTabRitual
     };
 
     var body;
@@ -1478,6 +1817,7 @@
     }
 
     return E(BusyContext.Provider, { value: busy }, D('min-h-screen pb-28 sect-enter',
+      E('div', { id: 'cinematic-fx', className: 'pointer-events-none fixed inset-0 z-[95] overflow-hidden', 'aria-hidden': 'true' }),
       E(TopBar, Object.assign({ tab: tab, openEvent: openEvent }, ctx)),
       E('main', { className: 'mx-auto w-full max-w-5xl px-4 pt-11 sm:px-6' },
         error && !modal ? E('p', { role: 'alert', className: 'mb-5 rounded-2xl inlay p-4 ' + CIN }, error) : null,
@@ -1604,6 +1944,10 @@
           title: '前往試煉佈告',
           'aria-label': '落雲宗，前往試煉佈告',
           onClick: function () {
+            if (p.tab !== 'events' || p.openEvent) {
+              if (p.playTabRitual) p.playTabRitual('events');
+              else if (typeof playTabRitual === 'function') playTabRitual('events');
+            }
             p.setOpenEventId(null);
             p.setTab('events');
             window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
@@ -1658,7 +2002,14 @@
           var active = p.tab === t.k && !p.openEvent;
           return E('button', {
             key: t.k,
-            onClick: function () { p.setOpenEventId(null); p.setTab(t.k); },
+            onClick: function () {
+              if (p.tab !== t.k || p.openEvent) {
+                if (p.playTabRitual) p.playTabRitual(t.k);
+                else if (typeof playTabRitual === 'function') playTabRitual(t.k);
+              }
+              p.setOpenEventId(null);
+              p.setTab(t.k);
+            },
             className: 'btn inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-[13px] font-medium ' +
               (active ? 'nav-seal-active ' : '') +
               (active ? 'text-[var(--jade-100)]' : T3 + ' hover:text-[var(--mist-1)] hover:bg-[rgba(228,235,232,.045)]'),
@@ -1695,7 +2046,13 @@
       if (kk === 'male' || kk === 'female') return m.gender === kk;
       return realmOf(m.level) === kk;
     }
-    function countOf(kk) { return p.members.filter(function (m) { return match(m, kk); }).length; }
+    /* 一次掃描算出所有篩選計數（原本每顆篩選膠囊各自 filter 一遍名冊）。 */
+    var counts = { all: p.members.length, male: 0, female: 0 };
+    p.members.forEach(function (m) {
+      if (m.gender === 'male' || m.gender === 'female') counts[m.gender]++;
+      var r = realmOf(m.level); counts[r] = (counts[r] || 0) + 1;
+    });
+    function countOf(kk) { return counts[kk] || 0; }
 
     var rows = byGender(p.members.filter(function (m) {
       if (!match(m, filter)) return false;
@@ -2522,10 +2879,18 @@
     }
     var benchFilterState = useState('all'), benchFilter = benchFilterState[0], setBenchFilter = benchFilterState[1];
     var nowTickState = useState(Date.now()), nowTime = nowTickState[0], setNowTime = nowTickState[1];
+    /* 只有場上有計時中的對戰（matchStart）時才每秒更新；分頁隱藏時暫停，避免整個排位面板無謂地每秒重繪。 */
+    var hasLiveTimer = courts.some(function (c) { return !!c.matchStart; });
     useEffect(function () {
-      var t = setInterval(function () { setNowTime(Date.now()); }, 1000);
-      return function () { clearInterval(t); };
-    }, []);
+      if (!hasLiveTimer) return;
+      var t = null;
+      function run() { if (t === null && !document.hidden) { setNowTime(Date.now()); t = setInterval(function () { setNowTime(Date.now()); }, 1000); } }
+      function stop() { if (t !== null) { clearInterval(t); t = null; } }
+      function onVis() { if (document.hidden) stop(); else run(); }
+      run();
+      document.addEventListener('visibilitychange', onVis);
+      return function () { stop(); document.removeEventListener('visibilitychange', onVis); };
+    }, [hasLiveTimer]);
 
     var selBenchState = useState(null), selectedBench = selBenchState[0], setSelectedBench = selBenchState[1];
     var selSlotState = useState(null), selectedSlot = selSlotState[0], setSelectedSlot = selSlotState[1];
@@ -4194,10 +4559,7 @@
           D('talisman-corner right-1.5 top-1.5 border-r-2 border-t-2'),
           D('talisman-corner left-1.5 bottom-1.5 border-l-2 border-b-2'),
           D('talisman-corner right-1.5 bottom-1.5 border-r-2 border-b-2'),
-          E('img', {
-            src: qrData, alt: '門禁QRCode',
-            className: 'max-h-[350px] max-w-[270px] object-contain select-none rounded-lg'
-          }),
+          E(SwordQrSeal, { src: qrData, bright: fullBright, alt: '門禁QRCode' }),
           D('mt-2 text-center',
             E('strong', { className: 'disp block text-sm ' + (fullBright ? 'text-black' : T1) }, '門禁QRCode'),
             E('span', { className: 'mt-0.5 block text-xs ' + (fullBright ? 'text-gray-700' : T3) }, '(日期：' + (qrDate || '依活動日期') + ')'))
@@ -4208,7 +4570,7 @@
         ),
         qrData ? D('mt-2 flex items-center gap-2 text-center text-xs ' + (fullBright ? 'text-gray-700' : T3),
           E(Icon, { name: 'Info', size: 14, className: 'shrink-0 text-[var(--gold)]' }),
-          S('', autoQr ? '系統已依活動日期自動產生，不需上傳；請對準球館閘門條碼機掃描入場。' : '此活動使用自訂門禁 QR，請對準球館閘門條碼機掃描入場。')) : null
+          S('', autoQr ? ('此為球館 ' + DEFAULT_GATE_QR_MONTH.replace('-', ' 年 ') + ' 月公用門禁碼，不需上傳；請對準球館閘門條碼機掃描入場。') : '此活動使用自訂門禁 QR，請對準球館閘門條碼機掃描入場。')) : null
       ));
   }
 
@@ -4706,14 +5068,14 @@
           D('flex items-center justify-between gap-2 mb-3',
             D('flex items-center gap-2',
               E(Icon, { name: 'QrCode', size: 16, className: 'text-[var(--jade-3)]' }),
-              E('span', { className: 'text-sm font-semibold ' + T1 }, '門禁 QR Code（系統自動產生）')
+              E('span', { className: 'text-sm font-semibold ' + T1 }, ('門禁 QR Code（系統內建公用碼・' + DEFAULT_GATE_QR_MONTH.replace('-', ' 年 ') + ' 月）'))
             ),
             f.gateQr ? E(Btn, {
               variant: 'danger', size: 'sm', icon: 'Trash2',
               onClick: function () { up('gateQr', ''); }
             }, '清除 QR 碼') : null
           ),
-          E('p', { className: 'mb-3 text-[11px] leading-relaxed ' + T3 }, '不必逐場上傳：未設定自訂圖片時，前台會直接使用系統門禁 QR，並依本場活動日期顯示。只有球館換碼時才需要上傳自訂 QR。'),
+          E('p', { className: 'mb-3 text-[11px] leading-relaxed ' + T3 }, ('不必逐場上傳：未設定自訂圖片時，前台會套用系統內建的球館公用門禁碼（' + DEFAULT_GATE_QR_MONTH.replace('-', ' 年 ') + ' 月）。球館每月換碼，活動若不在該月份，前台不會顯示 QR，請改上傳當月自訂圖片。')),
           D('grid grid-cols-1 sm:grid-cols-2 gap-3',
             E(Field, { label: 'QR 碼有效日期' },
               E('input', {

@@ -83,6 +83,10 @@ test('shared club: authentication, permissions, persistence, validation and conf
     assert.equal(gateQrHead.status, 200);
     assert.equal(Number(gateQrHead.headers.get('content-length')), gateQrBytes.length);
     assert.equal((await fetch(base + '/gate-qr.png', { method: 'POST' })).status, 405);
+    const swordQr = await fetch(base + '/sword-qr.js');
+    assert.equal(swordQr.status, 200);
+    assert.equal(swordQr.headers.get('content-type'), 'text/javascript; charset=utf-8');
+    assert.ok((await swordQr.text()).includes('root.SwordQR'), '飛劍劍陣模組要能載入');
   });
   await t.test('first setup requires a secret and secure password; no second setup', async () => {
     assert.equal((await request('/api/setup', { ...owner, token: 'wrong' })).status, 403);

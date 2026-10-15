@@ -7,6 +7,12 @@ import sqlite3
 import qrcode
 from PIL import Image, ImageDraw, ImageFont
 
+# 球館每月換一次門禁碼，無法由日期推算，只能照球館公告填入。
+# 換月時「同時」更新這兩個值，重新產生 public/gate-qr.png，
+# 並把 console.html / board.html 的 DEFAULT_GATE_QR_MONTH 改成同一個月份。
+GATE_PASS_CODE = "QRCo16H9352771101524192"   # 2026 年 10 月
+GATE_PASS_MONTH = "2026-10"
+
 def create_center_badge(size=76):
     """繪製落雲宗羽球靈印（白底、金邊環、碧玉羽毛、金絲飾帶、翡翠球頭）"""
     badge = Image.new('RGBA', (size, size), (0, 0, 0, 0))
@@ -209,7 +215,7 @@ def apply_to_database(db_path, target_date, date_display, image_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="產生羽球場門禁 QR Code 圖片並可自動配置進系統")
-    parser.add_argument("--code", default="QRCo16H1695320695588192", help="門禁 QR Code 內容字串")
+    parser.add_argument("--code", default=GATE_PASS_CODE, help="門禁 QR Code 內容字串（預設為 " + GATE_PASS_MONTH + " 當月碼）")
     parser.add_argument("--date", default="2026/09/25", help="標註日期 (格式: YYYY/MM/DD 或 YYYY-MM-DD)")
     parser.add_argument("--display-date", default="9/25 (五)", help="簡要顯示日期 (如: 9/25 (五))")
     parser.add_argument("--output", default="qrcode_20260925.png", help="輸出圖片檔名")
