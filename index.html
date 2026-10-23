@@ -34,9 +34,9 @@
 <style>
   :root{
     --ink-0:#101A1E; --ink-1:#16242A;
-    --mist-1:#EEF5F1; --mist-2:#B9CAC3; --mist-3:#91A39B;
-    --jade-100:#D5E7DC; --jade-300:#9BC3AE; --jade-500:#6E9E88; --jade-700:#3D6555;
-    --gold:#C9A961; --cinnabar:#D07A6C; --amethyst:#9E8FC0;
+    --mist-1:#F5FBF8; --mist-2:#D6E5DE; --mist-3:#AEBFB7;
+    --jade-100:#E2F2E9; --jade-300:#A8D4BE; --jade-500:#6E9E88; --jade-700:#3D6555;
+    --gold:#DFC076; --cinnabar:#E28C7E; --amethyst:#B7A8DA;
     --logo-emerald:#1F6B55; --logo-cyan:#4BB5BD; --logo-gold:#D2AC55;
     --hair:rgba(228,235,232,.10); --hair-2:rgba(228,235,232,.17);
     --ease:cubic-bezier(.32,.72,0,1);
@@ -143,7 +143,7 @@
 
   /* surfaces */
   .card{
-    background:linear-gradient(180deg,rgba(228,235,232,.085) 0%,rgba(228,235,232,.035) 100%);
+    background:linear-gradient(180deg,rgba(15,28,32,.96) 0%,rgba(8,19,23,.94) 100%);
     border:1px solid var(--hair);border-radius:20px;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 18px 40px -32px rgba(0,0,0,.9);
     padding:1.35rem;margin-top:1rem;
@@ -151,7 +151,7 @@
   .event-card{content-visibility:auto;contain-intrinsic-size:780px}
   @media (min-width:640px){.card{padding:1.7rem}}
   .inlay{
-    background:linear-gradient(180deg,rgba(228,235,232,.03),rgba(228,235,232,.012));
+    background:linear-gradient(180deg,rgba(8,16,19,.52),rgba(6,13,16,.68));
     border:1px solid var(--hair);border-radius:18px;
   }
 
@@ -160,7 +160,7 @@
   .seal{
     position:relative;width:58px;height:58px;flex:none;border-radius:18px;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    background:linear-gradient(180deg,rgba(228,235,232,.03),rgba(228,235,232,.012));
+    background:linear-gradient(180deg,rgba(8,16,19,.52),rgba(6,13,16,.68));
     border:1px solid var(--hair);
   }
   .seal .d{font-family:'Noto Serif TC',Georgia,serif;font-size:24px;font-weight:700;line-height:1;color:var(--mist-1);font-variant-numeric:tabular-nums}
@@ -229,7 +229,7 @@
   .info{display:grid;gap:.9rem}
   .info .row{display:flex;align-items:flex-start;gap:.7rem}
   .info .ic{width:32px;height:32px;flex:none;border-radius:11px;display:flex;align-items:center;justify-content:center;
-    background:linear-gradient(180deg,rgba(228,235,232,.03),rgba(228,235,232,.012));border:1px solid var(--hair);color:var(--mist-3)}
+    background:linear-gradient(180deg,rgba(8,16,19,.52),rgba(6,13,16,.68));border:1px solid var(--hair);color:var(--mist-3)}
   .info .k{display:block;font-size:.66rem;color:var(--mist-3);letter-spacing:.02em}
   .info .v{display:block;font-size:.84rem;font-weight:500;color:var(--mist-1);margin-top:.15rem;line-height:1.5}
   .notes{margin:1rem 0 0;padding:1rem 0 0;border-top:1px solid var(--hair);list-style:none}
@@ -277,7 +277,7 @@
 
   .empty{border:1px dashed var(--hair-2);border-radius:20px;padding:2.6rem 1rem;text-align:center;color:var(--mist-3);font-size:.85rem;margin-top:1rem}
   .foot{margin:1.8rem 0 3rem;padding:1.2rem;border-radius:20px;
-    background:linear-gradient(180deg,rgba(228,235,232,.03),rgba(228,235,232,.012));
+    background:linear-gradient(180deg,rgba(8,16,19,.52),rgba(6,13,16,.68));
     border:1px solid var(--hair);font-size:.79rem;color:var(--mist-3);line-height:1.8}
   .foot strong{color:var(--mist-2)}
 
@@ -347,9 +347,9 @@
   /* ── 淺色主題：高對比宣紙丹青古風調色 ── */
   html[data-theme="light"]{
     --ink-0:#F3ECE0;--ink-1:#FBF6EE;--ink-2:#EDE3D3;
-    --mist-1:#162822;--mist-2:#2F473C;--mist-3:#4D6559;
-    --jade-100:#113B2E;--jade-300:#1F5642;--jade-500:#336E55;--jade-700:#1A4535;
-    --gold:#7E5710;--cinnabar:#9E3729;--amethyst:#5A4A7D;
+    --mist-1:#0F201A;--mist-2:#253A31;--mist-3:#41594E;
+    --jade-100:#0E3C2E;--jade-300:#16543F;--jade-500:#297057;--jade-700:#144232;
+    --gold:#694609;--cinnabar:#9E2C1E;--amethyst:#4A356E;
     --hair:rgba(68,54,34,.16);--hair-2:rgba(46,75,61,.28);
     color-scheme:light;
   }
@@ -372,6 +372,21 @@
   html[data-theme="light"] .ro{background:linear-gradient(180deg,rgba(62,119,91,.18),rgba(236,227,210,.88));border-color:rgba(31,86,66,.3)}
   html[data-theme="light"] .flow{background:rgba(30,68,52,.12);box-shadow:inset 0 1px 2px rgba(20,50,38,.18)}
   html[data-theme="light"] .cloud-bank{opacity:.12}
+  html[data-theme="light"] .eyebrow{background:linear-gradient(180deg,rgba(30,102,78,.15),rgba(30,102,78,.06));border-color:rgba(30,102,78,.28);color:var(--jade-100)}
+  html[data-theme="light"] .names li{background:linear-gradient(180deg,rgba(248,243,233,.98),rgba(235,226,210,.92));border-color:rgba(60,48,30,.22);color:var(--mist-1)}
+  html[data-theme="light"] .realm-badge{background:linear-gradient(180deg,rgba(252,248,240,.98),rgba(239,231,216,.98)) padding-box,conic-gradient(from var(--realm-angle,0deg),var(--realm-a),var(--realm-b),var(--realm-c),var(--realm-a)) border-box;text-shadow:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 4px 12px -4px rgba(45,68,55,.22)}
+  html[data-theme="light"] .realm-qi{--realm-a:#2E7055;--realm-b:#76B89A;--realm-c:#1A4A38;--realm-text:#114432;--realm-glow:rgba(46,112,85,.28)}
+  html[data-theme="light"] .realm-foundation{--realm-a:#266070;--realm-b:#6CB2C4;--realm-c:#17424F;--realm-text:#114352;--realm-glow:rgba(38,96,112,.28)}
+  html[data-theme="light"] .realm-golden{--realm-a:#8C6214;--realm-b:#DFB456;--realm-c:#5E4009;--realm-text:#5E3F06;--realm-glow:rgba(140,98,20,.32)}
+  html[data-theme="light"] .realm-nascent{--realm-a:#5C438A;--realm-b:#A992D6;--realm-c:#3B285E;--realm-text:#3E276B;--realm-glow:rgba(92,67,138,.32)}
+  html[data-theme="light"] .realm-transcendent{--realm-a:#8A5A0D;--realm-b:#E5B84B;--realm-c:#593805;--realm-text:#5C3904;--realm-glow:rgba(138,90,13,.35)}
+  html[data-theme="light"] .realm-refined{--realm-a:#1F666E;--realm-b:#66BDC4;--realm-c:#124247;--realm-text:#0E454B;--realm-glow:rgba(31,102,110,.32)}
+  html[data-theme="light"] .realm-fusion{--realm-a:#2E5082;--realm-b:#7BA3DB;--realm-c:#1B3359;--realm-text:#183561;--realm-glow:rgba(46,80,130,.32)}
+  html[data-theme="light"] .realm-mahayana{--realm-a:#823950;--realm-b:#D9829B;--realm-c:#542031;--realm-text:#5E1D32;--realm-glow:rgba(130,57,80,.34)}
+  html[data-theme="light"] .realm-tribulation{--realm-a:#8F2A1E;--realm-b:#E38B4F;--realm-c:#5E1810;--realm-text:#661B11;--realm-glow:rgba(143,42,30,.38)}
+  html[data-theme="light"] .realm-badge-wrap .realm-tooltip{background:linear-gradient(180deg,rgba(252,249,242,.99),rgba(240,233,219,.99));color:var(--mist-1);border-color:rgba(45,68,55,.32);box-shadow:0 16px 34px -16px rgba(60,48,30,.38)}
+  html[data-theme="light"] .realm-badge-wrap .realm-tooltip::after{background:#F0E9DB;border-color:rgba(45,68,55,.32)}
+  html[data-theme="light"] .realm-tooltip-text{color:var(--mist-2)}
   .qi-ring span{position:relative;z-index:2;font:600 10px 'Noto Serif TC',serif;color:var(--jade-100)}
   .stat-main{position:relative}
   .venue-extra{margin-top:.9rem;padding-top:.9rem;border-top:1px solid var(--hair);font-size:.76rem;color:var(--mist-2);line-height:1.8}
@@ -396,7 +411,7 @@
     position:fixed;inset:0;z-index:400;overflow:hidden;cursor:pointer;contain:layout paint;
     /* 幕布先鋪在 #rite 自己身上，碎片還沒建好的那幾百毫秒才不會露出底下；
        開始裂開時撤掉，縫隙才看得到後面 */
-    background-image:var(--rite-veil);background-size:100vw 100vh;
+    background-image:var(--rite-veil);background-size:100% 100%;
     background-position:0 0;background-repeat:no-repeat;
     --rite-core:#EDFFF6;--rite-jade:#9BC3AE;--rite-deep:#1F6B55;
     --rite-cyan:#4BB5BD;--rite-gold:#C9A961;--rite-void:#6A52C4;
@@ -445,46 +460,112 @@
   .rite-veils{position:absolute;inset:0;perspective:1100px;perspective-origin:center center}
   .rite-shard{
     position:absolute;inset:26px;background-image:var(--rite-veil);
-    background-size:100vw 100vh;background-position:0 0;background-repeat:no-repeat;
+    background-size:100% 100%;background-position:0 0;background-repeat:no-repeat;
     backface-visibility:hidden;transform-style:preserve-3d;
   }
   #rite.is-primed .rite-shard{will-change:transform,opacity}
-  .rite-shard.part{animation:rite-part 840ms cubic-bezier(.36,.01,.16,1) forwards;animation-delay:var(--d,0ms)}
+  .rite-shard.part{animation:rite-part 920ms cubic-bezier(.22,.02,.12,1) forwards;animation-delay:var(--d,0ms)}
   @keyframes rite-part{
-    0%{transform:translate3d(0,0,0) rotateX(0) rotateY(0) rotateZ(0);opacity:1}
-    15%{transform:translate3d(calc(var(--tx) * .08),calc(var(--ty) * .08),calc(var(--tz,40px) * .2)) rotateX(calc(var(--rx,0deg) * .1)) rotateY(calc(var(--ry,0deg) * .1)) rotateZ(calc(var(--rz) * .08));opacity:1}
-    70%{opacity:.6}
-    100%{transform:translate3d(var(--tx),var(--ty),var(--tz,80px)) rotateX(var(--rx,15deg)) rotateY(var(--ry,15deg)) rotateZ(var(--rz));opacity:0}
+    0%{transform:translate3d(0,0,0) scale(1) rotateX(0) rotateY(0) rotateZ(0);opacity:1}
+    /* 虛空黑洞引力：碎片崩解前先向中心裂縫微幅吸扯收縮 80ms */
+    11%{transform:translate3d(calc(var(--tx) * -.045),calc(var(--ty) * -.045),-38px) scale(.972) rotateX(calc(var(--rx,0deg) * -.06)) rotateY(calc(var(--ry,0deg) * -.06)) rotateZ(calc(var(--rz) * -.05));opacity:1}
+    24%{transform:translate3d(calc(var(--tx) * .12),calc(var(--ty) * .12),calc(var(--tz,40px) * .25)) scale(1.01) rotateX(calc(var(--rx,0deg) * .15)) rotateY(calc(var(--ry,0deg) * .15)) rotateZ(calc(var(--rz) * .12));opacity:1}
+    72%{opacity:.58}
+    100%{transform:translate3d(var(--tx),var(--ty),var(--tz,95px)) scale(.92) rotateX(var(--rx,18deg)) rotateY(var(--ry,18deg)) rotateZ(var(--rz));opacity:0}
   }
 
-  /* 全螢幕極光破空劍隙：三刀揮下時撕裂天幕的白熱震撼光痕 */
+  /* 第一幕：元嬰威壓・天威壓境暗角與靈氣倒捲粒子（inset:-25% 預留出血邊界，縮放時絕不露出直角黑框） */
+  .rite-vignette{
+    position:absolute;inset:-25%;pointer-events:none;z-index:1;opacity:0;
+    background:radial-gradient(circle at 50% 50%,transparent 22%,rgba(2,6,8,.55) 52%,rgba(1,3,5,.92) 100%);
+  }
+  #rite.ignite .rite-vignette{animation:rite-vignette-press 760ms cubic-bezier(.2,.8,.2,1) forwards}
+  #rite.burst .rite-vignette{animation:rite-vignette-release 420ms var(--ease) forwards}
+  @keyframes rite-vignette-press{0%{opacity:0;transform:scale(1.12)}75%{opacity:1;transform:scale(.94)}100%{opacity:.95;transform:scale(.9)}}
+  @keyframes rite-vignette-release{to{opacity:0;transform:scale(1.25)}}
+
+  .rite-vortex{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none;z-index:2}
+  .rite-qi-mote{
+    position:absolute;left:0;top:0;width:var(--mw,3px);height:var(--mh,28px);
+    margin-left:calc(var(--mw,3px) * -.5);margin-top:calc(var(--mh,28px) * -.5);
+    border-radius:999px;opacity:0;transform-origin:50% 50%;
+    background:linear-gradient(180deg,transparent 0%,var(--mc,#7FD6A0) 45%,#FFF5C0 88%,#FFFFFF 100%);
+    box-shadow:0 0 12px var(--mc,#7FD6A0),0 0 22px rgba(201,169,97,.75);
+    transform:rotate(var(--ma)) translateY(calc(-1 * var(--mr))) scaleY(.35);
+  }
+  #rite.ignite .rite-qi-mote{animation:qi-implode var(--md,620ms) cubic-bezier(.42,0,.12,1) var(--mdelay,0ms) forwards}
+  @keyframes qi-implode{
+    0%{opacity:0;transform:rotate(var(--ma)) translateY(calc(-1 * var(--mr))) scaleY(.35)}
+    20%{opacity:.95;transform:rotate(calc(var(--ma) + 18deg)) translateY(calc(-.78 * var(--mr))) scaleY(1.35)}
+    82%{opacity:1;transform:rotate(calc(var(--ma) + 72deg)) translateY(-18px) scaleY(.85)}
+    100%{opacity:0;transform:rotate(calc(var(--ma) + 96deg)) translateY(0) scale(.1)}
+  }
+
+  /* 極限凝滯幀（Hit-stop）：萬劍爆發前 60ms 視覺瞬白與空間定格（不對整頁 #rite 套 filter，避免全螢幕重新光柵化卡頓） */
+  #rite.hitstop .rite-stage{transform:translate(-50%,-50%) scale(1.06)}
+  #rite.hitstop .rite-wash{opacity:.32}
+  .rite-shockwave{
+    position:absolute;left:50%;top:50%;width:min(82vmin,38rem);height:min(82vmin,38rem);
+    margin-left:calc(min(82vmin,38rem) * -.5);margin-top:calc(min(82vmin,38rem) * -.5);
+    border-radius:50%;pointer-events:none;z-index:5;opacity:0;
+    border:2.5px solid rgba(255,238,170,.92);
+    box-shadow:0 0 38px rgba(127,214,160,.9),inset 0 0 28px rgba(201,169,97,.85);
+  }
+  .rite-shockwave.go{animation:rite-shock-expand 680ms cubic-bezier(.12,.88,.2,1) forwards}
+  @keyframes rite-shock-expand{
+    0%{opacity:.98;transform:scale(.08);border-width:5px}
+    55%{opacity:.78;border-width:2px}
+    100%{opacity:0;transform:scale(2.45);border-width:.5px}
+  }
+
+  /* 本命球拍周圍纏繞的「金色辟邪神雷」電弧（去 filter 化，改用雙重描邊特效達到零卡頓高光） */
+  .rite-thunder-arcs{position:absolute;inset:-24%;width:148%;height:148%;pointer-events:none;overflow:visible;z-index:4}
+  .rite-bolt-arc{
+    fill:none;stroke:#FFEAA0;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;
+    opacity:0;
+  }
+  .rite-bolt-arc.sub{stroke:#72F2C8;stroke-width:1.6}
+  #rite.ignite .rite-bolt-arc{animation:bolt-flicker 580ms steps(2,end) var(--td,40ms) infinite}
+  #rite.burst .rite-bolt-arc{animation:bolt-burst-out 260ms var(--ease) forwards}
+  @keyframes bolt-flicker{
+    0%,100%{opacity:0;stroke-dashoffset:0}
+    18%{opacity:.98;stroke-width:2.6}
+    36%{opacity:.15}
+    62%{opacity:.92;stroke-width:1.8}
+    84%{opacity:.25}
+  }
+  @keyframes bolt-burst-out{0%{opacity:1;transform:scale(1.05)}100%{opacity:0;transform:scale(1.65)}}
+
+  /* 全螢幕極光破空劍隙：三刀揮下時撕裂天幕的白熱震撼光痕 + 金色神雷雙色差光暈 */
   .rite-rifts{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}
   .rite-rift-beam{
-    position:absolute;top:50%;left:-20%;width:140%;height:3.5px;opacity:0;
+    position:absolute;top:50%;left:-20%;width:140%;height:4px;opacity:0;
     transform-origin:50% 50%;pointer-events:none;
-    background:linear-gradient(90deg,transparent 0%,rgba(127,214,160,.25) 15%,#FFFFFF 50%,rgba(127,214,160,.9) 75%,transparent 100%);
-    box-shadow:0 0 24px rgba(127,214,160,1),0 0 52px rgba(61,101,85,.75);
+    background:linear-gradient(90deg,transparent 0%,rgba(201,169,97,.35) 12%,rgba(127,214,160,.85) 28%,#FFFFFF 50%,#FFE89E 65%,rgba(127,214,160,.9) 82%,transparent 100%);
+    box-shadow:0 -2px 18px rgba(255,224,130,.95),0 2px 26px rgba(127,214,160,1),0 0 64px rgba(115,92,220,.8);
     transform:translate3d(var(--rx,0),var(--ry,0),0) rotate(var(--ra,0deg)) scaleX(0);
   }
-  .rite-rift-beam.go{animation:rift-beam-slash 440ms cubic-bezier(.08,.9,.18,1) forwards}
+  .rite-rift-beam.go{animation:rift-beam-slash 460ms cubic-bezier(.08,.9,.18,1) forwards}
   @keyframes rift-beam-slash{
     0%{opacity:0;transform:translate3d(var(--rx,0),var(--ry,0),0) rotate(var(--ra,0deg)) scaleX(.05)}
-    24%{opacity:1;transform:translate3d(var(--rx,0),var(--ry,0),0) rotate(var(--ra,0deg)) scaleX(1.15)}
-    65%{opacity:.92;transform:translate3d(var(--rx,0),var(--ry,0),0) rotate(var(--ra,0deg)) scaleX(1.3)}
-    100%{opacity:0;transform:translate3d(var(--rx,0),var(--ry,0),0) rotate(var(--ra,0deg)) scaleX(1.45)}
+    24%{opacity:1;transform:translate3d(var(--rx,0),var(--ry,0),0) rotate(var(--ra,0deg)) scaleX(1.18)}
+    65%{opacity:.94;transform:translate3d(var(--rx,0),var(--ry,0),0) rotate(var(--ra,0deg)) scaleX(1.34)}
+    100%{opacity:0;transform:translate3d(var(--rx,0),var(--ry,0),0) rotate(var(--ra,0deg)) scaleX(1.5)}
   }
 
-  /* 劍痕是填色的紡錘形，不是等寬線條：中段最寬、兩端收尖 */
+  /* 劍痕是填色的紡錘形，不是等寬線條：中段最寬、兩端收尖，內蘊虛空星雲與金色辟邪雷弧 */
   .rite-cracks{position:absolute;inset:26px;overflow:visible;z-index:2}
-  .crack .aura{fill:var(--rite-deep);opacity:0;fill-opacity:.28}
-  .crack .tear{fill:var(--rite-tear);opacity:0}
-  .crack .rift{fill:var(--rite-void);opacity:0;fill-opacity:.6}
-  /* 鋒緣：描同一條紡錘的外框，自然就是裂口上下兩道發光的邊 */
-  .crack .rimglow{fill:none;stroke:var(--rite-rim-glow);stroke-width:14;opacity:0;stroke-opacity:.42;filter:blur(1px)}
-  .crack .rim{fill:none;stroke:var(--rite-rim);stroke-width:2.2;opacity:0;stroke-opacity:.98;filter:drop-shadow(0 0 8px rgba(228,253,240,.9))}
-  .crack .flare{fill:var(--rite-flare);opacity:0;fill-opacity:.85}
-  .crack .spur{fill:none;stroke:var(--rite-rim);stroke-width:1.4;stroke-linecap:round;
-    stroke-linejoin:round;opacity:0;stroke-opacity:.88}
+  .crack .aura{fill:var(--rite-deep);opacity:0;fill-opacity:.34}
+  .crack .tear{fill:#04010D;opacity:0}
+  .crack .rift{fill:var(--rite-void);opacity:0;fill-opacity:.68}
+  /* 鋒緣：描同一條紡錘的外框，自然就是裂口上下兩道發光的邊（移除昂貴的 SVG filter:blur/drop-shadow，改以半透明寬描邊達成零卡頓發光） */
+  .crack .rimglow{fill:none;stroke:var(--rite-rim-glow);stroke-width:18;opacity:0;stroke-opacity:.38}
+  .crack .rim{fill:none;stroke:var(--rite-rim);stroke-width:2.6;opacity:0;stroke-opacity:.98}
+  .crack .flare{fill:var(--rite-flare);opacity:0;fill-opacity:.9}
+  .crack .spur{fill:none;stroke:var(--rite-rim);stroke-width:1.5;stroke-linecap:round;
+    stroke-linejoin:round;opacity:0;stroke-opacity:.9}
+  .crack .thunder-spur{fill:none;stroke:#FFE694;stroke-width:2.1;stroke-linecap:round;
+    stroke-linejoin:round;opacity:0}
 
   .rite-cracks .sweep{transform-box:fill-box;transform-origin:0 50%;
     transform:translate(var(--sx),var(--sy)) rotate(var(--sa)) scaleX(0)}
@@ -496,6 +577,8 @@
   .crack.cut .aura{opacity:.55;animation:glow-cool 1.6s var(--ease) 105ms forwards}
   .crack.cut .rift{opacity:.28;animation:rift-breathe 2.4s ease-in-out 105ms infinite}
   .crack.cut .spur{opacity:.9;animation:glow-cool 1.6s var(--ease) 240ms forwards}
+  .crack.cut .thunder-spur{opacity:1;animation:thunder-spur-flash 520ms steps(2,end) 60ms forwards}
+  @keyframes thunder-spur-flash{0%{opacity:1}35%{opacity:.2}65%{opacity:.95}100%{opacity:0}}
   /* 命中當下的白熱爆閃 */
   .crack.cut .flare{opacity:0;animation:flare-hit 300ms cubic-bezier(.15,.75,.25,1) forwards}
   @keyframes flare-hit{0%{opacity:1}22%{opacity:.85}100%{opacity:0}}
@@ -507,74 +590,102 @@
   #rite.parting .crack .rift{animation:tear-open 620ms var(--ease) forwards}
   @keyframes tear-open{to{opacity:0}}
 
-  /* 球拍凝聚的多重玄妙法陣 */
+  /* 球拍凝聚的多重玄妙法陣（升級為去圓圈化・電影變形寬銀幕刀鋒高光與稜角劍芒） */
   .rite-stage{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
     display:grid;place-items:center;pointer-events:none;z-index:3}
-  .rite-ring-outer,.rite-ring,.rite-ring2,.rite-bloom{position:absolute;border-radius:50%;grid-area:1/1}
+  .rite-ring-outer,.rite-ring,.rite-ring2,.rite-bloom{position:absolute;grid-area:1/1}
 
+  /* WebGL / Canvas 即時物理分形電漿與三維星塵層（完全鎖定視窗正中央 50%, 50%） */
+  .rite-fx-canvas{
+    position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;
+  }
+  #rite.parting .rite-fx-canvas{opacity:0;transition:opacity 420ms var(--ease)}
+
+  /* 去除圓滑虛線圈，改為冷冽八角太虛劍罡稜線 */
   .rite-ring-outer{
     width:min(68vmin,31rem);height:min(68vmin,31rem);
-    border:1.5px dashed rgba(201,169,97,.42);opacity:0;
-    box-shadow:0 0 35px rgba(110,158,136,.18),inset 0 0 25px rgba(201,169,97,.12);
+    border:1px solid rgba(216,184,116,.28);opacity:0;
+    clip-path:polygon(29% 0%,71% 0%,100% 29%,100% 71%,71% 100%,29% 100%,0% 71%,0% 29%);
+    box-shadow:0 0 45px rgba(92,214,184,.18),inset 0 0 32px rgba(216,184,116,.14);
   }
   #rite.ignite .rite-ring-outer{animation:ring-outer-in 1.2s var(--ease) forwards,orbit 28s linear infinite}
-  @keyframes ring-outer-in{0%{opacity:0;transform:scale(.4) rotate(-30deg)}55%{opacity:.85}100%{opacity:.45;transform:scale(1) rotate(0deg)}}
+  @keyframes ring-outer-in{0%{opacity:0;transform:scale(.4) rotate(-30deg)}55%{opacity:.65}100%{opacity:.32;transform:scale(1) rotate(0deg)}}
 
   .rite-ring{width:min(50vmin,23rem);height:min(50vmin,23rem);
-    border:1.5px dashed rgba(201,169,97,.72);opacity:0;
-    box-shadow:0 0 26px rgba(201,169,97,.35),inset 0 0 16px rgba(127,214,160,.22)}
-  #rite.ignite .rite-ring{animation:ring-in 1s var(--ease) 60ms forwards,orbit 11s linear infinite}
+    border:1px solid rgba(216,184,116,.48);opacity:0;
+    clip-path:polygon(50% 0%,85% 15%,100% 50%,85% 85%,50% 100%,15% 85%,0% 50%,15% 15%);
+    box-shadow:0 0 32px rgba(216,184,116,.32),inset 0 0 18px rgba(92,214,184,.22)}
+  #rite.ignite .rite-ring{animation:ring-in 1s var(--ease) 60ms forwards,orbit 14s linear infinite}
 
-  .rite-ring2{width:min(34vmin,15.5rem);height:min(34vmin,15.5rem);
-    border:1.5px solid rgba(155,195,174,.65);opacity:0;
-    box-shadow:0 0 22px rgba(127,214,160,.4)}
-  #rite.ignite .rite-ring2{animation:ring-in 1s var(--ease) 190ms forwards,orbit 7s linear reverse infinite}
+  /* 改為電影級 Anamorphic Lens Flare（變形寬銀幕水平刀鋒高光），徹底消除圓滑泡泡感 */
+  .rite-ring2{width:min(92vw,56rem);height:3px;border:0;opacity:0;
+    background:linear-gradient(90deg,transparent 0%,rgba(92,214,184,.38) 24%,rgba(236,202,128,.92) 46%,#FFFFFF 50%,rgba(236,202,128,.92) 54%,rgba(92,214,184,.38) 76%,transparent 100%);
+    box-shadow:0 0 18px rgba(236,202,128,.9),0 0 36px rgba(92,214,184,.75)}
+  #rite.ignite .rite-ring2{animation:anamorphic-in 680ms cubic-bezier(.16,1,.3,1) 80ms forwards}
+  @keyframes anamorphic-in{0%{opacity:0;transform:scaleX(.08) scaleY(.4)}65%{opacity:1;transform:scaleX(1.08) scaleY(1.3)}100%{opacity:.88;transform:scaleX(1) scaleY(1)}}
 
-  @keyframes ring-in{0%{opacity:0;transform:scale(.45)}55%{opacity:1}100%{opacity:.65;transform:scale(1)}}
+  /* 凡人修仙傳・掌天瓶（神秘小綠瓶）墨綠星海靈液核心與大庚劍陣八門古篆陣盤（純 radial-gradient 發光，不使用 filter:blur/drop-shadow 以維持 60FPS） */
+  .rite-vial-halo{
+    position:absolute;grid-area:1/1;width:min(30vmin,14rem);height:min(30vmin,14rem);
+    opacity:0;pointer-events:none;
+    background:radial-gradient(circle,rgba(255,252,238,.92) 0%,rgba(228,192,112,.58) 18%,rgba(54,168,142,.32) 46%,transparent 72%);
+  }
+  #rite.ignite .rite-vial-halo{animation:vial-pulse 620ms cubic-bezier(.16,1,.3,1) 40ms forwards}
+  #rite.burst .rite-vial-halo{animation:ring-out 360ms var(--ease) forwards}
+  @keyframes vial-pulse{
+    0%{opacity:0;transform:scale(.2)}
+    55%{opacity:.95;transform:scale(1.12)}
+    100%{opacity:.78;transform:scale(.95)}
+  }
+  .rite-array-runes{
+    position:absolute;grid-area:1/1;width:min(62vmin,28.5rem);height:min(62vmin,28.5rem);
+    opacity:0;pointer-events:none;color:rgba(236,204,128,.86);
+  }
+  #rite.ignite .rite-array-runes{animation:ring-in .95s var(--ease) 90ms forwards,orbit 22s linear reverse infinite}
+  #rite.burst .rite-array-runes{animation:ring-out 380ms var(--ease) forwards}
 
-  .rite-bloom{width:min(76vmin,35rem);height:min(76vmin,35rem);opacity:0;
-    background:radial-gradient(circle,rgba(155,195,174,.4) 0%,rgba(201,169,97,.2) 28%,rgba(110,158,136,.1) 50%,transparent 72%)}
+  @keyframes ring-in{0%{opacity:0;transform:scale(.45)}55%{opacity:.85}100%{opacity:.5;transform:scale(1)}}
+
+  .rite-bloom{width:min(82vmin,38rem);height:min(82vmin,38rem);opacity:0;
+    background:radial-gradient(circle,rgba(226,190,118,.26) 0%,rgba(68,158,142,.18) 32%,rgba(14,32,38,.08) 56%,transparent 74%)}
   #rite.ignite .rite-bloom{animation:bloom-in 1s var(--ease) 60ms forwards,bloom-pulse 2.2s ease-in-out 1s infinite alternate}
   @keyframes bloom-in{0%{opacity:0;transform:scale(.55)}100%{opacity:1;transform:scale(1)}}
   @keyframes bloom-pulse{0%{transform:scale(1);opacity:.75}100%{transform:scale(1.08);opacity:1}}
 
-  /* 青竹流雲拍 */
+  /* 青竹流雲拍（僅動畫 transform 與 opacity，禁止在 keyframes 內變更 filter:drop-shadow 避免逐幀重繪卡頓） */
   .rite-racket-wrap{grid-area:1/1;display:grid;place-items:center}
   #rite.ignite .rite-racket-wrap{animation:racket-float 3.4s ease-in-out 600ms infinite}
   @keyframes racket-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-  .rite-racket{height:min(54vh,25rem);width:auto;opacity:0;overflow:visible;
-    filter:drop-shadow(0 0 14px rgba(127,214,160,.65)) drop-shadow(0 0 32px rgba(201,169,97,.42))}
+  .rite-racket{height:min(54vh,25rem);width:auto;opacity:0;overflow:visible}
   #rite.is-primed .rite-racket{will-change:transform,opacity}
   #rite.ignite .rite-racket{animation:racket-in 520ms cubic-bezier(.16,1,.3,1) 80ms forwards}
   @keyframes racket-in{
-    0%{opacity:0;transform:scale(.72) translateY(24px);filter:drop-shadow(0 0 28px rgba(127,214,160,.95))}
+    0%{opacity:0;transform:scale(.72) translateY(24px)}
     58%{opacity:1}
-    100%{opacity:1;transform:scale(1) translateY(0);filter:drop-shadow(0 0 14px rgba(127,214,160,.65)) drop-shadow(0 0 32px rgba(201,169,97,.42))}
+    100%{opacity:1;transform:scale(1) translateY(0)}
   }
   #rite.burst .rite-racket{animation:racket-burst 300ms cubic-bezier(.34,.02,.2,1) forwards}
   #rite.burst .rite-racket-wrap{animation:none}
   @keyframes racket-burst{
-    0%{opacity:1;transform:scale(1);filter:drop-shadow(0 0 30px #EDFFF6) drop-shadow(0 0 60px rgba(127,214,160,1))}
-    22%{opacity:1;transform:scale(1.28);filter:drop-shadow(0 0 45px #FFFFFF) drop-shadow(0 0 90px rgba(201,169,97,1))}
+    0%{opacity:1;transform:scale(1)}
+    22%{opacity:1;transform:scale(1.28)}
     100%{opacity:0;transform:scale(.3)}
   }
   #rite.burst .rite-ring,#rite.burst .rite-ring2,#rite.burst .rite-ring-outer,#rite.burst .rite-bloom{
     animation:ring-out 400ms var(--ease) forwards}
   @keyframes ring-out{to{opacity:0;transform:scale(1.68)}}
 
-  /* 球拍化成流雲拍陣（蜂雲劍陣），沿交錯航線飛散，握柄後拖出翠玉尾光 */
+  /* 球拍化成流雲拍陣（蜂雲劍陣），移除每個節點獨立的 filter:drop-shadow（原本 72*2=144 個高斯模糊層是造成 LAG 的最大元兇），改用純硬體加速漸層 */
   .rite-swarm{position:absolute;left:50%;top:50%;width:0;height:0}
   .rite-bee{position:absolute;left:0;top:0;width:0;height:0;
     opacity:0;transform-origin:0 0;
-    transform:translate(var(--ox),var(--oy)) rotate(var(--a)) translateY(0) rotate(var(--tilt));
-    filter:drop-shadow(0 0 8px rgba(127,214,160,.75))}
+    transform:translate3d(var(--ox),var(--oy),0) rotate(var(--a)) translateY(0) rotate(var(--tilt))}
   /* 靈氣：從握柄往後拉長的修長透亮翠金尾芒 */
   .rite-bee::before{content:"";position:absolute;
     left:calc(-6px * var(--bs));top:calc(-1 * var(--qi) - 62px * var(--bs));
     width:calc(12px * var(--bs));height:var(--qi);
     clip-path:polygon(50% 0,100% 100%,0 100%);
-    background:linear-gradient(180deg,transparent 0%,rgba(127,214,160,.2) 25%,rgba(155,195,174,.6) 60%,rgba(237,255,246,.95) 90%,rgba(244,231,154,1) 100%);
-    filter:drop-shadow(0 0 10px rgba(127,214,160,.9));
+    background:linear-gradient(180deg,transparent 0%,rgba(92,214,184,.28) 22%,rgba(140,225,195,.72) 60%,rgba(237,255,246,.98) 88%,#FFE898 100%);
     transform-origin:50% 100%;transform:scaleY(.06)}
   .rite-bee svg{position:absolute;left:calc(-13px * var(--bs));top:calc(-62px * var(--bs));
     width:calc(26px * var(--bs));height:calc(62px * var(--bs));transform:rotate(180deg);overflow:visible}
@@ -638,6 +749,9 @@
       radial-gradient(42% 32% at 86% 4%, rgba(205,170,96,.24), transparent 62%),
       linear-gradient(178deg,#FCF8EF 0%,#F4EDDF 58%,#EBE2D1 100%);
   }
+  html[data-theme="light"] .rite-vignette{
+    background:radial-gradient(circle at 50% 50%,transparent 28%,rgba(198,176,136,.32) 60%,rgba(148,122,82,.58) 100%);
+  }
   html[data-theme="light"] .rite-racket{
     filter:drop-shadow(0 5px 8px rgba(18,52,42,.28))}
   html[data-theme="light"] .rite-ring-outer{border-color:rgba(140,101,28,.35);box-shadow:0 0 25px rgba(46,112,85,.12)}
@@ -665,6 +779,8 @@
 </style>
 
 <div id="rite" aria-hidden="true">
+  <div class="rite-vignette"></div>
+  <canvas class="rite-fx-canvas" id="riteFxCanvas" aria-hidden="true"></canvas>
   <div class="rite-quake">
     <div class="rite-veils"></div>
     <div class="rite-rifts"></div>
@@ -673,36 +789,99 @@
   </div>
   <div class="rite-stage">
     <div class="rite-bloom"></div>
+    <div class="rite-vial-halo"></div>
     <div class="rite-ring-outer"></div>
+    <svg class="rite-array-runes" viewBox="0 0 300 300" fill="none" aria-hidden="true">
+      <polygon points="150,8 250,50 292,150 250,250 150,292 50,250 8,150 50,50" stroke="rgba(216,184,116,.38)" stroke-width="1"/>
+      <polygon points="150,22 240,60 278,150 240,240 150,278 60,240 22,150 60,60" stroke="rgba(92,214,184,.36)" stroke-width="1"/>
+      <path d="M150 2 L150 24 M298 150 L276 150 M150 298 L150 276 M2 150 L24 150 M45 45 L62 62 M255 45 L238 62 M255 255 L238 238 M45 255 L62 238" stroke="rgba(236,202,128,.75)" stroke-width="1.4"/>
+      <g fill="currentColor" font-family="'Noto Serif TC',serif" font-size="10.5" font-weight="700" text-anchor="middle" letter-spacing="1">
+        <text x="150" y="16">乾·天劍</text><text x="255" y="54">兌·金雷</text>
+        <text x="286" y="154">離·青竹</text><text x="255" y="254">震·辟邪</text>
+        <text x="150" y="293">坤·大庚</text><text x="45" y="254">艮·須彌</text>
+        <text x="14" y="154">坎·蜂雲</text><text x="45" y="54">巽·劍蓮</text>
+      </g>
+    </svg>
     <div class="rite-ring"></div>
     <div class="rite-ring2"></div>
+    <div class="rite-vortex"></div>
     <div class="rite-racket-wrap">
+      <svg class="rite-thunder-arcs" viewBox="0 0 240 460" fill="none" aria-hidden="true">
+        <path class="rite-bolt-arc" style="--td:0ms" d="M120 18 L96 54 L118 82 L78 136 L108 172 L72 228 L114 276 L96 342 L122 396"/>
+        <path class="rite-bolt-arc" style="--td:110ms" d="M124 24 L156 68 L128 108 L168 154 L132 204 L158 258 L118 322 L134 382"/>
+        <path class="rite-bolt-arc sub" style="--td:55ms" d="M62 84 L98 118 L58 168 L102 214 L146 176 L178 124 L148 76"/>
+        <path class="rite-bolt-arc sub" style="--td:165ms" d="M82 46 L124 84 L162 56 L136 138 L104 166 L132 248 L92 298"/>
+      </svg>
       <svg class="rite-racket" viewBox="0 0 160 380" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <linearGradient id="riteFrame" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stop-color="var(--blade-1)"/><stop offset=".2" stop-color="var(--blade-2)"/>
-            <stop offset=".44" stop-color="var(--blade-3)"/><stop offset=".6" stop-color="var(--blade-4)"/>
-            <stop offset="1" stop-color="var(--blade-5)"/>
+          <!-- 暗黑冷鍛玄鐵底框 × 青竹翠玉 × 辟邪暗金刀鋒切面漸層 -->
+          <linearGradient id="riteFrame" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#05110E"/>
+            <stop offset=".18" stop-color="#1E5A48"/>
+            <stop offset=".38" stop-color="#D8B872"/>
+            <stop offset=".5" stop-color="#FFFDF5"/>
+            <stop offset=".64" stop-color="#58C4A6"/>
+            <stop offset=".84" stop-color="#164236"/>
+            <stop offset="1" stop-color="#040C0A"/>
+          </linearGradient>
+          <linearGradient id="riteBevelGold" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#FFF6D6"/>
+            <stop offset=".35" stop-color="#E2BA68"/>
+            <stop offset=".7" stop-color="#8C6826"/>
+            <stop offset="1" stop-color="#2A1E08"/>
           </linearGradient>
           <linearGradient id="riteGrip" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stop-color="var(--grip-1)"/><stop offset=".5" stop-color="var(--grip-2)"/><stop offset="1" stop-color="var(--grip-3)"/>
+            <stop offset="0" stop-color="#050D0B"/><stop offset=".35" stop-color="#1A382E"/><stop offset=".5" stop-color="#3A6B59"/><stop offset=".65" stop-color="#152E25"/><stop offset="1" stop-color="#040A08"/>
           </linearGradient>
-          <pattern id="riteStrings" width="10" height="10" patternUnits="userSpaceOnUse">
-            <path d="M0 10V0H10" stroke="var(--rite-jade)" stroke-width=".8" stroke-opacity=".8"/>
+          <!-- 高張力金雷竹絲編織拍網（雙向斜交 + 縱橫碳纖金屬線床） -->
+          <pattern id="riteStrings" width="7.5" height="7.5" patternUnits="userSpaceOnUse">
+            <path d="M0 7.5V0H7.5" stroke="#64C8AD" stroke-width=".6" stroke-opacity=".72"/>
+            <path d="M3.75 7.5V0M0 3.75H7.5" stroke="#E5C170" stroke-width=".42" stroke-opacity=".58"/>
           </pattern>
+          <radialGradient id="riteSweetSpot" cx="50%" cy="46%" r="52%">
+            <stop offset="0" stop-color="#FFFDF4" stop-opacity=".42"/>
+            <stop offset=".38" stop-color="#5CD6B8" stop-opacity=".18"/>
+            <stop offset="1" stop-color="#071814" stop-opacity="0"/>
+          </radialGradient>
+          <!-- 寫實冷鍛 Isometric 方頭破界靈拍（去圓滑卡通化，具稜角裝甲切面與甜區劍芒） -->
           <symbol id="riteRacket" viewBox="0 0 160 380" fill="none">
-            <!-- 橢圓拍框與透空編織線床，沿用翠玉、竹青和金色。 -->
-            <ellipse cx="80" cy="101" rx="62" ry="87" fill="url(#riteStrings)"/>
-            <ellipse cx="80" cy="101" rx="66" ry="91" stroke="url(#riteFrame)" stroke-width="9"/>
-            <ellipse cx="80" cy="101" rx="61" ry="86" stroke="var(--rite-gold)" stroke-width="1.5"/>
-            <path d="M32 39Q80-13 128 39" stroke="var(--blade-3)" stroke-opacity=".75" stroke-width="2" stroke-linecap="round"/>
-            <path d="M72 192L76 282H84L88 192Z" fill="url(#riteFrame)"/>
-            <path d="M80 197V279" stroke="var(--ridge)" stroke-opacity=".6"/>
-            <rect x="73" y="276" width="14" height="9" rx="3" fill="var(--rite-gold)"/>
-            <rect x="70" y="284" width="20" height="78" rx="6" fill="url(#riteGrip)" stroke="var(--leaf-2)"/>
-            <path d="M71 294L89 289M71 306L89 301M71 318L89 313M71 330L89 325M71 342L89 337M72 354L89 349" stroke="var(--leaf-hi)" stroke-opacity=".55" stroke-width="2"/>
-            <rect x="68" y="359" width="24" height="8" rx="3" fill="var(--rite-gold)"/>
-            <path d="M71 361H89" stroke="#F0DDA2" stroke-width="1.5"/>
+            <!-- 拍頭破空刀鋒背光 -->
+            <path d="M80 2 L92 14 L80 26 L68 14 Z" fill="url(#riteBevelGold)" opacity=".85"/>
+            <!-- Isometric 方頭斜切拍框內網（非橢圓，具真實高階攻擊拍八角斜切甜區） -->
+            <path d="M46 18 L114 18 L138 48 L142 114 L118 168 L88 190 L72 190 L42 168 L18 114 L22 48 Z" fill="url(#riteStrings)"/>
+            <path d="M46 18 L114 18 L138 48 L142 114 L118 168 L88 190 L72 190 L42 168 L18 114 L22 48 Z" fill="url(#riteSweetSpot)"/>
+            <!-- 甜區中央「太虛十字劍芒」高光 -->
+            <path d="M80 34 L82.2 98 L126 101 L82.2 104 L80 168 L77.8 104 L34 101 L77.8 98 Z" fill="#FFFDF6" fill-opacity=".68"/>
+            <!-- 外層玄鐵重裝拍框切面 -->
+            <path d="M44 13 L116 13 L144 45 L148 116 L122 173 L89 196 L71 196 L38 173 L12 116 L16 45 Z" stroke="#040B09" stroke-width="10" stroke-linejoin="bevel"/>
+            <path d="M44 13 L116 13 L144 45 L148 116 L122 173 L89 196 L71 196 L38 173 L12 116 L16 45 Z" stroke="url(#riteFrame)" stroke-width="6.5" stroke-linejoin="bevel"/>
+            <!-- 內側辟邪金雷裝甲鑲邊 -->
+            <path d="M48 20 L112 20 L135 49 L139 113 L115 165 L87 187 L73 187 L45 165 L21 113 L25 49 Z" stroke="url(#riteBevelGold)" stroke-width="1.6" stroke-linejoin="miter"/>
+            <!-- 左右兩側破風刀翼護甲 (Blade Wings) -->
+            <path d="M16 45 L6 62 L10 118 L21 113 Z" fill="url(#riteBevelGold)" opacity=".9"/>
+            <path d="M144 45 L154 62 L150 118 L139 113 Z" fill="url(#riteBevelGold)" opacity=".9"/>
+            <!-- 拍頭頂端白熾寒芒刃口 -->
+            <path d="M42 12 L80 5 L118 12" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="square"/>
+            <!-- 立體稜角 T 字拍喉 (Forged Throat Gusset) -->
+            <path d="M62 188 L80 216 L98 188 L87 204 L85 282 L75 282 L73 204 Z" fill="url(#riteFrame)" stroke="url(#riteBevelGold)" stroke-width="1.2"/>
+            <!-- 中桿高剛性脊線與金雷導流槽 -->
+            <path d="M80 192 V282" stroke="#FFFDF6" stroke-width="1.8" stroke-opacity=".9"/>
+            <path d="M76.5 202 V278 M83.5 202 V278" stroke="#5CD6B8" stroke-width=".9" stroke-opacity=".75"/>
+            <!-- 劍格護手錐蓋 (Sword-Guard Cone Cap) -->
+            <polygon points="71,275 89,275 93,287 67,287" fill="url(#riteBevelGold)" stroke="#05100D" stroke-width="1"/>
+            <!-- 冷鍛八角握柄與暗金龍鱗纏帶 -->
+            <polygon points="70,287 90,287 88,360 72,360" fill="url(#riteGrip)" stroke="url(#riteBevelGold)" stroke-width="1.1"/>
+            <path d="M71 296L89 290M71 308L89 302M71 320L89 314M71 332L89 326M71 344L89 338M72 355L88 349" stroke="#D8B872" stroke-opacity=".72" stroke-width="1.6"/>
+            <!-- 握柄底蓋 (劍首鎮魂印) -->
+            <polygon points="66,359 94,359 90,372 80,377 70,372" fill="url(#riteBevelGold)" stroke="#FFF6D6" stroke-width="1"/>
+          </symbol>
+          <!-- 遠景冷冽小飛劍（青竹寒芒針劍，與靈拍交錯齊射） -->
+          <symbol id="riteSword" viewBox="0 0 40 380" fill="none">
+            <polygon points="20,0 28,58 24,295 20,320 16,295 12,58" fill="url(#riteFrame)"/>
+            <path d="M20 0 V315" stroke="#FFFFFF" stroke-width="2"/>
+            <polygon points="6,292 34,292 26,306 14,306" fill="url(#riteBevelGold)"/>
+            <rect x="17" y="306" width="6" height="58" fill="#122B23" stroke="url(#riteBevelGold)" stroke-width="1"/>
+            <polygon points="20,378 26,364 14,364" fill="url(#riteBevelGold)"/>
           </symbol>
         </defs>
         <use href="#riteRacket"/>
@@ -710,6 +889,7 @@
     </div>
     <div class="rite-swarm"></div>
   </div>
+  <div class="rite-shockwave"></div>
   <div class="rite-flashes"></div>
   <div class="rite-wash"></div>
   <div class="rite-skip">點擊任意處 · 直入宗門</div>
@@ -725,6 +905,7 @@
     if (!rite || rite.classList.contains('is-done')) return;
     (timers || []).forEach(clearTimeout);
     clearInterval(speedTimer);
+    if (typeof cancelAnimationFrame === 'function' && fxRaf) cancelAnimationFrame(fxRaf);
     root.classList.remove('rite-on');
     rite.classList.add('is-done');
     try { sessionStorage.setItem('luoyun-rite', '1'); } catch (e) {}
@@ -902,19 +1083,24 @@
       return 'M' + top.map(pt).join('L') + 'L' + bot.reverse().map(pt).join('L') + 'Z';
     }
 
-    /* 沿著主裂縫岔出三條短叉 */
-    var spurs = [];
-    for (var s = 0; s < 3; s++) {
-      var u0 = .28 + rand() * .44;
+    /* 沿著主裂縫岔出短叉與金色辟邪神雷鋸齒分支 */
+    var spurs = [], thunderSpurs = [];
+    for (var s = 0; s < 5; s++) {
+      var u0 = .22 + rand() * .56;
       var i0 = Math.round(u0 * steps);
       var base = on(tMin + (tMax - tMin) * u0, offs[i0]);
-      var lean = (rand() < .5 ? 1 : -1) * (.5 + rand() * .6);
-      var L = (36 + rand() * 58) * (rand() < .5 ? -1 : 1);
-      var mid = [base[0] + cut.d[0] * L * .55 + cut.n[0] * lean * 10,
-                 base[1] + cut.d[1] * L * .55 + cut.n[1] * lean * 10];
-      var end = [base[0] + cut.d[0] * L + cut.n[0] * lean * 38,
-                 base[1] + cut.d[1] * L + cut.n[1] * lean * 38];
-      spurs.push('M' + pt(base) + 'L' + pt(mid) + 'L' + pt(end));
+      var lean = (rand() < .5 ? 1 : -1) * (.5 + rand() * .75);
+      var L = (38 + rand() * 68) * (rand() < .5 ? -1 : 1);
+      var mid = [base[0] + cut.d[0] * L * .52 + cut.n[0] * lean * 12,
+                 base[1] + cut.d[1] * L * .52 + cut.n[1] * lean * 12];
+      var end = [base[0] + cut.d[0] * L + cut.n[0] * lean * 42,
+                 base[1] + cut.d[1] * L + cut.n[1] * lean * 42];
+      if (s < 3) spurs.push('M' + pt(base) + 'L' + pt(mid) + 'L' + pt(end));
+      else {
+        var tip = [end[0] + cut.d[0] * L * .45 - cut.n[0] * lean * 18,
+                   end[1] + cut.d[1] * L * .45 - cut.n[1] * lean * 18];
+        thunderSpurs.push('M' + pt(base) + 'L' + pt(mid) + 'L' + pt(end) + 'L' + pt(tip));
+      }
     }
 
     /* 兩端淡出的遮罩：劍鋒中段最亮，配合紡錘寬度收尾 */
@@ -980,6 +1166,12 @@
       path.setAttribute('d', sd);
       inner.appendChild(path);
     });
+    thunderSpurs.forEach(function (td) {
+      var path = document.createElementNS(NS, 'path');
+      path.setAttribute('class', 'thunder-spur');
+      path.setAttribute('d', td);
+      inner.appendChild(path);
+    });
     g.appendChild(inner);
     if (cracksSvg) cracksSvg.appendChild(g);
 
@@ -993,41 +1185,225 @@
   riftBeamEls = crackEls.map(makeRiftBeam);
   }
 
-  /* 蜂雲：大幅強化飛拍陣列。第二個 frame 才建立，避免與 SVG 幾何搶主執行緒 */
+  /* 蜂雲：青竹蜂雲劍・三層景深洪流（近中景為冷鍛暗金翠玉羽球拍 #riteRacket、遠景為冷冽小飛劍 #riteSword，使用 DocumentFragment 批次掛載與精簡數量以確保 60FPS 零卡頓） */
   function buildSwarm() {
-  var beeCount = W < 560 ? 22 : 36;
+  var vortexBox = rite.querySelector('.rite-vortex');
+  var moteCount = W < 560 ? 12 : 20;
   var far = Math.max(W, H);
-  var spread = Math.min(W, H) * .35;
+  if (vortexBox) {
+    var vFrag = document.createDocumentFragment ? document.createDocumentFragment() : null;
+    for (var m = 0; m < moteCount; m++) {
+      var mote = document.createElement('div');
+      mote.className = 'rite-qi-mote';
+      mote.style.setProperty('--ma', ((m * 360 / moteCount) + (rand() - .5) * 14).toFixed(1) + 'deg');
+      mote.style.setProperty('--mr', (far * (.26 + rand() * .38)).toFixed(0) + 'px');
+      mote.style.setProperty('--mw', (2 + rand() * 2.5).toFixed(1) + 'px');
+      mote.style.setProperty('--mh', (22 + rand() * 34).toFixed(0) + 'px');
+      mote.style.setProperty('--mc', m % 3 === 0 ? '#FFE28A' : '#7FD6A0');
+      mote.style.setProperty('--md', (480 + rand() * 220).toFixed(0) + 'ms');
+      mote.style.setProperty('--mdelay', (rand() * 160).toFixed(0) + 'ms');
+      if (vFrag) vFrag.appendChild(mote); else vortexBox.appendChild(mote);
+    }
+    if (vFrag) vortexBox.appendChild(vFrag);
+  }
+  var beeCount = W < 560 ? 22 : 38;
+  var spread = Math.min(W, H) * .38;
+  var sFrag = document.createDocumentFragment ? document.createDocumentFragment() : null;
   for (var b = 0; b < beeCount; b++) {
     var bee = document.createElement('div');
     bee.className = 'rite-bee';
+    var isForeground = b < 4;
+    var isBackground = b >= Math.floor(beeCount * .52);
     var racket = document.createElementNS(NS, 'svg');
     var use = document.createElementNS(NS, 'use');
-    use.setAttribute('href', '#riteRacket');
-    racket.setAttribute('viewBox', '0 0 160 380');
+    /* 近景與中景使用冷鍛 Isometric 金屬羽球拍 #riteRacket；遠景小飛劍使用冷冽小飛劍 #riteSword */
+    use.setAttribute('href', isBackground ? '#riteSword' : '#riteRacket');
+    racket.setAttribute('viewBox', isBackground ? '0 0 40 380' : '0 0 160 380');
     racket.appendChild(use);
     bee.appendChild(racket);
     /* 出生點：黃金角均勻鋪開、起點半徑散開 */
     var base = (b * 137.508) % 360;
     var oa = (base + (rand() - .5) * 45) * Math.PI / 180;
-    var od = spread * (.12 + Math.pow(rand(), .7) * .95);
+    var od = spread * (.10 + Math.pow(rand(), .7) * .95);
     bee.style.setProperty('--ox', (Math.cos(oa) * od).toFixed(1) + 'px');
     bee.style.setProperty('--oy', (Math.sin(oa) * od).toFixed(1) + 'px');
     /* 航向與出生方向脫鉤，交錯呼嘯穿梭 */
     var dir = rand() < .22 ? rand() * 360 : base + (rand() - .5) * 160;
     bee.style.setProperty('--a', dir.toFixed(1) + 'deg');
-    bee.style.setProperty('--curve', ((rand() - .5) * 40).toFixed(1) + 'deg');
-    /* 飛行距離擴展 */
-    bee.style.setProperty('--r', (far * (.65 + rand() * .65)).toFixed(0) + 'px');
+    bee.style.setProperty('--curve', ((rand() - .5) * 42).toFixed(1) + 'deg');
+    var bs = isForeground ? (2.15 + rand() * .65) : (isBackground ? (.48 + rand() * .35) : (.92 + Math.pow(rand(), 1.1) * 1.15));
+    var qiLen = isForeground ? (far * (.28 + rand() * .18)) : (isBackground ? (far * (.22 + rand() * .28)) : (far * (.12 + rand() * .22)));
+    bee.style.setProperty('--r', (far * (isForeground ? (1.05 + rand() * .35) : (.68 + rand() * .68))).toFixed(0) + 'px');
     bee.style.setProperty('--tilt', ((rand() - .5) * 22).toFixed(1) + 'deg');
-    /* 遠近大小比例拉大，大拍掠過螢幕、小拍星群疾射 */
-    bee.style.setProperty('--bs', (.75 + Math.pow(rand(), 1.1) * 1.35).toFixed(2));
-    bee.style.setProperty('--qi', (far * (.08 + rand() * .22)).toFixed(0) + 'px');
-    bee.style.setProperty('--bd', (540 + rand() * 540).toFixed(0) + 'ms');
-    bee.style.setProperty('--bdelay', (Math.pow(rand(), 1.4) * 220).toFixed(0) + 'ms');
-    if (swarm) swarm.appendChild(bee);
+    bee.style.setProperty('--bs', bs.toFixed(2));
+    bee.style.setProperty('--qi', qiLen.toFixed(0) + 'px');
+    bee.style.setProperty('--bd', (isForeground ? (420 + rand() * 240) : (520 + rand() * 520)).toFixed(0) + 'ms');
+    bee.style.setProperty('--bdelay', (Math.pow(rand(), 1.4) * 210).toFixed(0) + 'ms');
+    if (sFrag) sFrag.appendChild(bee); else if (swarm) swarm.appendChild(bee);
   }
-  sparkEls = [[22], [26], [36]].map(function (S, i) { return sparks(crackEls[i], S[0]); });
+  if (sFrag && swarm) swarm.appendChild(sFrag);
+  sparkEls = [[18], [20], [28]].map(function (S, i) { return sparks(crackEls[i], S[0]); });
+  }
+
+  /* 即時物理渲染引擎（批次合併 Path 合批繪製・零 GC 物件分配・鎖定 DPR=1 確保 60FPS 絲滑流暢） */
+  var fxRaf = 0;
+  function startRealtimePhysicsFX() {
+    var cvs = rite ? rite.querySelector('.rite-fx-canvas') : null;
+    if (!cvs || !cvs.getContext) return;
+    var ctx = cvs.getContext('2d');
+    if (!ctx) return;
+    /* 特效層鎖定 1x 解析度渲染，像素填充率降低 75%，視覺光暈更柔和且完全不掉幀 */
+    cvs.width = W;
+    cvs.height = H;
+
+    var cx = W * 0.5, cy = H * 0.5;
+    var maxR = Math.hypot(W, H) * 0.65;
+    var dustCount = W < 560 ? 110 : 210;
+    /* 依顏色分為 3 個批次陣列，每幀只需 3 次 beginPath/stroke 呼叫（原本 820 次降低為 3 次！） */
+    var isLight = root.getAttribute('data-theme') === 'light';
+    var dustBuckets = [[], [], []];
+    var bucketCols = isLight ? ['#7E5710', '#1F5642', '#336E55'] : ['#FFF9E6', '#E4BE70', '#5CD6B8'];
+    for (var i = 0; i < dustCount; i++) {
+      var ang = rand() * Math.PI * 2;
+      var rad = 14 + Math.pow(rand(), 0.72) * maxR;
+      var bIdx = i % 5 === 0 ? 0 : (i % 2 === 0 ? 1 : 2);
+      dustBuckets[bIdx].push({
+        ang: ang,
+        rad: rad,
+        initR: rad,
+        omega: (1.4 + rand() * 2.6) * (46 / (rad + 24)),
+        infall: 0.58 + rand() * 0.62,
+        z: 0.3 + rand() * 1.6
+      });
+    }
+
+    var liveBolts = [];
+    function genBolt(x1, y1, x2, y2, disp, gens, col, lw) {
+      var pts = [{ x: x1, y: y1 }, { x: x2, y: y2 }];
+      var branches = [];
+      var curD = disp;
+      for (var g = 0; g < gens; g++) {
+        var next = [pts[0]];
+        for (var j = 0; j < pts.length - 1; j++) {
+          var p1 = pts[j], p2 = pts[j + 1];
+          var mx = (p1.x + p2.x) * 0.5 + (Math.random() - 0.5) * curD;
+          var my = (p1.y + p2.y) * 0.5 + (Math.random() - 0.5) * curD;
+          next.push({ x: mx, y: my }, p2);
+          if (g >= 1 && g <= 2 && Math.random() < 0.26) {
+            var bAng = Math.atan2(p2.y - p1.y, p2.x - p1.x) + (Math.random() - 0.5) * 1.25;
+            var bLen = Math.hypot(p2.x - p1.x, p2.y - p1.y) * (0.48 + Math.random() * 0.5);
+            branches.push(genBolt(mx, my, mx + Math.cos(bAng) * bLen, my + Math.sin(bAng) * bLen, curD * 0.45, 2, col, lw * 0.55));
+          }
+        }
+        pts = next;
+        curD *= 0.52;
+      }
+      return { pts: pts, branches: branches, col: col, lw: lw, life: 1, decay: 3.8 + Math.random() * 2.2 };
+    }
+
+    function traceBoltPath(b) {
+      if (b.pts.length < 2) return;
+      ctx.moveTo(b.pts[0].x, b.pts[0].y);
+      for (var k = 1; k < b.pts.length; k++) ctx.lineTo(b.pts[k].x, b.pts[k].y);
+      for (var m = 0; m < b.branches.length; m++) traceBoltPath(b.branches[m]);
+    }
+
+    function paintBolt(b) {
+      var a = b.life;
+      if (a <= 0.02) return;
+      ctx.beginPath();
+      traceBoltPath(b);
+      ctx.strokeStyle = b.col;
+      ctx.globalAlpha = a * 0.34;
+      ctx.lineWidth = b.lw * 4.2;
+      ctx.stroke();
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.globalAlpha = a * 0.92;
+      ctx.lineWidth = Math.max(1, b.lw * 0.85);
+      ctx.stroke();
+    }
+
+    var t0 = performance.now(), prev = t0;
+    var slashSpawned = [false, false, false];
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'miter';
+
+    function stepFX(now) {
+      if (!rite || rite.classList.contains('is-done') || rite.classList.contains('parting')) {
+        ctx.clearRect(0, 0, W, H);
+        return;
+      }
+      var dt = Math.min(0.05, (now - prev) / 1000) / SPEED;
+      prev = now;
+      var elapsed = ((now - t0) / 1000) / SPEED;
+
+      ctx.clearRect(0, 0, W, H);
+
+      var isFreeze = (elapsed >= 0.60 && elapsed < 0.66);
+      var effDt = isFreeze ? dt * 0.05 : dt;
+      var dustAlpha = elapsed > 0.66 ? Math.max(0, 1 - (elapsed - 0.66) * 1.2) : 0.78;
+
+      /* 1. 3D 引力星塵吸積盤（合批繪製：全場僅 3 次 stroke 呼叫，極速零負擔） */
+      if (dustAlpha > 0.02) {
+        ctx.globalCompositeOperation = isLight ? 'source-over' : 'lighter';
+        ctx.globalAlpha = dustAlpha;
+        ctx.lineWidth = 1.35;
+        var tilt = 0.68;
+        for (var bIdx = 0; bIdx < 3; bIdx++) {
+          var bucket = dustBuckets[bIdx];
+          ctx.strokeStyle = bucketCols[bIdx];
+          ctx.beginPath();
+          for (var i = 0; i < bucket.length; i++) {
+            var d = bucket[i];
+            if (elapsed < 0.66) {
+              d.ang += d.omega * effDt * (1 + elapsed * 3.5);
+              d.rad = Math.max(2, d.rad - d.initR * d.infall * effDt * 1.45);
+            } else {
+              d.ang += d.omega * effDt * 0.45;
+              d.rad += (290 + d.z * 310) * effDt;
+            }
+            var px = cx + Math.cos(d.ang) * d.rad;
+            var py = cy + Math.sin(d.ang) * d.rad * tilt;
+            var tx = cx + Math.cos(d.ang - 0.16) * (d.rad * 1.045);
+            var ty = cy + Math.sin(d.ang - 0.16) * (d.rad * 1.045) * tilt;
+            ctx.moveTo(tx, ty);
+            ctx.lineTo(px, py);
+          }
+          ctx.stroke();
+        }
+      }
+
+      /* 2. 隨時間觸發的高壓辟邪分形神雷（控制同屏上限 <= 5 道，4 代分形） */
+      if (elapsed < 1.38 && liveBolts.length < 5 && Math.random() < 0.24) {
+        var bAng = Math.random() * Math.PI * 2;
+        var bRad = 45 + Math.random() * Math.min(W, H) * 0.40;
+        var bCol = Math.random() < 0.68 ? '#FFE596' : '#64E8CC';
+        liveBolts.push(genBolt(cx, cy, cx + Math.cos(bAng) * bRad, cy + Math.sin(bAng) * bRad, 38, 4, bCol, 2.0));
+      }
+      var cutTimes = [0.92, 1.08, 1.23];
+      for (var s = 0; s < 3; s++) {
+        if (elapsed >= cutTimes[s] && !slashSpawned[s] && CUTS && CUTS[s]) {
+          slashSpawned[s] = true;
+          var span = Math.hypot(W, H) * 0.62;
+          var c = CUTS[s];
+          liveBolts.push(genBolt(c.P[0] - c.d[0] * span, c.P[1] - c.d[1] * span, c.P[0] + c.d[0] * span, c.P[1] + c.d[1] * span, 52, 4, '#FFF4D2', 2.8));
+        }
+      }
+
+      for (var k = liveBolts.length - 1; k >= 0; k--) {
+        var lb = liveBolts[k];
+        lb.life -= lb.decay * dt;
+        if (lb.life <= 0) liveBolts.splice(k, 1);
+        else paintBolt(lb);
+      }
+
+      if (elapsed < 1.55) {
+        fxRaf = requestAnimationFrame(stepFX);
+      } else {
+        ctx.clearRect(0, 0, W, H);
+      }
+    }
+    fxRaf = requestAnimationFrame(stepFX);
   }
 
   /* 命中時沿刀口迸出的星火，預先建立，命中時只啟動既有動畫 */
@@ -1102,6 +1478,7 @@
      CSS 與 JS 的時間軸才不會錯開。 */
   function run() {
     rite.classList.add('ignite');
+    try { startRealtimePhysicsFX(); } catch (e) {}
 
     var fm = /[?&]frame=(\d+)/.exec(location.search);
     if (fm && document.getAnimations) {
@@ -1112,7 +1489,14 @@
       }, parseInt(fm[1], 10));
     }
 
-    at(660, function () { rite.classList.add('burst'); });
+    /* 600ms 極限凝滯幀（Hit-stop），660ms 七十二口青竹蜂雲劍與氣浪環爆開 */
+    var shockEl = rite.querySelector('.rite-shockwave');
+    at(600, function () { rite.classList.add('hitstop'); });
+    at(660, function () {
+      rite.classList.remove('hitstop');
+      rite.classList.add('burst');
+      if (shockEl) shockEl.classList.add('go');
+    });
 
     /* 三刀節奏越來越快，最後一刀最重 */
     [[920, 22, false], [1080, 26, false], [1230, 36, true]].forEach(function (S, i) {

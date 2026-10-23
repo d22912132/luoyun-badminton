@@ -41,23 +41,23 @@
     --ink-2:#1B2C32;
 
     /* 霧白 —— 灰階統一帶青綠，不混暖灰 */
-    --mist-1:#EEF5F1;
-    --mist-2:#B9CAC3;
-    --mist-3:#91A39B;
+    --mist-1:#F5FBF8;
+    --mist-2:#D6E5DE;
+    --mist-3:#AEBFB7;
 
     /* 竹青翡翠 —— 冷玉，非螢光 */
-    --jade-100:#D5E7DC;
-    --jade-300:#9BC3AE;
+    --jade-100:#E2F2E9;
+    --jade-300:#A8D4BE;
     --jade-500:#6E9E88;
     --jade-700:#3D6555;
     --jade-900:#1B2E27;
 
     /* 玄金 / 朱砂 / 靈紫 —— 語意色，皆已去飽和以歸為同一家族 */
-    --gold:#C9A961;
+    --gold:#DFC076;
     --gold-dim:#8A7440;
-    --cinnabar:#D07A6C;
+    --cinnabar:#E28C7E;
     --cinnabar-dim:#8C4438;
-    --amethyst:#9E8FC0;
+    --amethyst:#B7A8DA;
 
     --male-text:#A8CBD8; --male-border:rgba(168,203,216,.24); --male-high:rgba(168,203,216,.11); --male-low:rgba(168,203,216,.03);
     --female-text:#DFB4C4; --female-border:rgba(223,180,196,.24); --female-high:rgba(223,180,196,.11); --female-low:rgba(223,180,196,.03);
@@ -97,8 +97,8 @@
   /* 中央壓低對比，山景從兩側與卡片間透出。圖片失敗時仍有原本墨玉底色。 */
   body::after{
     content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
-    background:linear-gradient(180deg,rgba(6,17,20,.38),rgba(6,17,20,.52)),
-      radial-gradient(ellipse at 50% 48%,rgba(6,17,20,.44),transparent 76%);
+    background:linear-gradient(180deg,rgba(6,17,20,.58),rgba(6,17,20,.74)),
+      radial-gradient(ellipse at 50% 48%,rgba(6,17,20,.66),transparent 82%);
   }
   @media(max-width:640px){
     body::before{background-image:url('/assets/yunmeng-dark-small-v1.jpg');background-position:22% center}
@@ -135,7 +135,7 @@
      列表卡：疊層漸層模擬玻璃（無 backdrop-filter，捲動零成本）
      .glass：真磨砂，只給 sticky / modal / 單張主卡 */
   .surface{
-    background:linear-gradient(180deg,rgba(18,34,38,.92),rgba(10,24,28,.88));
+    background:linear-gradient(180deg,rgba(15,28,32,.96),rgba(8,19,23,.94));
     border:1px solid var(--hair);
     box-shadow:inset 0 1px 0 var(--sheen), 0 18px 40px -32px rgba(0,0,0,.9);
   }
@@ -151,14 +151,14 @@
                0 26px 52px -34px rgba(110,158,136,.5);
   }
   .glass{
-    background:linear-gradient(180deg,rgba(19,35,38,.94),rgba(10,24,28,.91));
+    background:linear-gradient(180deg,rgba(16,30,33,.96),rgba(8,20,24,.94));
     backdrop-filter:blur(14px) saturate(128%);
     -webkit-backdrop-filter:blur(14px) saturate(128%);
     border:1px solid var(--hair);
     box-shadow:inset 0 1px 0 var(--sheen);
   }
   .inlay{
-    background:linear-gradient(180deg, rgba(228,235,232,.03), rgba(228,235,232,.012));
+    background:linear-gradient(180deg, rgba(8,16,19,.52), rgba(6,13,16,.68));
     border:1px solid var(--hair);
   }
 
@@ -233,19 +233,25 @@
   .level-badge > * { position: relative; z-index: 1; }
   .level-badge .realm-name { font-weight: 700; }
   .level-badge .realm-lv {
-    min-width: 1.35rem; padding: .12rem .32rem; border: 1px solid rgba(255,255,255,.22); border-radius: 999px;
+    min-width: 1.4rem; padding: .12rem .34rem; border: 1px solid rgba(255,255,255,.22); border-radius: 999px;
     text-align: center; color: var(--realm-text); background: linear-gradient(180deg, rgba(255,255,255,.2), rgba(255,255,255,.06));
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.22); font: 800 9.5px/1.3 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.22); font: 800 10.5px/1.3 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
   .level-badge.realm-qi { --realm-a:#6E9E88; --realm-b:#D5E7DC; --realm-c:#35594B; --realm-text:#CDE9DA; --realm-glow:rgba(155,195,174,.62); --realm-speed:9s; --realm-sheen:6s; }
   .level-badge.realm-foundation { --realm-a:#5C8B99; --realm-b:#D8F2F7; --realm-c:#385E69; --realm-text:#C9E5ED; --realm-glow:rgba(129,202,220,.68); --realm-speed:12s; --realm-sheen:7s; }
   .level-badge.realm-golden { --realm-a:#8A6824; --realm-b:#FFF0AE; --realm-c:#C3912D; --realm-text:#FFE8A0; --realm-glow:rgba(226,184,78,.78); --realm-speed:15s; --realm-sheen:8s; }
-  .level-badge.realm-nascent { --realm-a:#6A5596; --realm-b:#E5DBFF; --realm-c:#9E8FC0; --realm-text:#E8DFFF; --realm-glow:rgba(174,145,235,.78); --realm-speed:19s; --realm-sheen:9s; }
-  .level-badge.realm-transcendent { --realm-a:#7F5B13; --realm-b:#FFF7C8; --realm-c:#D6A93D; --realm-text:#FFF2B5; --realm-glow:rgba(255,205,88,.92); --realm-speed:24s; --realm-sheen:10s; }
-  .level-badge.realm-refined { --realm-a:#3C7F87; --realm-b:#B6EEF0; --realm-c:#24515B; --realm-text:#C7F6F0; --realm-glow:rgba(94,208,211,.78); --realm-speed:21s; --realm-sheen:9s; }
-  .level-badge.realm-fusion { --realm-a:#496C9B; --realm-b:#C8DFFF; --realm-c:#2F4168; --realm-text:#D9E8FF; --realm-glow:rgba(116,168,236,.82); --realm-speed:23s; --realm-sheen:10s; }
-  .level-badge.realm-mahayana { --realm-a:#8F5367; --realm-b:#FFD2D9; --realm-c:#5B2E49; --realm-text:#FFE0E7; --realm-glow:rgba(235,137,160,.84); --realm-speed:25s; --realm-sheen:11s; }
-  .level-badge.realm-tribulation { --realm-a:#8B3128; --realm-b:#FFE0A1; --realm-c:#C85B32; --realm-text:#FFE9B7; --realm-glow:rgba(239,145,78,.96); --realm-speed:27s; --realm-sheen:12s; }
+  .level-badge.realm-nascent { --realm-a:#6A5596; --realm-b:#E5DBFF; --realm-c:#9E8FC0; --realm-text:#E8DFFF; --realm-glow:rgba(174,145,235,.86); --realm-speed:7.5s; --realm-sheen:4.8s; box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 0 18px -4px rgba(174,145,235,.75); }
+  .level-badge.realm-transcendent { --realm-a:#7F5B13; --realm-b:#FFF7C8; --realm-c:#D6A93D; --realm-text:#FFF2B5; --realm-glow:rgba(255,205,88,.94); --realm-speed:6.8s; --realm-sheen:4.4s; box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 0 20px -4px rgba(255,205,88,.85); }
+  .level-badge.realm-refined { --realm-a:#3C7F87; --realm-b:#B6EEF0; --realm-c:#24515B; --realm-text:#C7F6F0; --realm-glow:rgba(94,208,211,.88); --realm-speed:6.2s; --realm-sheen:4.2s; box-shadow: inset 0 1px 0 rgba(255,255,255,.24), 0 0 20px -4px rgba(94,208,211,.82); }
+  .level-badge.realm-fusion { --realm-a:#496C9B; --realm-b:#C8DFFF; --realm-c:#2F4168; --realm-text:#D9E8FF; --realm-glow:rgba(116,168,236,.92); --realm-speed:5.6s; --realm-sheen:3.8s; box-shadow: inset 0 1px 0 rgba(255,255,255,.26), 0 0 22px -4px rgba(116,168,236,.88); }
+  .level-badge.realm-mahayana { --realm-a:#8F5367; --realm-b:#FFD2D9; --realm-c:#5B2E49; --realm-text:#FFE0E7; --realm-glow:rgba(235,137,160,.94); --realm-speed:5s; --realm-sheen:3.5s; box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 0 24px -4px rgba(235,137,160,.9); }
+  .level-badge.realm-tribulation { --realm-a:#8B3128; --realm-b:#FFE0A1; --realm-c:#C85B32; --realm-text:#FFE9B7; --realm-glow:rgba(239,145,78,.98); --realm-speed:4.2s; --realm-sheen:3s; box-shadow: inset 0 1px 0 rgba(255,255,255,.32), 0 0 26px -3px rgba(239,145,78,.96); }
+  /* 元嬰期以上高階修士卡片神識威壓光暈（Hover 時觸發境界氣場與金色雷紋） */
+  .high-realm-card { position: relative; }
+  .high-realm-card:hover {
+    border-color: rgba(201,169,97,.36) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 0 0 1px rgba(201,169,97,.16), 0 24px 48px -28px rgba(201,169,97,.55) !important;
+  }
   @keyframes level-realm-border { to { --level-realm-angle: 360deg; } }
   @keyframes level-realm-aura { 50% { opacity: .46; } }
   @keyframes level-realm-sheen { 0%,68% { transform: translateX(-145%); opacity: 0; } 76% { opacity: .72; } 100% { transform: translateX(145%); opacity: 0; } }
@@ -279,20 +285,57 @@
   .office-elder{--office-a:#416F65;--office-b:#D5F5E8;--office-c:#749F8D;--office-text:#D1F0E1;--office-glow:rgba(125,205,170,.72);--office-speed:11s;--office-sheen:6.5s}
   /* 灰階：同一套三色描邊結構，只是彩度抽掉；轉速與掃光都放慢，低階自然比較沉靜 */
   .office-stone{--office-a:#49514E;--office-b:#DCE4E0;--office-c:#78837E;--office-text:#CFD8D3;--office-glow:rgba(188,202,195,.55);--office-speed:22s;--office-sheen:11s}
+  .office-thunder{--office-a:#5E468C;--office-b:#FFF2B2;--office-c:#B899F2;--office-text:#EFE3FF;--office-glow:rgba(195,160,255,.84);--office-speed:12s;--office-sheen:6s}
+  .office-crimson{--office-a:#8A342B;--office-b:#FFD8C2;--office-c:#DF7665;--office-text:#FFE0D4;--office-glow:rgba(235,120,102,.8);--office-speed:14s;--office-sheen:7s}
   @keyframes office-border{to{--office-angle:360deg}}@keyframes office-aura{50%{opacity:.48}}@keyframes office-sheen{0%,66%{transform:translateX(-145%);opacity:0}76%{opacity:.76}100%{transform:translateX(145%);opacity:0}}
 
   .theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;min-width:40px;height:40px;padding:0 .7rem;border-radius:999px;border:1px solid var(--hair-2);background:rgba(228,235,232,.035);color:var(--mist-2);font:600 11.5px 'Noto Sans TC',sans-serif;cursor:pointer;transition:color .24s var(--ease),border-color .24s var(--ease),background .24s var(--ease),transform .24s var(--ease)}.theme-toggle:hover{color:var(--jade-100);border-color:rgba(155,195,174,.34);background:rgba(155,195,174,.09);transform:translateY(-1px)}
 
-  html[data-theme="light"]{--ink-0:#EDE6D8;--ink-1:#F5EFE3;--ink-2:#E2D7C3;--mist-1:#162822;--mist-2:#384F45;--mist-3:#566D63;--jade-100:#134636;--jade-300:#1E664E;--jade-500:#388467;--jade-700:#1B4E3C;--jade-900:#DBE2D6;--gold:#7E5710;--gold-dim:#63430A;--cinnabar:#B23829;--cinnabar-dim:#842519;--amethyst:#58437D;--hair:rgba(60,48,30,.18);--hair-2:rgba(45,68,55,.32);--sheen:rgba(255,252,244,.72);--court-line:rgba(255,255,255,.94);--court-line-sub:rgba(255,255,255,.68);--male-text:#1F5264;--male-border:rgba(31,82,100,.32);--male-high:rgba(55,125,147,.20);--male-low:rgba(55,125,147,.08);--female-text:#7D3B52;--female-border:rgba(125,59,82,.30);--female-high:rgba(165,89,114,.19);--female-low:rgba(165,89,114,.07);color-scheme:light}
+  html[data-theme="light"]{--ink-0:#EDE6D8;--ink-1:#F5EFE3;--ink-2:#E2D7C3;--mist-1:#0F201A;--mist-2:#253A31;--mist-3:#41594E;--jade-100:#0E3C2E;--jade-300:#16543F;--jade-500:#297057;--jade-700:#144232;--jade-900:#DBE2D6;--gold:#694609;--gold-dim:#523606;--cinnabar:#9E2C1E;--cinnabar-dim:#781E13;--amethyst:#4A356E;--hair:rgba(60,48,30,.22);--hair-2:rgba(45,68,55,.36);--sheen:rgba(255,252,244,.82);--court-line:rgba(255,255,255,.94);--court-line-sub:rgba(255,255,255,.68);--male-text:#164556;--male-border:rgba(22,69,86,.36);--male-high:rgba(55,125,147,.22);--male-low:rgba(55,125,147,.09);--female-text:#6E2E44;--female-border:rgba(110,46,68,.34);--female-high:rgba(165,89,114,.21);--female-low:rgba(165,89,114,.08);color-scheme:light}
   html[data-theme="light"] body::before{background-image:url('/assets/yunmeng-light-v1.jpg')}
-  html[data-theme="light"] body::after{background:linear-gradient(180deg,rgba(243,237,224,.28),rgba(235,229,212,.45)),radial-gradient(ellipse at 50% 48%,rgba(247,242,231,.66),transparent 80%)}
+  html[data-theme="light"] body::after{background:linear-gradient(180deg,rgba(243,237,224,.58),rgba(235,229,212,.74)),radial-gradient(ellipse at 50% 48%,rgba(247,242,231,.82),transparent 85%)}
   @media(max-width:640px){html[data-theme="light"] body::before{background-image:url('/assets/yunmeng-light-small-v1.jpg');background-position:22% center}}
   html[data-theme="light"] .grain{opacity:.018;mix-blend-mode:multiply}
   html[data-theme="light"] header{background:rgba(246,240,228,.97)!important}
   html[data-theme="light"] .surface{background:linear-gradient(180deg,rgba(247,242,232,.98),rgba(234,225,208,.97));box-shadow:inset 0 1px 0 rgba(255,253,247,.76),0 18px 42px -34px rgba(79,61,35,.42)}
   html[data-theme="light"] .surface-hover:hover{background:linear-gradient(180deg,rgba(244,238,226,.99),rgba(239,231,216,.98));box-shadow:inset 0 1px 0 rgba(255,253,247,.82),0 24px 46px -34px rgba(82,63,34,.38)}
   html[data-theme="light"] .glass{background:linear-gradient(180deg,rgba(246,240,228,.98),rgba(232,222,204,.97))}
-  html[data-theme="light"] .inlay,html[data-theme="light"] .bezel{background:linear-gradient(180deg,rgba(240,233,219,.94),rgba(222,211,191,.80))}
+  html[data-theme="light"] .inlay,html[data-theme="light"] .bezel{background:linear-gradient(180deg,rgba(238,230,214,.96),rgba(224,213,193,.90));border-color:rgba(60,48,30,.22)}
+  html[data-theme="light"] .eyebrow{background:linear-gradient(180deg,rgba(30,102,78,.15),rgba(30,102,78,.06));border-color:rgba(30,102,78,.28);color:var(--jade-100)}
+  html[data-theme="light"] .level-badge,html[data-theme="light"] .realm-badge{background:linear-gradient(180deg,rgba(252,248,240,.98),rgba(239,231,216,.98)) padding-box,conic-gradient(from var(--level-realm-angle,0deg),var(--realm-a),var(--realm-b),var(--realm-c),var(--realm-a)) border-box;text-shadow:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 4px 12px -4px rgba(45,68,55,.22)}
+  html[data-theme="light"] .level-badge .realm-lv{border-color:rgba(45,68,55,.26);background:linear-gradient(180deg,rgba(30,102,78,.14),rgba(30,102,78,.05));color:var(--realm-text)}
+  html[data-theme="light"] .level-badge.realm-qi,html[data-theme="light"] .realm-qi{--realm-a:#2E7055;--realm-b:#76B89A;--realm-c:#1A4A38;--realm-text:#114432;--realm-glow:rgba(46,112,85,.28)}
+  html[data-theme="light"] .level-badge.realm-foundation,html[data-theme="light"] .realm-foundation{--realm-a:#266070;--realm-b:#6CB2C4;--realm-c:#17424F;--realm-text:#114352;--realm-glow:rgba(38,96,112,.28)}
+  html[data-theme="light"] .level-badge.realm-golden,html[data-theme="light"] .realm-golden{--realm-a:#8C6214;--realm-b:#DFB456;--realm-c:#5E4009;--realm-text:#5E3F06;--realm-glow:rgba(140,98,20,.32)}
+  html[data-theme="light"] .level-badge.realm-nascent,html[data-theme="light"] .realm-nascent{--realm-a:#5C438A;--realm-b:#A992D6;--realm-c:#3B285E;--realm-text:#3E276B;--realm-glow:rgba(92,67,138,.32)}
+  html[data-theme="light"] .level-badge.realm-transcendent,html[data-theme="light"] .realm-transcendent{--realm-a:#8A5A0D;--realm-b:#E5B84B;--realm-c:#593805;--realm-text:#5C3904;--realm-glow:rgba(138,90,13,.35)}
+  html[data-theme="light"] .level-badge.realm-refined,html[data-theme="light"] .realm-refined{--realm-a:#1F666E;--realm-b:#66BDC4;--realm-c:#124247;--realm-text:#0E454B;--realm-glow:rgba(31,102,110,.32)}
+  html[data-theme="light"] .level-badge.realm-fusion,html[data-theme="light"] .realm-fusion{--realm-a:#2E5082;--realm-b:#7BA3DB;--realm-c:#1B3359;--realm-text:#183561;--realm-glow:rgba(46,80,130,.32)}
+  html[data-theme="light"] .level-badge.realm-mahayana,html[data-theme="light"] .realm-mahayana{--realm-a:#823950;--realm-b:#D9829B;--realm-c:#542031;--realm-text:#5E1D32;--realm-glow:rgba(130,57,80,.34)}
+  html[data-theme="light"] .level-badge.realm-tribulation,html[data-theme="light"] .realm-tribulation{--realm-a:#8F2A1E;--realm-b:#E38B4F;--realm-c:#5E1810;--realm-text:#661B11;--realm-glow:rgba(143,42,30,.38)}
+  html[data-theme="light"] .office-badge{
+    border-width: 1.5px;
+    background: linear-gradient(180deg, rgba(255,253,248,.99), rgba(246,240,228,.98)) padding-box, conic-gradient(from var(--office-angle,0deg), var(--office-a), var(--office-b), var(--office-c), var(--office-a)) border-box;
+    text-shadow: 0 0 1px rgba(0,0,0,.08);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 0 14px -2px var(--office-glow), 0 3px 8px -2px rgba(45,68,55,.24);
+  }
+  html[data-theme="light"] .office-badge::before{ opacity: .45; }
+  html[data-theme="light"] .office-badge::after{
+    background: linear-gradient(108deg, transparent 28%, rgba(255,255,255,.82) 49%, transparent 70%);
+  }
+  html[data-theme="light"] .office-sigil{
+    background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(245,238,225,.75));
+    border-width: 1.2px;
+    box-shadow: inset 0 0 6px var(--office-glow), 0 1px 3px rgba(0,0,0,.08);
+  }
+  html[data-theme="light"] .office-master{--office-a:#B8860B;--office-b:#FFF099;--office-c:#D4A017;--office-text:#5C3802;--office-glow:rgba(218,165,32,.75)}
+  html[data-theme="light"] .office-elder{--office-a:#1F7A59;--office-b:#99E8C5;--office-c:#2E9E75;--office-text:#0D422E;--office-glow:rgba(31,138,98,.72)}
+  html[data-theme="light"] .office-stone{--office-a:#556660;--office-b:#DCE6E2;--office-c:#7D9189;--office-text:#1E2925;--office-glow:rgba(100,125,115,.6)}
+  html[data-theme="light"] .office-thunder{--office-a:#723DBF;--office-b:#E2C8FF;--office-c:#9A61F0;--office-text:#34135E;--office-glow:rgba(138,75,235,.78)}
+  html[data-theme="light"] .office-crimson{--office-a:#B83021;--office-b:#FFC0B5;--office-c:#E3503D;--office-text:#63150C;--office-glow:rgba(227,80,61,.75)}
+  html[data-theme="light"] .level-badge-wrap .realm-tooltip{background:linear-gradient(180deg,rgba(252,249,242,.99),rgba(240,233,219,.99));color:var(--mist-1);border-color:rgba(45,68,55,.32);box-shadow:0 16px 34px -16px rgba(60,48,30,.38)}
+  html[data-theme="light"] .level-badge-wrap .realm-tooltip::after{background:#F0E9DB;border-color:rgba(45,68,55,.32)}
+  html[data-theme="light"] .realm-tooltip-text{color:var(--mist-2)}
   html[data-theme="light"] input:not([type="radio"]):not([type="checkbox"]),html[data-theme="light"] select,html[data-theme="light"] textarea{background:rgba(242,235,222,.97)!important;color:var(--mist-1)!important}
   html[data-theme="light"] select option{background:#F0E8D9;color:var(--mist-1)}
   html[data-theme="light"] input[type="time"]::-webkit-calendar-picker-indicator,html[data-theme="light"] input[type="number"]::-webkit-inner-spin-button{filter:none;opacity:.55}
@@ -311,7 +354,7 @@
   }
   .flow > i::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(112deg,transparent 0 11px,rgba(255,255,255,.22) 14px,transparent 18px 28px);transform:translateX(-28px);animation:qi-current 2.4s linear infinite}
   .flow > i::after{content:"";position:absolute;right:-1px;top:50%;width:8px;height:8px;border-radius:50%;transform:translateY(-50%);background:#EAF8F0;box-shadow:0 0 6px 1px rgba(213,231,220,.95),0 0 15px 3px var(--flow-glow,rgba(155,195,174,.65))}
-  .flow.is-near > i::after,.flow.is-full > i::after{background:#FFF1B8;box-shadow:0 0 7px 2px rgba(255,241,184,1),0 0 18px 6px rgba(201,169,97,.65);animation:qi-pulse 1.8s ease-in-out infinite}.flow.is-full{box-shadow:inset 0 1px 2px rgba(0,0,0,.34),0 0 16px -4px rgba(201,169,97,.75)}.flow.is-empty > i::after{display:none}@keyframes qi-current{to{transform:translateX(0)}}@keyframes qi-pulse{50%{opacity:.58;transform:translateY(-50%) scale(.72)}}
+  .flow.is-near > i::after,.flow.is-full > i::after{width:10px;height:10px;background:radial-gradient(circle,#FFFFFF 25%,#FFE58F 70%,#C9A961 100%);box-shadow:0 0 8px 2px rgba(255,241,184,1),0 0 22px 7px rgba(201,169,97,.85);animation:qi-pulse 1.3s ease-in-out infinite}.flow.is-full{box-shadow:inset 0 1px 2px rgba(0,0,0,.34),0 0 18px -3px rgba(201,169,97,.88)}.flow.is-empty > i::after{display:none}@keyframes qi-current{to{transform:translateX(0)}}@keyframes qi-pulse{50%{opacity:.65;transform:translateY(-50%) scale(1.25)}}
 
   /* ---------- 門規列 ---------- */
   .rule{ display:grid; grid-template-columns:26px 1fr; gap:.7rem; padding:.7rem .25rem; }
@@ -427,125 +470,219 @@
   /* 入宗禮保留完整飛拍、裂縫、碎片與火星；由同源 iframe 隔離其繪製範圍。 */
   .console-rite-frame{position:fixed;inset:0;z-index:90;width:100%;height:100%;border:0;background:transparent;visibility:hidden;pointer-events:none}.console-rite-frame.is-active{visibility:visible}.rite-prep{position:fixed;inset:0;z-index:89;display:grid;place-items:center;background:radial-gradient(circle,rgba(67,125,96,.16),rgba(4,13,16,.92) 64%);color:var(--jade-100)}.rite-prep span{font:600 .7rem system-ui,sans-serif;letter-spacing:.24em;opacity:.7}
 
-  /* ---------------- 全螢幕獨立分頁御劍法術轉場層 (Cinematic Tabs FX) ---------------- */
+  /* ---------------- 全螢幕獨立分頁御劍法術轉場層 (Cinematic Tabs FX) & 護山大陣靈氣微塵 ---------------- */
+  .ambient-qi-layer {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+  }
+  .ambient-qi-mote {
+    position: absolute; bottom: -20px; width: var(--qs, 4px); height: var(--qs, 4px);
+    border-radius: 50%; background: var(--qc, #9BC3AE);
+    box-shadow: 0 0 10px 2px var(--qc, rgba(155,195,174,.75));
+    opacity: 0; animation: ambientQiFloat var(--qd, 14s) ease-in-out var(--qdel, 0s) infinite;
+  }
+  @keyframes ambientQiFloat {
+    0% { opacity: 0; transform: translate3d(0, 0, 0) scale(.6); }
+    25% { opacity: var(--qo, .42); }
+    75% { opacity: var(--qo, .38); }
+    100% { opacity: 0; transform: translate3d(var(--qx, 30px), -92vh, 0) scale(1.25); }
+  }
+  @media (max-width: 640px) { .ambient-qi-mote:nth-child(n+8) { display: none; } }
   #cinematic-fx {
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
     pointer-events: none;
     z-index: 95;
     overflow: hidden;
+    perspective: 1000px;
+    display: grid;
+    place-items: center;
   }
-  body.screen-shake {
-    animation: screenShake 0.38s ease-out both;
+  /* 震動綁在 #cinematic-fx 或 main，避免對 body 設 transform 破壞內部 position:fixed 的視窗置中基準！ */
+  body.screen-shake main,
+  body.screen-shake #cinematic-fx {
+    animation: screenShake 0.42s cubic-bezier(.18,.88,.28,1) both;
   }
   @keyframes screenShake {
     0% { transform: translate(0, 0); }
-    20% { transform: translate(-5px, 6px); }
-    40% { transform: translate(6px, -4px); }
-    60% { transform: translate(-3px, 3px); }
-    80% { transform: translate(3px, -2px); }
+    16% { transform: translate(-7px, 8px); }
+    34% { transform: translate(8px, -6px); }
+    52% { transform: translate(-5px, 4px); }
+    72% { transform: translate(4px, -3px); }
     100% { transform: translate(0, 0); }
   }
+  /* 縮地瞬移遁光（60 秒內重複切換分頁時的輕量流暢轉場，不震動不遮擋） */
+  .fx-quick-shunpo {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 50%, rgba(155,195,174,.28), rgba(201,169,97,.10) 42%, transparent 72%);
+    animation: quickShunpoSweep 0.34s var(--ease) both;
+  }
+  @keyframes quickShunpoSweep {
+    0% { opacity: 0; transform: scale(.88); }
+    35% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.12); }
+  }
+  /* 試煉佈告：大庚劍陣・劍氣雷音（所有飛劍嚴格貫穿螢幕正中央 50% 50%） */
   .fx-sword-fly-1 {
-    position: absolute; top: 75vh; left: -15vw;
-    animation: flySwordAcross1 0.55s cubic-bezier(0.12, 0.9, 0.2, 1) both;
-    filter: drop-shadow(0 0 16px rgba(127,214,160,0.95)) drop-shadow(0 0 35px #3D6555);
+    position: absolute; top: 50%; left: 50%;
+    animation: flySwordAcross1 0.66s cubic-bezier(0.12, 0.9, 0.2, 1) both;
+    filter: drop-shadow(0 0 18px rgba(127,214,160,0.98)) drop-shadow(0 0 38px #3D6555);
   }
   .fx-sword-fly-2 {
-    position: absolute; top: 58vh; left: -20vw;
-    animation: flySwordAcross2 0.58s cubic-bezier(0.15, 0.92, 0.22, 1) 0.06s both;
-    filter: drop-shadow(0 0 20px rgba(155,195,174,1)) drop-shadow(0 0 45px #6E9E88);
+    position: absolute; top: 50%; left: 50%;
+    animation: flySwordAcross2 0.70s cubic-bezier(0.15, 0.92, 0.22, 1) 0.03s both;
+    filter: drop-shadow(0 0 26px rgba(255,232,158,1)) drop-shadow(0 0 52px #6E9E88);
   }
   .fx-sword-fly-3 {
-    position: absolute; top: 85vh; left: -15vw;
-    animation: flySwordAcross3 0.52s cubic-bezier(0.1, 0.88, 0.18, 1) 0.12s both;
-    filter: drop-shadow(0 0 14px rgba(201,255,224,0.85));
+    position: absolute; top: 50%; left: 50%;
+    animation: flySwordAcross3 0.62s cubic-bezier(0.1, 0.88, 0.18, 1) 0.07s both;
+    filter: drop-shadow(0 0 18px rgba(201,255,224,0.95));
+  }
+  .fx-sword-torrent-ray {
+    position: absolute; top: 50%; left: 50%; width: 140vmax; height: 2.8px; border-radius: 999px;
+    margin-left: -70vmax; margin-top: var(--ry-off, 0px);
+    background: linear-gradient(90deg, transparent 5%, rgba(127,214,160,.5) 25%, #FFF4C2 50%, #7FD6A0 75%, transparent 95%);
+    box-shadow: 0 0 16px rgba(255,230,140,.95), 0 0 28px rgba(127,214,160,.9);
+    animation: torrentRayAcross 0.58s cubic-bezier(.1,.88,.2,1) var(--rd, 0s) both;
+  }
+  @keyframes torrentRayAcross {
+    0% { opacity: 0; transform: rotate(-28deg) translateX(-55vmax) scaleX(.25); }
+    22% { opacity: 1; }
+    100% { opacity: 0; transform: rotate(-28deg) translateX(55vmax) scaleX(1.25); }
   }
   @keyframes flySwordAcross1 {
-    0% { transform: translate(0, 0) rotate(-32deg); opacity: 0; }
-    15% { opacity: 1; }
-    85% { opacity: 1; }
-    100% { transform: translate(130vw, -85vh) rotate(-32deg); opacity: 0; }
+    0% { transform: translate(calc(-50% - 48vmin), calc(-50% + 26vmin - 7vmin)) rotate(62deg) scale(0.95); opacity: 0; }
+    18% { opacity: 1; }
+    82% { opacity: 1; }
+    100% { transform: translate(calc(-50% + 48vmin), calc(-50% - 26vmin - 7vmin)) rotate(62deg) scale(1.05); opacity: 0; }
   }
   @keyframes flySwordAcross2 {
-    0% { transform: translate(0, 0) rotate(-28deg) scale(1.25); opacity: 0; }
-    15% { opacity: 1; }
-    85% { opacity: 1; }
-    100% { transform: translate(135vw, -80vh) rotate(-28deg) scale(1.25); opacity: 0; }
+    0% { transform: translate(calc(-50% - 52vmin), calc(-50% + 28vmin)) rotate(62deg) scale(1.42); opacity: 0; }
+    18% { opacity: 1; }
+    84% { opacity: 1; }
+    100% { transform: translate(calc(-50% + 52vmin), calc(-50% - 28vmin)) rotate(62deg) scale(1.48); opacity: 0; }
   }
   @keyframes flySwordAcross3 {
-    0% { transform: translate(0, 0) rotate(-36deg) scale(0.85); opacity: 0; }
-    15% { opacity: 1; }
-    85% { opacity: 1; }
-    100% { transform: translate(125vw, -90vh) rotate(-36deg) scale(0.85); opacity: 0; }
+    0% { transform: translate(calc(-50% - 46vmin), calc(-50% + 25vmin + 8vmin)) rotate(62deg) scale(0.92); opacity: 0; }
+    18% { opacity: 1; }
+    82% { opacity: 1; }
+    100% { transform: translate(calc(-50% + 46vmin), calc(-50% - 25vmin + 8vmin)) rotate(62deg) scale(0.98); opacity: 0; }
   }
   .fx-sword-rift {
-    position: absolute; top: 48%; left: -10%; width: 120%; height: 3px;
-    background: linear-gradient(90deg, transparent 5%, rgba(127,214,160,0.2) 20%, #E8FFF2 50%, rgba(127,214,160,0.9) 75%, transparent 95%);
-    box-shadow: 0 0 25px rgba(127,214,160,0.95), 0 0 50px rgba(78,135,110,0.8);
-    transform: rotate(-30deg);
-    animation: slashRift 0.5s ease-out both;
+    position: absolute; top: 50%; left: 50%; width: 135vmax; height: 4.5px;
+    margin-left: -67.5vmax; margin-top: -2px;
+    background: linear-gradient(90deg, transparent 8%, rgba(201,169,97,0.6) 24%, #FFFFFF 50%, rgba(127,214,160,0.98) 76%, transparent 92%);
+    box-shadow: 0 0 32px rgba(255,232,158,0.98), 0 0 64px rgba(127,214,160,0.92);
+    transform: rotate(-28deg);
+    animation: slashRift 0.62s ease-out both;
     transform-origin: center;
   }
   @keyframes slashRift {
-    0% { opacity: 0; transform: rotate(-30deg) scaleX(0.05); }
-    30% { opacity: 1; transform: rotate(-30deg) scaleX(1.15); }
-    70% { opacity: 0.85; transform: rotate(-30deg) scaleX(1.3); }
-    100% { opacity: 0; transform: rotate(-30deg) scaleX(1.5); }
+    0% { opacity: 0; transform: rotate(-28deg) scaleX(0.05); }
+    28% { opacity: 1; transform: rotate(-28deg) scaleX(1.05); }
+    72% { opacity: 0.92; transform: rotate(-28deg) scaleX(1.22); }
+    100% { opacity: 0; transform: rotate(-28deg) scaleX(1.4); }
   }
+  /* 弟子名冊：虛天鼎・元嬰出竅・星宮七星劍陣（以螢幕正中央 50% 50% 為核心落劍） */
   .fx-constellation-sword {
-    position: absolute; top: -20vh;
-    animation: swordDropToOrbit 0.68s cubic-bezier(0.16, 1, 0.3, 1) both;
-    filter: drop-shadow(0 0 18px rgba(155,195,174,0.95));
+    position: absolute; top: 50%; left: 50%;
+    animation: swordDropToOrbit 0.76s cubic-bezier(0.16, 1, 0.3, 1) both;
+    filter: drop-shadow(0 0 22px rgba(155,195,174,0.98)) drop-shadow(0 0 34px rgba(201,169,97,.78));
   }
   @keyframes swordDropToOrbit {
-    0% { opacity: 0; transform: translate(var(--startX), 0) rotate(var(--rot)) scale(0.6); }
-    35% { opacity: 1; }
-    75% { opacity: 1; transform: translate(var(--endX), var(--endY)) rotate(var(--endRot)) scale(1); }
-    100% { opacity: 0; transform: translate(var(--endX), calc(var(--endY) - 30px)) rotate(var(--endRot)) scale(1.1); }
+    0% { opacity: 0; transform: translate(calc(-50% + var(--startX)), calc(-50% - 44vmin)) rotate(var(--rot)) scale(0.55); }
+    32% { opacity: 1; }
+    74% { opacity: 1; transform: translate(calc(-50% + var(--endX)), calc(-50% + var(--endY))) rotate(var(--endRot)) scale(0.95); }
+    100% { opacity: 0; transform: translate(calc(-50% + var(--endX)), calc(-50% + var(--endY) - 16px)) rotate(var(--endRot)) scale(1.05); }
   }
+  .fx-star-ripple {
+    position: absolute; left: 50%; top: 50%; width: min(76vmin, 32rem); height: min(32vmin, 13rem);
+    transform: translate(-50%, -50%); border-radius: 50%;
+    border: 2.2px solid rgba(155,195,174,.9);
+    box-shadow: 0 0 36px rgba(155,195,174,.78), inset 0 0 28px rgba(201,169,97,.62);
+    animation: starRippleOut 0.72s cubic-bezier(.16,1,.3,1) 0.1s both;
+  }
+  @keyframes starRippleOut {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.2); }
+    35% { opacity: .98; }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+  }
+  /* 洞府場館：顛倒五行陣・須彌兩儀環（正中央 3D 陣盤與通天靈柱） */
   .fx-bagua-circle {
     position: absolute; top: 50%; left: 50%;
-    width: min(88vmin, 38rem); aspect-ratio: 1; transform: translate(-50%, -50%);
-    animation: baguaBurst 0.72s cubic-bezier(0.12, 0.9, 0.25, 1) both;
+    width: min(84vmin, 34rem); aspect-ratio: 1; transform-style: preserve-3d;
+    animation: baguaBurst3D 0.82s cubic-bezier(0.12, 0.9, 0.25, 1) both;
   }
-  @keyframes baguaBurst {
-    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.15) rotate(0deg); }
-    35% { opacity: 0.95; }
-    75% { opacity: 0.85; transform: translate(-50%, -50%) scale(1.15) rotate(75deg); }
-    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.65) rotate(120deg); }
+  @keyframes baguaBurst3D {
+    0% { opacity: 0; transform: translate(-50%, -50%) rotateX(54deg) scale(0.22) rotateZ(0deg); }
+    30% { opacity: 0.98; }
+    75% { opacity: 0.92; transform: translate(-50%, -50%) rotateX(46deg) scale(1.12) rotateZ(95deg); }
+    100% { opacity: 0; transform: translate(-50%, -50%) rotateX(40deg) scale(1.52) rotateZ(150deg); }
+  }
+  .fx-venue-pillar {
+    position: absolute; left: 50%; top: 0; bottom: 0; width: min(26vmin, 9.5rem);
+    transform: translateX(-50%);
+    background: linear-gradient(90deg, transparent, rgba(201,169,97,.22) 22%, rgba(255,244,196,.78) 50%, rgba(155,195,174,.26) 78%, transparent);
+    filter: blur(4px);
+    animation: venuePillarBeam 0.78s var(--ease) both;
+  }
+  @keyframes venuePillarBeam {
+    0% { opacity: 0; transform: translateX(-50%) scaleX(.12); }
+    30% { opacity: .96; transform: translateX(-50%) scaleX(1.12); }
+    100% { opacity: 0; transform: translateX(-50%) scaleX(1.55); }
+  }
+  /* 掌門殿：通天靈寶・虛天鼎 × 辟邪神雷鎮壓（正中央天雷與鼎印） */
+  .fx-thunder-bolt {
+    position: absolute; top: 50%; left: 50%; width: min(65vmin, 22rem); height: 105vmax;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0 0 16px #FFE89E) drop-shadow(0 0 36px rgba(168,132,255,.98));
+    animation: heavenBoltStrike 0.56s steps(2, end) both;
+  }
+  @keyframes heavenBoltStrike {
+    0% { opacity: 0; }
+    18%, 48% { opacity: 1; }
+    32% { opacity: .28; }
+    74% { opacity: .88; }
+    100% { opacity: 0; }
   }
   .fx-seal-drop {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    animation: imperialSealCrash 0.6s cubic-bezier(0.18, 0.9, 0.28, 1.15) both;
+    animation: imperialSealCrash 0.72s cubic-bezier(0.18, 0.9, 0.28, 1.15) both;
   }
   @keyframes imperialSealCrash {
-    0% { opacity: 0; transform: translate(-50%, -85vh) scale(1.8) rotate(-12deg); }
-    65% { opacity: 1; transform: translate(-50%, -50%) scale(0.92) rotate(0deg); }
-    80% { transform: translate(-50%, -53%) scale(1.04) rotate(0deg); }
-    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.12) rotate(0deg); }
+    0% { opacity: 0; transform: translate(-50%, calc(-50% - 42vmin)) scale(2.05) rotate(-10deg); }
+    58% { opacity: 1; transform: translate(-50%, -50%) scale(0.92) rotate(0deg); }
+    76% { opacity: 1; transform: translate(-50%, -52%) scale(1.05) rotate(0deg); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.14) rotate(0deg); }
   }
   .fx-seal-wave {
     position: absolute; top: 50%; left: 50%;
-    width: min(92vmin, 40rem); aspect-ratio: 1;
-    border: 3px solid rgba(201,169,97,0.9); border-radius: 50%;
+    width: min(86vmin, 36rem); aspect-ratio: 1;
+    border: 3.5px solid rgba(255,230,150,0.95); border-radius: 50%;
+    box-shadow: 0 0 38px rgba(201,169,97,.88), inset 0 0 28px rgba(158,143,192,.7);
     transform: translate(-50%, -50%);
-    animation: shockwaveExpand 0.58s ease-out 0.32s both;
+    animation: shockwaveExpand 0.66s ease-out 0.24s both;
   }
   @keyframes shockwaveExpand {
-    0% { opacity: 0.95; transform: translate(-50%, -50%) scale(0.25); }
-    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.8); }
+    0% { opacity: 0.96; transform: translate(-50%, -50%) scale(0.22); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.75); }
   }
+  /* 法相名號牌：永遠鎖定在螢幕正中央核心處，手機與電腦皆不偏移 */
   .fx-sigil-badge {
-    position: absolute; top: calc(50% + min(16vmin, 7.5rem)); left: 50%;
+    position: absolute; top: 50%; left: 50%;
+    width: max-content; max-width: 90vw;
     transform: translate(-50%, -50%);
-    animation: sigilBadgeIn 0.62s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
+    z-index: 10;
+    animation: sigilBadgeIn 0.72s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
   }
   @keyframes sigilBadgeIn {
-    0% { opacity: 0; transform: translate(-50%, -30%) scale(0.7); filter: blur(6px); }
-    38% { opacity: 1; transform: translate(-50%, -50%) scale(1); filter: blur(0); }
-    82% { opacity: 0.95; }
-    100% { opacity: 0; transform: translate(-50%, -60%) scale(1.08); filter: blur(4px); }
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.68); filter: blur(6px); }
+    32% { opacity: 1; transform: translate(-50%, -50%) scale(1); filter: blur(0); }
+    82% { opacity: 0.98; transform: translate(-50%, -50%) scale(1.02); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.12); filter: blur(4px); }
   }
   @media (prefers-reduced-motion: reduce) {
     #cinematic-fx, .screen-shake { display: none !important; animation: none !important; }
@@ -561,16 +698,20 @@
   .calendar-day.is-holiday{box-shadow:inset 0 2px 0 rgba(201,169,97,.52)}
   .calendar-number{display:flex;height:25px;width:25px;align-items:center;justify-content:center;border-radius:9px;font:600 11.5px 'Noto Serif TC',serif;color:var(--mist-2)}
   .calendar-day.is-today .calendar-number{color:#08120E;background:var(--jade-300);box-shadow:0 0 16px -5px rgba(155,195,174,.8)}
-  .calendar-note{margin-top:.3rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9.5px;color:var(--gold)}
-  .calendar-event{display:flex;width:100%;align-items:center;gap:.35rem;margin-top:.35rem;padding:.35rem .4rem;border-radius:9px;border:1px solid rgba(155,195,174,.18);background:rgba(110,158,136,.10);color:var(--jade-100);font-size:10px;text-align:left;transition:background .2s var(--ease),border-color .2s var(--ease)}
+  .calendar-day.is-selected{box-shadow:inset 0 0 0 1.5px var(--jade-300);background:rgba(155,195,174,.09)}
+  .calendar-note{margin-top:.3rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--gold)}
+  .calendar-event{display:flex;width:100%;align-items:center;gap:.35rem;margin-top:.35rem;padding:.35rem .4rem;border-radius:9px;border:1px solid rgba(155,195,174,.18);background:rgba(110,158,136,.10);color:var(--jade-100);font-size:11px;text-align:left;transition:background .2s var(--ease),border-color .2s var(--ease)}
   .calendar-event:hover{background:rgba(110,158,136,.19);border-color:rgba(155,195,174,.38)}
   .calendar-event-dot{width:5px;height:5px;flex:none;border-radius:50%;background:var(--jade-300);box-shadow:0 0 7px rgba(155,195,174,.8)}
   .calendar-add{position:absolute;right:.4rem;top:.45rem;display:grid;width:26px;height:26px;place-items:center;border-radius:9px;color:var(--mist-3);opacity:0;transition:opacity .2s,background .2s,color .2s}
   .calendar-day:hover .calendar-add,.calendar-add:focus-visible{opacity:1}.calendar-add:hover{background:rgba(155,195,174,.12);color:var(--jade-100)}
   html[data-theme="light"] .calendar-weekday{background:rgba(112,83,40,.09);color:var(--mist-1);font-weight:600}
-  html[data-theme="light"] .calendar-day{background:rgba(247,242,232,.88)}
+  html[data-theme="light"] .calendar-day{background:rgba(249,245,237,.94)}
+  html[data-theme="light"] .calendar-day:hover{background:rgba(235,227,211,.96)}
+  html[data-theme="light"] .calendar-day.is-selected{background:rgba(46,112,85,.15);box-shadow:inset 0 0 0 1.5px var(--jade-300)}
+  html[data-theme="light"] .calendar-day.is-today .calendar-number{color:#FFFFFF;background:var(--jade-300)}
   html[data-theme="light"] .calendar-day.is-weekend{background:rgba(190,145,63,.09)}
-  html[data-theme="light"] .calendar-event{background:rgba(46,112,85,.10)}
+  html[data-theme="light"] .calendar-event{background:rgba(46,112,85,.14);border-color:rgba(30,102,78,.32);color:var(--jade-100);font-weight:600}
   /* ---------------- 碧玉演武場 (Jade Court) ---------------- */
   .badminton-court {
     position: relative;
@@ -667,7 +808,9 @@
     display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;
   }
   @media(max-width:640px){
-    .calendar-day{min-height:64px;padding:.35rem .2rem}.calendar-weekday{padding:.5rem .1rem;font-size:9.5px}.calendar-number{height:22px;width:22px;font-size:10.5px}.calendar-note,.calendar-event-title,.calendar-add{display:none}.calendar-event{justify-content:center;padding:.28rem;margin-top:.12rem;border:0;background:transparent}.calendar-event-dot{width:7px;height:7px}
+    .calendar-day{min-height:64px;padding:.35rem .2rem;cursor:pointer}.calendar-weekday{padding:.5rem .1rem;font-size:11px}.calendar-number{height:24px;width:24px;font-size:11px}.calendar-note,.calendar-event-title,.calendar-add{display:none}.calendar-event{justify-content:center;padding:.28rem;margin-top:.12rem;border:0;background:transparent}.calendar-event-dot{width:8px;height:8px}
+    .roster-status-wrap{width:100%;justify-content:space-between;margin-top:.25rem}
+    .roster-status-switch{flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -806,30 +949,49 @@
      MASTER_TITLE 必須對應真的掌門權限，伺服器端會擋，這裡同步顯示 */
   var MASTER_TITLE = '落雲宗掌門';
   var RANKS = [
-    { glyph: '掌', name: MASTER_TITLE, tone: 'gold' },
-    { glyph: '長', name: '落雲宗大長老', tone: 'gold' },
-    { glyph: '老', name: '落雲宗長老', tone: 'jade' },
-    { glyph: '親', name: '掌門親傳', tone: 'jade' },
-    { glyph: '內', name: '內門弟子', tone: 'stone' },
-    { glyph: '外', name: '外門弟子', tone: 'stone' },
-    { glyph: '散', name: '天南散修', tone: 'stone' }
+    { glyph: '掌', name: MASTER_TITLE, tone: 'gold', cat: 'core', lore: '執掌落雲宗大印，統御雲夢山脈與全團集結生殺大權。' },
+    { glyph: '太', name: '太上大長老', tone: 'thunder', cat: 'core', lore: '神識籠罩全場，七十二口青竹蜂雲羽拍懸空，鎮壓一切強敵。' },
+    { glyph: '長', name: '落雲宗大長老', tone: 'gold', cat: 'core', lore: '宗門支柱，坐鎮主場調度陣列，球風穩如泰山。' },
+    { glyph: '老', name: '落雲宗長老', tone: 'jade', cat: 'core', lore: '傳功授業、引領同門入陣切磋之中流砥柱。' },
+    { glyph: '親', name: '掌門親傳', tone: 'jade', cat: 'core', lore: '得掌門真傳，身法飄逸、步法精妙之核心門人。' },
+    { glyph: '內', name: '內門弟子', tone: 'stone', cat: 'martial', lore: '勤修苦練、風雨無阻，宗門集結不可或缺的實戰精銳。' },
+    { glyph: '外', name: '外門弟子', tone: 'stone', cat: 'martial', lore: '初入雲夢山門，正錘鍊基礎步伐與高遠球心法。' },
+    { glyph: '散', name: '天南散修', tone: 'stone', cat: 'martial', lore: '雲遊四海、隨緣入陣，不拘門派的逍遙羽球客。' },
+    { glyph: '獸', name: '護派靈獸・啼魂', tone: 'thunder', cat: 'core', lore: '落雲宗鎮山神獸，專剋敵方魔道殺球，吼聲震天。' },
+    { glyph: '劍', name: '大庚劍陣主', tone: 'gold', cat: 'hall', lore: '劍氣化絲、球路如雨，專司雙打進攻與破陣殺伐。' },
+    { glyph: '雷', name: '辟邪神雷使', tone: 'thunder', cat: 'hall', lore: '後場重砲起跳，金雷炸裂、一拍定音，令對手膽寒。' },
+    { glyph: '瓶', name: '百草園主・掌天瓶', tone: 'jade', cat: 'hall', lore: '手握墨綠小瓶，專司全團新球補給、靈茶與後勤催熟。' },
+    { glyph: '律', name: '執法堂首座', tone: 'crimson', cat: 'hall', lore: '鐵面無私，專司球品風紀、抓遲到與催繳靈石場地費。' },
+    { glyph: '機', name: '天機閣執事', tone: 'jade', cat: 'hall', lore: '推演雙打陣型、洞察敵我破綻，算無遺策。' },
+    { glyph: '器', name: '煉器閣主', tone: 'crimson', cat: 'hall', lore: '精通各路神兵羽拍、磅數拉線與握把布煉製之大宗師。' },
+    { glyph: '殺', name: '殺球魔君', tone: 'crimson', cat: 'martial', lore: '寧可殺球出界，絕不輕易放小球；球速破空如魔焰滔天。' },
+    { glyph: '網', name: '網前劍仙', tone: 'jade', cat: 'martial', lore: '封網如青竹劍幕，搓球貼網而過，滴水不漏。' },
+    { glyph: '守', name: '不動明王・防守散仙', tone: 'jade', cat: 'martial', lore: '銅牆鐵壁、挑球入雲，再猛的殺球也能化為無形。' },
+    { glyph: '魚', name: '摸魚真君', tone: 'stone', cat: 'martial', lore: '主打養生修仙羽球，場上散步看戲，場下聊天喝茶第一名。' }
   ];
-  var OFFICE_CLASS = { gold: 'office-master', jade: 'office-elder', stone: 'office-stone' };
+  var OFFICE_CLASS = { gold: 'office-master', thunder: 'office-thunder', jade: 'office-elder', crimson: 'office-crimson', stone: 'office-stone' };
+  var OFFICE_TONES = [{ k: 'gold', label: '皇極鎏金' }, { k: 'thunder', label: '辟邪紫雷' }, { k: 'jade', label: '青竹翠玉' }, { k: 'crimson', label: '赤陽丹霞' }, { k: 'stone', label: '太初玄石' }];
+  var SIGIL_PRESETS = ['掌', '太', '長', '老', '親', '劍', '雷', '瓶', '律', '機', '器', '殺', '網', '守', '仙', '魔', '韓', '羽'];
   /* 宗門狀態，接在職司徽章之後 */
   var MOODS = [
     { label: '閉關中', tone: 'mid' }, { label: '正在打坐', tone: 'mid' },
     { label: '遊歷在外', tone: 'low' }, { label: '坐鎮山門', tone: 'high' },
     { label: '外出歷練', tone: 'low' }, { label: '渡劫中', tone: 'high' },
-    { label: '走火入魔', tone: 'warn' }
+    { label: '走火入魔', tone: 'warn', cat: 'sect' },
+    { label: '參悟大庚劍陣', tone: 'high', cat: 'sect' }, { label: '掌天瓶催熟中', tone: 'mid', cat: 'sect' },
+    { label: '手癢求雙打', tone: 'high', cat: 'court' }, { label: '殺球蓄力中', tone: 'warn', cat: 'court' },
+    { label: '今日專封網前', tone: 'mid', cat: 'court' }, { label: '尋找雙打道侶', tone: 'high', cat: 'court' },
+    { label: '拉線斷拍中', tone: 'warn', cat: 'court' }, { label: '熱身拉筋中', tone: 'low', cat: 'court' },
+    { label: '體力見底・求大腿', tone: 'low', cat: 'court' }
   ];
   function validPassword(value) { return value.length <= 128 && (/^\d{4,8}$/.test(value) || value.length >= 8); }
   /* 沒設稱號時，掌門與長老各有預設階級；設了但不在列表上（舊資料或自訂）
      就保留文字，字與配色沿用該身分的預設階級 */
   function rankOf(ad) {
     var t = ad.title || '';
-    for (var i = 0; i < RANKS.length; i++) if (RANKS[i].name === t) return RANKS[i];
-    var base = ad.superAdmin ? RANKS[0] : RANKS[1];
-    return t ? { glyph: base.glyph, name: t, tone: base.tone } : base;
+    for (var i = 0; i < RANKS.length; i++) if (RANKS[i].name === t) return { glyph: (ad && ad.glyph) || RANKS[i].glyph, name: RANKS[i].name, tone: (ad && ad.tone && OFFICE_CLASS[ad.tone]) ? ad.tone : RANKS[i].tone, lore: RANKS[i].lore };
+    var base = (ad && ad.superAdmin) ? RANKS[0] : RANKS[2];
+    return t ? { glyph: (ad && ad.glyph) || base.glyph, name: t, tone: (ad && ad.tone && OFFICE_CLASS[ad.tone]) ? ad.tone : base.tone, lore: '自創名號・威震雲夢山脈的獨門尊稱。' } : { glyph: (ad && ad.glyph) || base.glyph, name: base.name, tone: (ad && ad.tone && OFFICE_CLASS[ad.tone]) ? ad.tone : base.tone, lore: base.lore };
   }
   function honorificOf(ad) { return rankOf(ad).name; }
   function moodStyle(label) {
@@ -847,12 +1009,12 @@
     {
       k: 'maybe', label: '觀望中', plain: '不確定', short: '觀望', emoji: '❓', glyph: '望',
       tone: GOLD, hex: '201,169,97',
-      seg: { '--tone': '#F0DDB4', '--tone-hi': 'rgba(201,169,97,.24)', '--tone-lo': 'rgba(201,169,97,.07)', '--tone-br': 'rgba(201,169,97,.32)', '--tone-gl': 'rgba(201,169,97,.6)' }
+      seg: { '--tone': 'var(--gold)', '--tone-hi': 'rgba(201,169,97,.24)', '--tone-lo': 'rgba(201,169,97,.07)', '--tone-br': 'rgba(201,169,97,.34)', '--tone-gl': 'rgba(201,169,97,.6)' }
     },
     {
       k: 'wait', label: '候補', plain: '候補', short: '候補', emoji: '⏳', glyph: '候',
       tone: 'text-[var(--amethyst)]', hex: '158,143,192',
-      seg: { '--tone': '#DDD5EE', '--tone-hi': 'rgba(158,143,192,.24)', '--tone-lo': 'rgba(158,143,192,.07)', '--tone-br': 'rgba(158,143,192,.32)', '--tone-gl': 'rgba(158,143,192,.6)' }
+      seg: { '--tone': 'var(--amethyst)', '--tone-hi': 'rgba(158,143,192,.24)', '--tone-lo': 'rgba(158,143,192,.07)', '--tone-br': 'rgba(158,143,192,.34)', '--tone-gl': 'rgba(158,143,192,.6)' }
     }
   ];
   function statusMeta(k) { for (var i = 0; i < STATUSES.length; i++) if (STATUSES[i].k === k) return STATUSES[i]; return STATUSES[0]; }
@@ -979,6 +1141,88 @@
   function gateQrDateOf(ev) {
     if (!ev) return '';
     return String(ev.gateQr ? (ev.gateQrDate || ev.dateText || ev.date) : (ev.date || ev.dateText || ev.gateQrDate || '')).replace(/-/g, '/');
+  }
+  /* ---------------- calendar integration (Google / .ics) ---------------- */
+  function getEventDatesUTC(ev) {
+    if (!ev || !ev.date) return null;
+    var dStr = String(ev.date).replace(/\//g, '-').trim();
+    var sTime = String(ev.startTime || '09:00').trim();
+    var eTime = String(ev.endTime || sTime).trim();
+    if (sTime.length === 4) sTime = '0' + sTime;
+    if (eTime.length === 4) eTime = '0' + eTime;
+    var startParsed = Date.parse(dStr + 'T' + sTime + ':00+08:00');
+    var endParsed = Date.parse(dStr + 'T' + eTime + ':00+08:00');
+    if (isNaN(startParsed)) return null;
+    if (isNaN(endParsed) || endParsed <= startParsed) {
+      endParsed = startParsed + 2 * 60 * 60 * 1000;
+    }
+    function toIcsUTC(ms) {
+      var d = new Date(ms);
+      return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    }
+    return { startUTC: toIcsUTC(startParsed), endUTC: toIcsUTC(endParsed) };
+  }
+  function makeGoogleCalendarUrl(ev) {
+    var times = getEventDatesUTC(ev);
+    var title = '【落雲宗】' + (ev.title || '宗門集結');
+    var details = [
+      '落雲宗羽球集結：' + (ev.title || ''),
+      '時間：' + (ev.dateText || ev.date || '') + ' ' + (ev.startTime || '') + '～' + (ev.endTime || ''),
+      '地點：' + (ev.place || ''),
+      '費用：$' + (ev.fee || 0) + ' / 人',
+      '場地：' + (ev.courts || 1) + ' 面場',
+      '活動連結：' + location.origin + '/console.html?event=' + encodeURIComponent(ev.id || '')
+    ].join('\n');
+    var place = ev.place || '';
+    var datesParam = times ? (times.startUTC + '/' + times.endUTC) : '';
+    return 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+      + '&text=' + encodeURIComponent(title)
+      + (datesParam ? '&dates=' + datesParam : '')
+      + '&details=' + encodeURIComponent(details)
+      + '&location=' + encodeURIComponent(place);
+  }
+  function downloadIcs(ev) {
+    var times = getEventDatesUTC(ev);
+    if (!times) { alert('活動尚未設定有效日期或時間'); return; }
+    var nowUtc = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    var uid = 'luoyun-event-' + (ev.id || Date.now()) + '@luoyun-badminton';
+    var title = '【落雲宗】' + (ev.title || '宗門集結');
+    var details = [
+      '落雲宗羽球集結：' + (ev.title || ''),
+      '時間：' + (ev.dateText || ev.date || '') + ' ' + (ev.startTime || '') + '～' + (ev.endTime || ''),
+      '地點：' + (ev.place || ''),
+      '費用：$' + (ev.fee || 0) + ' / 人',
+      '場地：' + (ev.courts || 1) + ' 面場',
+      '活動連結：' + location.origin + '/console.html?event=' + encodeURIComponent(ev.id || '')
+    ].join('\n');
+    var place = (ev.place || '').replace(/,/g, '\,');
+    var ics = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Luoyun Badminton//Sect Calendar//ZH',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      'BEGIN:VEVENT',
+      'UID:' + uid,
+      'DTSTAMP:' + nowUtc,
+      'DTSTART:' + times.startUTC,
+      'DTEND:' + times.endUTC,
+      'SUMMARY:' + title,
+      'DESCRIPTION:' + details,
+      'LOCATION:' + place,
+      'STATUS:CONFIRMED',
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\r\n');
+    var blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = (ev.dateText ? ev.dateText.replace(/[\/\s]/g, '-') : (ev.date || 'event')) + '-落雲宗集結.ics';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
   }
   /* 萬劍歸宗 QR 劍陣：由 /sword-qr.js 把門禁 QR 化為飛劍陣（與 board.html 同一份元件）。
      解析中先顯示原圖；解析或「劍陣自檢解碼」失敗就一直顯示原圖，入場永遠不受影響。 */
@@ -1188,6 +1432,85 @@
       });
     } catch (e) {}
   }
+
+  /* 元嬰鬥法・程序化靈音合成器 (Web Audio API 零外部檔案：劍鳴、辟邪神雷、大陣低鳴) */
+  function _ritualSoundCfg() {
+    var key = 'high';
+    try { key = localStorage.getItem('luoyun_alert_level') || 'high'; } catch (e) {}
+    var cfg = ALERT_LEVELS[key] || ALERT_LEVELS.high;
+    if (!cfg.sound || cfg.gain <= 0) return null;
+    return cfg;
+  }
+  function playSwordQiSound() {
+    var cfg = _ritualSoundCfg();
+    if (!cfg) return;
+    try {
+      var ctx = getAudioCtx();
+      if (!ctx) return;
+      var now = ctx.currentTime, vol = Math.min(0.28, cfg.gain * 0.72);
+      [1318.5, 1975.5, 2637.0].forEach(function (f, i) {
+        var osc = ctx.createOscillator(), g = ctx.createGain();
+        osc.type = i === 0 ? 'triangle' : 'sine';
+        var t0 = now + i * 0.035;
+        osc.frequency.setValueAtTime(f * 0.92, t0);
+        osc.frequency.exponentialRampToValueAtTime(f * 1.08, t0 + 0.14);
+        osc.frequency.exponentialRampToValueAtTime(f * 0.98, t0 + 0.55);
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.linearRampToValueAtTime(vol / (i + 1), t0 + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.62);
+        osc.connect(g); g.connect(ctx.destination);
+        osc.start(t0); osc.stop(t0 + 0.65);
+      });
+    } catch (e) {}
+  }
+  function playArrayHumSound() {
+    var cfg = _ritualSoundCfg();
+    if (!cfg) return;
+    try {
+      var ctx = getAudioCtx();
+      if (!ctx) return;
+      var now = ctx.currentTime, vol = Math.min(0.24, cfg.gain * 0.65);
+      [110.0, 220.0, 528.0].forEach(function (f, i) {
+        var osc = ctx.createOscillator(), g = ctx.createGain();
+        osc.type = i === 2 ? 'sine' : 'triangle';
+        osc.frequency.setValueAtTime(f, now);
+        osc.frequency.linearRampToValueAtTime(f * 1.03, now + 0.45);
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.linearRampToValueAtTime(vol * (i === 0 ? 0.9 : 0.45), now + 0.08);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.75);
+        osc.connect(g); g.connect(ctx.destination);
+        osc.start(now); osc.stop(now + 0.78);
+      });
+    } catch (e) {}
+  }
+  function playThunderSealSound() {
+    var cfg = _ritualSoundCfg();
+    if (!cfg) return;
+    try {
+      var ctx = getAudioCtx();
+      if (!ctx) return;
+      var now = ctx.currentTime, vol = Math.min(0.32, cfg.gain * 0.85);
+      var sub = ctx.createOscillator(), subG = ctx.createGain();
+      sub.type = 'sawtooth';
+      sub.frequency.setValueAtTime(145, now);
+      sub.frequency.exponentialRampToValueAtTime(36, now + 0.48);
+      subG.gain.setValueAtTime(0.0001, now);
+      subG.gain.linearRampToValueAtTime(vol, now + 0.018);
+      subG.gain.exponentialRampToValueAtTime(0.0001, now + 0.56);
+      sub.connect(subG); subG.connect(ctx.destination);
+      sub.start(now); sub.stop(now + 0.58);
+      [880.0, 1760.0].forEach(function (f, i) {
+        var bell = ctx.createOscillator(), bg = ctx.createGain();
+        bell.type = 'sine';
+        bell.frequency.setValueAtTime(f, now + 0.02);
+        bg.gain.setValueAtTime(0.0001, now + 0.02);
+        bg.gain.linearRampToValueAtTime(vol * (0.5 / (i + 1)), now + 0.04);
+        bg.gain.exponentialRampToValueAtTime(0.0001, now + 0.72);
+        bell.connect(bg); bg.connect(ctx.destination);
+        bell.start(now + 0.02); bell.stop(now + 0.75);
+      });
+    } catch (e) {}
+  }
   /* 「9/25 (五)」→ { d:'25', m:'9月', w:'五' }，給日期印記用 */
   function dateParts(s) {
     var t = String(s || '').trim();
@@ -1262,7 +1585,7 @@
       p.nub ? D('nub', E(Icon, { name: p.nub, size: 12, stroke: 1.6 })) : null);
   }
 
-  var INPUT = 'w-full rounded-2xl border border-[var(--hair-2)] bg-[rgba(6,10,12,.55)] px-4 py-3 text-sm text-[var(--mist-1)] outline-none transition duration-500 [transition-timing-function:var(--ease)] focus:border-[rgba(155,195,174,.45)] focus:bg-[rgba(6,10,12,.8)] focus:shadow-[0_0_0_4px_rgba(155,195,174,.09)]';
+  var INPUT = 'w-full rounded-2xl border border-[var(--hair-2)] bg-[rgba(6,12,15,.72)] px-4 py-3 text-sm text-[var(--mist-1)] outline-none transition duration-500 [transition-timing-function:var(--ease)] focus:border-[rgba(155,195,174,.55)] focus:bg-[rgba(6,12,15,.88)] focus:shadow-[0_0_0_4px_rgba(155,195,174,.12)]';
 
   function Field(p) {
     var id = React.useId();
@@ -1494,11 +1817,14 @@
 
   function LoadingSkeleton() { return D('grid gap-4 py-5',{role:'status','aria-label':'正在讀取管理資料'},D('grid gap-3 sm:grid-cols-[1fr_auto]',D('skeleton h-9 w-44 rounded-xl'),D('skeleton h-10 w-28 rounded-full')),D('skeleton h-20 rounded-[20px]'),D('skeleton h-44 rounded-[20px]'),D('grid gap-3 sm:grid-cols-2',D('skeleton h-32 rounded-[20px]'),D('skeleton h-32 rounded-[20px]')),E('p',{className:'mt-2 text-center text-[12px] ' + T3},'正在接引宗門靈脈…')); }
 
-  /* ---------------- 仙道分頁御劍轉場動效 (Cinematic Tab Transitions) ---------------- */
+  /* ---------------- 仙道分頁御劍轉場動效 (Cinematic Tab Transitions · 凡人修仙傳原著真傳法寶 + 100% 螢幕正中央鎖定) ---------------- */
   function getSwordSvg() {
-    return '<svg class="w-10 sm:w-12 h-56 sm:h-64 drop-shadow-[0_0_20px_rgba(127,214,160,0.95)]" viewBox="0 0 40 220" fill="none">' +
+    /* 韓立本命法寶：青竹蜂雲劍（翠竹節劍脊 + 金色辟邪神雷電弧 + 庚精劍芒） */
+    return '<svg class="w-10 sm:w-12 h-52 sm:h-60 drop-shadow-[0_0_24px_rgba(127,214,160,0.98)]" viewBox="0 0 40 220" fill="none">' +
       '<path d="M20 0 L27 35 L25 155 L20 160 L15 155 L13 35 Z" fill="url(#bladeG)" />' +
-      '<path d="M20 5 L20 155" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" opacity="0.95"/>' +
+      '<path d="M20 5 L20 155" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" opacity="0.95"/>' +
+      '<path d="M15 45 H25 M15 78 H25 M15 111 H25 M15 140 H25" stroke="#B6F4D2" stroke-width="1.3" opacity="0.8"/>' +
+      '<path d="M20 12 L15 42 L25 72 L14 104 L24 132 L20 152" stroke="#FFEBB0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.96"/>' +
       '<rect x="7" y="157" width="26" height="8" rx="3" fill="url(#goldG)" stroke="#FFE8A0" stroke-width="1"/>' +
       '<circle cx="20" cy="161" r="3.5" fill="#1B4D3E" stroke="#FFE8A0" stroke-width="1"/>' +
       '<rect x="17" y="165" width="6" height="34" rx="2" fill="#11241D" stroke="#3D6555" stroke-width="1.2"/>' +
@@ -1507,9 +1833,9 @@
       '<path d="M20 206 Q26 218 19 228" stroke="#C9A961" stroke-width="2" stroke-linecap="round"/>' +
       '<defs>' +
         '<linearGradient id="bladeG" x1="0" y1="0" x2="1" y2="0">' +
-          '<stop offset="0%" stop-color="#3D735C"/>' +
+          '<stop offset="0%" stop-color="#2D6A4F"/>' +
           '<stop offset="50%" stop-color="#E2F8EE"/>' +
-          '<stop offset="100%" stop-color="#3D735C"/>' +
+          '<stop offset="100%" stop-color="#2D6A4F"/>' +
         '</linearGradient>' +
         '<linearGradient id="goldG" x1="0" y1="0" x2="1" y2="1">' +
           '<stop offset="0%" stop-color="#FFEBB0"/>' +
@@ -1521,7 +1847,8 @@
   }
 
   var _tabRitualTimer = null;
-  function playTabRitual(tabKey) {
+  var _tabLastPlayed = {};
+  function playTabRitual(tabKey, forceEpic) {
     try {
       if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       var overlay = document.getElementById('cinematic-fx');
@@ -1530,17 +1857,45 @@
       overlay.innerHTML = '';
       document.body.classList.remove('screen-shake');
 
+      var now = Date.now();
+      var last = _tabLastPlayed[tabKey] || 0;
+      /* 智慧防疲勞：同一分頁 60 秒內重複切換時，改播 0.34s 輕量羅煙步・雷遁瞬移，不震屏、不遮視野 */
+      if (!forceEpic && last && (now - last < 60000)) {
+        overlay.innerHTML = '<div class="fx-quick-shunpo"></div>';
+        _tabRitualTimer = setTimeout(function () { if (overlay) overlay.innerHTML = ''; }, 360);
+        return;
+      }
+      _tabLastPlayed[tabKey] = now;
+
       if (tabKey === 'events') {
+        playSwordQiSound();
+        var raysHtml = '';
+        for (var r = 0; r < 12; r++) {
+          var ryOff = ((r - 5.5) * 4.2).toFixed(1) + 'vmin';
+          var delay = (r * 0.022).toFixed(3) + 's';
+          raysHtml += '<div class="fx-sword-torrent-ray" style="--ry-off:' + ryOff + '; --rd:' + delay + ';"></div>';
+        }
+        /* 掌天瓶（小綠瓶）與七十二口青竹蜂雲劍・大庚劍陣中央陣眼 */
+        var centerLotusSvg =
+          '<svg class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(74vmin,28rem)] h-[min(74vmin,28rem)] drop-shadow-[0_0_32px_rgba(127,214,160,0.88)]" viewBox="0 0 300 300" fill="none">' +
+            '<circle cx="150" cy="150" r="122" stroke="rgba(127,214,160,0.65)" stroke-width="1.8" stroke-dasharray="10 6"/>' +
+            '<circle cx="150" cy="150" r="92" stroke="rgba(232,199,106,0.75)" stroke-width="1.5" stroke-dasharray="6 4"/>' +
+            '<path d="M142 118 H158 L155 130 C168 138 172 156 168 172 C165 182 158 188 150 188 C142 188 135 182 132 172 C128 156 132 138 145 130 Z" fill="rgba(45,145,102,0.45)" stroke="#9CF5D0" stroke-width="1.8"/>' +
+            '<circle cx="150" cy="158" r="7" fill="#FFE89E"/>' +
+          '</svg>';
         overlay.innerHTML =
           '<div class="fx-sword-rift"></div>' +
+          centerLotusSvg +
+          raysHtml +
           '<div class="fx-sword-fly-1">' + getSwordSvg() + '</div>' +
           '<div class="fx-sword-fly-2">' + getSwordSvg() + '</div>' +
           '<div class="fx-sword-fly-3">' + getSwordSvg() + '</div>' +
-          '<div class="fx-sigil-badge pointer-events-none rounded-2xl border border-[rgba(155,195,174,.45)] bg-[rgba(8,18,15,.92)] px-6 py-3 text-center shadow-[0_0_40px_rgba(127,214,160,.45)] backdrop-blur-md">' +
-            '<span class="disp text-lg sm:text-xl font-black tracking-widest text-[#D7F7E6]">落雲宗 · 試煉戰帖</span>' +
-            '<span class="block text-[10px] sm:text-xs tracking-[.35em] text-[var(--jade-300)] mt-0.5">青竹飛劍 · 破空開壇</span>' +
+          '<div class="fx-sigil-badge pointer-events-none rounded-2xl border border-[rgba(232,199,106,.65)] bg-[rgba(8,18,15,.95)] px-6 py-3.5 text-center shadow-[0_0_52px_rgba(127,214,160,.65),0_0_28px_rgba(232,199,106,.45)] backdrop-blur-md">' +
+            '<span class="disp text-lg sm:text-xl font-black tracking-widest text-[#E8FCF1]">青竹蜂雲劍 · 大庚劍陣</span>' +
+            '<span class="block text-[11px] sm:text-xs tracking-[.32em] text-[#FFE8A0] mt-1">辟邪神雷 · 劍氣雷音 · 七十二劍開壇</span>' +
           '</div>';
       } else if (tabKey === 'board') {
+        playArrayHumSound();
         overlay.innerHTML =
           '<div class="fx-bagua-circle flex items-center justify-center pointer-events-none">' +
             '<svg class="w-full h-full text-[var(--jade-300)] drop-shadow-[0_0_45px_rgba(155,195,174,0.85)]" viewBox="0 0 400 400" fill="none">' +
@@ -1553,61 +1908,94 @@
               '<circle cx="200" cy="257.5" r="12" stroke="currentColor" stroke-width="3"/>' +
             '</svg>' +
           '</div>' +
-          '<div class="fx-sigil-badge pointer-events-none rounded-2xl border border-[rgba(155,195,174,.45)] bg-[rgba(8,18,15,.92)] px-6 py-3 text-center shadow-[0_0_40px_rgba(155,195,174,.45)] backdrop-blur-md">' +
-            '<span class="disp text-lg sm:text-xl font-black tracking-widest text-[#D7F7E6]">天罡演武 · 乾坤排陣</span>' +
-            '<span class="block text-[10px] sm:text-xs tracking-[.35em] text-[var(--jade-300)] mt-0.5">羽球戰術 · 算無遺策</span>' +
+          '<div class="fx-sigil-badge pointer-events-none rounded-2xl border border-[rgba(155,195,174,.55)] bg-[rgba(8,18,15,.95)] px-6 py-3.5 text-center shadow-[0_0_45px_rgba(155,195,174,.5)] backdrop-blur-md">' +
+            '<span class="disp text-lg sm:text-xl font-black tracking-widest text-[#D7F7E6]">大衍神君 · 千竹教傀儡陣</span>' +
+            '<span class="block text-[11px] sm:text-xs tracking-[.32em] text-[var(--jade-300)] mt-1">大衍決神識 · 排兵布陣算無遺策</span>' +
           '</div>';
       } else if (tabKey === 'members') {
+        playSwordQiSound();
         var swordsHtml = '';
+        /* 以視窗正中央 (50%, 50%) 為基準的相對 vmin 座標，確保手機與桌機都在正中心列陣 */
         var pos = [
-          { sx: '-35vw', ex: '-18vw', ey: '48vh', rot: '-20deg', erot: '12deg', del: '0s' },
-          { sx: '-16vw', ex: '-9vw', ey: '42vh', rot: '-10deg', erot: '25deg', del: '0.04s' },
-          { sx: '0vw', ex: '0vw', ey: '38vh', rot: '0deg', erot: '0deg', del: '0.08s' },
-          { sx: '16vw', ex: '9vw', ey: '42vh', rot: '10deg', erot: '-25deg', del: '0.05s' },
-          { sx: '35vw', ex: '18vw', ey: '48vh', rot: '20deg', erot: '-12deg', del: '0.02s' }
+          { sx: '-32vmin', ex: '-26vmin', ey: '-4vmin',  rot: '-18deg', erot: '8deg',   del: '0s' },
+          { sx: '-20vmin', ex: '-17vmin', ey: '-12vmin', rot: '-10deg', erot: '14deg',  del: '0.025s' },
+          { sx: '-8vmin',  ex: '-7vmin',  ey: '-6vmin',  rot: '-4deg',  erot: '5deg',   del: '0.045s' },
+          { sx: '0vmin',   ex: '0vmin',   ey: '-15vmin', rot: '0deg',   erot: '0deg',   del: '0.065s' },
+          { sx: '9vmin',   ex: '8vmin',   ey: '-7vmin',  rot: '5deg',   erot: '-6deg',  del: '0.055s' },
+          { sx: '21vmin',  ex: '18vmin',  ey: '-13vmin', rot: '12deg',  erot: '-14deg', del: '0.035s' },
+          { sx: '32vmin',  ex: '27vmin',  ey: '-3vmin',  rot: '18deg',  erot: '-8deg',  del: '0.015s' }
         ];
         pos.forEach(function(p) {
-          swordsHtml += '<div class="fx-constellation-sword" style="left:50%; --startX:' + p.sx + '; --endX:' + p.ex + '; --endY:' + p.ey + '; --rot:' + p.rot + '; --endRot:' + p.erot + '; animation-delay:' + p.del + ';">' + getSwordSvg() + '</div>';
+          swordsHtml += '<div class="fx-constellation-sword" style="--startX:' + p.sx + '; --endX:' + p.ex + '; --endY:' + p.ey + '; --rot:' + p.rot + '; --endRot:' + p.erot + '; animation-delay:' + p.del + ';">' + getSwordSvg() + '</div>';
         });
-        overlay.innerHTML = swordsHtml +
-          '<div class="fx-sigil-badge pointer-events-none rounded-2xl border border-[rgba(155,195,174,.45)] bg-[rgba(8,18,15,.92)] px-6 py-3 text-center shadow-[0_0_40px_rgba(127,214,160,.45)] backdrop-blur-md">' +
-            '<span class="disp text-lg sm:text-xl font-black tracking-widest text-[#D7F7E6]">萬法玉簡 · 星宿列陣</span>' +
-            '<span class="block text-[10px] sm:text-xs tracking-[.35em] text-[var(--jade-300)] mt-0.5">弟子名籍 · 諸星歸位</span>' +
+        /* 凝結元嬰法相 + 天星雙聖七星北斗連線（固定於螢幕正中央） */
+        var constellationSvg =
+          '<svg class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(86vmin,36rem)] h-[min(56vmin,24rem)]" viewBox="0 0 600 400" fill="none">' +
+            '<polyline points="90,210 175,140 250,185 300,115 365,175 440,130 515,215" fill="none" stroke="rgba(232,199,106,0.85)" stroke-width="2.5" stroke-dasharray="8 5" />' +
+            '<circle cx="90" cy="210" r="6" fill="#FFEBB0" /><circle cx="175" cy="140" r="6" fill="#7FD6A0" /><circle cx="250" cy="185" r="6" fill="#FFEBB0" />' +
+            '<circle cx="300" cy="115" r="8" fill="#FFFFFF" /><circle cx="365" cy="175" r="6" fill="#7FD6A0" /><circle cx="440" cy="130" r="6" fill="#FFEBB0" /><circle cx="515" cy="215" r="6" fill="#7FD6A0" />' +
+            /* 中央盤坐元嬰剪影（頭頂青竹元嬰） */
+            '<circle cx="300" cy="200" r="36" stroke="rgba(168,142,255,0.65)" stroke-width="1.8" stroke-dasharray="4 4" fill="rgba(127,214,160,0.12)"/>' +
+            '<circle cx="300" cy="184" r="9" fill="#E8FCF1"/>' +
+            '<path d="M282 216 C282 198 318 198 318 216 Z" fill="#9CF5D0"/>' +
+          '</svg>';
+        overlay.innerHTML =
+          constellationSvg +
+          '<div class="fx-star-ripple"></div>' +
+          swordsHtml +
+          '<div class="fx-sigil-badge pointer-events-none rounded-2xl border border-[rgba(155,195,174,.65)] bg-[rgba(8,18,15,.95)] px-6 py-3.5 text-center shadow-[0_0_50px_rgba(127,214,160,.6)] backdrop-blur-md">' +
+            '<span class="disp text-lg sm:text-xl font-black tracking-widest text-[#D7F7E6]">大衍決神識 · 凝結元嬰</span>' +
+            '<span class="block text-[11px] sm:text-xs tracking-[.32em] text-[#FFE8A0] mt-1">落雲宗本命魂牌 · 元嬰修士名錄</span>' +
           '</div>';
       } else if (tabKey === 'venues') {
+        playArrayHumSound();
         overlay.innerHTML =
+          '<div class="fx-venue-pillar"></div>' +
           '<div class="fx-bagua-circle flex items-center justify-center pointer-events-none">' +
-            '<svg class="w-full h-full text-[var(--gold)] drop-shadow-[0_0_45px_rgba(201,169,97,0.85)]" viewBox="0 0 400 400" fill="none">' +
-              '<circle cx="200" cy="200" r="185" stroke="currentColor" stroke-width="2.5" stroke-dasharray="8 6"/>' +
-              '<circle cx="200" cy="200" r="160" stroke="currentColor" stroke-width="1.8"/>' +
-              '<circle cx="200" cy="200" r="115" stroke="currentColor" stroke-width="2"/>' +
-              '<path d="M200 15 L200 40 M200 360 L200 385 M15 200 L40 200 M360 200 L385 200" stroke="currentColor" stroke-width="3"/>' +
-              '<path d="M200 85 A57.5 57.5 0 0 1 200 200 A57.5 57.5 0 0 0 200 315 A115 115 0 0 1 200 85 Z" fill="currentColor" opacity="0.3"/>' +
-              '<circle cx="200" cy="142.5" r="12" fill="currentColor" opacity="0.85"/>' +
+            '<svg class="w-full h-full text-[var(--gold)] drop-shadow-[0_0_55px_rgba(232,199,106,0.92)]" viewBox="0 0 400 400" fill="none">' +
+              '<circle cx="200" cy="200" r="192" stroke="#7FD6A0" stroke-width="1.8" stroke-dasharray="14 8" opacity="0.85"/>' +
+              '<circle cx="200" cy="200" r="180" stroke="currentColor" stroke-width="2.8" stroke-dasharray="8 6"/>' +
+              '<circle cx="200" cy="200" r="154" stroke="currentColor" stroke-width="1.8"/>' +
+              /* 顛倒五行陣（五色五行靈環：金木水火土） */
+              '<polygon points="200,32 360,148 298,336 102,336 40,148" stroke="rgba(127,214,160,0.8)" stroke-width="2" fill="none"/>' +
+              '<circle cx="200" cy="32" r="9" fill="#7FD6A0"/><circle cx="360" cy="148" r="9" fill="#FFE89E"/><circle cx="298" cy="336" r="9" fill="#F08080"/><circle cx="102" cy="336" r="9" fill="#87CEFA"/><circle cx="40" cy="148" r="9" fill="#DEB887"/>' +
+              '<circle cx="200" cy="200" r="115" stroke="currentColor" stroke-width="2.2"/>' +
+              '<path d="M200 85 A57.5 57.5 0 0 1 200 200 A57.5 57.5 0 0 0 200 315 A115 115 0 0 1 200 85 Z" fill="currentColor" opacity="0.32"/>' +
+              '<circle cx="200" cy="142.5" r="12" fill="currentColor" opacity="0.9"/>' +
               '<circle cx="200" cy="257.5" r="12" stroke="currentColor" stroke-width="3"/>' +
             '</svg>' +
           '</div>' +
-          '<div class="fx-sigil-badge pointer-events-none rounded-2xl border border-[rgba(201,169,97,.45)] bg-[rgba(22,18,10,.92)] px-6 py-3 text-center shadow-[0_0_40px_rgba(201,169,97,.45)] backdrop-blur-md">' +
-            '<span class="disp text-lg sm:text-xl font-black tracking-widest text-[#FFF2CC]">洞天福地 · 乾坤八卦</span>' +
-            '<span class="block text-[10px] sm:text-xs tracking-[.35em] text-[var(--gold)] mt-0.5">尋龍定穴 · 洞府陣啟</span>' +
+          '<div class="fx-sigil-badge pointer-events-none rounded-2xl border border-[rgba(232,199,106,.65)] bg-[rgba(22,18,10,.95)] px-6 py-3.5 text-center shadow-[0_0_52px_rgba(232,199,106,.58)] backdrop-blur-md">' +
+            '<span class="disp text-lg sm:text-xl font-black tracking-widest text-[#FFF2CC]">顛倒五行陣 · 雲夢山靈脈</span>' +
+            '<span class="block text-[11px] sm:text-xs tracking-[.32em] text-[var(--gold)] mt-1">須彌兩儀環 · 上古傳送陣開啟</span>' +
           '</div>';
       } else if (tabKey === 'admin' || tabKey === 'admins' || tabKey === 'logs') {
+        playThunderSealSound();
         document.body.classList.add('screen-shake');
         setTimeout(function(){ document.body.classList.remove('screen-shake'); }, 380);
+        var thunderSvg =
+          '<svg class="fx-thunder-bolt" viewBox="0 0 240 900" preserveAspectRatio="none" fill="none">' +
+            '<path d="M120 0 L86 210 L148 250 L74 520 L142 560 L92 900" stroke="#FFEBB0" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>' +
+            '<path d="M120 0 L86 210 L148 250 L74 520 L142 560 L92 900" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>' +
+            '<path d="M86 210 L32 370 M148 250 L205 420 M74 520 L25 690" stroke="#C9A961" stroke-width="3.2" stroke-linecap="round"/>' +
+          '</svg>';
+        /* 通天靈寶・虛天鼎（鼎耳、三足、乾藍冰焰與辟邪金雷交織） */
         overlay.innerHTML =
-          '<div class="fixed inset-0 bg-gradient-to-b from-[rgba(158,143,192,.35)] via-[rgba(201,169,97,.15)] to-transparent pointer-events-none animate-pulse"></div>' +
+          '<div class="fixed inset-0 bg-gradient-to-b from-[rgba(158,143,192,.42)] via-[rgba(232,199,106,.18)] to-transparent pointer-events-none animate-pulse"></div>' +
+          thunderSvg +
           '<div class="fx-seal-drop pointer-events-none">' +
-            '<div class="h-28 w-28 sm:h-32 sm:w-32 rounded-3xl bg-gradient-to-br from-[#FFEBA0] via-[#C9A961] to-[#684C10] p-1 shadow-[0_0_60px_rgba(201,169,97,.9)] flex items-center justify-center border-2 border-[#FFF2CC]">' +
-              '<div class="h-full w-full rounded-[22px] border-2 border-[rgba(0,0,0,.3)] flex flex-col items-center justify-center text-[#1A1305]">' +
-                '<span class="disp text-3xl sm:text-4xl font-black tracking-widest">落雲</span>' +
-                '<span class="disp text-xs font-bold tracking-[.35em] mt-1">掌門之印</span>' +
+            '<div class="h-32 w-32 sm:h-36 sm:w-36 rounded-3xl bg-gradient-to-br from-[#FFEBA0] via-[#C9A961] to-[#4A3508] p-1.5 shadow-[0_0_85px_rgba(232,199,106,.98),0_0_40px_rgba(94,208,211,.75)] flex items-center justify-center border-2 border-[#FFF2CC]">' +
+              '<div class="h-full w-full rounded-[20px] border-2 border-[rgba(0,0,0,.38)] bg-[rgba(18,14,6,.25)] flex flex-col items-center justify-center text-[#1A1305]">' +
+                '<span class="disp text-[10.5px] font-black tracking-[.28em] text-[#3B2604]">通天靈寶</span>' +
+                '<span class="disp text-2xl sm:text-3xl font-black tracking-widest mt-0.5">虛天寶鼎</span>' +
+                '<span class="disp text-[10.5px] font-bold tracking-[.22em] mt-1 text-[#2A1B02]">乾藍冰焰 · 鎮殿</span>' +
               '</div>' +
             '</div>' +
           '</div>' +
           '<div class="fx-seal-wave pointer-events-none"></div>' +
-          '<div class="fx-sigil-badge pointer-events-none rounded-2xl border border-[rgba(201,169,97,.55)] bg-[rgba(26,18,8,.94)] px-6 py-3 text-center shadow-[0_0_45px_rgba(201,169,97,.55)] backdrop-blur-md">' +
-            '<span class="disp text-lg sm:text-xl font-black tracking-widest text-[#FFF3D1]">掌門至尊 · 金印鎮天</span>' +
-            '<span class="block text-[10px] sm:text-xs tracking-[.35em] text-[var(--gold)] mt-0.5">紫氣浩蕩 · 萬法歸宗</span>' +
+          '<div class="fx-sigil-badge pointer-events-none rounded-2xl border border-[rgba(232,199,106,.75)] bg-[rgba(26,18,8,.96)] px-6 py-3.5 text-center shadow-[0_0_60px_rgba(232,199,106,.72)] backdrop-blur-md">' +
+            '<span class="disp text-lg sm:text-xl font-black tracking-widest text-[#FFF3D1]">通天靈寶 · 虛天鼎鎮壓</span>' +
+            '<span class="block text-[11px] sm:text-xs tracking-[.32em] text-[#9CF5D0] mt-1">乾藍冰焰 · 辟邪神雷 · 元嬰後期大圓滿</span>' +
           '</div>';
       }
 
@@ -1827,13 +2215,13 @@
     function removeMember(row) { return action('removeMember', { id: row.id }); }
     function saveEvent(row, isNew) { return action('saveEvent', { id: isNew ? undefined : row.id, row: row }); }
     async function removeEvent(row) { var ok = await action('removeEvent', { id: row.id }); if (ok) setOpenEventId(null); return ok; }
-    function writeRoster(ev, roster) { return action('writeRoster', { id: ev.id, roster: roster }); }
+    function writeRoster(ev, roster, logAct, logTarget, logDetail) { return action('writeRoster', { id: ev.id, roster: roster, logAct: logAct, logDetail: logDetail }); }
     function addGuest(ev, row) { return action('addGuest', { id: ev.id, row: row }); }
     function updateLineup(ev, lineup) { return action('updateLineup', { id: ev.id, row: { lineup: lineup } }); }
     function callLineup(ev, courtNum, lineup) { return action('callLineup', { id: ev.id, row: { courtNum: courtNum, lineup: lineup } }); }
     function saveAdmin(row, isNew) { return action('saveAdmin', { id: isNew ? undefined : row.id, row: row }); }
     function changePin(row, pin, currentPassword) { return action('changePin', { id: row.id, pin: pin, currentPassword: currentPassword }); }
-    function changeHonorific(row, title, mood) { return action('changeHonorific', { id: row.id, row: { title: title, mood: mood } }); }
+    function changeHonorific(row, title, mood, glyph, tone) { return action('changeHonorific', { id: row.id, row: { title: title, mood: mood, glyph: glyph, tone: tone } }); }
     function removeAdmin(row) { return action('removeAdmin', { id: row.id }); }
     function saveVenue(row, isNew) { return action('saveVenue', { id: isNew ? undefined : row.id, row: row }); }
     function removeVenue(row) { return action('removeVenue', { id: row.id }); }
@@ -1890,7 +2278,27 @@
       body = E(AdminPage, ctx);
     }
 
+    var qiMotes = [
+      { left: '8%',  dur: '14s', del: '-1.5s', drift: '18px',  color: 'rgba(127,214,160,.62)', size: '4px' },
+      { left: '19%', dur: '17s', del: '-6.2s', drift: '-22px', color: 'rgba(232,199,106,.55)', size: '3px' },
+      { left: '28%', dur: '15s', del: '-3.8s', drift: '14px',  color: 'rgba(127,214,160,.48)', size: '3.5px' },
+      { left: '39%', dur: '19s', del: '-9.1s', drift: '-16px', color: 'rgba(232,199,106,.50)', size: '4px' },
+      { left: '48%', dur: '13s', del: '-2.4s', drift: '24px',  color: 'rgba(127,214,160,.58)', size: '3px' },
+      { left: '57%', dur: '16s', del: '-11.0s',drift: '-19px', color: 'rgba(232,199,106,.60)', size: '4.5px' },
+      { left: '66%', dur: '18s', del: '-4.7s', drift: '15px',  color: 'rgba(127,214,160,.52)', size: '3.5px' },
+      { left: '75%', dur: '14.5s',del:'-7.9s', drift: '-21px', color: 'rgba(127,214,160,.65)', size: '4px' },
+      { left: '84%', dur: '16.5s',del:'-5.3s', drift: '17px',  color: 'rgba(232,199,106,.52)', size: '3px' },
+      { left: '92%', dur: '15.5s',del:'-12.4s',drift: '-14px', color: 'rgba(127,214,160,.55)', size: '3.5px' }
+    ];
+
     return E(BusyContext.Provider, { value: busy }, D('min-h-screen pb-28 sect-enter',
+      E('div', { className: 'ambient-qi-layer', 'aria-hidden': 'true' }, qiMotes.map(function (qm, idx) {
+        return E('span', {
+          key: idx,
+          className: 'ambient-qi-mote',
+          style: { left: qm.left, '--qi-dur': qm.dur, '--qi-del': qm.del, '--qi-drift': qm.drift, '--qi-color': qm.color, '--qi-size': qm.size }
+        });
+      })),
       E('div', { id: 'cinematic-fx', className: 'pointer-events-none fixed inset-0 z-[95] overflow-hidden', 'aria-hidden': 'true' }),
       E(TopBar, Object.assign({ tab: tab, openEvent: openEvent }, ctx)),
       E('main', { className: 'mx-auto w-full max-w-5xl px-4 pt-11 sm:px-6' },
@@ -1907,15 +2315,7 @@
       }, E('p', { className: 'text-sm ' + T2 }, '離開後，尚未儲存的內容會遺失。你可以返回繼續編輯。')) : null,
        riteMounted ? E('iframe', { key: 'rite-frame-' + riteEpoch, ref:riteFrame, className:'console-rite-frame' + (fx && fx.kind === 'landing' ? ' is-active' : ''), src:'/rite.html?rite=1&embedded=1&hold=1', scrolling:'no', title:'青竹流雲拍・入陣禮' }) : null,
        fx && fx.kind === 'landing-wait' ? D('rite-prep', S(null, '雲門凝聚中')) : null,
-       fx && fx.kind !== 'landing' && fx.kind !== 'landing-wait' ? E(SectEffect, { key: fx.key, kind: fx.kind, onSkip: function () { clearTimeout(fxTimer.current); setFx(null); } }) : null,
-       /* 右下角重播膠囊（不在播放動畫時常駐顯示） */
-       !riteMounted && (!fx || fx.kind !== 'landing') ? E('button', {
-         type: 'button',
-         className: 'rite-replay-fab is-shown',
-         title: '重溫入陣禮動畫',
-         'aria-label': '重溫入陣禮動畫',
-         onClick: function () { if (replayRite) replayRite(); }
-       }, E(Icon, { name: 'Sparkles', size: 14 }), '重溫動畫') : null));
+       fx && fx.kind !== 'landing' && fx.kind !== 'landing-wait' ? E(SectEffect, { key: fx.key, kind: fx.kind, onSkip: function () { clearTimeout(fxTimer.current); setFx(null); } }) : null));
   }
 
   function SectEffect(p) {
@@ -1932,41 +2332,70 @@
     useEffect(function () {
       var canvas = canvasRef.current, Three = window.THREE, Gsap = window.gsap;
       if (!canvas || !Three || !Gsap) { doneRef.current(); return; }
+      playSwordQiSound();
+      setTimeout(function () { playThunderSealSound(); }, 580);
       var renderer = new Three.WebGLRenderer({ canvas:canvas, antialias:true, alpha:false, powerPreference:'high-performance' });
       var scene = new Three.Scene();
       var camera = new Three.OrthographicCamera(-7, 7, 5, -5, .1, 50);
       var clock = new Three.Clock(), rafActive = true, settled = false, timeline;
-      var state = { rise:0, whirl:0 };
+      var state = { rise:0, whirl:0, burst:0 };
       var swordMaterial = new Three.ShaderMaterial({
         transparent:true, depthWrite:false, blending:Three.AdditiveBlending,
-        uniforms:{ uTime:{ value:0 }, uTint:{ value:new Three.Color('#7FD6A0') } },
+        uniforms:{ uTime:{ value:0 }, uTint:{ value:new Three.Color('#7FD6A0') }, uGold:{ value:new Three.Color('#FFE89E') } },
         vertexShader:'varying vec2 vUv; void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
-        fragmentShader:'uniform float uTime; uniform vec3 uTint; varying vec2 vUv; void main(){float grain=.75+.25*sin(vUv.y*38.0+uTime*4.0);float edge=pow(1.0-abs(vUv.x-.5)*2.0,1.7);vec3 color=mix(vec3(.035,.18,.12),uTint,edge)*grain;gl_FragColor=vec4(color,.3+.7*edge);}'
+        fragmentShader:'uniform float uTime; uniform vec3 uTint; uniform vec3 uGold; varying vec2 vUv; void main(){float grain=.75+.25*sin(vUv.y*38.0+uTime*6.0);float lightning=pow(max(0.0,sin(vUv.y*26.0-uTime*18.0+sin(vUv.x*19.0)*2.5)),7.0);float edge=pow(1.0-abs(vUv.x-.5)*2.0,1.55);vec3 baseCol=mix(vec3(.035,.18,.12),uTint,edge)*grain;vec3 color=mix(baseCol,uGold,clamp(lightning*1.15+pow(edge,3.2)*.45,0.0,1.0));gl_FragColor=vec4(color,.32+.68*edge+lightning*.35);}'
       });
       var bladeGeometry = new Three.ConeGeometry(.14, 1.78, 4, 1, false);
       var hiltGeometry = new Three.CylinderGeometry(.105, .13, .48, 8);
       var guardGeometry = new Three.CylinderGeometry(.38, .38, .045, 12);
       var hiltMaterial = new Three.MeshBasicMaterial({ color:'#245E43', transparent:true, opacity:.94 });
-      var guardMaterial = new Three.MeshBasicMaterial({ color:'#D7C46E', transparent:true, opacity:.92 });
+      var guardMaterial = new Three.MeshBasicMaterial({ color:'#E8C76A', transparent:true, opacity:.95 });
       var swords = [], tip = new Three.Vector3();
-      function makeSword(i) {
+      function makeSword(i, isMain, isSub) {
         var group = new Three.Group();
+        var sc = isMain ? 1.55 : (isSub ? 0.92 : (i % 3 === 0 ? 0.58 : 0.42));
+        group.scale.set(sc, sc, sc);
         var blade = new Three.Mesh(bladeGeometry, swordMaterial); blade.position.y = .72;
         var hilt = new Three.Mesh(hiltGeometry, hiltMaterial); hilt.position.y = -.38;
         var guard = new Three.Mesh(guardGeometry, guardMaterial); guard.rotation.z = Math.PI / 2; guard.position.y = -.08;
         group.add(blade, hilt, guard); scene.add(group);
-        var trailPositions = new Float32Array(18 * 3);
-        var trailGeometry = new Three.BufferGeometry(); trailGeometry.setAttribute('position', new Three.BufferAttribute(trailPositions, 3)); trailGeometry.setDrawRange(0, 18);
-        var trail = new Three.Line(trailGeometry, new Three.LineBasicMaterial({ color:'#7FD6A0', transparent:true, opacity:.52, blending:Three.AdditiveBlending, depthTest:false, depthWrite:false }));
-        scene.add(trail); return { group:group, trail:trail, points:trailPositions, attr:trailGeometry.attributes.position, index:i };
+        var isTracked = isMain || isSub;
+        var trailObj = null, trailPositions = null, trailAttr = null;
+        if (isTracked) {
+          trailPositions = new Float32Array(18 * 3);
+          var trailGeometry = new Three.BufferGeometry(); trailGeometry.setAttribute('position', new Three.BufferAttribute(trailPositions, 3)); trailGeometry.setDrawRange(0, 18);
+          var tColor = (isMain || i % 2 === 0) ? '#E8C76A' : '#7FD6A0';
+          trailObj = new Three.Line(trailGeometry, new Three.LineBasicMaterial({ color:tColor, transparent:true, opacity:.68, blending:Three.AdditiveBlending, depthTest:false, depthWrite:false }));
+          scene.add(trailObj);
+          trailAttr = trailGeometry.attributes.position;
+        }
+        var ring = isMain ? 0 : (i <= 12 ? 1 : (i <= 36 ? 2 : 3));
+        var ringCount = ring === 1 ? 12 : (ring === 2 ? 24 : 35);
+        var ringIdx = ring === 1 ? (i - 1) : (ring === 2 ? (i - 13) : (i - 37));
+        return { group:group, trail:trailObj, points:trailPositions, attr:trailAttr, index:i, isMain:isMain, ring:ring, ringIdx:ringIdx, ringCount:ringCount };
       }
-      for (var i = 0; i < 5; i++) swords.push(makeSword(i));
+      /* 七十二口青竹蜂雲劍・大庚劍陣（1 口本命巨劍 + 12 口內圈雷劍 + 24 口中圈青竹劍 + 35 口外圈蜂雲劍 = 72 口） */
+      for (var i = 0; i < 72; i++) {
+        swords.push(makeSword(i, i === 0, i > 0 && i <= 12));
+      }
+      /* 辟邪神雷・金色電弧連線 */
+      var arcVerts = new Float32Array(24 * 2 * 3);
+      var arcGeo = new Three.BufferGeometry();
+      arcGeo.setAttribute('position', new Three.BufferAttribute(arcVerts, 3));
+      var arcMat = new Three.LineBasicMaterial({ color:'#FFE89E', transparent:true, opacity:.78, blending:Three.AdditiveBlending, depthTest:false, depthWrite:false });
+      var lightningArcs = new Three.LineSegments(arcGeo, arcMat);
+      scene.add(lightningArcs);
+
       function resize() {
-        var width = window.innerWidth, height = window.innerHeight, aspect = width / height, size = 5;
-        camera.left = -size * aspect; camera.right = size * aspect; camera.top = size; camera.bottom = -size; camera.updateProjectionMatrix();
+        var width = window.innerWidth, height = window.innerHeight, aspect = width / height;
+        /* 自動適應電腦寬螢幕與手機直向窄螢幕：確保半徑 3.85 的七十二口大庚劍蓮陣永遠 100% 完整落於視窗正中央 */
+        var halfH = aspect < 1 ? (4.6 / Math.max(0.46, aspect)) : 5;
+        var halfW = halfH * aspect;
+        camera.left = -halfW; camera.right = halfW; camera.top = halfH; camera.bottom = -halfH; camera.updateProjectionMatrix();
         renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, width < 641 ? 1.25 : 1.75)); renderer.setSize(width, height, false);
       }
       function updateTrail(item, visible) {
+        if (!item.trail) return;
         item.group.localToWorld(tip.set(0, 1.62, 0));
         if (!visible) { item.trail.visible = false; return; }
         item.trail.visible = true; item.points.copyWithin(3, 0, item.points.length - 3);
@@ -1974,16 +2403,47 @@
       }
       function render() {
         if (!rafActive) return;
-        var elapsed = clock.getElapsedTime(), orbit = state.whirl, rise = state.rise;
+        var elapsed = clock.getElapsedTime(), orbit = state.whirl, rise = state.rise, burst = state.burst;
         swordMaterial.uniforms.uTime.value = elapsed;
         swords.forEach(function (item) {
-          var idx = item.index, baseX = (idx - 2) * 1.14, baseY = -2.1 + rise * 3.15;
-          var angle = idx * Math.PI * 2 / 5 + orbit * Math.PI * 5.4;
-          var targetX = Math.cos(angle) * 2.35, targetY = Math.sin(angle) * 1.72;
-          item.group.position.set(Three.MathUtils.lerp(baseX, targetX, orbit), Three.MathUtils.lerp(baseY, targetY, orbit) + Math.sin(elapsed * 4 + idx) * (.045 + (1 - orbit) * .06), 0);
-          item.group.rotation.z = Three.MathUtils.lerp(Math.sin(elapsed * 3 + idx) * .05, angle + Math.PI / 2, orbit);
+          var idx = item.index;
+          if (item.isMain) {
+            var my = Three.MathUtils.lerp(-2.5, 0.0, rise) + Math.sin(elapsed * 6.0) * 0.08;
+            var mScale = 1.55 * (1 + orbit * 0.25 + burst * 1.35);
+            item.group.position.set(0, my, 0.5);
+            item.group.rotation.z = Math.sin(elapsed * 4.0) * 0.04;
+            item.group.scale.set(mScale, mScale, mScale);
+            updateTrail(item, orbit > .015);
+            return;
+          }
+          var spread = (idx / 71 - 0.5) * 9.6;
+          var baseX = spread, baseY = -3.2 + (idx % 7) * 0.22 + rise * 3.45;
+          var dir = item.ring % 2 === 1 ? 1 : -1;
+          var baseRadius = item.ring === 1 ? 1.55 : (item.ring === 2 ? 2.65 : 3.75);
+          var radius = baseRadius * (1 - orbit * 0.12 + burst * 2.15);
+          var angle = (item.ringIdx / item.ringCount) * Math.PI * 2 + orbit * Math.PI * (4.2 * dir) + elapsed * 0.65 * dir;
+          var targetX = Math.cos(angle) * radius * 1.18, targetY = Math.sin(angle) * radius * 0.88;
+          item.group.position.set(
+            Three.MathUtils.lerp(baseX, targetX, orbit),
+            Three.MathUtils.lerp(baseY, targetY, orbit) + Math.sin(elapsed * 4.5 + idx) * (.04 + (1 - orbit) * .05),
+            item.ring === 1 ? 0.2 : (item.ring === 2 ? 0.0 : -0.2)
+          );
+          var lotusRot = angle + (dir > 0 ? Math.PI / 2 : -Math.PI / 2) + burst * (angle - Math.PI / 2);
+          item.group.rotation.z = Three.MathUtils.lerp(Math.sin(elapsed * 3 + idx) * .08, lotusRot, orbit);
           updateTrail(item, orbit > .015);
         });
+        /* 更新辟邪神雷金色閃電鏈 */
+        for (var a = 0; a < 24; a++) {
+          var s1 = swords[(a * 3 + Math.floor(elapsed * 30)) % 72].group.position;
+          var s2 = swords[(a * 7 + 1 + Math.floor(elapsed * 20)) % 72].group.position;
+          var base = a * 6;
+          arcVerts[base]     = s1.x; arcVerts[base + 1] = s1.y; arcVerts[base + 2] = s1.z;
+          arcVerts[base + 3] = (s1.x + s2.x) * 0.5 + Math.sin(elapsed * 45 + a) * 0.28;
+          arcVerts[base + 4] = (s1.y + s2.y) * 0.5 + Math.cos(elapsed * 45 + a) * 0.28;
+          arcVerts[base + 5] = s2.z;
+        }
+        arcGeo.attributes.position.needsUpdate = true;
+        arcMat.opacity = Math.min(0.92, (rise * 0.35 + orbit * 0.65) * (0.65 + 0.35 * Math.sin(elapsed * 40)));
         renderer.render(scene, camera);
       }
       function dispose() {
@@ -1998,8 +2458,9 @@
       function onKey(event) { if (event.key === 'Escape') finish(); }
       resize(); window.addEventListener('resize', resize); window.addEventListener('keydown', onKey);
       timeline = Gsap.timeline({ defaults:{ overwrite:'auto' }, onComplete:finish })
-        .to(state, { rise:1, duration:.6, ease:'power2.out' })
-        .to(state, { whirl:1, duration:.6, ease:'power4.in' });
+        .to(state, { rise:1, duration:.48, ease:'power2.out' })
+        .to(state, { whirl:1, duration:.58, ease:'power3.inOut' })
+        .to(state, { burst:1, duration:.28, ease:'expo.in' });
       renderer.setAnimationLoop(render);
       return function () { window.removeEventListener('resize', resize); window.removeEventListener('keydown', onKey); dispose(); };
     }, []);
@@ -2061,18 +2522,25 @@
             S('hidden sm:inline', p.theme === 'dark' ? '淺色' : '深色')),
           p.isAdmin
             ? D('flex items-center gap-2',
-              D('hidden items-center gap-2 rounded-full px-3.5 py-2 text-[12px] sm:flex',
-                {
-                  style: {
-                    color: 'var(--jade-300)',
-                    background: 'linear-gradient(180deg, rgba(155,195,174,.10), rgba(155,195,174,.03))',
-                    border: '1px solid rgba(155,195,174,.18)'
-                  }
-                },
+              E('button', {
+                type: 'button',
+                title: '點擊更換職司稱號與宗門狀態',
+                onClick: function () { p.setModal({ type: 'honorific', row: p.me }); },
+                className: 'btn hidden items-center gap-2 rounded-full px-3 py-1.5 text-[12px] hover:border-[rgba(155,195,174,.38)] sm:flex',
+                style: {
+                  color: 'var(--jade-300)',
+                  background: 'linear-gradient(180deg, rgba(155,195,174,.10), rgba(155,195,174,.03))',
+                  border: '1px solid rgba(155,195,174,.18)'
+                }
+              },
                 E(Icon, { name: 'ShieldCheck', size: 13 }),
-                S('font-semibold', p.me.name),
-                S('opacity-50', '@' + p.me.account),
-                p.isSuper ? S('disp rounded-full px-2 py-0.5 text-[10px] font-semibold text-[#12100A] bg-[linear-gradient(180deg,#E0CB94,#C9A961)]', '掌門') : null),
+                S('font-semibold ' + T1, p.me.name),
+                function () {
+                  var rk = rankOf(p.me);
+                  return E('span', { className: 'office-badge ' + OFFICE_CLASS[rk.tone] },
+                    S('office-sigil', { 'aria-hidden': 'true' }, rk.glyph),
+                    S('', rk.name));
+                }()),
               E(Btn, { variant: 'ghost', size: 'sm', icon: 'LogOut', onClick: p.logout }, '離殿'))
             : E(Btn, { variant: 'primary', size: 'sm', icon: 'Shield', onClick: function () { p.setModal({ type: 'login' }); } }, '入殿'))),
       D('scroll-x mx-auto flex max-w-5xl gap-1 overflow-x-auto px-4 pb-3 sm:px-6',
@@ -2178,7 +2646,7 @@
                 border: '1px solid rgba(155,195,174,.28)',
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,.12)'
               } : { border: '1px solid var(--hair)' }
-            }, ff.label, S('num ml-2 text-[11px] opacity-50', String(countOf(ff.k))));
+            }, ff.label, S('num ml-2 text-[11px] opacity-80', String(countOf(ff.k))));
           }))),
       rows.length === 0
         ? D('mt-5', E(Empty, { icon: 'UserSearch', title: '名冊上沒有相符的弟子', hint: '換個條件或關鍵字，或按上方「收錄弟子」建檔。' }))
@@ -2203,16 +2671,29 @@
 
   function MemberCard(props) {
     var m = props.m, p = props.p;
-    return D(CARD + ' ' + CARD_HOVER + ' flex items-center gap-3.5 px-4 py-3.5',
+    var isHighRealm = Number(m.level) >= 5;
+    return D(CARD + ' ' + CARD_HOVER + (isHighRealm ? ' high-realm-card' : '') + ' flex items-center gap-3.5 px-4 py-3.5',
       S('num w-5 shrink-0 text-center text-[11.5px] ' + T3, String(props.idx + 1)),
       E(Avatar, { name: m.nickname, g: m.gender }),
       D('min-w-0 flex-1',
         D('flex flex-wrap items-center gap-x-2 gap-y-1.5',
           S('disp truncate text-[15.5px] font-semibold ' + T1, m.nickname),
           E(GenderTag, { g: m.gender }),
-          E(LevelBadge, { level: m.level })),
+          E(LevelBadge, { level: m.level }),
+          function () {
+            var ad = (p.admins || []).find(function (a) { return (a.name || '').toLowerCase() === (m.nickname || '').toLowerCase(); });
+            if (!ad) return null;
+            var rk = rankOf(ad);
+            return E(React.Fragment, null,
+              E('span', { className: 'office-badge ' + OFFICE_CLASS[rk.tone] }, S('office-sigil', { 'aria-hidden': 'true' }, rk.glyph), S('', rk.name)),
+              ad.mood ? E('span', { className: 'tier', style: moodStyle(ad.mood) }, ad.mood) : null);
+          }()),
         m.referrer ? E('p', { className: 'mt-1.5 truncate text-[11.5px] ' + T3 }, '備註：' + m.referrer) : null),
       D('flex shrink-0 items-center gap-1',
+        E(Btn, {
+          variant: 'ghost', size: 'icon', icon: 'IdCard', ariaLabel: '生成修仙道照', title: '生成個人專屬修仙道照（分享小卡）',
+          onClick: function () { p.setModal({ type: 'dharmaCard', target: m }); }
+        }),
         E(Btn, {
           variant: 'ghost', size: 'icon', icon: 'Pencil', ariaLabel: '編輯',
           onClick: function () { if (p.needAdmin()) p.setModal({ type: 'member', row: m }); }
@@ -2264,7 +2745,14 @@
         D('mb-3 flex items-center gap-2 ' + T3, E(Icon, { name: 'History', size: 14 }), S('text-[11px] tracking-wide', '近期共編異動')),
         p.logs.slice(0, 4).map(function (l, i) {
           return D('flex items-center gap-3 border-t border-[var(--hair)] py-2.5 text-[12px]', { key: i },
-            S('num shrink-0 ' + T3, fmtTime(l.t)), S('disp font-semibold ' + T1, l.name), S('min-w-0 truncate ' + T2, l.act + '・' + (l.target || '—')));
+            S('num shrink-0 ' + T3, fmtTime(l.t)),
+            function () {
+              var ad = (p.admins || []).find(function (a) { return a.account === l.who || a.name === l.name; });
+              if (!ad) return null;
+              var rk = rankOf(ad);
+              return E('span', { className: 'office-badge shrink-0 ' + OFFICE_CLASS[rk.tone], style: { padding: '.1rem .48rem .1rem .18rem', fontSize: '10px' } }, S('office-sigil', { style: { width: '1.2rem', height: '1.2rem', fontSize: '9px' } }, rk.glyph), S('', rk.name));
+            }(),
+            S('disp shrink-0 font-semibold ' + T1, l.name), S('min-w-0 flex-1 truncate ' + T2, l.act + '・' + (l.target || '—') + (l.detail ? '（' + l.detail + '）' : '')));
         })) : null,
       p.isAdmin ? null : E(ReadOnlyHint));
   }
@@ -2324,6 +2812,7 @@
     var errorState = useState(''), calendarError = errorState[0], setCalendarError = errorState[1];
     var loadingState = useState(false), loading = loadingState[0], setLoading = loadingState[1];
     var openState = useState(false), expanded = openState[0], setExpanded = openState[1];
+    var selState = useState(''), selectedDate = selState[0], setSelectedDate = selState[1];
     var parts = monthKey.split('-').map(Number), year = parts[0], month = parts[1];
 
     useEffect(function () {
@@ -2338,7 +2827,7 @@
 
     function move(delta) {
       var next = new Date(year, month - 1 + delta, 1), key = next.getFullYear() + '-' + pad2(next.getMonth() + 1);
-      if (key >= '2026-01' && key <= '2027-12') setMonthKey(key);
+      if (key >= '2026-01' && key <= '2027-12') { setMonthKey(key); setSelectedDate(''); }
     }
     function createAt(date) {
       if (!p.needAdmin()) return;
@@ -2351,26 +2840,31 @@
     var first = new Date(year, month - 1, 1), count = new Date(year, month, 0).getDate(), offset = first.getDay(), cells = [];
     for (var i = 0; i < 42; i++) {
       var day = i - offset + 1, valid = day >= 1 && day <= count, iso = valid ? year + '-' + pad2(month) + '-' + pad2(day) : '', d = valid ? new Date(year, month - 1, day) : null;
-      var info = officialByDate[iso], evs = eventsByDate[iso] || [], weekend = valid && (d.getDay() === 0 || d.getDay() === 6), holiday = info && info.isHoliday;
-      cells.push(D('calendar-day' + (!valid ? ' is-out' : '') + (weekend ? ' is-weekend' : '') + (holiday ? ' is-holiday' : '') + (iso === todayKey() ? ' is-today' : ''), { key: i },
+      var info = officialByDate[iso], evs = eventsByDate[iso] || [], weekend = valid && (d.getDay() === 0 || d.getDay() === 6), holiday = info && info.isHoliday, isSel = valid && selectedDate === iso;
+      cells.push(D('calendar-day' + (!valid ? ' is-out' : '') + (weekend ? ' is-weekend' : '') + (holiday ? ' is-holiday' : '') + (iso === todayKey() ? ' is-today' : '') + (isSel ? ' is-selected' : '') + (valid ? ' cursor-pointer' : ''),
+        {
+          key: i,
+          onClick: valid ? function (date) { return function () { setSelectedDate(function (prev) { return prev === date ? '' : date; }); }; }(iso) : undefined
+        },
         valid ? (p.isAdmin
-          ? E('button', { type: 'button', className: 'calendar-number', onClick: function (date) { return function () { createAt(date); }; }(iso), 'aria-label': iso + ' 建立活動' }, String(day))
+          ? E('button', { type: 'button', className: 'calendar-number', onClick: function (date) { return function (ev) { ev.stopPropagation(); createAt(date); }; }(iso), 'aria-label': iso + ' 建立活動' }, String(day))
           : E('span', { className: 'calendar-number', 'aria-label': iso }, String(day))) : null,
-        valid && p.isAdmin ? E('button', { type: 'button', className: 'calendar-add', onClick: function (date) { return function () { createAt(date); }; }(iso), title: '在此日開團', 'aria-label': iso + ' 開團' }, E(Icon, { name: 'Plus', size: 13 })) : null,
+        valid && p.isAdmin ? E('button', { type: 'button', className: 'calendar-add', onClick: function (date) { return function (ev) { ev.stopPropagation(); createAt(date); }; }(iso), title: '在此日開團', 'aria-label': iso + ' 開團' }, E(Icon, { name: 'Plus', size: 13 })) : null,
         info && info.note ? E('p', { className: 'calendar-note', title: info.note }, info.note) : null,
-        evs.slice(0, 2).map(function (ev) { return E('button', { type: 'button', key: ev.id, className: 'calendar-event', onClick: function () { p.setOpenEventId(ev.id); }, title: ev.title }, E('i', { className: 'calendar-event-dot' }), E('span', { className: 'calendar-event-title truncate' }, ev.title)); }),
-        evs.length > 2 ? E('span', { className: 'mt-1 block text-center text-[9px] ' + T3 }, '+' + (evs.length - 2)) : null));
+        evs.slice(0, 2).map(function (ev) { return E('button', { type: 'button', key: ev.id, className: 'calendar-event', onClick: function (e) { e.stopPropagation(); p.setOpenEventId(ev.id); }, title: ev.title }, E('i', { className: 'calendar-event-dot' }), E('span', { className: 'calendar-event-title truncate' }, ev.title)); }),
+        evs.length > 2 ? E('span', { className: 'mt-1 block text-center text-[10px] ' + T3 }, '+' + (evs.length - 2)) : null));
     }
     var focus = official.filter(function (d) { return d.date.slice(0, 7) === monthKey && d.note; }).map(function (d) { return { date: d.date, label: d.note, holiday: true }; });
     p.events.filter(function (ev) { return String(ev.date || '').slice(0, 7) === monthKey; }).forEach(function (ev) { focus.push({ date: ev.date, label: ev.title, event: ev }); });
     focus.sort(function (a, b) { return a.date.localeCompare(b.date) || (a.event ? -1 : 1); });
+    var visibleFocus = selectedDate ? focus.filter(function (item) { return item.date === selectedDate; }) : focus;
 
     return D('bezel mb-6',
       D('core surface overflow-hidden',
         D('flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-5',
           D('flex min-w-0 items-center gap-3',
             D('flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] inlay text-[var(--gold)]', E(Icon, { name: 'CalendarDays', size: 18 })),
-            D('min-w-0', E('h3', { className: 'disp brush text-[17px] font-bold ' + T1 }, '試煉行事曆'), E('p', { className: 'mt-1 text-[12px] ' + T3 }, p.isAdmin ? '開團與行政院辦公日曆同覽・展開後可點日期開團' : '開團與行政院辦公日曆同覽'))),
+            D('min-w-0', E('h3', { className: 'disp brush text-[17px] font-bold ' + T1 }, '試煉行事曆'), E('p', { className: 'mt-1 text-[12px] ' + T3 }, p.isAdmin ? '開團與行政院辦公日曆同覽・展開後可點日期檢視或開團' : '開團與行政院辦公日曆同覽・點擊日期可檢視當日集結'))),
           D('flex items-center gap-1.5',
             E(Btn, { size: 'icon', variant: 'ghost', icon: 'ChevronLeft', ariaLabel: '上個月', disabled: monthKey === '2026-01', onClick: function () { move(-1); } }),
             E('strong', { className: 'disp num min-w-[88px] text-center text-[15px] ' + T1 }, year + '年 ' + month + '月'),
@@ -2385,13 +2879,18 @@
             calendarError ? S('ml-auto text-[var(--cinnabar)]', calendarError + '，開團日期仍可使用') : null),
           D('calendar-grid', ['日','一','二','三','四','五','六'].map(function (w) { return D('calendar-weekday', { key: w }, w); }).concat(cells)),
           D('border-t border-[var(--hair)] px-4 py-4 sm:px-5',
-            D('mb-3 flex items-center justify-between gap-3', E('p', { className: 'disp text-[13px] font-semibold ' + T1 }, month + '月重點'), E('a', { href: 'https://data.gov.tw/dataset/14718', target: '_blank', rel: 'noopener noreferrer', className: 'text-[10.5px] underline underline-offset-4 ' + T3 }, '行政院資料來源')),
-            focus.length ? D('grid gap-2 sm:grid-cols-2', focus.map(function (item, index) {
+            D('mb-3 flex flex-wrap items-center justify-between gap-3',
+              D('flex items-center gap-2',
+                E('p', { className: 'disp text-[13px] font-semibold ' + T1 }, selectedDate ? (Number(selectedDate.slice(5, 7)) + '月' + Number(selectedDate.slice(8, 10)) + '日 試煉與節日') : (month + '月重點')),
+                selectedDate ? E('button', { type: 'button', onClick: function () { setSelectedDate(''); }, className: 'btn rounded-full border border-[var(--hair)] px-2.5 py-0.5 text-[11px] ' + JADE }, '顯示全月') : null,
+                selectedDate && p.isAdmin ? E('button', { type: 'button', onClick: function () { createAt(selectedDate); }, className: 'btn rounded-full border border-[rgba(201,169,97,.35)] px-2.5 py-0.5 text-[11px] ' + GOLD }, '+ 在此日開壇') : null),
+              E('a', { href: 'https://data.gov.tw/dataset/14718', target: '_blank', rel: 'noopener noreferrer', className: 'text-[10.5px] underline underline-offset-4 ' + T3 }, '行政院資料來源')),
+            visibleFocus.length ? D('grid gap-2 sm:grid-cols-2', visibleFocus.map(function (item, index) {
               return E(item.event ? 'button' : 'div', { key: item.date + '-' + index, type: item.event ? 'button' : undefined, onClick: item.event ? function () { p.setOpenEventId(item.event.id); } : undefined, className: 'flex min-w-0 items-center gap-3 rounded-xl inlay px-3 py-2.5 text-left' },
                 E('span', { className: 'disp num shrink-0 text-[11.5px] ' + (item.event ? JADE : GOLD) }, Number(item.date.slice(5, 7)) + '/' + Number(item.date.slice(8, 10))),
                 E('span', { className: 'truncate text-[11.5px] ' + T2 }, item.label),
                 item.event ? E(Icon, { name: 'ChevronRight', size: 13, className: 'ml-auto shrink-0 ' + T3 }) : null);
-            })) : E('p', { className: 'text-[11.5px] ' + T3 }, '本月尚無節日註記或開團。點月曆日期即可準備下一場。'))) : null));
+            })) : E('p', { className: 'text-[11.5px] ' + T3 }, selectedDate ? '此日尚無節日註記或開團集結。' : '本月尚無節日註記或開團。點月曆日期即可準備下一場。'))) : null));
   }
 
   function IntentPanel(props) {
@@ -2627,6 +3126,11 @@
             var ok = await copyText(location.origin + '/console.html?event=' + encodeURIComponent(ev.id));
             p.flash(ok ? '活動連結已複製' : '複製失敗，請複製網址列連結', ok ? 'ok' : 'bad');
           } }, '複製活動連結') : null,
+          ev.publication !== 'draft' ? E('a', {
+            href: makeGoogleCalendarUrl(ev), target: '_blank', rel: 'noopener',
+            className: BTN + ' ' + BTN_SIZE.sm + ' ' + BTN_VAR.ghost,
+            title: '將這場集結加入 Google 行事曆'
+          }, E(Icon, { name: 'CalendarPlus', size: 13 }), '加入日曆') : null,
           p.isAdmin ? D('flex items-center gap-1',
             E(Btn, {
               variant: 'ghost', size: 'sm', icon: 'CopyPlus',
@@ -2714,7 +3218,18 @@
             E(InfoRow, { icon: 'DollarSign', label: '費用', value: '$' + ev.fee + ' / 人（預估，多補少退）' }),
             ev.signupDeadline ? E(InfoRow, { icon: 'Clock', label: '報名截止（台灣時間）', value: ev.signupDeadline.replace('T', ' ') }) : null,
             ev.cancellationDeadline ? E(InfoRow, { icon: 'Clock', label: '免費取消期限（台灣時間）', value: ev.cancellationDeadline.replace('T', ' ') }) : null,
-            venueRow && venueRow.mapUrl ? E('a', { href: venueRow.mapUrl, target: '_blank', rel: 'noopener', className: BTN + ' ' + BTN_SIZE.sm + ' ' + BTN_VAR.outline }, '開啟導航') : null),
+            D('mt-3 flex flex-wrap items-center gap-2 pt-2 border-t border-[var(--hair)]',
+              venueRow && venueRow.mapUrl ? E('a', { href: venueRow.mapUrl, target: '_blank', rel: 'noopener', className: BTN + ' ' + BTN_SIZE.sm + ' ' + BTN_VAR.outline }, E(Icon, { name: 'MapPin', size: 12 }), '開啟導航') : null,
+              E('a', {
+                href: makeGoogleCalendarUrl(ev), target: '_blank', rel: 'noopener',
+                className: BTN + ' ' + BTN_SIZE.sm + ' ' + BTN_VAR.soft,
+                title: '將這場集結加入 Google 日曆'
+              }, E(Icon, { name: 'CalendarPlus', size: 12 }), 'Google 日曆'),
+              E(Btn, {
+                variant: 'ghost', size: 'sm', icon: 'Download',
+                title: '下載 iCalendar (.ics) 檔案，適用 Apple 日曆、Outlook 等',
+                onClick: function () { downloadIcs(ev); }
+              }, '下載 .ics'))),
           notesOf(ev).length
             ? D('mt-4 border-t border-[var(--hair)] pt-4',
               E('p', { className: 'text-[10.5px] tracking-wide ' + T3 }, '補充事項'),
@@ -2777,7 +3292,7 @@
               : D('',
                 filteredView.length ? D('',
                   D('grid gap-2.5', rosterRows.map(function (r, idx) {
-                    return E(RosterCard, { key: r.rid || r.nickname + '-' + (rosterStart + idx), r: r, idx: rosterStart + idx, editable: p.isAdmin, setStatus: setStatus, removeRow: removeRow });
+                    return E(RosterCard, { key: r.rid || r.nickname + '-' + (rosterStart + idx), r: r, idx: rosterStart + idx, editable: p.isAdmin, setStatus: setStatus, removeRow: removeRow, admins: p.admins });
                   })),
                   rosterPageCount > 1 ? D('mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl inlay px-3 py-2.5 sm:px-4',
                     E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronLeft', disabled: activeRosterPage <= 1, onClick: function () { moveRosterPage(activeRosterPage - 1); } }, '上一頁'),
@@ -2816,7 +3331,8 @@
 
   function RosterCard(props) {
     var r = props.r;
-    return D(CARD + ' ' + CARD_HOVER + ' flex flex-wrap items-center gap-x-3.5 gap-y-3 px-4 py-3.5',
+    var isHighRealm = Number(r.level) >= 5;
+    return D(CARD + ' ' + CARD_HOVER + (isHighRealm ? ' high-realm-card' : '') + ' flex flex-wrap items-center gap-x-3.5 gap-y-3 px-4 py-3.5',
       S('num w-5 shrink-0 text-center text-[11.5px] ' + T3, String(props.idx + 1)),
       E(Avatar, { name: r.nickname, g: r.gender }),
       D('min-w-0 flex-1 basis-[150px]',
@@ -2824,10 +3340,18 @@
           S('disp truncate text-[15.5px] font-semibold ' + T1, r.nickname),
           E(GenderTag, { g: r.gender }),
           E(LevelBadge, { level: r.level }),
+          function () {
+            var ad = (props.admins || []).find(function (a) { return (a.name || '').toLowerCase() === (r.nickname || '').toLowerCase(); });
+            if (!ad) return null;
+            var rk = rankOf(ad);
+            return E(React.Fragment, null,
+              E('span', { className: 'office-badge ' + OFFICE_CLASS[rk.tone] }, S('office-sigil', { 'aria-hidden': 'true' }, rk.glyph), S('', rk.name)),
+              ad.mood ? E('span', { className: 'tier', style: moodStyle(ad.mood) }, ad.mood) : null);
+          }(),
           (r.isMember || r.memberId) ? null : E('span', { className: 'tier', style: { '--tc': 'var(--mist-3)', '--tb': 'rgba(228,235,232,.10)', '--th': 'rgba(228,235,232,.05)', '--tl': 'rgba(228,235,232,.015)' } }, '散修')),
         E('p', { className: 'mt-1.5 truncate text-[11.5px] ' + T3 },
           r.referrer ? '引薦人／備註：' + r.referrer : '—')),
-      D('ml-auto flex items-center gap-1.5',
+      D('roster-status-wrap ml-auto flex items-center gap-1.5',
         props.editable ? E(RosterStatusSwitch, { status: r.status, name: r.nickname, onChange: function (kk) { props.setStatus(r, kk); } }) : E(StatusBadge, { status: r.status }),
         props.editable ? E(Btn, { variant: 'ghost', size: 'icon', icon: 'X', ariaLabel: '移出陣列', onClick: function () { props.removeRow(r); } }) : null));
   }
@@ -4824,6 +5348,10 @@
         E('p', { className: 'num mt-1.5 truncate text-[11.5px] ' + T3 },
           '口令 ••••　冊封於 ' + (ad.createdAt ? fmtTime(ad.createdAt) : '—'))),
       D('ml-auto flex shrink-0 items-center gap-1',
+        E(Btn, {
+          variant: 'ghost', size: 'icon', icon: 'IdCard', ariaLabel: '生成修仙道照', title: '生成個人專屬修仙道照（分享小卡）',
+          onClick: function () { p.setModal({ type: 'dharmaCard', target: ad }); }
+        }),
         isMe ? E(Btn, { variant: 'ghost', size: 'icon', icon: 'Badge', ariaLabel: '更換稱號', title: '更換自己的稱號', onClick: function () { p.setModal({ type: 'honorific', row: ad }); } }) : null,
         E(Btn, {
           variant: 'ghost', size: 'icon', icon: 'KeyRound', ariaLabel: '改口令',
@@ -4887,6 +5415,463 @@
             })))));
   }
 
+  /* ---------------- dharma card (修仙道照 Canvas) ---------------- */
+  function resolveDharmaProfile(target, admins, members) {
+    admins = admins || [];
+    members = members || [];
+    var name = target.nickname || target.name || '落雲同修';
+    var member = members.find(function (m) {
+      return (m.nickname || '').toLowerCase() === name.toLowerCase() || (target.account && m.account === target.account);
+    }) || (target.level !== undefined ? target : null);
+    var admin = admins.find(function (a) {
+      return (a.name || '').toLowerCase() === name.toLowerCase() || (target.account && a.account === target.account);
+    }) || (target.title !== undefined ? target : null);
+    var rank = admin ? rankOf(admin) : {
+      name: (member && Number(member.level) >= 6) ? '內門精英' : '落雲弟子',
+      glyph: (member && Number(member.level) >= 6) ? '精' : '羽',
+      tone: (member && Number(member.level) >= 6) ? 'jade' : 'stone',
+      lore: '勤修苦練、風雨無阻，宗門集結不可或缺的實戰同修。'
+    };
+    var levelNum = member ? (Number(member.level) || 1) : 4;
+    var realmKey = realmOf(levelNum);
+    var realmName = REALM_LABEL[realmKey] || '練氣期';
+    var badmintonGuide = badmintonGuideOf(levelNum);
+    var mood = (target.mood !== undefined ? target.mood : (admin && admin.mood)) || '御劍乘風・入陣切磋';
+    return {
+      name: name,
+      account: admin ? admin.account : '',
+      isSuper: admin ? !!admin.superAdmin : false,
+      rank: rank,
+      realmKey: realmKey,
+      realmName: realmName,
+      level: levelNum,
+      guideText: badmintonGuide.text,
+      guideRange: badmintonGuide.range,
+      mood: mood,
+      lore: rank.lore || '「羽道通玄，劍氣凌雲；一拍破空，萬法歸一。」'
+    };
+  }
+
+  function canvasRoundRect(ctx, x, y, w, h, r) {
+    if (ctx.roundRect) {
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, h, r);
+      return;
+    }
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y + x, y, r);
+    ctx.closePath();
+  }
+
+  function canvasWrapText(ctx, text, x, y, maxWidth, lineHeight, center) {
+    if (!text) return 0;
+    var chars = Array.from(String(text));
+    var line = '';
+    var curY = y;
+    var count = 1;
+    for (var i = 0; i < chars.length; i++) {
+      var testLine = line + chars[i];
+      var metrics = ctx.measureText(testLine);
+      if (metrics.width > maxWidth && line.length > 0) {
+        if (center) {
+          ctx.textAlign = 'center';
+          ctx.fillText(line, x, curY);
+        } else {
+          ctx.fillText(line, x, curY);
+        }
+        line = chars[i];
+        curY += lineHeight;
+        count++;
+      } else {
+        line = testLine;
+      }
+    }
+    if (line.length > 0) {
+      if (center) {
+        ctx.textAlign = 'center';
+        ctx.fillText(line, x, curY);
+      } else {
+        ctx.fillText(line, x, curY);
+      }
+    }
+    return count;
+  }
+
+  function simpleDharmaHash(str) {
+    var h = 0;
+    for (var i = 0; i < str.length; i++) {
+      h = ((h << 5) - h) + str.charCodeAt(i);
+      h |= 0;
+    }
+    return Math.abs(h);
+  }
+
+  function drawDharmaCard(canvas, profile) {
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    var W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    // 1. Background deep gradient
+    var bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, '#070E10');
+    bg.addColorStop(0.35, '#0C201D');
+    bg.addColorStop(0.7, '#091816');
+    bg.addColorStop(1, '#050B0A');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // 2. Central Spiritual Halo (靈氣光暈)
+    var halo = ctx.createRadialGradient(W / 2, 380, 50, W / 2, 380, 420);
+    halo.addColorStop(0, 'rgba(155, 195, 174, 0.16)');
+    halo.addColorStop(0.5, 'rgba(201, 169, 97, 0.08)');
+    halo.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = halo;
+    ctx.fillRect(0, 0, W, H);
+
+    // 3. Mountain wash silhouettes at base
+    ctx.save();
+    ctx.fillStyle = 'rgba(155, 195, 174, 0.05)';
+    ctx.beginPath();
+    ctx.moveTo(0, H);
+    ctx.lineTo(0, H - 180);
+    ctx.bezierCurveTo(W * 0.25, H - 240, W * 0.45, H - 140, W * 0.65, H - 200);
+    ctx.bezierCurveTo(W * 0.8, H - 250, W * 0.9, H - 160, W, H - 190);
+    ctx.lineTo(W, H);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(155, 195, 174, 0.035)';
+    ctx.beginPath();
+    ctx.moveTo(0, H);
+    ctx.lineTo(0, H - 120);
+    ctx.bezierCurveTo(W * 0.3, H - 90, W * 0.5, H - 170, W * 0.75, H - 110);
+    ctx.bezierCurveTo(W * 0.85, H - 80, W * 0.95, H - 140, W, H - 110);
+    ctx.lineTo(W, H);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // 4. Double Border & Classical Fret Corners
+    ctx.save();
+    ctx.strokeStyle = 'rgba(201, 169, 97, 0.45)';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(32, 32, W - 64, H - 64);
+
+    ctx.strokeStyle = 'rgba(155, 195, 174, 0.22)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(42, 42, W - 84, H - 84);
+
+    function drawCorner(x, y, dx, dy) {
+      ctx.strokeStyle = 'rgba(201, 169, 97, 0.85)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x + dx * 28, y);
+      ctx.lineTo(x, y);
+      ctx.lineTo(x, y + dy * 28);
+      ctx.stroke();
+
+      ctx.fillStyle = 'rgba(201, 169, 97, 0.9)';
+      ctx.beginPath();
+      ctx.arc(x + dx * 10, y + dy * 10, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    drawCorner(24, 24, 1, 1);
+    drawCorner(W - 24, 24, -1, 1);
+    drawCorner(24, H - 24, 1, -1);
+    drawCorner(W - 24, H - 24, -1, -1);
+    ctx.restore();
+
+    // 5. Header: Sect Name & Subtitle
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(201, 169, 97, 0.92)';
+    ctx.font = '600 16px "Noto Serif TC", "Songti TC", "STSong", serif';
+    ctx.fillText('✦  雲 夢 山 脈  ·  落 雲 宗  ✦', W / 2, 88);
+
+    ctx.fillStyle = 'rgba(228, 235, 232, 0.55)';
+    ctx.font = '600 11px system-ui, sans-serif';
+    ctx.fillText('FALLING CLOUD SECT · DAOIST IDENTITY RECORD', W / 2, 110);
+
+    // Decorative divider with diamond
+    ctx.strokeStyle = 'rgba(155, 195, 174, 0.28)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(W / 2 - 140, 128); ctx.lineTo(W / 2 - 20, 128);
+    ctx.moveTo(W / 2 + 20, 128); ctx.lineTo(W / 2 + 140, 128);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(201, 169, 97, 0.85)';
+    ctx.beginPath();
+    ctx.arc(W / 2, 128, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // 6. Member Name in Large Calligraphic Style
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#F0FAF5';
+    ctx.shadowColor = 'rgba(155, 195, 174, 0.5)';
+    ctx.shadowBlur = 18;
+    ctx.font = 'bold 54px "Ma Shan Zheng", "Kaiti", "STKaiti", "BiauKai", "Noto Serif TC", serif';
+    ctx.fillText(profile.name, W / 2, 218);
+    ctx.restore();
+
+    // Subtitle identity tag
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(201, 169, 97, 0.88)';
+    ctx.font = '500 13px system-ui, sans-serif';
+    var identityTitle = profile.isSuper ? '【 掌門敕諭 · 宗門至尊名帖 】' : (profile.account ? '【 宗門長老名帖 · 執法真傳 】' : '【 落雲宗 · 羽道真傳同修牒 】');
+    ctx.fillText(identityTitle, W / 2, 252);
+    ctx.restore();
+
+    // 7. Realm Pill (境界)
+    ctx.save();
+    ctx.textAlign = 'center';
+    var realmStr = '◆ ' + profile.realmName + ' · 程度 ' + profile.level + '（' + profile.guideRange + '級） ◆';
+    ctx.font = 'bold 15px system-ui, sans-serif';
+    var rw = ctx.measureText(realmStr).width + 36;
+    var rx = W / 2 - rw / 2;
+    ctx.fillStyle = 'rgba(155, 195, 174, 0.12)';
+    ctx.strokeStyle = 'rgba(155, 195, 174, 0.38)';
+    ctx.lineWidth = 1.2;
+    canvasRoundRect(ctx, rx, 282, rw, 34, 17);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#CDE9DA';
+    ctx.fillText(realmStr, W / 2, 305);
+    ctx.restore();
+
+    // 8. Office Badge (職司稱號) with Sigil Circle
+    ctx.save();
+    var rankName = profile.rank.name || '落雲同修';
+    var sigilChar = profile.rank.glyph || '羽';
+    var tone = profile.rank.tone || 'jade';
+    var toneColors = {
+      gold: { bg: 'rgba(201,169,97,0.18)', br: 'rgba(201,169,97,0.5)', text: '#F3DFAB', sigilBg: '#C9A961', sigilColor: '#12100A' },
+      thunder: { bg: 'rgba(158,143,192,0.18)', br: 'rgba(158,143,192,0.5)', text: '#DCD2F5', sigilBg: '#9E8FC0', sigilColor: '#0E0B14' },
+      jade: { bg: 'rgba(155,195,174,0.18)', br: 'rgba(155,195,174,0.5)', text: '#CDE9DA', sigilBg: '#9BC3AE', sigilColor: '#06130F' },
+      crimson: { bg: 'rgba(208,122,108,0.18)', br: 'rgba(208,122,108,0.5)', text: '#F6C6BE', sigilBg: '#D07A6C', sigilColor: '#160907' },
+      stone: { bg: 'rgba(228,235,232,0.12)', br: 'rgba(228,235,232,0.3)', text: '#E4EBE8', sigilBg: '#8A9692', sigilColor: '#0A100E' }
+    }[tone] || { bg: 'rgba(155,195,174,0.18)', br: 'rgba(155,195,174,0.5)', text: '#CDE9DA', sigilBg: '#9BC3AE', sigilColor: '#06130F' };
+
+    ctx.font = 'bold 16px system-ui, sans-serif';
+    var tw = ctx.measureText(rankName).width + 66;
+    var tx = W / 2 - tw / 2;
+    ctx.fillStyle = toneColors.bg;
+    ctx.strokeStyle = toneColors.br;
+    ctx.lineWidth = 1.2;
+    canvasRoundRect(ctx, tx, 344, tw, 38, 19);
+    ctx.fill(); ctx.stroke();
+
+    // Sigil circle on left
+    ctx.fillStyle = toneColors.sigilBg;
+    ctx.beginPath();
+    ctx.arc(tx + 22, 363, 12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = toneColors.sigilColor;
+    ctx.font = 'bold 12px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(sigilChar, tx + 22, 367);
+
+    // Title name text
+    ctx.fillStyle = toneColors.text;
+    ctx.font = 'bold 15px system-ui, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(rankName, tx + 42, 368);
+    ctx.restore();
+
+    // 9. Sect Mood (宗門心境)
+    if (profile.mood) {
+      ctx.save();
+      ctx.textAlign = 'center';
+      var moodText = '「 ' + profile.mood + ' 」';
+      ctx.font = '500 13.5px system-ui, sans-serif';
+      var mw = ctx.measureText(moodText).width + 32;
+      ctx.fillStyle = 'rgba(228, 235, 232, 0.08)';
+      ctx.strokeStyle = 'rgba(228, 235, 232, 0.22)';
+      ctx.lineWidth = 1;
+      canvasRoundRect(ctx, W / 2 - mw / 2, 404, mw, 28, 14);
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = 'rgba(228, 235, 232, 0.88)';
+      ctx.fillText(moodText, W / 2, 423);
+      ctx.restore();
+    }
+
+    // 10. Lore & Creed Inscription Frame (判詞道言)
+    ctx.save();
+    var bx = 65, by = 460, bw = W - 130, bh = 265;
+    ctx.fillStyle = 'rgba(11, 26, 24, 0.72)';
+    ctx.strokeStyle = 'rgba(155, 195, 174, 0.28)';
+    ctx.lineWidth = 1;
+    canvasRoundRect(ctx, bx, by, bw, bh, 16);
+    ctx.fill(); ctx.stroke();
+
+    // Inscription header
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(201, 169, 97, 0.9)';
+    ctx.font = 'bold 13px system-ui, sans-serif';
+    ctx.fillText('—  宗 門 判 詞  —', W / 2, by + 34);
+
+    // Lore text
+    ctx.fillStyle = '#E4EBE8';
+    ctx.font = 'italic 16px "Noto Serif TC", "Songti TC", "STSong", serif';
+    canvasWrapText(ctx, '「' + profile.lore + '」', W / 2, by + 72, bw - 60, 26, true);
+
+    // Divider inside box
+    ctx.strokeStyle = 'rgba(155, 195, 174, 0.16)';
+    ctx.beginPath();
+    ctx.moveTo(bx + 40, by + 145); ctx.lineTo(bx + bw - 40, by + 145);
+    ctx.stroke();
+
+    // Badminton Guide commentary
+    ctx.fillStyle = 'rgba(201, 169, 97, 0.85)';
+    ctx.font = 'bold 12px system-ui, sans-serif';
+    ctx.fillText('【 羽 道 境 界 判 讀 】', W / 2, by + 175);
+    ctx.fillStyle = 'rgba(228, 235, 232, 0.78)';
+    ctx.font = '13px system-ui, sans-serif';
+    canvasWrapText(ctx, profile.guideText, W / 2, by + 206, bw - 60, 22, true);
+    ctx.restore();
+
+    // 11. Bottom Section: Left Metadata & Right Vermilion Seal
+    ctx.save();
+    ctx.textAlign = 'left';
+    ctx.fillStyle = 'rgba(201, 169, 97, 0.75)';
+    ctx.font = 'bold 12px system-ui, sans-serif';
+    ctx.fillText('落雲宗掌門殿 · 敕令真傳', 80, 785);
+
+    ctx.fillStyle = 'rgba(228, 235, 232, 0.55)';
+    ctx.font = '11.5px system-ui, sans-serif';
+    var dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '.');
+    ctx.fillText('錄入時刻：' + dateStr + '（台灣時間）', 80, 810);
+    var serial = 'LY-' + Math.abs(simpleDharmaHash(profile.name)).toString(36).toUpperCase().padStart(6, '0');
+    ctx.fillText('玉牒天編：' + serial, 80, 833);
+    ctx.fillText('落雲山脈第百三十二洞府', 80, 856);
+
+    // Right: Vermilion Seal (朱砂陽刻印章)
+    var sx = W - 195, sy = 760, sw = 105, sh = 105;
+    ctx.save();
+    ctx.translate(sx + sw / 2, sy + sh / 2);
+    ctx.rotate(-0.035);
+    ctx.translate(-(sx + sw / 2), -(sy + sh / 2));
+
+    ctx.fillStyle = 'rgba(195, 60, 50, 0.12)';
+    canvasRoundRect(ctx, sx - 4, sy - 4, sw + 8, sh + 8, 8);
+    ctx.fill();
+
+    ctx.strokeStyle = '#C8382D';
+    ctx.lineWidth = 3.5;
+    canvasRoundRect(ctx, sx, sy, sw, sh, 8);
+    ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(200, 56, 45, 0.6)';
+    ctx.lineWidth = 1;
+    canvasRoundRect(ctx, sx + 5, sy + 5, sw - 10, sh - 10, 5);
+    ctx.stroke();
+
+    // 4 Characters: 落 雲 / 仙 印
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#D94336';
+    ctx.font = 'bold 28px "STKaiti", "Kaiti", "BiauKai", "Noto Serif TC", serif';
+    ctx.fillText('落', sx + 76, sy + 44);
+    ctx.fillText('仙', sx + 29, sy + 44);
+    ctx.fillText('雲', sx + 76, sy + 86);
+    ctx.fillText('印', sx + 29, sy + 86);
+    ctx.restore();
+    ctx.restore();
+
+    // 12. Bottom Banner
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(155, 195, 174, 0.42)';
+    ctx.font = '12px "Noto Serif TC", "Songti TC", serif';
+    ctx.fillText('✦  羽 道 通 玄  ·  劍 氣 凌 雲  ·  仙 凡 同 聚  ·  快 意 揮 拍  ✦', W / 2, H - 48);
+    ctx.restore();
+  }
+
+  function DharmaCardModal(p) {
+    var target = (p.modal && p.modal.target) || p.me || {};
+    var profile = resolveDharmaProfile(target, p.admins, p.members);
+    var canvasRef = useRef(null);
+    var copyingState = useState(false), copying = copyingState[0], setCopying = copyingState[1];
+
+    useEffect(function () {
+      var cvs = canvasRef.current;
+      if (!cvs) return;
+      drawDharmaCard(cvs, profile);
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(function () {
+          drawDharmaCard(cvs, profile);
+        }).catch(function () {});
+      }
+    }, [target]);
+
+    function downloadCard() {
+      var cvs = canvasRef.current;
+      if (!cvs) return;
+      var a = document.createElement('a');
+      a.href = cvs.toDataURL('image/png');
+      a.download = '落雲宗道照-' + profile.name + '.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      if (p.flash) p.flash('修仙道照已下載！', 'ok');
+    }
+
+    async function copyCard() {
+      var cvs = canvasRef.current;
+      if (!cvs) return;
+      setCopying(true);
+      try {
+        if (cvs.toBlob && window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+          cvs.toBlob(async function (blob) {
+            try {
+              await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+              if (p.flash) p.flash('道照已複製至剪貼簿，可直接貼上！', 'ok');
+            } catch (err) {
+              if (p.flash) p.flash('請改用「下載道照」儲存圖片', 'warn');
+            } finally {
+              setCopying(false);
+            }
+          }, 'image/png');
+        } else {
+          if (p.flash) p.flash('瀏覽器不支援複製圖片，請使用「下載道照」', 'warn');
+          setCopying(false);
+        }
+      } catch (err) {
+        setCopying(false);
+        if (p.flash) p.flash('複製失敗，請使用「下載道照」', 'bad');
+      }
+    }
+
+    return E(Modal, {
+      title: '個人專屬 · 修仙道照', sub: '「' + profile.name + '」之落雲羽道玉牒', wide: true, onClose: p.close,
+      footer: [
+        E(Btn, { key: 'close', variant: 'ghost', onClick: p.close }, '關閉'),
+        E(Btn, { key: 'copy', variant: 'soft', icon: 'Copy', disabled: copying, onClick: copyCard }, copying ? '複製中...' : '複製圖片'),
+        E(Btn, { key: 'dl', variant: 'primary', icon: 'Download', onClick: downloadCard }, '下載道照 (PNG)')
+      ]
+    },
+      D('flex flex-col items-center gap-3 py-1',
+        S('text-[12px] leading-relaxed text-center ' + T3, '已繪製個人專屬「落雲宗修仙羽道玉牒」，點擊下載即可儲存高解析道照，或複製圖片直接貼入 LINE / 社群分享。'),
+        D('relative max-h-[66vh] w-full flex items-center justify-center overflow-hidden rounded-2xl border border-[rgba(201,169,97,.28)] bg-[#070E10] p-2 shadow-2xl',
+          E('canvas', {
+            ref: canvasRef,
+            width: 720,
+            height: 1080,
+            className: 'h-auto max-h-[60vh] w-auto max-w-full rounded-xl object-contain shadow-lg'
+          })
+        )
+      )
+    );
+  }
+
   /* ---------------- modals ---------------- */
   function Modals(p) {
     var t = p.modal.type;
@@ -4902,6 +5887,7 @@
     if (t === 'honorific') return E(HonorificModal, p);
     if (t === 'confirm') return E(ConfirmModal, p);
     if (t === 'gateQr') return E(GateQrModal, p);
+    if (t === 'dharmaCard') return E(DharmaCardModal, p);
     return null;
   }
 
@@ -5437,7 +6423,7 @@
       E('textarea', {
         readOnly: true, value: text, rows: Math.min(24, text.split('\n').length + 1),
         onFocus: function (ev) { ev.target.select(); },
-        className: 'w-full resize-none rounded-2xl border border-[var(--hair-2)] bg-[rgba(6,10,12,.55)] p-4 text-[13px] leading-relaxed ' + T2 + ' outline-none transition focus:border-[rgba(155,195,174,.4)]'
+        className: 'w-full resize-none rounded-2xl border border-[var(--hair-2)] bg-[rgba(6,12,15,.72)] p-4 text-[13px] leading-relaxed ' + T1 + ' outline-none transition focus:border-[rgba(155,195,174,.5)]'
       }));
   }
 
@@ -5519,6 +6505,13 @@
     var row = p.modal.row;
     var state = useState(row.title || honorificOf(row)), title = state[0], setTitle = state[1];
     var ms = useState(row.mood || ''), mood = ms[0], setMood = ms[1];
+    var gs = useState(row.glyph || ''), glyph = gs[0], setGlyph = gs[1];
+    var ts = useState(row.tone || ''), tone = ts[0], setTone = ts[1];
+    var cs = useState('all'), rankCat = cs[0], setRankCat = cs[1];
+    var mcs = useState('all'), moodCat = mcs[0], setMoodCat = mcs[1];
+    var previewRank = rankOf({ title: title, glyph: glyph, tone: tone, superAdmin: row.superAdmin });
+    var visibleRanks = RANKS.filter(function (r) { return rankCat === 'all' || (r.cat || 'core') === rankCat; });
+    var visibleMoods = MOODS.filter(function (m) { return moodCat === 'all' || (m.cat || 'sect') === moodCat; });
     /* 掌門稱號要對應真的掌門權限；伺服器也會擋，這裡先讓使用者看得出來 */
     var lockedMaster = !row.superAdmin;
     var wantsMaster = title.trim() === MASTER_TITLE;
@@ -5533,23 +6526,62 @@
       title: '更換職司稱號', sub: '選一個階級，或直接輸入自己的稱號', onClose: p.close,
       footer: [
         E(Btn, { key: 'c', variant: 'ghost', onClick: p.close }, '取消'),
-        E(Btn, { key: 'o', variant: 'primary', icon: 'Check', disabled: title.length > 40 || mood.length > 20 || (wantsMaster && lockedMaster), onClick: async function () { if (await p.changeHonorific(row, title, mood)) p.close(); } }, '套用稱號')
+        E(Btn, { key: 'o', variant: 'primary', icon: 'Check', disabled: title.length > 40 || mood.length > 20 || glyph.length > 2 || (wantsMaster && lockedMaster), onClick: async function () { if (await p.changeHonorific(row, title, mood, glyph, tone)) { if (p.playTabRitual) p.playTabRitual('admin'); p.close(); } } }, '套用稱號')
       ]
     },
       D('flex flex-col gap-4',
-        E(Field, { label: '你的職司稱號' }, E('input', { value: title, maxLength: 40, onChange: function (ev) { setTitle(ev.target.value); }, className: INPUT, autoFocus: true })),
+        D('rounded-[18px] inlay p-4',
+          D('flex items-center justify-between gap-2 mb-2',
+            S('text-[11px] font-semibold tracking-wider ' + GOLD, '✦ 宗門玉牌即時預覽'),
+            D('flex items-center gap-2',
+              E(Btn, {
+                variant: 'ghost', size: 'sm', icon: 'IdCard',
+                className: 'h-6 px-2 text-[11px] text-[var(--gold)] border border-[rgba(201,169,97,.3)] bg-[rgba(201,169,97,.08)] hover:bg-[rgba(201,169,97,.18)]',
+                onClick: function () {
+                  p.setModal({
+                    type: 'dharmaCard',
+                    target: Object.assign({}, row, { title: title, mood: mood, glyph: glyph, tone: tone })
+                  });
+                }
+              }, '生成修仙道照'),
+              S('text-[11px] ' + T3, '@' + row.account))),
+          D('flex flex-wrap items-center gap-2.5 py-1',
+            S('disp text-[17px] font-bold ' + T1, row.name),
+            E('span', { className: 'office-badge ' + OFFICE_CLASS[previewRank.tone] },
+              S('office-sigil', { 'aria-hidden': 'true' }, previewRank.glyph),
+              S('', previewRank.name)),
+            mood ? E('span', { className: 'tier', style: moodStyle(mood) }, mood) : null),
+          E('p', { className: 'mt-2 text-[11.5px] leading-relaxed ' + T2 }, '「' + (previewRank.lore || '威震雲夢山脈的宗門長老。') + '」')),
+        D('grid gap-3 sm:grid-cols-3',
+          D('sm:col-span-2', E(Field, { label: '你的職司稱號（可點選下方或自由輸入）' }, E('input', { value: title, maxLength: 40, onChange: function (ev) { setTitle(ev.target.value); }, placeholder: '留白則恢復預設稱號', className: INPUT, autoFocus: true }))),
+          D('', E(Field, { label: '左方圓印字號（1–2 字）' }, E('input', { value: glyph, maxLength: 2, onChange: function (ev) { setGlyph(ev.target.value); }, placeholder: '預設：' + previewRank.glyph, className: INPUT + ' text-center font-bold' })))) ,
+        D('flex flex-col gap-2',
+          D('flex flex-wrap items-center justify-between gap-2',
+            S('text-[12px] font-medium ' + T2, '玉印字號快選 ＆ 外框流光色階'),
+             (glyph || tone) ? E('button', { type: 'button', onClick: function () { setGlyph(''); setTone(''); }, className: 'text-[11px] underline ' + JADE }, '恢復預設印色') : null),
+          D('flex flex-wrap gap-1.5', SIGIL_PRESETS.map(function (g) {
+            var on = (glyph || previewRank.glyph) === g;
+            return E('button', { key: g, type: 'button', onClick: function () { setGlyph(glyph === g ? '' : g); }, className: 'btn h-7 w-7 rounded-full text-[11.5px] font-bold ' + (on ? JADE : T3), style: on ? { background: 'rgba(155,195,174,.2)', border: '1px solid rgba(155,195,174,.45)' } : { border: '1px solid var(--hair)' } }, g);
+          })),
+          D('flex flex-wrap gap-1.5 pt-1', OFFICE_TONES.map(function (t) {
+            var on = (tone || previewRank.tone) === t.k;
+            return E('button', { key: t.k, type: 'button', onClick: function () { setTone(tone === t.k ? '' : t.k); }, className: 'office-badge ' + OFFICE_CLASS[t.k], style: on ? { outline: '2px solid rgba(155,195,174,.65)', outlineOffset: '2px' } : { opacity: .62 } }, S('office-sigil', { 'aria-hidden': 'true' }, t.label.slice(0, 1)), S('', t.label));
+          }))),
         wantsMaster && lockedMaster
           ? S('text-[12px] font-medium ' + CIN, '「' + MASTER_TITLE + '」保留給有掌門之權的人，無法套用。')
           : null,
         D('flex flex-col gap-2',
-          D('flex flex-wrap gap-2', RANKS.map(function (r) {
+          D('flex flex-wrap gap-1.5 pb-1', [['all', '全部稱號'], ['core', '宗門尊位'], ['hall', '百藝堂口'], ['martial', '羽道封號']].map(function (c) {
+            return chip(c[1], rankCat === c[0], function () { setRankCat(c[0]); }, 'rc-' + c[0]);
+          })),
+          D('flex flex-wrap gap-2', visibleRanks.map(function (r) {
             var on = title === r.name;
             var locked = r.name === MASTER_TITLE && lockedMaster;
             /* 淡化與選取框都走行內樣式：同時掛 opacity-60 與 opacity-30 時，
                Tailwind 的產生順序會讓後者失效，鎖住的徽章就看不出來 */
             return E('button', {
               key: r.name, type: 'button', disabled: locked,
-              onClick: locked ? null : function () { setTitle(r.name); },
+              onClick: locked ? null : function () { setTitle(r.name); setGlyph(''); setTone(''); },
               className: 'office-badge ' + OFFICE_CLASS[r.tone],
               style: locked
                 ? { opacity: .32, filter: 'grayscale(1)', cursor: 'not-allowed' }
@@ -5561,11 +6593,16 @@
           })),
           S('text-[11.5px] leading-relaxed ' + T3, '由高到低排列；金為掌門與大長老，綠為長老與親傳，灰為門下弟子與散修。'
             + (lockedMaster ? '「' + MASTER_TITLE + '」需要掌門之權。' : ''))),
-        E(Field, { label: '宗門狀態（選填）' },
+        E(Field, { label: '宗門狀態（可點選或自由輸入 20 字內狀態）' },
+          D('flex flex-col gap-2.5',
+            E('input', { value: mood, maxLength: 20, onChange: function (ev) { setMood(ev.target.value); }, placeholder: '例如：手癢求雙打、參悟大庚劍陣、閉關中…（留白則不顯示）', className: INPUT }),
+            D('flex flex-wrap gap-1.5', [['all', '全部狀態'], ['sect', '修仙日常'], ['court', '羽球實況']].map(function (c) {
+              return chip(c[1], moodCat === c[0], function () { setMoodCat(c[0]); }, 'mc-' + c[0]);
+            })),
           D('flex flex-wrap gap-2',
-            MOODS.map(function (m) { return chip(m.label, mood === m.label, function () { setMood(mood === m.label ? '' : m.label); }); }).concat([
+            visibleMoods.map(function (m) { return chip(m.label, mood === m.label, function () { setMood(mood === m.label ? '' : m.label); }); }).concat([
               chip('不顯示', !mood, function () { setMood(''); }, '__none')
-            ]))),
+            ])))),
         S('text-[11.5px] leading-relaxed ' + T3, '想恢復預設稱號時，清空輸入框後儲存即可。')));
   }
 
