@@ -121,6 +121,9 @@ test('QR 儲存失敗不誤報成功，彈窗重新渲染時讀取最新活動�
   succeeded = true; modal = ctx.GateQrModal(p);
   await modal.props.footer.find(item => item?.props.key === 'del').props.onClick();
   assert.deepEqual(messages, ['門禁碼已清除']);
+  const standaloneModal = ctx.GateQrModal({ events: [], venues: [], modal: { type: 'gateQr', date: '2026-11-05' }, isAdmin: false, flash: () => {} });
+  assert.equal(standaloneModal.props.title, '門禁玉令產生器（自選日期）');
+  assert.equal(standaloneModal.props.sub, '免開團・指定日期：2026-11-05');
 });
 
 test('備份下載建立 JSON 檔並釋放暫存網址，失敗時不產生檔案且可重試', async () => {
