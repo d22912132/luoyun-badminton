@@ -54,6 +54,8 @@ test('門禁內建碼只供指定場館當月使用，自訂圖依場館、今�
   for (const fields of [{ gateQrVenue: 'v2' }, { gateQrFrom: '2026-10-20' }, { gateQrDate: '2026-10-14' },
     { date: '2026-11-01' }, { gateQrUnavailable: true }]) assert.equal(ctx.gateQrOf({ ...custom, ...fields }), '');
   assert.equal(ctx.gateQrOf({ ...event, gateQrUnavailable: true }), '', '無效自訂圖不可退回看似可用的內建圖');
+  const venueWithQr = { ...venue, gateQr: 'venue-half-month-qr', gateQrFrom: '2026-10-01', gateQrDate: '2026-10-31' };
+  assert.equal(ctx.gateQrOf({ ...event, venue: undefined }, [venueWithQr]), 'venue-half-month-qr', '活動未設自訂圖時自動繼承場館有效門禁圖');
 });
 
 test('活動結束與報名截止使用台灣時間，草稿優先顯示未公開', () => {
@@ -140,4 +142,41 @@ test('備份下載建立 JSON 檔並釋放暫存網址，失敗時不產生檔�
   assert.equal(clicked.length, 1);
   assert.deepEqual(messages[1], { message: '需要掌門權限', type: 'bad' });
   assert.deepEqual(busy, [true, false, true, false]);
+});
+
+test('門禁線性同餘公式命中全部 14 組歷史樣本，並支援 Base64 解析與偏移校正', () => {
+  const swordJs = readFileSync(new URL('../public/sword-qr.js', import.meta.url), 'utf8');
+  const win = { atob: s => Buffer.from(s, 'base64').toString('binary') };
+  const ctx = vm.createContext({ window: win, atob: win.atob });
+  vm.runInContext(swordJs, ctx);
+  const sqr = win.SwordQR;
+
+  const expected = [
+    ['2026-03-01', 'QRCo16H5750618259972192'],
+    ['2026-03-15', 'QRCo16H2422661316803232'],
+    ['2026-04-01', 'QRCo16H3408068665908192'],
+    ['2026-04-15', 'QRCo16H0080111722739232'],
+    ['2026-05-01', 'QRCo16H1065519071844192'],
+    ['2026-05-15', 'QRCo16H7737562128675232'],
+    ['2026-06-01', 'QRCo16H8722969477780192'],
+    ['2026-06-15', 'QRCo16H5395012534611232'],
+    ['2026-07-01', 'QRCo16H6380419883716192'],
+    ['2026-07-15', 'QRCo16H3052462940547232'],
+    ['2026-08-01', 'QRCo16H4037870289652192'],
+    ['2026-09-01', 'QRCo16H1695320695588192'],
+    ['2026-10-12', 'QRCo16H9352771101524192'],
+    ['2026-10-26', 'QRCo16H6024814158355232']
+  ];
+  for (const [dateStr, code] of expected) {
+    assert.equal(sqr.predictCode(dateStr).code, code, dateStr + ' 推算碼應完全吻合');
+  }
+
+  const cal = sqr.calibrateOffset('2026-10-26', 'UVJDbzE2SD    YwMjQ4MTQxNTgzNTUyMzIK    CgoKCg==');
+  assert.equal(cal.code, 'QRCo16H6024814158355232');
+  assert.equal(cal.isDefaultOffset, true);
+  assert.equal(cal.offsetB, '2849449904504832');
+
+  const grid = sqr.encodeQrV3H('QRCo16H6024814158355232');
+  assert.equal(grid.length, 29);
+  assert.equal(grid[0].length, 29);
 });

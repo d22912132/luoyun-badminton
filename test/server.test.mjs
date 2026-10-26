@@ -268,6 +268,13 @@ test('shared club: authentication, permissions, persistence, validation and conf
     }
     await act('saveEvent', { id: eventId, row: original });
     assert.ok((await request('/api/public', undefined, '')).body.events.find(e => e.id === eventId).gateQr);
+    // 場館更新有效門禁碼時，同場館未設碼或舊碼已過期的活動自動繼承
+    await act('saveEvent', { id: eventId, row: { ...original, gateQr: '', gateQrFrom: '', gateQrDate: '' } });
+    const venueRow = state.venues.find(v => v.id === venueId);
+    await act('saveVenue', { id: venueId, row: { ...venueRow, gateQr: 'data:image/webp;base64,venue-auto-qr', gateQrFrom: '2000-01-01', gateQrDate: '2099-12-31' } });
+    assert.equal((await request('/api/public', undefined, '')).body.events.find(e => e.id === eventId).gateQr, 'data:image/webp;base64,venue-auto-qr');
+    await act('saveVenue', { id: venueId, row: venueRow });
+    await act('saveEvent', { id: eventId, row: original });
   });
   await t.test('stale editor rejected; only one concurrent edit wins', async () => {
     const version = state.version;

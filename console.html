@@ -1130,6 +1130,12 @@
       return from && until && from <= today && today <= until && (!ev.date || (from <= ev.date && ev.date <= until))
         && binding === (ev.venueId || ev.place) ? ev.gateQr : '';
     }
+    var venue = (venues || []).find(function (v) { return v.id === ev.venueId; }) || ev.venue;
+    if (venue && venue.gateQr) {
+      var vUntil = String(venue.gateQrDate || '').replace(/\//g, '-');
+      var vFrom = String(venue.gateQrFrom || vUntil).replace(/\//g, '-'), vToday = todayKey();
+      if (vFrom && vUntil && vFrom <= vToday && vToday <= vUntil && (!ev.date || (vFrom <= ev.date && ev.date <= vUntil))) return venue.gateQr;
+    }
     return defaultGateQrFresh(ev, venues) ? DEFAULT_GATE_QR : '';
   }
   function gateQrHint(ev) {
@@ -5140,17 +5146,32 @@
     var qrDate = gateQrDateOf(ev);
     var autoQr = !!qrData && !ev.gateQr;
     var fullBrightnessState = useState(false), fullBright = fullBrightnessState[0], setFullBright = fullBrightnessState[1];
+    var calInputState = useState(''), calInput = calInputState[0], setCalInput = calInputState[1];
+    var calHalfState = useState(''), calHalf = calHalfState[0], setCalHalf = calHalfState[1];
+    var sqr = (typeof window !== 'undefined' && window.SwordQR) ? window.SwordQR : null;
+    var predicted = sqr && sqr.predictCode ? sqr.predictCode(ev.date || todayKey(), null, calHalf) : null;
+    var calibrated = (sqr && sqr.calibrateOffset && calInput.trim()) ? sqr.calibrateOffset(ev.date || todayKey(), calInput, calHalf) : null;
 
     async function saveQr(src) {
       if (src && !validPeriod) { p.flash('請設定正確的門禁有效起迄日', 'bad'); return false; }
       var ok = await p.saveEvent(Object.assign({}, ev, { gateQr: src, gateQrFrom: src ? period.from : '',
-        gateQrDate: src ? period.until : '', gateQrVenue: src ? (ev.venueId || ev.place) : '' }), false);
+        gateQrDate: src ? period.until : '', gateQrVenue: src ? (ev.venueId || ev.place) : '', syncVenueQr: !!(src && ev.venueId) }), false);
       if (ok) { guard.saved(); p.flash(src ? '門禁 QR Code 與有效期間已更新' : '門禁碼已清除', 'ok'); }
       return !!ok;
     }
     async function handleFile(file) {
       if (!file) return;
-      try { await saveQr(await compressImage(file, 400, 400, 0.85)); }
+      try {
+        var rawImg = await compressImage(file, 400, 400, 0.85);
+        if (sqr && sqr.decodeImage && sqr.encodeDataUrl) {
+          try {
+            var decodedText = await sqr.decodeImage(rawImg);
+            var parsed = sqr.parseGateCode && sqr.parseGateCode(decodedText);
+            if (parsed) { setCalInput(parsed.code); rawImg = sqr.encodeDataUrl(parsed.code) || rawImg; }
+          } catch (_) {}
+        }
+        await saveQr(rawImg);
+      }
       catch (err) { p.flash('圖片處理失敗，請選擇有效圖片', 'bad'); }
     }
 
@@ -5179,7 +5200,53 @@
       p.isAdmin ? D('mb-4 grid gap-3 sm:grid-cols-2',
         E(Field, { label: '門禁有效起日' }, E('input', { type: 'date', value: period.from, className: INPUT, onChange: function (e) { setPeriod(Object.assign({}, period, { from: e.target.value })); } })),
         E(Field, { label: '門禁有效迄日' }, E('input', { type: 'date', value: period.until, className: INPUT, onChange: function (e) { setPeriod(Object.assign({}, period, { until: e.target.value })); } })),
-        E('p', { className: 'sm:col-span-2 text-xs ' + T3 }, '自訂碼綁定本活動場館；有效期間須涵蓋今天及活動日期。')) : null,
+        D('sm:col-span-2 flex flex-wrap items-center gap-1.5',
+          S('text-xs ' + T3, '半月效期快選：'),
+          [['first', '上半月 (1–15日)'], ['second', '下半月 (16–月底)'], ['full', '當月整月']].map(function (item) {
+            return E('button', { key: item[0], type: 'button', className: 'px-2.5 py-1 rounded-lg text-xs border border-[var(--hair-2)] hover:border-[var(--gold)] ' + T1,
+              onClick: function () {
+                var base = String(ev.date || todayKey()).replace(/\//g, '-').slice(0, 10);
+                var y = Number(base.slice(0, 4)) || 2026, m = Number(base.slice(5, 7)) || 10;
+                var ym = y + '-' + ('0' + m).slice(-2), last = ('0' + new Date(y, m, 0).getDate()).slice(-2);
+                setPeriod(item[0] === 'first' ? { from: ym + '-01', until: ym + '-15' } : item[0] === 'full' ? { from: ym + '-01', until: ym + '-' + last } : { from: ym + '-16', until: ym + '-' + last });
+              } }, item[1]);
+          })),
+        E('p', { className: 'sm:col-span-2 text-xs ' + T3 }, '上傳後會自動同步至此場館與效期內的所有同場館活動；有效期間須涵蓋今天及活動日期。'),
+        predicted ? D('sm:col-span-2 mt-1 rounded-2xl border border-[rgba(201,169,97,.26)] bg-[rgba(201,169,97,.05)] p-3.5 grid gap-2.5',
+          D('flex flex-wrap items-center justify-between gap-2',
+            D('flex items-center gap-2',
+              E(Icon, { name: 'Sparkles', size: 15, className: 'text-[var(--gold)]' }),
+              E('span', { className: 'text-xs font-semibold ' + T1 }, '線性同餘公式推算（基準 ' + predicted.ymd + '）')),
+            D('flex items-center gap-1',
+              [['', '依活動日'], ['01', '上半月 (01)'], ['15', '下半月 (15)']].map(function (opt) {
+                return E('button', { key: opt[0], type: 'button',
+                  className: 'px-2 py-0.5 rounded text-[11px] border transition ' + (calHalf === opt[0] ? 'border-[var(--gold)] bg-[rgba(201,169,97,.18)] text-[var(--gold)] font-semibold' : 'border-[var(--hair-2)] ' + T3),
+                  onClick: function () { setCalHalf(opt[0]); } }, opt[1]);
+              }))),
+          D('flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[rgba(0,0,0,.22)] px-3 py-2',
+            E('code', { className: 'num text-xs font-semibold text-[var(--gold)] select-all' }, predicted.code),
+            E(Btn, { variant: 'outline', size: 'sm', icon: 'Check', onClick: function () {
+              if (!sqr || !sqr.encodeDataUrl) return;
+              var dataUrl = sqr.encodeDataUrl(predicted.code);
+              setPeriod({ from: predicted.from, until: predicted.until });
+              p.saveEvent(Object.assign({}, ev, { gateQr: dataUrl, gateQrFrom: predicted.from, gateQrDate: predicted.until, gateQrVenue: ev.venueId || ev.place, syncVenueQr: !!ev.venueId }), false)
+                .then(function (ok) { if (ok) { guard.saved(); p.flash('已套用公式推算門禁碼並同步至場館', 'ok'); } });
+            } }, '套用推算碼')),
+          D('grid gap-1.5',
+            E('label', { className: 'text-[11px] font-medium ' + T3 }, '實測碼校正（可貼上 QRCo16H...、16 位數字或 Base64 驗證偏移常數 B）'),
+            D('flex gap-2',
+              E('input', { value: calInput, onChange: function (e) { setCalInput(e.target.value); }, placeholder: '例如：QRCo16H6024814158355232 或 UVJDbzE2SD...', className: INPUT + ' text-xs font-mono' }),
+              E(Btn, { variant: 'primary', size: 'sm', disabled: !calibrated, onClick: function () {
+                if (!calibrated || !sqr || !sqr.encodeDataUrl) return;
+                var dataUrl = sqr.encodeDataUrl(calibrated.code);
+                setPeriod({ from: calibrated.from, until: calibrated.until });
+                p.saveEvent(Object.assign({}, ev, { gateQr: dataUrl, gateQrFrom: calibrated.from, gateQrDate: calibrated.until, gateQrVenue: ev.venueId || ev.place, syncVenueQr: !!ev.venueId }), false)
+                  .then(function (ok) { if (ok) { guard.saved(); p.flash('已依實測碼校正並同步至場館', 'ok'); } });
+              } }, '校正並套用')),
+            calibrated ? E('p', { className: 'text-[11px] font-mono ' + (calibrated.isDefaultOffset ? 'text-emerald-400' : 'text-[var(--gold)]') },
+              calibrated.isDefaultOffset
+                ? ('✓ 與目前線性同餘公式完全吻合（B = ' + calibrated.offsetB + '）')
+                : ('⚡ 計算出新校正偏移常數 B = ' + calibrated.offsetB + '（原預設 ' + calibrated.defaultOffsetB + '）')) : null)) : null) : null,
       D('flex flex-col items-center justify-center gap-4 py-2 ' + (fullBright ? 'p-4 bg-white/95 rounded-2xl text-black' : ''),
         p.isAdmin ? E('input', {
           ref: fileInputRef, type: 'file', accept: 'image/*', className: 'hidden',
@@ -6040,7 +6107,15 @@
     function up(k, v) { setF(function (old) { var n = Object.assign({}, old); n[k] = v; return n; }); }
     function takeGateQr(fileOrBlob) {
       if (!fileOrBlob) return;
-      compressImage(fileOrBlob, 400, 400, 0.85).then(function (b64) { up('gateQr', b64); })
+      compressImage(fileOrBlob, 400, 400, 0.85).then(function (b64) {
+        setF(function (old) {
+          var base = todayKey(), y = Number(base.slice(0, 4)) || 2026, m = Number(base.slice(5, 7)) || 10, d = Number(base.slice(8, 10)) || 1;
+          var ym = y + '-' + ('0' + m).slice(-2), last = ('0' + new Date(y, m, 0).getDate()).slice(-2);
+          return Object.assign({}, old, { gateQr: b64,
+            gateQrFrom: old.gateQrFrom || (d <= 15 ? ym + '-01' : ym + '-16'),
+            gateQrDate: old.gateQrDate || (d <= 15 ? ym + '-15' : ym + '-' + last) });
+        });
+      })
         .catch(function (err) { alert('圖片處理失敗：' + err.message); });
     }
     function pasteGateQr(e) {
@@ -6070,7 +6145,18 @@
               E('span', { className: 'text-sm font-semibold ' + T1 }, '目前的門禁 QR（選填）')),
             f.gateQr ? E(Btn, { variant: 'danger', size: 'sm', icon: 'Trash2', onClick: function () { up('gateQr', ''); } }, '清除') : null),
           E('p', { className: 'text-[11px] leading-relaxed ' + T3 },
-            '設定球館提供的門禁圖與有效期間，之後開團會一併帶入；已建立的活動保留原本設定。'),
+            '設定球館提供的門禁圖與有效期間，同場館且在有效期間內的活動（含已建立與新開團）會自動繼承同步。'),
+          D('mt-2.5 flex flex-wrap items-center gap-1.5',
+            S('text-xs ' + T3, '半月效期快選：'),
+            [['first', '上半月 (1–15日)'], ['second', '下半月 (16–月底)'], ['full', '當月整月']].map(function (item) {
+              return E('button', { key: item[0], type: 'button', className: 'px-2.5 py-1 rounded-lg text-xs border border-[var(--hair-2)] hover:border-[var(--gold)] ' + T1,
+                onClick: function () {
+                  var base = String(f.gateQrFrom || todayKey()).replace(/\//g, '-').slice(0, 10);
+                  var y = Number(base.slice(0, 4)) || 2026, m = Number(base.slice(5, 7)) || 10;
+                  var ym = y + '-' + ('0' + m).slice(-2), last = ('0' + new Date(y, m, 0).getDate()).slice(-2);
+                  setF(function (old) { return Object.assign({}, old, item[0] === 'first' ? { gateQrFrom: ym + '-01', gateQrDate: ym + '-15' } : item[0] === 'full' ? { gateQrFrom: ym + '-01', gateQrDate: ym + '-' + last } : { gateQrFrom: ym + '-16', gateQrDate: ym + '-' + last }); });
+                } }, item[1]);
+            })),
           !qrOk ? E('p', { className: 'mt-2 text-xs ' + CIN }, '門禁圖必須設定正確的有效起迄日。') : null,
           D('mt-3 grid gap-3 sm:grid-cols-2',
             E(Field, { label: '預設門禁有效起日' }, E('input', { type: 'date', value: f.gateQrFrom || '', className: INPUT, onChange: function (e) { up('gateQrFrom', e.target.value); } })),

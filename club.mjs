@@ -205,7 +205,12 @@ function publicData(state) {
     parking: v.parking, facilities: v.facilities, note: v.note }) : null;
   const threeDaysAgo = Date.now() - 3 * 86400000;
   return { generatedAt: state.updatedAt, version: state.version, venues: state.venues.map(publicVenue), events: state.events.filter(ev => ev.publication !== 'draft').map(ev => {
+    const v = state.venues.find(v => v.id === ev.venueId);
     const raw = event(ev);
+    if (!raw.gateQr && v?.gateQr) {
+      const inherited = { ...raw, gateQr: v.gateQr, gateQrFrom: v.gateQrFrom, gateQrDate: v.gateQrDate, gateQrVenue: v.id };
+      if (usableCustomQr(inherited)) Object.assign(raw, inherited);
+    }
     if (!usableCustomQr(raw) || (raw.date && Date.parse(raw.date + 'T23:59:59+08:00') < threeDaysAgo)) {
       raw.gateQrUnavailable = !!raw.gateQr;
       raw.gateQr = '';
@@ -344,6 +349,22 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
       if (fields.gateQr && fields.gateQrVenue !== (fields.venueId || fields.place)) reject('門禁碼所屬場館與活動不同，請重新設定');
       const oldEv = id ? find(state.events) : null;
       upsert(state.events, { ...fields, roster: oldEv ? oldEv.roster : [], lineup: oldEv ? (fields.lineup || oldEv.lineup || null) : null }); target = fields.title;
+      if (row.syncVenueQr && fields.venueId) {
+        const v = state.venues.find(x => x.id === fields.venueId);
+        if (v) {
+          const prevQr = v.gateQr;
+          Object.assign(v, { gateQr: fields.gateQr, gateQrFrom: fields.gateQrFrom, gateQrDate: fields.gateQrDate, updatedAt: now(), updatedBy: me.account });
+          if (fields.gateQr && fields.gateQrFrom && fields.gateQrDate) {
+            for (const other of state.events) {
+              if (other.id === resultId || other.venueId !== v.id) continue;
+              const within = !other.date || (fields.gateQrFrom <= other.date && other.date <= fields.gateQrDate);
+              if (within && (!other.gateQr || other.gateQr === prevQr || !usableCustomQr(event(other)))) {
+                Object.assign(other, { gateQr: fields.gateQr, gateQrFrom: fields.gateQrFrom, gateQrDate: fields.gateQrDate, gateQrVenue: v.id });
+              }
+            }
+          }
+        }
+      }
     } else if (action === 'updateLineup') {
       const ev = find(state.events);
       const prevLineup = ev.lineup;
@@ -368,7 +389,23 @@ export function createHandler({ db, initialState, setupToken, origin = '', secur
       state.intents = state.intents.filter(x => x.eventId !== id);
     } else if (action === 'saveVenue') {
       const fields = venue(row); uniqueVenue(fields.name, id);
+      const old = id ? find(state.venues) : null;
       const saved = upsert(state.venues, fields); target = saved.name;
+      if (saved.gateQr && saved.gateQrFrom && saved.gateQrDate) {
+        for (const ev of state.events) {
+          if (ev.venueId !== saved.id) continue;
+          const within = !ev.date || (saved.gateQrFrom <= ev.date && ev.date <= saved.gateQrDate);
+          if (within && (!ev.gateQr || ev.gateQr === old?.gateQr || !usableCustomQr(event(ev)))) {
+            Object.assign(ev, { gateQr: saved.gateQr, gateQrFrom: saved.gateQrFrom, gateQrDate: saved.gateQrDate, gateQrVenue: saved.id });
+          }
+        }
+      } else if (!saved.gateQr && old?.gateQr) {
+        for (const ev of state.events) {
+          if (ev.venueId === saved.id && ev.gateQr === old.gateQr) {
+            Object.assign(ev, { gateQr: '', gateQrFrom: '', gateQrDate: '', gateQrVenue: saved.id });
+          }
+        }
+      }
     } else if (action === 'removeVenue') {
       const old = find(state.venues); target = old.name;
       state.events.forEach(ev => { if (ev.venueId === id) ev.venueId = ''; });

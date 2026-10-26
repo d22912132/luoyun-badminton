@@ -10,8 +10,34 @@ from PIL import Image, ImageDraw, ImageFont
 # 球館每月換一次門禁碼，無法由日期推算，只能照球館公告填入。
 # 換月時「同時」更新這兩個值，重新產生 public/gate-qr.png，
 # 並把 console.html / board.html 的 DEFAULT_GATE_QR_MONTH 改成同一個月份。
-GATE_PASS_CODE = "QRCo16H9352771101524192"   # 2026 年 10 月
+GATE_PASS_CODE = "QRCo16H6024814158355232"   # 2026 年 10 月下半
 GATE_PASS_MONTH = "2026-10"
+
+LCG_MOD = 10**16
+LCG_MULT = 476574504059360
+LCG_DEFAULT_OFFSET = 2849449904504832
+
+def anchor_ymd(date_str, half_override=None):
+    clean = str(date_str or "2026-10-26").replace("/", "-").strip()
+    parts = [int(x) for x in clean.split("-")[:3]]
+    y, m, d = parts[0], parts[1], (parts[2] if len(parts) > 2 else 1)
+    anchor_day = 15 if (half_override == "15" or (not half_override and d >= 15)) else 1
+    return y * 10000 + m * 100 + anchor_day
+
+def predict_gate_code(date_str, offset_b=LCG_DEFAULT_OFFSET, half_override=None):
+    ymd = anchor_ymd(date_str, half_override)
+    num = (LCG_MULT * ymd + int(offset_b)) % LCG_MOD
+    return f"QRCo16H{num:016d}", ymd
+
+def calibrate_gate_offset(date_str, raw_code, half_override=None):
+    import re
+    m = re.search(r"(\d{16})", str(raw_code))
+    if not m:
+        raise ValueError("無法從輸入提取 16 位數門禁編碼")
+    ymd = anchor_ymd(date_str, half_override)
+    num = int(m.group(1))
+    offset_b = (num - LCG_MULT * ymd) % LCG_MOD
+    return offset_b, ymd
 
 def create_center_badge(size=76):
     """繪製落雲宗羽球靈印（白底、金邊環、碧玉羽毛、金絲飾帶、翡翠球頭）"""

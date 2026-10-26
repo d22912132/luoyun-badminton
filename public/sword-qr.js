@@ -663,5 +663,215 @@
     if (root.requestIdleCallback) root.requestIdleCallback(run, { timeout: 4000 }); else setTimeout(run, 1500);
   }
 
-  root.SwordQR = { create: create, prefetch: prefetch, analyse: analyse };
+  /* ---------------- 門禁線性同餘推算、校正與純 JS QR V3 編碼 ----------------
+     公式：(LCG_MULT * YYYYMMDD + B) mod 10^16
+     上半月基準日為 YYYYMM01（1日），下半月基準日為 YYYYMM15（15日）。 */
+  var LCG_MOD = BigInt('10000000000000000');
+  var LCG_MULT = BigInt('476574504059360');
+  var LCG_DEFAULT_OFFSET = BigInt('2849449904504832');
+
+  function anchorOfDate(dateStr, halfOverride) {
+    var s = String(dateStr || '').replace(/\//g, '-').trim();
+    var m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    var now = new Date();
+    var y = m ? Number(m[1]) : now.getFullYear();
+    var mo = m ? Number(m[2]) : (now.getMonth() + 1);
+    var d = m ? Number(m[3]) : now.getDate();
+    var isSecond = halfOverride === '15' || halfOverride === 'second' || (!halfOverride && d >= 15);
+    var anchorDay = isSecond ? 15 : 1;
+    var ym = y + '-' + ('0' + mo).slice(-2);
+    var lastDay = ('0' + new Date(y, mo, 0).getDate()).slice(-2);
+    return {
+      ymd: y * 10000 + mo * 100 + anchorDay,
+      half: isSecond ? 'second' : 'first',
+      anchorDate: ym + '-' + ('0' + anchorDay).slice(-2),
+      from: isSecond ? (ym + '-15') : (ym + '-01'),
+      until: isSecond ? (ym + '-' + lastDay) : (ym + '-14')
+    };
+  }
+
+  function parseGateCode(raw) {
+    var s = String(raw || '').trim();
+    if (!s) return null;
+    var direct = s.match(/(?:QRCo16H)?(\d{16})/);
+    if (direct) return { code: 'QRCo16H' + direct[1], digits: direct[1] };
+    try {
+      var cleanB64 = s.replace(/\s+/g, '');
+      if (typeof atob === 'function' && /^[A-Za-z0-9+/=]+$/.test(cleanB64)) {
+        var decoded = atob(cleanB64).match(/(?:QRCo16H)?(\d{16})/);
+        if (decoded) return { code: 'QRCo16H' + decoded[1], digits: decoded[1] };
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  function predictCode(dateStr, offsetB, halfOverride) {
+    var info = anchorOfDate(dateStr, halfOverride);
+    var b = LCG_DEFAULT_OFFSET;
+    if (offsetB !== undefined && offsetB !== null && String(offsetB).trim() !== '') {
+      try { b = BigInt(String(offsetB).trim()); } catch (_) {}
+    }
+    var num = ((LCG_MULT * BigInt(info.ymd) + b) % LCG_MOD + LCG_MOD) % LCG_MOD;
+    var digits = String(num).padStart(16, '0');
+    return {
+      code: 'QRCo16H' + digits,
+      digits: digits,
+      ymd: info.ymd,
+      half: info.half,
+      anchorDate: info.anchorDate,
+      from: info.from,
+      until: info.until,
+      offsetB: String(b)
+    };
+  }
+
+  function calibrateOffset(dateStr, rawCode, halfOverride) {
+    var parsed = parseGateCode(rawCode);
+    if (!parsed) return null;
+    var info = anchorOfDate(dateStr, halfOverride);
+    var num = BigInt(parsed.digits);
+    var offsetB = ((num - LCG_MULT * BigInt(info.ymd)) % LCG_MOD + LCG_MOD) % LCG_MOD;
+    return {
+      code: parsed.code,
+      digits: parsed.digits,
+      ymd: info.ymd,
+      half: info.half,
+      anchorDate: info.anchorDate,
+      from: info.from,
+      until: info.until,
+      offsetB: String(offsetB),
+      defaultOffsetB: String(LCG_DEFAULT_OFFSET),
+      isDefaultOffset: offsetB === LCG_DEFAULT_OFFSET
+    };
+  }
+
+  function encodeQrV3H(text) {
+    var bytes = [];
+    for (var i = 0; i < text.length; i++) bytes.push(text.charCodeAt(i) & 255);
+    var bits = [];
+    function pushBits(val, len) { for (var b = len - 1; b >= 0; b--) bits.push((val >> b) & 1); }
+    pushBits(4, 4);
+    pushBits(bytes.length, 8);
+    for (var i = 0; i < bytes.length; i++) pushBits(bytes[i], 8);
+    pushBits(0, Math.min(4, 208 - bits.length));
+    while (bits.length % 8) bits.push(0);
+    var data = [];
+    for (var i = 0; i < bits.length; i += 8) {
+      var v = 0;
+      for (var j = 0; j < 8; j++) v = (v << 1) | bits[i + j];
+      data.push(v);
+    }
+    var pads = [0xEC, 0x11], pi = 0;
+    while (data.length < 26) data.push(pads[pi++ & 1]);
+
+    var exp = new Uint8Array(512), log = new Uint8Array(256), x = 1;
+    for (var i = 0; i < 255; i++) { exp[i] = x; log[x] = i; x = (x << 1) ^ (x & 128 ? 0x11d : 0); }
+    for (var i = 255; i < 512; i++) exp[i] = exp[i - 255];
+    var gen = [1];
+    for (var i = 0; i < 22; i++) {
+      var next = new Array(gen.length + 1).fill(0);
+      for (var j = 0; j < gen.length; j++) {
+        next[j] ^= gen[j];
+        next[j + 1] ^= exp[log[gen[j]] + i];
+      }
+      gen = next;
+    }
+    function rs22(block) {
+      var rem = new Uint8Array(22);
+      for (var i = 0; i < block.length; i++) {
+        var factor = block[i] ^ rem[0];
+        for (var j = 0; j < 21; j++) rem[j] = rem[j + 1];
+        rem[21] = 0;
+        if (factor) for (var j = 0; j < 22; j++) rem[j] ^= exp[log[gen[j + 1]] + log[factor]];
+      }
+      return rem;
+    }
+    var b1 = data.slice(0, 13), b2 = data.slice(13, 26);
+    var e1 = rs22(b1), e2 = rs22(b2), cw = [];
+    for (var i = 0; i < 13; i++) cw.push(b1[i], b2[i]);
+    for (var i = 0; i < 22; i++) cw.push(e1[i], e2[i]);
+    var stream = [];
+    for (var i = 0; i < cw.length; i++) for (var b = 7; b >= 0; b--) stream.push((cw[i] >> b) & 1);
+    for (var i = 0; i < 7; i++) stream.push(0);
+
+    var N = 29, grid = [], used = [];
+    for (var r = 0; r < N; r++) { grid.push(new Uint8Array(N)); used.push(new Uint8Array(N)); }
+    function finder(r0, c0) {
+      for (var dr = -1; dr <= 7; dr++) for (var dc = -1; dc <= 7; dc++) {
+        var r = r0 + dr, c = c0 + dc;
+        if (r < 0 || r >= N || c < 0 || c >= N) continue;
+        var on = (dr >= 0 && dr <= 6 && (dc === 0 || dc === 6)) || (dc >= 0 && dc <= 6 && (dr === 0 || dr === 6)) || (dr >= 2 && dr <= 4 && dc >= 2 && dc <= 4);
+        grid[r][c] = on ? 1 : 0; used[r][c] = 1;
+      }
+    }
+    finder(0, 0); finder(0, N - 7); finder(N - 7, 0);
+    for (var dr = -2; dr <= 2; dr++) for (var dc = -2; dc <= 2; dc++) {
+      var r = 22 + dr, c = 22 + dc;
+      grid[r][c] = (Math.abs(dr) === 2 || Math.abs(dc) === 2 || (dr === 0 && dc === 0)) ? 1 : 0;
+      used[r][c] = 1;
+    }
+    for (var i = 8; i < N - 8; i++) {
+      grid[6][i] = grid[i][6] = (i % 2 === 0) ? 1 : 0;
+      used[6][i] = used[i][6] = 1;
+    }
+    grid[N - 8][8] = 1; used[N - 8][8] = 1;
+    for (var i = 0; i < 9; i++) { used[8][i] = 1; used[i][8] = 1; }
+    for (var i = 0; i < 8; i++) { used[8][N - 1 - i] = 1; used[N - 1 - i][8] = 1; }
+
+    var si = 0, up = true;
+    for (var col = N - 1; col > 0; col -= 2) {
+      if (col === 6) col--;
+      for (var s = 0; s < N; s++) {
+        var r = up ? (N - 1 - s) : s;
+        for (var dx = 0; dx < 2; dx++) {
+          var c = col - dx;
+          if (!used[r][c]) grid[r][c] = stream[si++] || 0;
+        }
+      }
+      up = !up;
+    }
+    var fmt = 0x1ce7;
+    for (var r = 0; r < N; r++) for (var c = 0; c < N; c++) {
+      if (!used[r][c] && (c % 3 === 0)) grid[r][c] ^= 1;
+    }
+    var f1r = [8,8,8,8,8,8,8,8,7,5,4,3,2,1,0], f1c = [0,1,2,3,4,5,7,8,8,8,8,8,8,8,8];
+    for (var i = 0; i < 15; i++) {
+      var bit = (fmt >> (14 - i)) & 1;
+      grid[f1r[i]][f1c[i]] = bit;
+      if (i < 7) grid[N - 1 - i][8] = bit;
+      else grid[8][N - 15 + i] = bit;
+    }
+    return grid;
+  }
+
+  function encodeDataUrl(code, boxSize, border) {
+    var parsed = parseGateCode(code);
+    var text = parsed ? parsed.code : String(code || '').trim();
+    if (!text) return '';
+    var grid = encodeQrV3H(text);
+    var N = grid.length, bs = boxSize || 10, bd = border !== undefined ? border : 4;
+    var size = (N + bd * 2) * bs;
+    var cvs = makeCanvas(size, size);
+    var ctx = cvs.getContext('2d');
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, size, size);
+    ctx.fillStyle = '#000000';
+    for (var r = 0; r < N; r++) {
+      for (var c = 0; c < N; c++) {
+        if (grid[r][c]) ctx.fillRect((c + bd) * bs, (r + bd) * bs, bs, bs);
+      }
+    }
+    return cvs.toDataURL('image/png');
+  }
+
+  function decodeImage(src) {
+    return analyse(src).then(function (model) { return model.data; });
+  }
+
+  root.SwordQR = {
+    create: create, prefetch: prefetch, analyse: analyse,
+    anchorOfDate: anchorOfDate, parseGateCode: parseGateCode,
+    predictCode: predictCode, calibrateOffset: calibrateOffset,
+    encodeQrV3H: encodeQrV3H, encodeDataUrl: encodeDataUrl, decodeImage: decodeImage
+  };
 })(typeof window !== 'undefined' ? window : this);
