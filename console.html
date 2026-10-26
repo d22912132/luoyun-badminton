@@ -5246,7 +5246,9 @@
             calibrated ? E('p', { className: 'text-[11px] font-mono ' + (calibrated.isDefaultOffset ? 'text-emerald-400' : 'text-[var(--gold)]') },
               calibrated.isDefaultOffset
                 ? ('✓ 與目前線性同餘公式完全吻合（B = ' + calibrated.offsetB + '）')
-                : ('⚡ 計算出新校正偏移常數 B = ' + calibrated.offsetB + '（原預設 ' + calibrated.defaultOffsetB + '）')) : null)) : null) : null,
+                : (calibrated.matchedYearModel
+                  ? ('✓ 命中跨年【' + calibrated.matchedYearModel + '】模型（新年度 B = ' + calibrated.offsetB + '）')
+                  : ('⚡ 計算出新校正偏移常數 B = ' + calibrated.offsetB + (calibrated.mod160Ok ? '（mod 160 = 32 結構相符）' : '（mod 160 結構已改變，可能換了乘數 A）')))) : null)) : null) : null,
       D('flex flex-col items-center justify-center gap-4 py-2 ' + (fullBright ? 'p-4 bg-white/95 rounded-2xl text-black' : ''),
         p.isAdmin ? E('input', {
           ref: fileInputRef, type: 'file', accept: 'image/*', className: 'hidden',

@@ -175,6 +175,10 @@ test('門禁線性同餘公式命中全部 14 組歷史樣本，並支援 Base64
   assert.equal(cal.code, 'QRCo16H6024814158355232');
   assert.equal(cal.isDefaultOffset, true);
   assert.equal(cal.offsetB, '2849449904504832');
+  assert.equal(cal.mod160Ok, true);
+  assert.equal(sqr.calibrateOffset('2027-01-01', '6180758041700192').matchedYearModel, 'YYYYMMDD');
+  assert.equal(sqr.calibrateOffset('2027-01-01', '2325122319332192').matchedYearModel, '連續月份');
+  assert.equal(sqr.calibrateOffset('2027-01-01', '0435717448100192').matchedYearModel, '每年重設');
 
   const grid = sqr.encodeQrV3H('QRCo16H6024814158355232');
   assert.equal(grid.length, 29);

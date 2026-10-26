@@ -669,6 +669,14 @@
   var LCG_MOD = BigInt('10000000000000000');
   var LCG_MULT = BigInt('476574504059360');
   var LCG_DEFAULT_OFFSET = BigInt('2849449904504832');
+  var LCG_DM = BigInt('7657450405936000');
+  var LCG_DH = BigInt('6672043056831040');
+  var LCG_BASE_2026 = ((LCG_MULT * BigInt(20260001) + LCG_DEFAULT_OFFSET) % LCG_MOD + LCG_MOD) % LCG_MOD;
+  var YEAR_GAMMAS = {
+    YYYYMMDD: (BigInt(10000) * LCG_MULT) % LCG_MOD,
+    '連續月份': (BigInt(12) * LCG_DM) % LCG_MOD,
+    '每年重設': BigInt(0)
+  };
 
   function anchorOfDate(dateStr, halfOverride) {
     var s = String(dateStr || '').replace(/\//g, '-').trim();
@@ -741,7 +749,18 @@
       until: info.until,
       offsetB: String(offsetB),
       defaultOffsetB: String(LCG_DEFAULT_OFFSET),
-      isDefaultOffset: offsetB === LCG_DEFAULT_OFFSET
+      isDefaultOffset: offsetB === LCG_DEFAULT_OFFSET,
+      mod160Ok: (num % BigInt(160)) === BigInt(32),
+      matchedYearModel: (function () {
+        var yr = Math.floor(info.ymd / 10000), mo = Math.floor((info.ymd % 10000) / 100), hf = info.half === 'second' ? 1 : 0;
+        var names = Object.keys(YEAR_GAMMAS);
+        for (var i = 0; i < names.length; i++) {
+          var g = YEAR_GAMMAS[names[i]];
+          var cand = ((LCG_BASE_2026 + g * BigInt(yr - 2026) + LCG_DM * BigInt(mo) + LCG_DH * BigInt(hf)) % LCG_MOD + LCG_MOD) % LCG_MOD;
+          if (cand === num) return names[i];
+        }
+        return null;
+      })()
     };
   }
 
