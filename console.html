@@ -25,7 +25,7 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <!-- 門禁 QR 飛劍劍陣；jsQR 只在打開門禁彈窗時才延遲載入。 -->
-<script defer src="/sword-qr.js"></script>
+<script defer src="/sword-qr.js?v=20261026-continuous"></script>
 
 <style>
   /* ================================================================
@@ -1136,7 +1136,12 @@
       var vFrom = String(venue.gateQrFrom || vUntil).replace(/\//g, '-'), vToday = todayKey();
       if (vFrom && vUntil && vFrom <= vToday && vToday <= vUntil && (!ev.date || (vFrom <= ev.date && ev.date <= vUntil))) return venue.gateQr;
     }
-    return defaultGateQrFresh(ev, venues) ? DEFAULT_GATE_QR : '';
+    if (defaultGateQrFresh(ev, venues)) return DEFAULT_GATE_QR;
+    var vName = ((venue && venue.name) || (ev && ev.place) || '').replace(/[－—–\s-]/g, '');
+    if (vName.indexOf('亞伯林羽球館東區振興店') === 0 && typeof window !== 'undefined' && window.SwordQR && window.SwordQR.predictCode && window.SwordQR.encodeDataUrl) {
+      return window.SwordQR.encodeDataUrl(window.SwordQR.predictCode(ev.date || todayKey()).code);
+    }
+    return '';
   }
   function gateQrHint(ev) {
     if (ev.gateQrUnavailable) return '自訂門禁碼尚未生效、已過期或不適用此場活動，請向長老確認。';
@@ -5158,7 +5163,7 @@
     var calHalfState = useState(''), calHalf = calHalfState[0], setCalHalf = calHalfState[1];
     var sqr = (typeof window !== 'undefined' && window.SwordQR) ? window.SwordQR : null;
     var predicted = sqr && sqr.predictCode ? sqr.predictCode(effectiveDate, null, calHalf) : null;
-    var calibrated = (sqr && sqr.calibrateOffset && calInput.trim()) ? sqr.calibrateOffset(effectiveDate, calInput, calHalf) : null; var activeCalc = calibrated || predicted; if ((standalone || !qrData) && activeCalc && sqr && sqr.encodeDataUrl) { qrData = sqr.encodeDataUrl(activeCalc.code); qrDate = activeCalc.from + ' ～ ' + activeCalc.until + '（基準 ' + activeCalc.ymd + '）'; }
+    var calibrated = (sqr && sqr.calibrateOffset && calInput.trim()) ? sqr.calibrateOffset(effectiveDate, calInput, calHalf) : null; var activeCalc = calibrated || predicted; if ((standalone || !qrData || !ev.gateQr || calHalf || calibrated) && activeCalc && sqr && sqr.encodeDataUrl) { qrData = sqr.encodeDataUrl(activeCalc.code); qrDate = String(effectiveDate).replace(/-/g, '/') + '（效期 ' + activeCalc.from + '～' + activeCalc.until + '）'; }
 
     async function saveQr(src) {
       if (src && !validPeriod) { p.flash('請設定正確的門禁有效起迄日', 'bad'); return false; }
@@ -5206,9 +5211,9 @@
       ]
     },
       (standalone || p.isAdmin) ? D('mb-4 grid gap-3 sm:grid-cols-2', standalone ? E(Field, { label: '指定通行日期（免開團可直接產生對應半月門禁碼）', className: 'sm:col-span-2' }, D('flex flex-wrap items-center gap-2', E('input', { type: 'date', value: effectiveDate, className: INPUT + ' max-w-[200px]', onChange: function (e) { setTargetDate(e.target.value); } }), E('button', { type: 'button', className: 'px-2.5 py-1.5 rounded-lg text-xs border border-[var(--hair-2)] hover:border-[var(--gold)] ' + T1, onClick: function () { setTargetDate(todayKey()); } }, '今日'))) : null,
-        !standalone && p.isAdmin ? E(Field, { label: '門禁有效起日' }, E('input', { type: 'date', value: period.from, className: INPUT, onChange: function (e) { setPeriod(Object.assign({}, period, { from: e.target.value })); } })) : null,
-        !standalone && p.isAdmin ? E(Field, { label: '門禁有效迄日' }, E('input', { type: 'date', value: period.until, className: INPUT, onChange: function (e) { setPeriod(Object.assign({}, period, { until: e.target.value })); } })) : null,
-        !standalone && p.isAdmin ? D('sm:col-span-2 flex flex-wrap items-center gap-1.5',
+        !standalone && p.isAdmin && !!ev.gateQr ? E(Field, { label: '門禁有效起日' }, E('input', { type: 'date', value: period.from, className: INPUT, onChange: function (e) { setPeriod(Object.assign({}, period, { from: e.target.value })); } })) : null,
+        !standalone && p.isAdmin && !!ev.gateQr ? E(Field, { label: '門禁有效迄日' }, E('input', { type: 'date', value: period.until, className: INPUT, onChange: function (e) { setPeriod(Object.assign({}, period, { until: e.target.value })); } })) : null,
+        !standalone && p.isAdmin && !!ev.gateQr ? D('sm:col-span-2 flex flex-wrap items-center gap-1.5',
           S('text-xs ' + T3, '半月效期快選：'),
           [['first', '上半月 (1–15日)'], ['second', '下半月 (16–月底)'], ['full', '當月整月']].map(function (item) {
             return E('button', { key: item[0], type: 'button', className: 'px-2.5 py-1 rounded-lg text-xs border border-[var(--hair-2)] hover:border-[var(--gold)] ' + T1,
@@ -5218,14 +5223,14 @@
                 var ym = y + '-' + ('0' + m).slice(-2), last = ('0' + new Date(y, m, 0).getDate()).slice(-2);
                 setPeriod(item[0] === 'first' ? { from: ym + '-01', until: ym + '-15' } : item[0] === 'full' ? { from: ym + '-01', until: ym + '-' + last } : { from: ym + '-16', until: ym + '-' + last });
               } }, item[1]); }) ) : null,
-        !standalone && p.isAdmin ? E('p', { className: 'sm:col-span-2 text-xs ' + T3 }, '上傳後會自動同步至此場館與效期內的所有同場館活動；有效期間須涵蓋今天及活動日期。') : null,
+        !standalone && p.isAdmin && !!ev.gateQr ? E('p', { className: 'sm:col-span-2 text-xs ' + T3 }, '上傳後會自動同步至此場館與效期內的所有同場館活動；有效期間須涵蓋今天及活動日期。') : null,
         predicted ? D('sm:col-span-2 mt-1 rounded-2xl border border-[rgba(201,169,97,.26)] bg-[rgba(201,169,97,.05)] p-3.5 grid gap-2.5',
           D('flex flex-wrap items-center justify-between gap-2',
             D('flex items-center gap-2',
               E(Icon, { name: 'Sparkles', size: 15, className: 'text-[var(--gold)]' }),
               E('span', { className: 'text-xs font-semibold ' + T1 }, '線性同餘公式推算（基準 ' + predicted.ymd + '）')),
             D('flex items-center gap-1',
-              [['', standalone ? '依指定日' : '依活動日'], ['01', '上半月 (01)'], ['15', '下半月 (15)']].map(function (opt) {
+              [['', '半月連續 (01/15)'], ['daily', '每日連續 (YYYYMMDD)'], ['01', '上半月 (01)'], ['15', '下半月 (15)']].map(function (opt) {
                 return E('button', { key: opt[0], type: 'button',
                   className: 'px-2 py-0.5 rounded text-[11px] border transition ' + (calHalf === opt[0] ? 'border-[var(--gold)] bg-[rgba(201,169,97,.18)] text-[var(--gold)] font-semibold' : 'border-[var(--hair-2)] ' + T3),
                   onClick: function () { setCalHalf(opt[0]); } }, opt[1]);
@@ -5279,7 +5284,7 @@
         ),
         qrData ? D('mt-2 flex items-center gap-2 text-center text-xs ' + (fullBright ? 'text-gray-700' : T3),
           E(Icon, { name: 'Info', size: 14, className: 'shrink-0 text-[var(--gold)]' }),
-          S('', standalone ? ('此為指定日期（' + effectiveDate + '）產生之門禁 QR，請對準球館閘門條碼機掃描入場。') : autoQr ? ('此為球館 ' + DEFAULT_GATE_QR_MONTH.replace('-', ' 年 ') + ' 月公用門禁碼，不需上傳；請對準球館閘門條碼機掃描入場。') : '此活動使用自訂門禁 QR，請對準球館閘門條碼機掃描入場。')) : null
+          S('', standalone ? ('此為指定日期（' + effectiveDate + '）公式連續推算之門禁 QR，請對準球館閘門條碼機掃描入場。') : autoQr ? ('此為球館線性同餘公式自動連續推算之門禁碼（基準 ' + (activeCalc ? activeCalc.ymd : effectiveDate) + '），不需手動上傳；請對準球館閘門條碼機掃描入場。') : '此活動使用自訂門禁 QR，請對準球館閘門條碼機掃描入場。')) : null
       ));
   }
 
@@ -6297,14 +6302,14 @@
           D('flex items-center justify-between gap-2 mb-3',
             D('flex items-center gap-2',
               E(Icon, { name: 'QrCode', size: 16, className: 'text-[var(--jade-3)]' }),
-              E('span', { className: 'text-sm font-semibold ' + T1 }, ('門禁 QR Code（系統內建公用碼・' + DEFAULT_GATE_QR_MONTH.replace('-', ' 年 ') + ' 月）'))
+              E('span', { className: 'text-sm font-semibold ' + T1 }, '門禁 QR Code（亞伯林振興店支援依日期自動連續推算）')
             ),
             f.gateQr ? E(Btn, {
               variant: 'danger', size: 'sm', icon: 'Trash2',
               onClick: function () { up('gateQr', ''); }
             }, '清除 QR 碼') : null
           ),
-          E('p', { className: 'mb-3 text-xs leading-relaxed ' + T3 }, ('內建公用碼僅適用亞伯林振興店 ' + DEFAULT_GATE_QR_MONTH + ' 的活動；其他場館請設定自訂碼。自訂有效期間須涵蓋今天與活動日期，無效時不會顯示。')),
+          E('p', { className: 'mb-3 text-xs leading-relaxed ' + T3 }, '亞伯林振興店活動會依活動日期自動以線性同餘公式連續產生門禁 QR Code，不需手動填寫起迄日或上傳圖片；僅在需要強制覆蓋自訂圖片時才需設定下方欄位。'),
           D('grid grid-cols-1 sm:grid-cols-2 gap-3',
             E(Field, { label: 'QR 碼有效起日' }, E('input', { type: 'date', value: f.gateQrFrom || '', className: INPUT, onChange: function (ev) { up('gateQrFrom', ev.target.value); } })),
             E(Field, { label: 'QR 碼有效迄日' },

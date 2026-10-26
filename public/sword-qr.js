@@ -685,16 +685,17 @@
     var y = m ? Number(m[1]) : now.getFullYear();
     var mo = m ? Number(m[2]) : (now.getMonth() + 1);
     var d = m ? Number(m[3]) : now.getDate();
+    var isDaily = halfOverride === 'daily' || halfOverride === 'exact';
     var isSecond = halfOverride === '15' || halfOverride === 'second' || (!halfOverride && d >= 15);
-    var anchorDay = isSecond ? 15 : 1;
+    var anchorDay = isDaily ? d : (isSecond ? 15 : 1);
     var ym = y + '-' + ('0' + mo).slice(-2);
     var lastDay = ('0' + new Date(y, mo, 0).getDate()).slice(-2);
     return {
       ymd: y * 10000 + mo * 100 + anchorDay,
-      half: isSecond ? 'second' : 'first',
+      half: isDaily ? 'daily' : (isSecond ? 'second' : 'first'),
       anchorDate: ym + '-' + ('0' + anchorDay).slice(-2),
-      from: isSecond ? (ym + '-15') : (ym + '-01'),
-      until: isSecond ? (ym + '-' + lastDay) : (ym + '-14')
+      from: isDaily ? (ym + '-' + ('0' + d).slice(-2)) : (isSecond ? (ym + '-15') : (ym + '-01')),
+      until: isDaily ? (ym + '-' + ('0' + d).slice(-2)) : (isSecond ? (ym + '-' + lastDay) : (ym + '-14'))
     };
   }
 
@@ -863,10 +864,13 @@
     return grid;
   }
 
+  var qrDataUrlCache = {};
   function encodeDataUrl(code, boxSize, border) {
     var parsed = parseGateCode(code);
     var text = parsed ? parsed.code : String(code || '').trim();
     if (!text) return '';
+    var cacheKey = text + '|' + (boxSize || 10) + '|' + (border !== undefined ? border : 4);
+    if (qrDataUrlCache[cacheKey]) return qrDataUrlCache[cacheKey];
     var grid = encodeQrV3H(text);
     var N = grid.length, bs = boxSize || 10, bd = border !== undefined ? border : 4;
     var size = (N + bd * 2) * bs;
@@ -880,7 +884,9 @@
         if (grid[r][c]) ctx.fillRect((c + bd) * bs, (r + bd) * bs, bs, bs);
       }
     }
-    return cvs.toDataURL('image/png');
+    var out = cvs.toDataURL('image/png');
+    qrDataUrlCache[cacheKey] = out;
+    return out;
   }
 
   function decodeImage(src) {
