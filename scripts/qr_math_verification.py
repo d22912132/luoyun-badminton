@@ -47,6 +47,38 @@ SAMPLES = [
     (12, 20261001, "9352771101524192"),
     (13, 20261015, "6024814158355232"),
     (14, 20260901, "1695320695588192"),
+    (15, 20260815, "0709913346483232"),
+    (16, 20260215, "4765210910867232"),
+]
+
+SCREENSHOT_CASES = [
+    ("LINE_ALBUM_Jar_261026_1.jpg", "2026-09-07", 20260901, "1695320695588192"),
+    ("LINE_ALBUM_Jar_261026_2.jpg", "2026-08-31", 20260815, "0709913346483232"),
+    ("LINE_ALBUM_Jar_261026_3.jpg", "2026-08-24", 20260815, "0709913346483232"),
+    ("LINE_ALBUM_Jar_261026_4.jpg", "2026-08-17", 20260815, "0709913346483232"),
+    ("LINE_ALBUM_Jar_261026_5.jpg", "2026-08-10", 20260801, "4037870289652192"),
+    ("LINE_ALBUM_Jar_261026_6.jpg", "2026-07-27", 20260715, "3052462940547232"),
+    ("LINE_ALBUM_Jar_261026_7.jpg", "2026-07-06", 20260701, "6380419883716192"),
+    ("LINE_ALBUM_Jar_261026_8.jpg", "2026-06-29", 20260615, "5395012534611232"),
+    ("LINE_ALBUM_Jar_261026_9.jpg", "2026-06-22", 20260615, "5395012534611232"),
+    ("LINE_ALBUM_Jar_261026_10.jpg", "2026-06-15", 20260615, "5395012534611232"),
+    ("LINE_ALBUM_Jar_261026_11.jpg", "2026-06-08", 20260601, "8722969477780192"),
+    ("LINE_ALBUM_Jar_261026_12.jpg", "2026-06-01", 20260601, "8722969477780192"),
+    ("LINE_ALBUM_Jar_261026_13.jpg", "2026-05-25", 20260515, "7737562128675232"),
+    ("LINE_ALBUM_Jar_261026_14.jpg", "2026-05-18", 20260515, "7737562128675232"),
+    ("LINE_ALBUM_Jar_261026_15.jpg", "2026-05-11", 20260501, "1065519071844192"),
+    ("LINE_ALBUM_Jar_261026_16.jpg", "2026-05-04", 20260501, "1065519071844192"),
+    ("LINE_ALBUM_Jar_261026_17.jpg", "2026-04-27", 20260415, "0080111722739232"),
+    ("LINE_ALBUM_Jar_261026_18.jpg", "2026-04-20", 20260415, "0080111722739232"),
+    ("LINE_ALBUM_Jar_261026_19.jpg", "2026-04-13", 20260401, "3408068665908192"),
+    ("LINE_ALBUM_Jar_261026_20.jpg", "2026-04-06", 20260401, "3408068665908192"),
+    ("LINE_ALBUM_Jar_261026_21.jpg", "2026-03-30", 20260315, "2422661316803232"),
+    ("LINE_ALBUM_Jar_261026_22.jpg", "2026-03-23", 20260315, "2422661316803232"),
+    ("LINE_ALBUM_Jar_261026_23.jpg", "2026-03-16", 20260315, "2422661316803232"),
+    ("LINE_ALBUM_Jar_261026_24.jpg", "2026-03-09", 20260301, "5750618259972192"),
+    ("LINE_ALBUM_Jar_261026_25.jpg", "2026-03-02", 20260301, "5750618259972192"),
+    ("LINE_ALBUM_Jar_261026_26.jpg", "2026-02-23", 20260215, "4765210910867232"),
+    ("LINE_ALBUM_Jar_261026_27.jpg", "2026-10-26", 20261015, "6024814158355232"),
 ]
 
 
@@ -88,14 +120,20 @@ def main():
               "Base64 正規重新編碼不同")
         print(f"{label}: {len(raw)} bytes; {raw!r}")
 
-    print("\n二、14 筆逐位比對")
+    print("\n二、16 個半月樣本與 27 張附獨立日期標記截圖逐位比對")
     observed = {}
     for number, x, expected in SAMPLES:
         got = f"{code(x):016d}"
         check(got == expected, f"樣本 {number} 不吻合")
         observed[x] = int(expected)
         print(f"{number:2}: {x}  {expected} == {got}  PASS")
-    print("14/14 PASS；3～10 月的 16 個半月中缺少 8/15、9/15。")
+    print("16/16 個半月樣本 PASS（含新增 2026/02 下半與 2026/08 下半）；3～10 月僅缺 9/15。")
+    for fname, date_str, anchor_ymd, expected in SCREENSHOT_CASES:
+        y, m, d = map(int, date_str.split("-"))
+        calc_anchor = y * 10000 + m * 100 + (15 if d >= 15 else 1)
+        check(calc_anchor == anchor_ymd, f"{fname} 錨點不符")
+        check(f"{code(calc_anchor):016d}" == expected, f"{fname} 算式結果不符")
+    print(f"27/27 張含獨立印製日期 (日期：YYYY/MM/DD) 截圖全數吻合（含 2026/06/15 當日即切換為下半月 20260615）。")
 
     print("\n三、直接以樣本差值驗算，避免只重複公式")
     upper = [observed[20260000 + 100 * m + 1] for m in range(3, 11)]
@@ -107,13 +145,13 @@ def main():
         x = 20260000 + 100 * m + 1
         if x + 14 in observed:
             half_diffs.append((observed[x + 14] - observed[x]) % M)
-    check(len(half_diffs) == 6 and set(half_diffs) == {DH % M},
+    check(len(half_diffs) == 7 and set(half_diffs) == {DH % M},
           "同月半月差值不同")
     check(100 * A % M == DM % M, "100A 不符月差")
     check(14 * A % M == DH % M, "14A 不符半月差")
     check(7 * DM - 50 * DH == 15 * M, "比例關係不符")
     print(f"7 組逐月差：{DM % M}")
-    print(f"6 組同月半月差：{DH % M}")
+    print(f"7 組同月半月差：{DH % M}")
     print(f"7*DM - 50*DH = {7 * DM - 50 * DH} = 15*M")
 
     print("\n四、A/B 的兩組解")
@@ -188,11 +226,11 @@ def main():
     print("\n九、有限樣本無法保證年內外推：構造反例")
     for _, x, expected in SAMPLES:
         month = (x // 100) % 100
-        perturbation = prod(month - r for r in range(3, 11))
+        perturbation = prod(month - r for r in range(2, 11))
         check((code(x) + perturbation) % M == int(expected), "反例未吻合")
-    print("F'=F+product(month-r, r=3..10) mod M 仍命中全部樣本。")
-    print(f"11 月相差 {prod(11-r for r in range(3, 11))}")
-    print(f"12 月相差 {prod(12-r for r in range(3, 11))}")
+    print("原本 r=3..10 的反例已被新增的 2026/02 下半樣本排除；需改為 r=2..10：")
+    print(f"11 月相差 {prod(11-r for r in range(2, 11))}")
+    print(f"12 月相差 {prod(12-r for r in range(2, 11))}")
 
     print("\n十、仿射模型的結構性檢查")
     check(gcd(A, M) == 160, "gcd 不同")
