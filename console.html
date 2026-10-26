@@ -1620,7 +1620,7 @@
       D('flex h-14 w-14 items-center justify-center rounded-full inlay ' + T3,
         E(Icon, { name: p.icon || 'Inbox', size: 22 })),
       E('p', { className: 'disp text-[16px] font-semibold ' + T1 }, p.title),
-      p.hint ? E('p', { className: 'max-w-sm text-[12.5px] leading-relaxed ' + T3 }, p.hint) : null);
+      p.hint ? E('p', { className: 'max-w-sm text-[12.5px] leading-relaxed ' + T3 }, p.hint) : null, p.action || null);
   }
 
   function Bubble(p) {
@@ -2755,10 +2755,10 @@
         }, item[1] + ' ' + groups[item[0]].length);
       })),
       p.events.length === 0
-        ? (p.isAdmin ? E(FirstRun, { p: p }) : E(Empty, { icon: 'CalendarX2', title: '目前沒有試煉佈告', hint: '請稍後再回來查看最新集結。' }))
+        ? (p.isAdmin ? E(FirstRun, { p: p }) : E(Empty, { icon: 'CalendarX2', title: '目前沒有試煉佈告', hint: '請稍後再回來查看最新集結；若需刷卡進場可直接開啟門禁玉令。', action: E(Btn, { variant: 'soft', icon: 'QrCode', onClick: function () { p.setModal({ type: 'gateQr', date: todayKey() }); } }, '開啟門禁玉令（免開團通行證）') }))
         : (rows.length ? D('grid gap-3.5', rows.map(function (ev) { return E(EventCard, { key: ev.id, ev: ev, p: p }); }))
           : E(Empty, { icon: 'CalendarDays', title: kind === 'drafts' ? '尚無草稿' : (kind === 'history' ? '尚無歷史活動' : '目前沒有即將開打的活動'),
-            hint: p.isAdmin ? '可用「開壇集結」新增活動，或切換上方分類查看。' : '請稍後查看，過往場次可在「歷史活動」找到。' })),
+            hint: p.isAdmin ? '可用「開壇集結」新增活動，或切換上方分類查看。' : '請稍後查看，過往場次可在「歷史活動」找到。', action: kind === 'upcoming' ? E(Btn, { variant: 'soft', icon: 'QrCode', onClick: function () { p.setModal({ type: 'gateQr', date: todayKey() }); } }, '開啟門禁玉令（免開團通行證）') : null })),
       p.logs.length ? D('mt-6 rounded-[20px] inlay p-5',
         D('mb-3 flex items-center gap-2 ' + T3, E(Icon, { name: 'History', size: 14 }), S('text-[11px] tracking-wide', '近期共編異動')),
         p.logs.slice(0, 4).map(function (l, i) {
@@ -5224,7 +5224,7 @@
                 setPeriod(item[0] === 'first' ? { from: ym + '-01', until: ym + '-15' } : item[0] === 'full' ? { from: ym + '-01', until: ym + '-' + last } : { from: ym + '-16', until: ym + '-' + last });
               } }, item[1]); }) ) : null,
         !standalone && p.isAdmin && !!ev.gateQr ? E('p', { className: 'sm:col-span-2 text-xs ' + T3 }, '上傳後會自動同步至此場館與效期內的所有同場館活動；有效期間須涵蓋今天及活動日期。') : null,
-        predicted ? D('sm:col-span-2 mt-1 rounded-2xl border border-[rgba(201,169,97,.26)] bg-[rgba(201,169,97,.05)] p-3.5 grid gap-2.5',
+        (p.isAdmin && predicted) ? D('sm:col-span-2 mt-1 rounded-2xl border border-[rgba(201,169,97,.26)] bg-[rgba(201,169,97,.05)] p-3.5 grid gap-2.5',
           D('flex flex-wrap items-center justify-between gap-2',
             D('flex items-center gap-2',
               E(Icon, { name: 'Sparkles', size: 15, className: 'text-[var(--gold)]' }),
@@ -5266,7 +5266,7 @@
           ref: fileInputRef, type: 'file', accept: 'image/*', className: 'hidden',
           onChange: function (e) { handleFile(e.target.files && e.target.files[0]); }
         }) : null,
-        qrData ? D('talisman-frame p-3 shadow-2xl flex flex-col items-center justify-center transition-all ' + (fullBright ? 'scale-105' : 'hover:scale-[1.01]'),
+        qrData ? D('talisman-frame p-3 shadow-2xl flex flex-col items-center justify-center transition-all cursor-pointer select-none ' + (fullBright ? 'scale-105' : 'hover:scale-[1.01]'), { title: '點擊切換白底高對比模式', onClick: function () { setFullBright(!fullBright); } },
           /* 結界掃描光幕 */
           D('talisman-scanner-beam'),
           D('talisman-corner left-1.5 top-1.5 border-l-2 border-t-2'),
@@ -5276,7 +5276,7 @@
           E(SwordQrSeal, { src: qrData, bright: fullBright, alt: '門禁QRCode' }),
           D('mt-2 text-center',
             E('strong', { className: 'disp block text-sm ' + (fullBright ? 'text-black' : T1) }, '門禁QRCode'),
-            E('span', { className: 'mt-0.5 block text-xs ' + (fullBright ? 'text-gray-700' : T3) }, '(日期：' + (qrDate || '依活動日期') + ')'))
+            E('span', { className: 'mt-0.5 block text-xs ' + (fullBright ? 'text-gray-700' : T3) }, '(日期：' + (qrDate || '依活動日期') + ')'), E('span', { className: 'mt-1 block text-[11px] font-medium ' + (fullBright ? 'text-amber-700' : 'text-[var(--gold)] opacity-85') }, fullBright ? '✦ 已開啟白底高對比模式（點擊條碼可還原）' : '💡 掃描不順？點擊條碼圖切換「白底高對比」模式'))
         ) : D('flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--hair-2)] p-10 text-center',
           E(Icon, { name: 'QrCode', size: 48, className: 'text-[var(--mist-3)] mb-3 opacity-60' }),
           E('p', { className: 'disp font-semibold ' + T1 }, '目前沒有可用的門禁碼'),
