@@ -2742,10 +2742,10 @@
     return D('',
       E(PageHead, {
         eyebrow: '試煉佈告', title: '宗門集結', sub: '目前 ' + groups.upcoming.length + ' 場集結・名單由長老統一維護',
-        action: p.isAdmin ? E(Btn, {
+        action: D('flex flex-wrap items-center gap-2', E(Btn, { variant: 'outline', icon: 'QrCode', onClick: function () { p.setModal({ type: 'gateQr', date: todayKey() }); } }, '門禁玉令（自選日期）'), p.isAdmin ? E(Btn, {
           variant: 'primary', icon: 'Plus', nub: 'ArrowRight',
           onClick: function () { p.setModal({ type: 'event', row: null }); }
-        }, '開壇集結') : null
+        }, '開壇集結') : null)
       }),
       E(TrialCalendar, { p: p }),
       D('mb-5 flex flex-wrap gap-2', [['upcoming', '即將開打'], ['history', '歷史活動']].concat(p.isAdmin ? [['drafts', '草稿']] : []).map(function (item) {
@@ -2887,7 +2887,7 @@
             E(Btn, { size: 'icon', variant: 'ghost', icon: 'ChevronLeft', ariaLabel: '上個月', disabled: monthKey === '2026-01', onClick: function () { move(-1); } }),
             E('strong', { className: 'disp num min-w-[88px] text-center text-[15px] ' + T1 }, year + '年 ' + month + '月'),
             E(Btn, { size: 'icon', variant: 'ghost', icon: 'ChevronRight', ariaLabel: '下個月', disabled: monthKey === '2027-12', onClick: function () { move(1); } }),
-            E(Btn, { size: 'sm', variant: 'ghost', icon: expanded ? 'PanelTopClose' : 'PanelTopOpen', onClick: function () { setExpanded(!expanded); } }, expanded ? '收合' : '展開'))),
+            E(Btn, { size: 'sm', variant: 'outline', icon: 'QrCode', onClick: function () { p.setModal({ type: 'gateQr', date: selectedDate || (monthKey === todayKey().slice(0, 7) ? todayKey() : (monthKey + '-01')) }); } }, '門禁碼'), E(Btn, { size: 'sm', variant: 'ghost', icon: expanded ? 'PanelTopClose' : 'PanelTopOpen', onClick: function () { setExpanded(!expanded); } }, expanded ? '收合' : '展開'))),
         expanded ? D('',
           D('flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-[var(--hair)] px-4 py-3 text-[10.5px] ' + T3,
             D('flex items-center gap-1.5', E('i', { className: 'calendar-event-dot' }), '已開團'),
@@ -5230,7 +5230,7 @@
               E(Icon, { name: 'Sparkles', size: 15, className: 'text-[var(--gold)]' }),
               E('span', { className: 'text-xs font-semibold ' + T1 }, '線性同餘公式推算（基準 ' + predicted.ymd + '）')),
             D('flex items-center gap-1',
-              [['', '半月連續 (01/15)'], ['daily', '每日連續 (YYYYMMDD)'], ['01', '上半月 (01)'], ['15', '下半月 (15)']].map(function (opt) {
+              [['', '半月連續 (01/15)']].concat(p.isAdmin ? [['daily', '每日連續 (YYYYMMDD)']] : []).concat([['01', '上半月 (01)'], ['15', '下半月 (15)']]).map(function (opt) {
                 return E('button', { key: opt[0], type: 'button',
                   className: 'px-2 py-0.5 rounded text-[11px] border transition ' + (calHalf === opt[0] ? 'border-[var(--gold)] bg-[rgba(201,169,97,.18)] text-[var(--gold)] font-semibold' : 'border-[var(--hair-2)] ' + T3),
                   onClick: function () { setCalHalf(opt[0]); } }, opt[1]);
