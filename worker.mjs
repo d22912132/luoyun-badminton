@@ -3,6 +3,8 @@ import { createHandler, seed } from './club.mjs';
 import { getOfficialCalendar, supportedCalendarYears } from './calendar.mjs';
 import indexHtml from './index.html';
 import consoleHtml from './console.html';
+import serviceWorker from './service-worker.js';
+import { pwaResponse, versionedHtml } from './pwa.mjs';
 
 const pages = { '/console.html': consoleHtml, '/rite.html': indexHtml };
 const snapshot = JSON.parse(indexHtml.match(/id="snapshot">\s*([\s\S]*?)<\/script>/)[1]);
@@ -58,6 +60,9 @@ export class Club extends DurableObject {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url), path = url.pathname;
+    const version = env.APP_VERSION?.id || 'development';
+    const pwa = pwaResponse(request, version, serviceWorker);
+    if (pwa) return pwa;
     if (path === '/api/calendar') {
       if (request.method !== 'GET') return Response.json({ error: '僅支援讀取行事曆' }, { status: 405 });
       const year = Number(url.searchParams.get('year'));
@@ -72,7 +77,7 @@ export default {
     // 排位功能暫停公開，舊書籤一併導回佈告，保留程式與資料供後續開發。
     if (path === '/' || path === '/index.html' || path === '/board.html' || path === '/court.html') return new Response(null, { status: 307, headers: { ...headers, Location: '/console.html' } });
     if (Object.hasOwn(pages, path)) {
-      const html = pages[path].replace('<head>', '<head><meta name="club-live" content="true">')
+      const html = versionedHtml(pages[path], version).replace('<head>', '<head><meta name="club-live" content="true">')
         .replace(/(<script type="application\/json" id="snapshot">)[\s\S]*?(<\/script>)/, '$1{}$2');
       return new Response(request.method === 'HEAD' ? null : html, { headers });
     }

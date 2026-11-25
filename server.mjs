@@ -1,11 +1,12 @@
 import http from 'node:http';
 import { DatabaseSync } from 'node:sqlite';
-import { randomBytes } from 'node:crypto';
+import { randomBytes, createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createHandler, seed } from './club.mjs';
 import { getOfficialCalendar, supportedCalendarYears } from './calendar.mjs';
+import { pwaResponse, versionedHtml } from './pwa.mjs';
 
 const root = dirname(fileURLToPath(import.meta.url));
 export function createApp({ dataDir = process.env.DATA_DIR || resolve(root, 'data'), origin = process.env.PUBLIC_ORIGIN || '', setupToken = process.env.SETUP_TOKEN } = {}) {
@@ -25,7 +26,9 @@ export function createApp({ dataDir = process.env.DATA_DIR || resolve(root, 'dat
     if (!existsSync(file)) writeFileSync(file, randomBytes(24).toString('hex'), { mode: 0o600 });
     setupToken = readFileSync(file, 'utf8').trim();
   }
-  const readHtml = name => readFileSync(resolve(root, name), 'utf8');
+  const localVersion = () => createHash('sha256').update(['console.html', 'public/pwa.js', 'public/pwa.css', 'service-worker.js']
+    .map(name => readFileSync(resolve(root, name), 'utf8')).join('\n')).digest('hex').slice(0, 20);
+  const readHtml = name => versionedHtml(readFileSync(resolve(root, name), 'utf8'), localVersion());
   const snapshot = JSON.parse(readHtml('index.html').match(/id="snapshot">\s*([\s\S]*?)<\/script>/)[1]);
   const handler = createHandler({ db: adapter, initialState: seed(snapshot), setupToken, origin, readHtml });
   const bgNames = [
@@ -38,9 +41,27 @@ export function createApp({ dataDir = process.env.DATA_DIR || resolve(root, 'dat
   const swordQrJs = readFileSync(resolve(root, 'public/sword-qr.js'));
   const tailwindCssPath = resolve(root, 'public/tailwind.css');
   const tailwindCss = existsSync(tailwindCssPath) ? readFileSync(tailwindCssPath) : null;
+  const pwaAssets = new Map([
+    ['/manifest.webmanifest', 'application/manifest+json'], ['/pwa.js', 'text/javascript; charset=utf-8'],
+    ['/pwa.css', 'text/css; charset=utf-8'], ['/offline.html', 'text/html; charset=utf-8'],
+    ['/favicon.svg', 'image/svg+xml'], ['/icons/apple-touch-icon.png', 'image/png'],
+    ['/icons/app-192.png', 'image/png'], ['/icons/app-512.png', 'image/png'], ['/icons/app-maskable-512.png', 'image/png']
+  ]);
   const server = http.createServer(async (req, res) => {
     req.setEncoding('utf8');
     const url = new URL(req.url, 'http://localhost');
+    const pwa = ['/app-version.json', '/sw.js'].includes(url.pathname)
+      ? pwaResponse(new Request(url, { method: req.method }), localVersion(), readFileSync(resolve(root, 'service-worker.js'), 'utf8')) : null;
+    if (pwa) {
+      res.writeHead(pwa.status, Object.fromEntries(pwa.headers));
+      return res.end(Buffer.from(await pwa.arrayBuffer()));
+    }
+    if (pwaAssets.has(url.pathname)) {
+      if (!['GET', 'HEAD'].includes(req.method)) { res.writeHead(405, { Allow: 'GET, HEAD' }); return res.end(); }
+      const content = readFileSync(resolve(root, 'public' + url.pathname));
+      res.writeHead(200, { 'Content-Type': pwaAssets.get(url.pathname), 'Cache-Control': 'no-cache', 'X-Content-Type-Options': 'nosniff' });
+      return res.end(req.method === 'HEAD' ? undefined : content);
+    }
     if (url.pathname === '/tailwind.css' && tailwindCss) {
       if (!['GET', 'HEAD'].includes(req.method)) {
         res.writeHead(405, { Allow: 'GET, HEAD' }); return res.end();

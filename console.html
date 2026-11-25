@@ -6,6 +6,13 @@
 <meta name="robots" content="noindex, nofollow">
 <title>落雲宗羽球團・管理後台</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=1">
+<meta name="app-version" content="development">
+<meta name="theme-color" content="#0A1215">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="stylesheet" href="/pwa.css">
+<script src="/pwa.js" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
@@ -260,17 +267,17 @@
   .level-badge-wrap:hover { z-index: 40; }
   .level-badge { cursor: help; }
   .level-badge-wrap .realm-tooltip {
-    position: absolute; left: 50%; bottom: calc(100% + .65rem); z-index: 60;
+    display: none; position: absolute; left: 50%; bottom: calc(100% + .65rem); z-index: 60;
     width: min(19rem, calc(100vw - 2rem)); padding: .7rem .8rem;
     border: 1px solid color-mix(in srgb, var(--realm-b) 48%, transparent); border-radius: 14px;
     background: linear-gradient(180deg, rgba(16,27,30,.98), rgba(9,17,19,.98));
     box-shadow: 0 16px 34px -18px rgba(0,0,0,.9), 0 0 22px -8px var(--realm-glow);
     color: #dbece3; font: 500 11px/1.55 'Noto Sans TC', sans-serif; letter-spacing: .01em;
-    opacity: 0; pointer-events: none; transform: translate(-50%, 6px) scale(.96); transform-origin: bottom center;
+    opacity: 0; pointer-events: none; transform: translate(calc(-50% + var(--tooltip-shift, 0px)), 6px) scale(.96); transform-origin: bottom center;
     transition: opacity .18s var(--ease), transform .18s var(--ease);
   }
-  .level-badge-wrap .realm-tooltip::after { content: ''; position: absolute; left: 50%; bottom: -6px; width: 10px; height: 10px; border-right: 1px solid color-mix(in srgb, var(--realm-b) 48%, transparent); border-bottom: 1px solid color-mix(in srgb, var(--realm-b) 48%, transparent); background: #0b1719; transform: translateX(-50%) rotate(45deg); }
-  .level-badge-wrap:hover .realm-tooltip { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  .level-badge-wrap .realm-tooltip::after { content: ''; position: absolute; left: calc(50% - var(--tooltip-shift, 0px)); bottom: -6px; width: 10px; height: 10px; border-right: 1px solid color-mix(in srgb, var(--realm-b) 48%, transparent); border-bottom: 1px solid color-mix(in srgb, var(--realm-b) 48%, transparent); background: #0b1719; transform: translateX(-50%) rotate(45deg); }
+  .level-badge-wrap:hover .realm-tooltip { display: block; opacity: 1; transform: translate(calc(-50% + var(--tooltip-shift, 0px)), 0) scale(1); }
   .realm-tooltip-title { display: block; margin-bottom: .2rem; color: var(--realm-text); font: 700 11px 'Noto Serif TC', Georgia, serif; letter-spacing: .05em; }
   .realm-tooltip-text { display: block; color: #dbece3; }
 
@@ -368,7 +375,43 @@
   }
 
   /* ---------- 按鈕物理感與靈氣波紋微動態 (Auric Ripple) ---------- */
-  .btn{ position:relative; overflow:hidden; transition:transform .45s var(--ease), background .45s var(--ease), border-color .45s var(--ease), box-shadow .45s var(--ease), color .45s var(--ease); }
+  .btn{ position:relative; overflow:hidden; white-space:nowrap; transition:transform .45s var(--ease), background .45s var(--ease), border-color .45s var(--ease), box-shadow .45s var(--ease), color .45s var(--ease); }
+  .btn > svg { flex-shrink: 0; }
+  .header-tools, .header-secondary { display: flex; align-items: center; gap: 8px; }
+  .header-tools { position: relative; }
+  .header-tools-toggle { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; }
+  .header-secondary { display: none; position: absolute; top: calc(100% + 8px); right: 0; min-width: 172px; padding: 8px; flex-direction: column; align-items: stretch; border: 1px solid var(--hair-2); border-radius: 18px; background: var(--ink-1); box-shadow: 0 12px 30px rgba(0,0,0,.25); }
+  .header-secondary.is-open { display: flex; }
+  .header-secondary button { justify-content: flex-start; min-height: 44px; }
+  .site-brand { flex-shrink: 0; }
+  .site-brand-name { white-space: nowrap; }
+  .calendar-controls, .calendar-month, .calendar-actions { display: flex; align-items: center; gap: 6px; }
+  .calendar-controls { flex-wrap: wrap; }
+  .calendar-month, .calendar-actions { flex-shrink: 0; }
+  .event-deadlines { display: grid; gap: 8px; margin-top: 16px; font-size: 12px; color: var(--mist-2); }
+  .event-deadlines > div { display: flex; flex-wrap: wrap; gap: 4px 8px; }
+  .event-deadlines time { white-space: nowrap; }
+  @media(max-width:1023px){ .header-account { display: none; } }
+  @media(max-width:767px){
+    .site-header-row { gap: 4px; }
+    .site-brand { flex-shrink: 0; gap: 8px; padding: 4px; }
+    .site-brand-mark { width: 40px; height: 40px; }
+    .site-brand-mark svg { width: 40px; height: 40px; }
+    .site-brand-name { white-space: nowrap; font-size: 18px; letter-spacing: .04em; }
+    .site-brand-subtitle { display: none; }
+    .site-header-actions { gap: 4px; flex-shrink: 0; }
+    .header-qr { width: 44px; height: 44px; padding: 0; justify-content: center; }
+    .header-qr span { display: none; }
+  }
+  @media(max-width:639px){
+    .calendar-controls { width: 100%; justify-content: space-between; gap: 8px; }
+    .calendar-actions { margin-left: auto; }
+    .event-summary { padding: 18px; }
+    .event-summary h2 { font-size: 24px; overflow-wrap: anywhere; }
+    .event-summary-heading { gap: 12px; }
+    .event-secondary-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .event-detail-toolbar { gap: 8px; }
+  }
   .btn:active:not(:disabled){ transform:scale(.975); }
   .btn:not(.qi)::after, .theme-toggle::after {
     content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
@@ -1629,10 +1672,19 @@
       E(Icon, { name: p.name, size: p.icon || 18 }));
   }
 
+  function positionRealmTooltip(e) {
+    var el = e.currentTarget, tooltip = el.querySelector('.realm-tooltip');
+    var viewport = document.documentElement.clientWidth, width = tooltip.getBoundingClientRect().width;
+    var bounds = el.getBoundingClientRect(), center = bounds.left + bounds.width / 2;
+    var safeCenter = Math.max(16 + width / 2, Math.min(viewport - 16 - width / 2, center));
+    el.style.setProperty('--tooltip-shift', (safeCenter - center) + 'px');
+  }
+
   function LevelBadge(p) {
     var lv = Number(p.level) || 1, realm = realmOf(lv), guide = badmintonGuideOf(lv);
     var label = REALM_LABEL[realm] + '，程度 ' + lv + '。' + guide.text;
-    return E('span', { className: 'level-badge-wrap', title: guide.range + '級・' + guide.text },
+    return E('span', { className: 'level-badge-wrap', title: guide.range + '級・' + guide.text,
+      onMouseEnter: positionRealmTooltip },
       E('span', {
         className: 'level-badge realm-' + realm, role: 'img', 'aria-label': label
       },
@@ -2042,9 +2094,17 @@
     var startLandingRef = useRef(null);
     var setup = useState(false), needsSetup = setup[0], setNeedsSetup = setup[1];
     var working = useState(false), busy = working[0], setBusy = working[1];
+    useEffect(function () {
+      window.luoyunCanReload = function () { return !unsavedRef.current && !busy && !modal; };
+      return function () { delete window.luoyunCanReload; };
+    }, [busy, modal]);
     var errorState = useState(''), error = errorState[0], setError = errorState[1];
     var syncState = useState('連線中'), syncLabel = syncState[0], setSyncLabel = syncState[1];
     var themeState = useState(document.documentElement.dataset.theme || 'dark'), theme = themeState[0], setTheme = themeState[1];
+    useEffect(function () {
+      var color = document.querySelector('meta[name="theme-color"]');
+      if (color) color.content = theme === 'light' ? '#F4EEE2' : '#0A1215';
+    }, [theme]);
     var version = useRef(-1), lock = useRef(false), toastTimers = useRef([]), fxTimer = useRef(null), epoch = useRef(0), landingPlayed = useRef(false), riteFrame = useRef(null), riteReady = useRef(false), landingWaiting = useRef(false), landingTimer = useRef(null), lastSnap = useRef('');
     var members = state.members || [], events = state.events || [], venues = state.venues || [], intents = state.intents || [], admins = state.admins || [], logs = state.logs || [];
     var isAdmin = !!me, isSuper = !!(me && me.superAdmin), dbx = true;
@@ -2481,6 +2541,7 @@
 
   /* ---------------- top bar ---------------- */
   function TopBar(p) {
+    var toolsState = useState(false), toolsOpen = toolsState[0], setToolsOpen = toolsState[1];
     var tabs = [
       { k: 'events', label: '試煉佈告', icon: 'CalendarDays' },
       { k: 'members', label: '弟子名冊', icon: 'Users' },
@@ -2490,7 +2551,7 @@
     return E('header', {
       className: 'sticky top-0 z-40 border-b border-[var(--hair)] bg-[rgba(10,18,21,.94)] backdrop-blur-xl'
     },
-      D('mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6',
+      D('site-header-row mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6',
         E('button', {
           type: 'button',
           title: '前往試煉佈告',
@@ -2503,26 +2564,35 @@
             p.navigate('events', null);
             window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
           },
-          className: 'btn group/brand -m-1 flex items-center gap-2.5 rounded-[18px] p-1 pr-3 text-left hover:bg-[rgba(155,195,174,.06)]'
+          className: 'site-brand btn group/brand -m-1 flex items-center gap-2.5 rounded-[18px] p-1 pr-3 text-left hover:bg-[rgba(155,195,174,.06)]'
         },
-          D('flex h-12 w-12 items-center justify-center transition-transform duration-300 [filter:drop-shadow(0_7px_10px_rgba(9,35,29,.24))] group-hover/brand:scale-[1.05]',
+          D('site-brand-mark flex h-12 w-12 items-center justify-center transition-transform duration-300 [filter:drop-shadow(0_7px_10px_rgba(9,35,29,.24))] group-hover/brand:scale-[1.05]',
             {
               style: { flex: '0 0 auto' }
             },
             E(FallingCloudMark, { size: 48 })),
           D('leading-none',
-            E('p', { className: 'disp brush text-[19px] font-bold tracking-[.08em] ' + T1 }, SECT),
-            E('p', { className: 'mt-1.5 whitespace-nowrap text-[8.5px] font-semibold tracking-[.16em] ' + T3 },
+            E('p', { className: 'site-brand-name disp brush text-[19px] font-bold tracking-[.08em] ' + T1 }, SECT),
+            E('p', { className: 'site-brand-subtitle mt-1.5 whitespace-nowrap text-[8.5px] font-semibold tracking-[.16em] ' + T3 },
               'FALLING CLOUD SECT',
               S('hidden tracking-normal sm:inline', ' · ' + p.syncLabel)))),
-        D('flex items-center gap-1.5 sm:gap-2',
+        D('site-header-actions flex items-center gap-1.5 sm:gap-2',
           E('button', {
             type: 'button',
-            className: 'btn qi inline-flex items-center gap-1.5 rounded-full border border-[rgba(201,169,97,.36)] bg-[linear-gradient(180deg,rgba(201,169,97,.15),rgba(201,169,97,.04))] px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-[var(--gold)] hover:border-[rgba(201,169,97,.62)] hover:bg-[linear-gradient(180deg,rgba(201,169,97,.24),rgba(201,169,97,.08))] shadow-sm transition shrink-0 whitespace-nowrap',
+            className: 'header-qr btn qi inline-flex items-center gap-1.5 rounded-full border border-[rgba(201,169,97,.36)] bg-[linear-gradient(180deg,rgba(201,169,97,.15),rgba(201,169,97,.04))] px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-[var(--gold)] hover:border-[rgba(201,169,97,.62)] hover:bg-[linear-gradient(180deg,rgba(201,169,97,.24),rgba(201,169,97,.08))] shadow-sm transition shrink-0 whitespace-nowrap',
             title: '免開團・自選日期開啟門禁 QR 通行證',
             'aria-label': '開啟門禁玉令產生器',
             onClick: function () { p.setModal({ type: 'gateQr', date: todayKey() }); }
           }, E(Icon, { name: 'QrCode', size: 13, className: 'text-[var(--gold)] shrink-0' }), S('hidden sm:inline', '門禁玉令'), S('sm:hidden', '門禁')),
+          D('header-tools', {
+            onBlur: function (e) { if (!e.currentTarget.contains(e.relatedTarget)) setToolsOpen(false); },
+            onKeyDown: function (e) { if (e.key === 'Escape') { setToolsOpen(false); e.currentTarget.querySelector('button').focus(); } }
+          },
+          E('button', { type: 'button', className: 'header-tools-toggle theme-toggle',
+            'aria-label': '更多工具', 'aria-expanded': toolsOpen, 'aria-controls': 'header-secondary',
+            onClick: function () { setToolsOpen(!toolsOpen); }
+          }, E(Icon, { name: 'Ellipsis', size: 18 })),
+          D('header-secondary' + (toolsOpen ? ' is-open' : ''), { id: 'header-secondary' },
           E('button', {
             type: 'button',
             className: 'btn qi inline-flex items-center gap-1.5 rounded-full border border-[rgba(155,195,174,.26)] bg-[linear-gradient(180deg,rgba(155,195,174,.10),rgba(155,195,174,.03))] px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-[var(--jade-100)] hover:border-[rgba(155,195,174,.48)] hover:bg-[linear-gradient(180deg,rgba(155,195,174,.18),rgba(155,195,174,.06))] shadow-sm transition shrink-0 whitespace-nowrap',
@@ -2532,20 +2602,24 @@
               if (p.replayRite) p.replayRite();
               else p.setRiteMounted(true);
             }
-          }, E(Icon, { name: 'Sparkles', size: 13, className: 'text-[var(--gold)] shrink-0' }), S('hidden sm:inline', '重溫動畫'), S('sm:hidden', '動畫')),
+          }, E(Icon, { name: 'Sparkles', size: 13, className: 'text-[var(--gold)] shrink-0' }), '重溫動畫'),
           E('button', {
             type: 'button', className: 'theme-toggle', onClick: p.toggleTheme,
             title: p.theme === 'dark' ? '切換至淺色模式' : '切換至深色模式',
             'aria-label': p.theme === 'dark' ? '切換至淺色模式' : '切換至深色模式'
           }, E(Icon, { name: p.theme === 'dark' ? 'Sun' : 'Moon', size: 15 }),
-            S('hidden sm:inline', p.theme === 'dark' ? '淺色' : '深色')),
+            S('', p.theme === 'dark' ? '淺色' : '深色')),
+          E('button', { type: 'button', className: 'btn theme-toggle', onClick: function () { setToolsOpen(false); if (window.luoyunPwa) window.luoyunPwa.install(); } },
+            E(Icon, { name: 'Smartphone', size: 15 }), '安裝 App'),
+          E('button', { type: 'button', className: 'btn theme-toggle', onClick: function () { setToolsOpen(false); if (window.luoyunPwa) window.luoyunPwa.check(); } },
+            E(Icon, { name: 'RefreshCw', size: 15 }), '檢查更新'))),
           p.isAdmin
             ? D('flex items-center gap-2',
               E('button', {
                 type: 'button',
                 title: '點擊更換職司稱號與宗門狀態',
                 onClick: function () { p.setModal({ type: 'honorific', row: p.me }); },
-                className: 'btn hidden items-center gap-2 rounded-full px-3 py-1.5 text-[12px] hover:border-[rgba(155,195,174,.38)] sm:flex',
+                className: 'header-account btn hidden items-center gap-2 rounded-full px-3 py-1.5 text-[12px] hover:border-[rgba(155,195,174,.38)] sm:flex',
                 style: {
                   color: 'var(--jade-300)',
                   background: 'linear-gradient(180deg, rgba(155,195,174,.10), rgba(155,195,174,.03))',
@@ -2884,11 +2958,14 @@
           D('flex min-w-0 items-center gap-3',
             D('flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] inlay text-[var(--gold)]', E(Icon, { name: 'CalendarDays', size: 18 })),
             D('min-w-0', E('h3', { className: 'disp brush text-[17px] font-bold ' + T1 }, '試煉行事曆'), E('p', { className: 'mt-1 text-[12px] ' + T3 }, p.isAdmin ? '開團與行政院辦公日曆同覽・展開後可點日期檢視或開團' : '開團與行政院辦公日曆同覽・點擊日期可檢視當日集結'))),
-          D('flex items-center gap-1.5',
+          D('calendar-controls',
+            D('calendar-month',
             E(Btn, { size: 'icon', variant: 'ghost', icon: 'ChevronLeft', ariaLabel: '上個月', disabled: monthKey === '2026-01', onClick: function () { move(-1); } }),
             E('strong', { className: 'disp num min-w-[88px] text-center text-[15px] ' + T1 }, year + '年 ' + month + '月'),
-            E(Btn, { size: 'icon', variant: 'ghost', icon: 'ChevronRight', ariaLabel: '下個月', disabled: monthKey === '2027-12', onClick: function () { move(1); } }),
-            E(Btn, { size: 'sm', variant: 'outline', icon: 'QrCode', onClick: function () { p.setModal({ type: 'gateQr', date: selectedDate || (monthKey === todayKey().slice(0, 7) ? todayKey() : (monthKey + '-01')) }); } }, '門禁碼'), E(Btn, { size: 'sm', variant: 'ghost', icon: expanded ? 'PanelTopClose' : 'PanelTopOpen', onClick: function () { setExpanded(!expanded); } }, expanded ? '收合' : '展開'))),
+            E(Btn, { size: 'icon', variant: 'ghost', icon: 'ChevronRight', ariaLabel: '下個月', disabled: monthKey === '2027-12', onClick: function () { move(1); } })),
+            D('calendar-actions',
+              E(Btn, { size: 'sm', variant: 'outline', icon: 'QrCode', onClick: function () { p.setModal({ type: 'gateQr', date: selectedDate || (monthKey === todayKey().slice(0, 7) ? todayKey() : (monthKey + '-01')) }); } }, '門禁碼'),
+              E(Btn, { size: 'sm', variant: 'ghost', icon: expanded ? 'PanelTopClose' : 'PanelTopOpen', onClick: function () { setExpanded(!expanded); } }, expanded ? '收合' : '展開')))),
         expanded ? D('',
           D('flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-[var(--hair)] px-4 py-3 text-[10.5px] ' + T3,
             D('flex items-center gap-1.5', E('i', { className: 'calendar-event-dot' }), '已開團'),
@@ -3135,7 +3212,7 @@
     }
 
     return D('',
-      D('flex flex-wrap items-center justify-between gap-2 pb-5',
+      D('event-detail-toolbar flex flex-wrap items-center justify-between gap-2 pb-5',
         E(Btn, { variant: 'ghost', icon: 'ChevronLeft', onClick: function () { p.setOpenEventId(null); } }, '返回佈告欄'),
         D('flex flex-wrap items-center gap-1.5',
           E(Btn, {
@@ -3174,9 +3251,9 @@
 
       /* 主卡：Double-bezel 外殼 + 內核，真磨砂只用在這一張 */
       D('bezel',
-        D('core glass overflow-hidden p-6 sm:p-8',
+        D('event-summary core glass overflow-hidden p-6 sm:p-8',
           D('flex flex-wrap items-start justify-between gap-5',
-            D('flex min-w-0 items-start gap-4',
+            D('event-summary-heading flex min-w-0 items-start gap-4',
               E(DateSeal, { text: ev.dateText }),
               D('min-w-0',
                 E('h2', { className: 'disp brush text-[29px] font-bold leading-tight ' + T1, style: { textWrap: 'balance' } }, ev.title),
@@ -3186,6 +3263,10 @@
                   metaLine('DollarSign', '$' + ev.fee + ' / 人'),
                   D('inline-flex items-center gap-1.5 text-[12.5px] ' + recruitment.tone, E(Icon, { name: 'Radio', size: 13 }), recruitment.label)))),
             D('shrink-0', E(CapacityPill, { value: going.length, cap: cap }))),
+
+          (ev.signupDeadline || ev.cancellationDeadline) ? D('event-deadlines',
+            ev.signupDeadline ? D('', S('', '報名截止'), E('time', { dateTime: ev.signupDeadline }, ev.signupDeadline.replace('T', ' ')), S('', '（台灣時間）')) : null,
+            ev.cancellationDeadline ? D('', S('', '免費取消期限'), E('time', { dateTime: ev.cancellationDeadline }, ev.cancellationDeadline.replace('T', ' ')), S('', '（台灣時間）')) : null) : null,
 
           /* Asymmetrical Bento：已入陣佔主位，其餘三態收成窄欄 */
           D('mt-7 grid gap-3 md:grid-cols-5',
@@ -3212,7 +3293,7 @@
                     S('num text-[11.5px] font-medium ' + (over ? CIN : JADE), over ? '超出 ' + (going.length - cap) + ' 人' : pct + '%')),
                   flow(going.length, cap)),
                 E('p', { className: 'num mt-3 text-[11px] ' + T3 }, ev.courts + ' 面場 × ' + PER_COURT + ' 人 ＝ 上限 ' + cap + ' 人'))),
-            D('grid content-between gap-3 md:col-span-2',
+            D('event-secondary-stats grid content-between gap-3 md:col-span-2',
               side.map(function (x) {
                 return D('flex items-center justify-between rounded-[16px] inlay px-4 py-3.5', { key: x.st.k },
                   D('flex items-center gap-2 text-[12px] font-medium ' + x.st.tone,
@@ -3224,47 +3305,6 @@
             { style: { background: 'linear-gradient(180deg, rgba(208,122,108,.12), rgba(208,122,108,.04))', border: '1px solid rgba(208,122,108,.22)' } },
             E(Icon, { name: 'TriangleAlert', size: 14 }),
             '入陣人數超出場地上限 ' + (going.length - cap) + ' 人，請改列候補或加開場地') : null)),
-
-      /* 地點資訊 + 門規 */
-      D('mt-4 grid items-start gap-3.5 md:grid-cols-2',
-        D(SOFT_CARD + ' p-5',
-          D('mb-4 flex items-center gap-2.5',
-            E(Icon, { name: 'MapPin', size: 14, className: JADE }),
-            E('h3', { className: 'disp text-[15px] font-semibold ' + T1 }, '地點資訊')),
-          D('grid gap-3.5',
-            E(InfoRow, { icon: 'MapPin', label: '球館地點', value: ev.place }),
-            E(InfoRow, { icon: 'Clock', label: '時間', value: ev.startTime + ' – ' + ev.endTime }),
-            E(InfoRow, { icon: 'Users', label: '場地', value: ev.courts + ' 面場（上限 ' + cap + ' 人）' }),
-            E(InfoRow, { icon: 'DollarSign', label: '費用', value: '$' + ev.fee + ' / 人（預估，多補少退）' }),
-            ev.signupDeadline ? E(InfoRow, { icon: 'Clock', label: '報名截止（台灣時間）', value: ev.signupDeadline.replace('T', ' ') }) : null,
-            ev.cancellationDeadline ? E(InfoRow, { icon: 'Clock', label: '免費取消期限（台灣時間）', value: ev.cancellationDeadline.replace('T', ' ') }) : null,
-            D('mt-3 flex flex-wrap items-center gap-2 pt-2 border-t border-[var(--hair)]',
-              venueRow && venueRow.mapUrl ? E('a', { href: venueRow.mapUrl, target: '_blank', rel: 'noopener', className: BTN + ' ' + BTN_SIZE.sm + ' ' + BTN_VAR.outline }, E(Icon, { name: 'MapPin', size: 12 }), '開啟導航') : null,
-              E('a', {
-                href: makeGoogleCalendarUrl(ev), target: '_blank', rel: 'noopener',
-                className: BTN + ' ' + BTN_SIZE.sm + ' ' + BTN_VAR.soft,
-                title: '將這場集結加入 Google 日曆'
-              }, E(Icon, { name: 'CalendarPlus', size: 12 }), 'Google 日曆'),
-              E(Btn, {
-                variant: 'ghost', size: 'sm', icon: 'Download',
-                title: '下載 iCalendar (.ics) 檔案，適用 Apple 日曆、Outlook 等',
-                onClick: function () { downloadIcs(ev); }
-              }, '下載 .ics'))),
-          notesOf(ev).length
-            ? D('mt-4 border-t border-[var(--hair)] pt-4',
-              E('p', { className: 'text-[10.5px] tracking-wide ' + T3 }, '補充事項'),
-              E('ul', { className: 'mt-2.5 grid gap-2' },
-                notesOf(ev).map(function (t, i) {
-                  return E('li', { key: i, className: 'flex items-start gap-2.5 text-[12.5px] leading-relaxed ' + T2 },
-                    S('mt-[7px] h-1 w-1 shrink-0 rounded-full bg-[var(--jade-500)]'),
-                    S('min-w-0 break-words', t));
-                })))
-            : null),
-        D(SOFT_CARD + ' p-5',
-          D('mb-3 flex items-center gap-2.5',
-            E(Icon, { name: 'ClipboardList', size: 14, className: GOLD }),
-            E('h3', { className: 'disp text-[15px] font-semibold ' + T1 }, '門規')),
-          E(RuleRows, { rules: rulesOf() }))),
 
       D('mt-8 mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-[var(--hair)] pb-3',
         E('h3', { className: 'disp text-sm font-semibold ' + T1 },
@@ -3321,7 +3361,49 @@
                       return E('button', { key: n, type: 'button', 'aria-label': '入陣名冊第 ' + n + ' 頁', 'aria-current': on ? 'page' : undefined, onClick: function () { moveRosterPage(n); }, className: 'btn flex h-9 min-w-9 items-center justify-center rounded-xl px-2 text-[12px] font-medium ' + (on ? JADE : T3), style: on ? { background: 'rgba(155,195,174,.12)', border: '1px solid rgba(155,195,174,.25)' } : { border: '1px solid transparent' } }, String(n));
                     })),
                     E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronRight', disabled: activeRosterPage >= rosterPageCount, onClick: function () { moveRosterPage(activeRosterPage + 1); } }, '下一頁')) : null
-                ) : E(Empty, { icon: 'FilterX', title: '這個狀態目前無人', hint: '切換其他狀態，或由右側下拉選單調整出席狀態。' }))));
+                ) : E(Empty, { icon: 'FilterX', title: '這個狀態目前無人', hint: '切換其他狀態，或由右側下拉選單調整出席狀態。' }))),
+
+      /* 地點資訊 + 門規 */
+      D('mt-4 grid items-start gap-3.5 md:grid-cols-2',
+        D(SOFT_CARD + ' p-5',
+          D('mb-4 flex items-center gap-2.5',
+            E(Icon, { name: 'MapPin', size: 14, className: JADE }),
+            E('h3', { className: 'disp text-[15px] font-semibold ' + T1 }, '地點資訊')),
+          D('grid gap-3.5',
+            E(InfoRow, { icon: 'MapPin', label: '球館地點', value: ev.place }),
+            E(InfoRow, { icon: 'Clock', label: '時間', value: ev.startTime + ' – ' + ev.endTime }),
+            E(InfoRow, { icon: 'Users', label: '場地', value: ev.courts + ' 面場（上限 ' + cap + ' 人）' }),
+            E(InfoRow, { icon: 'DollarSign', label: '費用', value: '$' + ev.fee + ' / 人（預估，多補少退）' }),
+            ev.signupDeadline ? E(InfoRow, { icon: 'Clock', label: '報名截止（台灣時間）', value: ev.signupDeadline.replace('T', ' ') }) : null,
+            ev.cancellationDeadline ? E(InfoRow, { icon: 'Clock', label: '免費取消期限（台灣時間）', value: ev.cancellationDeadline.replace('T', ' ') }) : null,
+            D('mt-3 flex flex-wrap items-center gap-2 pt-2 border-t border-[var(--hair)]',
+              venueRow && venueRow.mapUrl ? E('a', { href: venueRow.mapUrl, target: '_blank', rel: 'noopener', className: BTN + ' ' + BTN_SIZE.sm + ' ' + BTN_VAR.outline }, E(Icon, { name: 'MapPin', size: 12 }), '開啟導航') : null,
+              E('a', {
+                href: makeGoogleCalendarUrl(ev), target: '_blank', rel: 'noopener',
+                className: BTN + ' ' + BTN_SIZE.sm + ' ' + BTN_VAR.soft,
+                title: '將這場集結加入 Google 日曆'
+              }, E(Icon, { name: 'CalendarPlus', size: 12 }), 'Google 日曆'),
+              E(Btn, {
+                variant: 'ghost', size: 'sm', icon: 'Download',
+                title: '下載 iCalendar (.ics) 檔案，適用 Apple 日曆、Outlook 等',
+                onClick: function () { downloadIcs(ev); }
+              }, '下載 .ics'))),
+          notesOf(ev).length
+            ? D('mt-4 border-t border-[var(--hair)] pt-4',
+              E('p', { className: 'text-[10.5px] tracking-wide ' + T3 }, '補充事項'),
+              E('ul', { className: 'mt-2.5 grid gap-2' },
+                notesOf(ev).map(function (t, i) {
+                  return E('li', { key: i, className: 'flex items-start gap-2.5 text-[12.5px] leading-relaxed ' + T2 },
+                    S('mt-[7px] h-1 w-1 shrink-0 rounded-full bg-[var(--jade-500)]'),
+                    S('min-w-0 break-words', t));
+                })))
+            : null),
+        D(SOFT_CARD + ' p-5',
+          D('mb-3 flex items-center gap-2.5',
+            E(Icon, { name: 'ClipboardList', size: 14, className: GOLD }),
+            E('h3', { className: 'disp text-[15px] font-semibold ' + T1 }, '門規')),
+          E(RuleRows, { rules: rulesOf() })))
+    );
   }
 
   function StatusBadge(p) {

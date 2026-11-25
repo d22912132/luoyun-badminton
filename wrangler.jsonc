@@ -5,11 +5,12 @@
   "compatibility_date": "2026-09-09",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
+  "version_metadata": { "binding": "APP_VERSION" },
   "assets": { "directory": "./public" },
   "durable_objects": {
     "bindings": [{ "name": "CLUB", "class_name": "Club" }]
   },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Club"] }],
-  "rules": [{ "type": "Text", "globs": ["**/*.html"], "fallthrough": true }],
+  "rules": [{ "type": "Text", "globs": ["**/*.html", "**/service-worker.js"], "fallthrough": true }],
   "observability": { "enabled": true }
 }

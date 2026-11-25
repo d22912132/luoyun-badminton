@@ -5,6 +5,25 @@ import vm from 'node:vm';
 
 const html = readFileSync(new URL('../console.html', import.meta.url), 'utf8');
 
+test('修為提示框在左右邊緣保留留白，不讓頁面橫向溢出', () => {
+  for (const viewport of [320, 375, 390, 768, 1440]) {
+    const width = Math.min(304, viewport - 32);
+    const ctx = vm.createContext({ document: { documentElement: { clientWidth: viewport } } });
+    vm.runInContext(html.match(/  function positionRealmTooltip\([^]*?\n  \}/)[0], ctx);
+    for (const left of [16, viewport / 2 - 40, viewport - 96]) {
+      let shift;
+      ctx.positionRealmTooltip({ currentTarget: {
+        querySelector: () => ({ getBoundingClientRect: () => ({ width }) }),
+        getBoundingClientRect: () => ({ left, width: 80 }),
+        style: { setProperty: (key, value) => { assert.equal(key, '--tooltip-shift'); shift = parseFloat(value); } }
+      } });
+      const center = left + 40 + shift;
+      assert.ok(center - width / 2 >= 16, '提示框不可超出左側');
+      assert.ok(center + width / 2 <= viewport - 16, '提示框不可超出右側');
+    }
+  }
+});
+
 test('歷史卡片僅供管理者刪除，先確認才執行，且刪除按鈕不嵌在開啟按鈕內', async () => {
   let ended = true, confirmed, deleted = 0, opened = 0, allowed = true;
   const E = (tag, props, ...children) => ({ tag, props, children });

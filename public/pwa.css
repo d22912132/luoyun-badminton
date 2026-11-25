@@ -1,0 +1,8 @@
+#app-notice{position:fixed;z-index:45;left:max(16px,env(safe-area-inset-left));right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));max-width:560px;margin:auto;padding:16px;border:1px solid var(--hair-2,#416052);border-radius:20px;background:var(--ink-1,#101c1e);color:var(--mist-1,#dbece3);box-shadow:0 12px 36px rgba(0,0,0,.3);font:14px/1.7 'Noto Sans TC',system-ui,sans-serif}
+#app-notice[hidden],#app-notice button[hidden]{display:none}
+#app-notice p{margin:0;overflow-wrap:anywhere}
+#app-notice>div{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin-top:12px}
+#app-notice button{min-height:44px;padding:8px 16px;border:1px solid var(--hair-2,#416052);border-radius:999px;background:transparent;color:inherit;font:inherit;cursor:pointer;white-space:nowrap}
+#app-notice button:first-child{background:#a8cfba;color:#08120e;font-weight:600}
+#app-notice button:disabled{opacity:.6;cursor:wait}
+#app-notice button:focus-visible{outline:2px solid var(--gold,#d2ac55);outline-offset:3px}
