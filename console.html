@@ -74,9 +74,32 @@
     --logo-gold:#D2AC55;
 
     /* 髮絲邊 & 高光 */
-    --hair:rgba(228,235,232,.10);
-    --hair-2:rgba(228,235,232,.17);
-    --sheen:rgba(255,255,255,.055);
+    --hair:#354D44;
+    --hair-2:#6E897B;
+    --sheen:rgba(235,251,242,.07);
+
+    /* 同一組墨玉／宣紙材質；內容保持不透明，山水留在卡片之間。 */
+    --surface-start:#182C30;
+    --surface-end:#142428;
+    --surface-hover-start:#1D3436;
+    --surface-hover-end:#182C30;
+    --inset-start:#112226;
+    --inset-end:#0E1C20;
+    --field-bg:#102125;
+    --header-bg:rgba(14,28,32,.97);
+    --frame-edge:rgba(184,159,101,.38);
+    --shadow-card:0 10px 30px -22px rgba(0,0,0,.65);
+    --shadow-hover:0 16px 36px -24px rgba(0,0,0,.7);
+    --radius-card:22px;
+    --radius-inset:14px;
+    --type-caption:12px;
+    --type-meta:13px;
+    --type-body:14px;
+    --type-name:16px;
+    --type-section:18px;
+    --type-detail:28px;
+    --type-page:32px;
+    --type-stat:48px;
 
     /* 羽球場標線色 */
     --court-line: rgba(255, 255, 255, 0.85);
@@ -94,6 +117,7 @@
     margin:0; color:var(--mist-2);
     isolation:isolate;
     font-family:'Noto Sans TC', system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size:var(--type-body); line-height:1.65;
     font-weight:400; -webkit-font-smoothing:antialiased;
   }
 
@@ -127,62 +151,76 @@
   .brush-title{ position:relative; display:inline-block; isolation:isolate; letter-spacing:.055em; }
   .brush-title::after{ content:""; position:absolute; z-index:-1; left:.05em; right:-.28em; bottom:-.12em; height:.32em; opacity:.34; transform:skewX(-14deg); clip-path:polygon(0 33%,94% 0,100% 44%,91% 65%,5% 100%); background:linear-gradient(90deg,rgba(61,101,85,.46),rgba(110,158,136,.13),transparent); }
   .num{ font-variant-numeric:tabular-nums; }
+  .type-caption{font-size:var(--type-caption);line-height:1.55}
+  .type-meta{font-size:var(--type-meta);line-height:1.6}
+  .type-body{font-size:var(--type-body);line-height:1.7}
+  .type-name{font-size:var(--type-name);line-height:1.5}
+  .type-section{font-size:var(--type-section);line-height:1.45}
+  .type-detail{font-size:var(--type-detail);line-height:1.3}
+  .type-page{font-size:var(--type-page);line-height:1.3}
+  .type-stat{font-size:var(--type-stat);line-height:1}
+  .site-header{background:var(--header-bg)!important;border-color:var(--hair)}
+  .filter-tab{background-color:var(--surface-end)!important}
+  .filter-tab[aria-pressed="true"]{border-color:var(--hair-2)!important}
+  .form-control{font-size:16px;line-height:1.5;background:var(--field-bg);color:var(--mist-1);border:1px solid var(--hair-2);border-radius:var(--radius-inset)}
+  .form-control:focus{border-color:var(--jade-300);box-shadow:0 0 0 3px color-mix(in srgb,var(--jade-500) 20%,transparent)}
+  input::placeholder,textarea::placeholder{color:var(--mist-3);opacity:1}
 
   /* 眉標：微型膠囊 */
   .eyebrow{
     display:inline-flex; align-items:center; gap:.4rem;
     font-family:'Noto Serif TC', Georgia, serif;
-    font-size:10px; font-weight:600; letter-spacing:.28em;
+    font-size:var(--type-caption); font-weight:600; letter-spacing:.14em;
     padding:.3rem .7rem .3rem .78rem; border-radius:999px;
     color:var(--jade-300);
     background:linear-gradient(180deg, rgba(155,195,174,.09), rgba(155,195,174,.03));
     border:1px solid rgba(155,195,174,.14);
   }
 
-  /* ---------- 表面 ----------
-     列表卡：疊層漸層模擬玻璃（無 backdrop-filter，捲動零成本）
-     .glass：真磨砂，只給 sticky / modal / 單張主卡 */
+  /* ---------- 表面：主卡共用霧面玉質，內嵌區退一階，不讓山景穿透文字 ---------- */
   .surface{
-    background:linear-gradient(180deg,rgba(15,28,32,.96),rgba(8,19,23,.94));
+    background:linear-gradient(180deg,var(--surface-start),var(--surface-end));
     border:1px solid var(--hair);
-    box-shadow:inset 0 1px 0 var(--sheen), 0 18px 40px -32px rgba(0,0,0,.9);
+    border-radius:var(--radius-card);
+    box-shadow:inset 0 1px 0 var(--sheen),var(--shadow-card);
   }
   .surface-hover{
     transition:transform .5s var(--ease), border-color .5s var(--ease), box-shadow .5s var(--ease), background .5s var(--ease);
   }
   .surface-hover:hover{
     transform:translateY(-2px);
-    border-color:rgba(155,195,174,.20);
-    background:linear-gradient(180deg,rgba(25,45,46,.95),rgba(13,29,32,.92));
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.08),
-               0 0 0 1px rgba(155,195,174,.07),
-               0 26px 52px -34px rgba(110,158,136,.5);
+    border-color:var(--hair-2);
+    background:linear-gradient(180deg,var(--surface-hover-start),var(--surface-hover-end));
+    box-shadow:inset 0 1px 0 var(--sheen),var(--shadow-hover);
   }
   .glass{
-    background:linear-gradient(180deg,rgba(16,30,33,.96),rgba(8,20,24,.94));
-    backdrop-filter:blur(14px) saturate(128%);
-    -webkit-backdrop-filter:blur(14px) saturate(128%);
+    background:linear-gradient(180deg,var(--surface-start),var(--surface-end));
     border:1px solid var(--hair);
-    box-shadow:inset 0 1px 0 var(--sheen);
+    border-radius:var(--radius-card);
+    box-shadow:inset 0 1px 0 var(--sheen),var(--shadow-card);
   }
   .inlay{
-    background:linear-gradient(180deg, rgba(8,16,19,.52), rgba(6,13,16,.68));
+    background-color:var(--inset-end);
+    background-image:linear-gradient(180deg,var(--inset-start),var(--inset-end));
     border:1px solid var(--hair);
   }
+  .event-card .inlay,.event-summary .inlay{border-radius:var(--radius-inset)}
+  .card-panel{border-radius:var(--radius-card)}
+  .member-card{min-width:0}
 
-  /* Double-bezel：外殼 + 內核，同心圓角 */
+  /* 金玉雙框只留給活動摘要，其餘內容使用同一層卡片。 */
   .bezel{
-    padding:6px; border-radius:26px;
-    background:linear-gradient(180deg, rgba(228,235,232,.045), rgba(228,235,232,.015));
-    border:1px solid var(--hair);
+    padding:0; border-radius:var(--radius-card);
+    background:transparent; border:0;
   }
-  .core{ border-radius:20px; }
+  .bezel.feature-frame{padding:6px;border:1px solid var(--frame-edge);border-radius:calc(var(--radius-card) + 7px);background:linear-gradient(145deg,color-mix(in srgb,var(--gold) 9%,transparent),transparent 65%)}
+  .core{border-radius:var(--radius-card)}
 
   /* ---------- 分段選擇器 ---------- */
   .seg{ display:inline-flex; gap:2px; }
   .seg > button{
     border-radius:10px; padding:.42rem .62rem;
-    font-size:11.5px; font-weight:500; color:var(--mist-3);
+    font-size:var(--type-meta); font-weight:500; color:var(--mist-3);
     background:transparent; border:1px solid transparent;
     transition:color .45s var(--ease), background .45s var(--ease), border-color .45s var(--ease), box-shadow .45s var(--ease);
   }
@@ -195,7 +233,7 @@
   }
   .roster-status-switch{background:rgba(6,10,12,.34);border-color:var(--hair)}
   html[data-theme="light"] .roster-status-switch{background:rgba(71,96,81,.13);border-color:rgba(61,101,85,.19);box-shadow:inset 0 1px 0 rgba(255,255,255,.62)}
-  html[data-theme="light"] .roster-status-switch>button{color:#73877B}
+  html[data-theme="light"] .roster-status-switch>button{color:var(--mist-3)}
   html[data-theme="light"] .roster-status-switch>button:hover{color:#365F4E;background:rgba(61,101,85,.08)}
   html[data-theme="light"] .roster-status-switch>button[data-on="1"]{box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 4px 10px -8px rgba(38,75,56,.48)}
   html[data-theme="light"] .roster-status-switch>button[data-status="going"][data-on="1"]{color:#1F6B55;background:linear-gradient(180deg,rgba(121,180,149,.34),rgba(76,140,109,.18));border-color:rgba(50,119,86,.34)}
@@ -209,7 +247,7 @@
   .tier{
     display:inline-flex; align-items:center; gap:.3rem;
     font-family:'Noto Serif TC', Georgia, serif;
-    font-size:11.5px; font-weight:600; letter-spacing:.04em;
+    font-size:var(--type-caption); font-weight:600; letter-spacing:.04em;
     padding:.16rem .55rem; border-radius:999px;
     border:1px solid var(--tb, rgba(228,235,232,.14));
     background:linear-gradient(180deg, var(--th, rgba(228,235,232,.09)), var(--tl, rgba(228,235,232,.025)));
@@ -257,8 +295,8 @@
   /* 元嬰期以上高階修士卡片神識威壓光暈（Hover 時觸發境界氣場與金色雷紋） */
   .high-realm-card { position: relative; }
   .high-realm-card:hover {
-    border-color: rgba(201,169,97,.36) !important;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 0 0 1px rgba(201,169,97,.16), 0 24px 48px -28px rgba(201,169,97,.55) !important;
+    border-color: var(--frame-edge) !important;
+    box-shadow: inset 0 1px 0 var(--sheen),var(--shadow-hover) !important;
   }
   @keyframes level-realm-border { to { --level-realm-angle: 360deg; } }
   @keyframes level-realm-aura { 50% { opacity: .46; } }
@@ -272,7 +310,7 @@
     border: 1px solid color-mix(in srgb, var(--realm-b) 48%, transparent); border-radius: 14px;
     background: linear-gradient(180deg, rgba(16,27,30,.98), rgba(9,17,19,.98));
     box-shadow: 0 16px 34px -18px rgba(0,0,0,.9), 0 0 22px -8px var(--realm-glow);
-    color: #dbece3; font: 500 11px/1.55 'Noto Sans TC', sans-serif; letter-spacing: .01em;
+    color: #dbece3; font: 500 12px/1.65 'Noto Sans TC', sans-serif; letter-spacing: .01em;
     opacity: 0; pointer-events: none; transform: translate(calc(-50% + var(--tooltip-shift, 0px)), 6px) scale(.96); transform-origin: bottom center;
     transition: opacity .18s var(--ease), transform .18s var(--ease);
   }
@@ -297,18 +335,21 @@
   .office-crimson{--office-a:#8A342B;--office-b:#FFD8C2;--office-c:#DF7665;--office-text:#FFE0D4;--office-glow:rgba(235,120,102,.8);--office-speed:14s;--office-sheen:7s}
   @keyframes office-border{to{--office-angle:360deg}}@keyframes office-aura{50%{opacity:.48}}@keyframes office-sheen{0%,66%{transform:translateX(-145%);opacity:0}76%{opacity:.76}100%{transform:translateX(145%);opacity:0}}
 
-  .theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;min-width:40px;height:40px;padding:0 .7rem;border-radius:999px;border:1px solid var(--hair-2);background:rgba(228,235,232,.035);color:var(--mist-2);font:600 11.5px 'Noto Sans TC',sans-serif;cursor:pointer;transition:color .24s var(--ease),border-color .24s var(--ease),background .24s var(--ease),transform .24s var(--ease)}.theme-toggle:hover{color:var(--jade-100);border-color:rgba(155,195,174,.34);background:rgba(155,195,174,.09);transform:translateY(-1px)}
+  .theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;min-width:40px;height:40px;padding:0 .7rem;border-radius:999px;border:1px solid var(--hair-2);background:rgba(228,235,232,.035);color:var(--mist-2);font:600 var(--type-meta) 'Noto Sans TC',sans-serif;cursor:pointer;transition:color .24s var(--ease),border-color .24s var(--ease),background .24s var(--ease),transform .24s var(--ease)}.theme-toggle:hover{color:var(--jade-100);border-color:rgba(155,195,174,.34);background:rgba(155,195,174,.09);transform:translateY(-1px)}
 
-  html[data-theme="light"]{--ink-0:#EDE6D8;--ink-1:#F5EFE3;--ink-2:#E2D7C3;--mist-1:#0F201A;--mist-2:#253A31;--mist-3:#41594E;--jade-100:#0E3C2E;--jade-300:#16543F;--jade-500:#297057;--jade-700:#144232;--jade-900:#DBE2D6;--gold:#694609;--gold-dim:#523606;--cinnabar:#9E2C1E;--cinnabar-dim:#781E13;--amethyst:#4A356E;--hair:rgba(60,48,30,.22);--hair-2:rgba(45,68,55,.36);--sheen:rgba(255,252,244,.82);--court-line:rgba(255,255,255,.94);--court-line-sub:rgba(255,255,255,.68);--male-text:#164556;--male-border:rgba(22,69,86,.36);--male-high:rgba(55,125,147,.22);--male-low:rgba(55,125,147,.09);--female-text:#6E2E44;--female-border:rgba(110,46,68,.34);--female-high:rgba(165,89,114,.21);--female-low:rgba(165,89,114,.08);color-scheme:light}
+  html[data-theme="light"]{--ink-0:#EEE9DF;--ink-1:#FFFCF5;--ink-2:#E6ECDD;--mist-1:#172E23;--mist-2:#354C3E;--mist-3:#4F6455;--jade-100:#1A503B;--jade-300:#246447;--jade-500:#39785C;--jade-700:#144232;--jade-900:#DBE2D6;--gold:#76511D;--gold-dim:#604012;--cinnabar:#9E2C1E;--cinnabar-dim:#781E13;--amethyst:#4A356E;--hair:#CCD6C7;--hair-2:#7C8E7C;--sheen:rgba(255,252,244,.82);--court-line:rgba(255,255,255,.94);--court-line-sub:rgba(255,255,255,.68);--male-text:#164556;--male-border:rgba(22,69,86,.36);--male-high:rgba(55,125,147,.22);--male-low:rgba(55,125,147,.09);--female-text:#6E2E44;--female-border:rgba(110,46,68,.34);--female-high:rgba(165,89,114,.21);--female-low:rgba(165,89,114,.08);
+    --surface-start:#FFFDF8;--surface-end:#FAF7F0;
+    --surface-hover-start:#F6FAF2;--surface-hover-end:#EEF4E8;
+    --inset-start:#F0F4EC;--inset-end:#E8EEE3;--field-bg:#FFFEF9;
+    --header-bg:rgba(250,247,240,.98);--frame-edge:rgba(118,81,29,.32);
+    --shadow-card:0 10px 30px -22px rgba(55,77,52,.22);
+    --shadow-hover:0 16px 36px -24px rgba(55,77,52,.28);
+    color-scheme:light
+  }
   html[data-theme="light"] body::before{background-image:url('/assets/yunmeng-light-v1.jpg')}
   html[data-theme="light"] body::after{background:linear-gradient(180deg,rgba(243,237,224,.58),rgba(235,229,212,.74)),radial-gradient(ellipse at 50% 48%,rgba(247,242,231,.82),transparent 85%)}
   @media(max-width:640px){html[data-theme="light"] body::before{background-image:url('/assets/yunmeng-light-small-v1.jpg');background-position:22% center}}
   html[data-theme="light"] .grain{opacity:.018;mix-blend-mode:multiply}
-  html[data-theme="light"] header{background:rgba(246,240,228,.97)!important}
-  html[data-theme="light"] .surface{background:linear-gradient(180deg,rgba(247,242,232,.98),rgba(234,225,208,.97));box-shadow:inset 0 1px 0 rgba(255,253,247,.76),0 18px 42px -34px rgba(79,61,35,.42)}
-  html[data-theme="light"] .surface-hover:hover{background:linear-gradient(180deg,rgba(244,238,226,.99),rgba(239,231,216,.98));box-shadow:inset 0 1px 0 rgba(255,253,247,.82),0 24px 46px -34px rgba(82,63,34,.38)}
-  html[data-theme="light"] .glass{background:linear-gradient(180deg,rgba(246,240,228,.98),rgba(232,222,204,.97))}
-  html[data-theme="light"] .inlay,html[data-theme="light"] .bezel{background:linear-gradient(180deg,rgba(238,230,214,.96),rgba(224,213,193,.90));border-color:rgba(60,48,30,.22)}
   html[data-theme="light"] .eyebrow{background:linear-gradient(180deg,rgba(30,102,78,.15),rgba(30,102,78,.06));border-color:rgba(30,102,78,.28);color:var(--jade-100)}
   html[data-theme="light"] .level-badge,html[data-theme="light"] .realm-badge{background:linear-gradient(180deg,rgba(252,248,240,.98),rgba(239,231,216,.98)) padding-box,conic-gradient(from var(--level-realm-angle,0deg),var(--realm-a),var(--realm-b),var(--realm-c),var(--realm-a)) border-box;text-shadow:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 4px 12px -4px rgba(45,68,55,.22)}
   html[data-theme="light"] .level-badge .realm-lv{border-color:rgba(45,68,55,.26);background:linear-gradient(180deg,rgba(30,102,78,.14),rgba(30,102,78,.05));color:var(--realm-text)}
@@ -344,12 +385,12 @@
   html[data-theme="light"] .level-badge-wrap .realm-tooltip{background:linear-gradient(180deg,rgba(252,249,242,.99),rgba(240,233,219,.99));color:var(--mist-1);border-color:rgba(45,68,55,.32);box-shadow:0 16px 34px -16px rgba(60,48,30,.38)}
   html[data-theme="light"] .level-badge-wrap .realm-tooltip::after{background:#F0E9DB;border-color:rgba(45,68,55,.32)}
   html[data-theme="light"] .realm-tooltip-text{color:var(--mist-2)}
-  html[data-theme="light"] input:not([type="radio"]):not([type="checkbox"]),html[data-theme="light"] select,html[data-theme="light"] textarea{background:rgba(242,235,222,.97)!important;color:var(--mist-1)!important}
+  html[data-theme="light"] input:not([type="radio"]):not([type="checkbox"]),html[data-theme="light"] select,html[data-theme="light"] textarea{background:var(--field-bg)!important;color:var(--mist-1)!important}
   html[data-theme="light"] select option{background:#F0E8D9;color:var(--mist-1)}
   html[data-theme="light"] input[type="time"]::-webkit-calendar-picker-indicator,html[data-theme="light"] input[type="number"]::-webkit-inner-spin-button{filter:none;opacity:.55}
-  html[data-theme="light"] .theme-toggle{background:rgba(239,231,215,.88)}
+  html[data-theme="light"] .theme-toggle{background:var(--inset-start)}
   html[data-theme="light"] .flow{background:rgba(34,83,62,.1);box-shadow:inset 0 1px 2px rgba(30,70,54,.14)}
-  html[data-theme="light"] .modal-footer{background:rgba(226,216,198,.98)!important}
+  .modal-footer{background:var(--inset-end)!important}
   html[data-theme="light"] .modal-footer .btn:not([class*="primary"]):not([class*="dangerSolid"]){color:var(--mist-1)!important;font-weight:600}
   html[data-theme="light"] .modal-footer .btn:not([class*="primary"]):not([class*="dangerSolid"]):hover{color:var(--jade-300)!important;background:rgba(61,101,85,.08)!important}
 
@@ -388,7 +429,7 @@
   .calendar-controls, .calendar-month, .calendar-actions { display: flex; align-items: center; gap: 6px; }
   .calendar-controls { flex-wrap: wrap; }
   .calendar-month, .calendar-actions { flex-shrink: 0; }
-  .event-deadlines { display: grid; gap: 8px; margin-top: 16px; font-size: 12px; color: var(--mist-2); }
+  .event-deadlines { display: grid; gap: 8px; margin-top: 16px; font-size: var(--type-meta); color: var(--mist-2); }
   .event-deadlines > div { display: flex; flex-wrap: wrap; gap: 4px 8px; }
   .event-deadlines time { white-space: nowrap; }
   @media(max-width:1023px){ .header-account { display: none; } }
@@ -404,6 +445,9 @@
     .header-qr span { display: none; }
   }
   @media(max-width:639px){
+    .member-card{display:grid;grid-template-columns:20px 40px minmax(0,1fr);gap:12px}
+    .member-actions{grid-column:2/-1;justify-content:flex-end}
+    .member-actions .btn{width:44px}
     .calendar-controls { width: 100%; justify-content: space-between; gap: 8px; }
     .calendar-actions { margin-left: auto; }
     .event-summary { padding: 18px; }
@@ -411,7 +455,13 @@
     .event-summary-heading { gap: 12px; }
     .event-secondary-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .event-detail-toolbar { gap: 8px; }
+    .pagination{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:8px}
+    .pagination>.btn{width:44px;height:44px;padding:0;gap:0}
+    .pagination .pager-label{display:none}
+    .pagination>div{justify-self:center;justify-content:flex-start;gap:2px;min-width:0;max-width:100%;overflow-x:auto}
+    .pagination>div>.btn{min-width:32px;width:32px;height:44px;padding:0;flex-shrink:0}
   }
+  @media(max-width:359px){.event-card .inlay svg{display:none}}
   .btn:active:not(:disabled){ transform:scale(.975); }
   .btn:not(.qi)::after, .theme-toggle::after {
     content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
@@ -734,27 +784,23 @@
 
   /* ---------- 試煉行事曆 ---------- */
   .calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:var(--hair);border-top:1px solid var(--hair)}
-  .calendar-weekday{padding:.65rem .25rem;background:rgba(6,10,12,.32);text-align:center;font-size:11px;font-weight:500;letter-spacing:.12em;color:var(--mist-2)}
-  .calendar-day{position:relative;min-width:0;min-height:102px;padding:.55rem;background:rgba(16,26,30,.42);transition:background .25s var(--ease)}
-  .calendar-day:hover{background:rgba(155,195,174,.055)}
+  .calendar-weekday{padding:.65rem .25rem;background:var(--inset-end);text-align:center;font-size:var(--type-caption);font-weight:600;letter-spacing:.12em;color:var(--mist-2)}
+  .calendar-day{position:relative;min-width:0;min-height:102px;padding:.55rem;background:var(--surface-end);transition:background .25s var(--ease)}
+  .calendar-day:hover{background:var(--inset-start)}
   .calendar-day.is-out{opacity:.22;pointer-events:none}
-  .calendar-day.is-weekend{background:rgba(201,169,97,.035)}
+  .calendar-day.is-weekend{background:color-mix(in srgb,var(--gold) 7%,var(--surface-end))}
   .calendar-day.is-holiday{box-shadow:inset 0 2px 0 rgba(201,169,97,.52)}
-  .calendar-number{display:flex;height:25px;width:25px;align-items:center;justify-content:center;border-radius:9px;font:600 11.5px 'Noto Serif TC',serif;color:var(--mist-2)}
+  .calendar-number{display:flex;height:28px;width:28px;align-items:center;justify-content:center;border-radius:9px;font:600 var(--type-meta) 'Noto Serif TC',serif;color:var(--mist-2)}
   .calendar-day.is-today .calendar-number{color:#08120E;background:var(--jade-300);box-shadow:0 0 16px -5px rgba(155,195,174,.8)}
   .calendar-day.is-selected{box-shadow:inset 0 0 0 1.5px var(--jade-300);background:rgba(155,195,174,.09)}
-  .calendar-note{margin-top:.3rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--gold)}
+  .calendar-note{margin-top:.3rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--type-caption);color:var(--gold)}
   .calendar-event{display:flex;width:100%;align-items:center;gap:.35rem;margin-top:.35rem;padding:.35rem .4rem;border-radius:9px;border:1px solid rgba(155,195,174,.18);background:rgba(110,158,136,.10);color:var(--jade-100);font-size:11px;text-align:left;transition:background .2s var(--ease),border-color .2s var(--ease)}
   .calendar-event:hover{background:rgba(110,158,136,.19);border-color:rgba(155,195,174,.38)}
   .calendar-event-dot{width:5px;height:5px;flex:none;border-radius:50%;background:var(--jade-300);box-shadow:0 0 7px rgba(155,195,174,.8)}
   .calendar-add{position:absolute;right:.4rem;top:.45rem;display:grid;width:26px;height:26px;place-items:center;border-radius:9px;color:var(--mist-3);opacity:0;transition:opacity .2s,background .2s,color .2s}
   .calendar-day:hover .calendar-add,.calendar-add:focus-visible{opacity:1}.calendar-add:hover{background:rgba(155,195,174,.12);color:var(--jade-100)}
-  html[data-theme="light"] .calendar-weekday{background:rgba(112,83,40,.09);color:var(--mist-1);font-weight:600}
-  html[data-theme="light"] .calendar-day{background:rgba(249,245,237,.94)}
-  html[data-theme="light"] .calendar-day:hover{background:rgba(235,227,211,.96)}
   html[data-theme="light"] .calendar-day.is-selected{background:rgba(46,112,85,.15);box-shadow:inset 0 0 0 1.5px var(--jade-300)}
   html[data-theme="light"] .calendar-day.is-today .calendar-number{color:#FFFFFF;background:var(--jade-300)}
-  html[data-theme="light"] .calendar-day.is-weekend{background:rgba(190,145,63,.09)}
   html[data-theme="light"] .calendar-event{background:rgba(46,112,85,.14);border-color:rgba(30,102,78,.32);color:var(--jade-100);font-weight:600}
   /* ---------------- 碧玉演武場 (Jade Court) ---------------- */
   .badminton-court {
@@ -852,7 +898,7 @@
     display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;
   }
   @media(max-width:640px){
-    .calendar-day{min-height:64px;padding:.35rem .2rem;cursor:pointer}.calendar-weekday{padding:.5rem .1rem;font-size:11px}.calendar-number{height:24px;width:24px;font-size:11px}.calendar-note,.calendar-event-title,.calendar-add{display:none}.calendar-event{justify-content:center;padding:.28rem;margin-top:.12rem;border:0;background:transparent}.calendar-event-dot{width:8px;height:8px}
+    .calendar-day{min-height:64px;padding:.35rem .2rem;cursor:pointer}.calendar-weekday{padding:.5rem .1rem;font-size:var(--type-caption)}.calendar-number{height:26px;width:26px;font-size:var(--type-caption)}.calendar-note,.calendar-event-title,.calendar-add{display:none}.calendar-event{justify-content:center;padding:.28rem;margin-top:.12rem;border:0;background:transparent}.calendar-event-dot{width:8px;height:8px}
     .roster-status-wrap{width:100%;justify-content:space-between;margin-top:.25rem}
     .roster-status-switch{flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
   }
@@ -1614,12 +1660,12 @@
   }
 
   /* ---------------- design tokens ---------------- */
-  var CARD = 'surface rounded-[20px]';
+  var CARD = 'surface card-panel';
   var CARD_HOVER = 'surface-hover';
-  var SOFT_CARD = 'inlay rounded-[20px]';
+  var SOFT_CARD = 'surface card-panel';
 
   var BTN = 'btn qi inline-flex items-center justify-center gap-2 rounded-full font-medium tracking-wide select-none disabled:opacity-55 disabled:cursor-not-allowed';
-  var BTN_SIZE = { xs: 'text-[11px] px-2.5 py-1', sm: 'text-[12px] px-3 py-1.5', md: 'text-[13px] px-4 py-2', lg: 'text-sm px-5 py-2.5', icon: 'text-[12px] h-9 w-9' };
+  var BTN_SIZE = { xs: 'type-caption px-2.5 py-1', sm: 'type-meta px-3 py-1.5', md: 'type-body px-4 py-2', lg: 'type-name px-5 py-2.5', icon: 'type-meta h-9 w-9' };
   var BTN_VAR = {
     primary: 'text-[#08120E] font-semibold bg-[linear-gradient(180deg,#A8CFBA_0%,#6E9E88_100%)] shadow-[0_10px_28px_-14px_rgba(110,158,136,.85),inset_0_1px_0_rgba(255,255,255,.35)] hover:shadow-[0_14px_34px_-12px_rgba(110,158,136,1),inset_0_1px_0_rgba(255,255,255,.45)]',
     outline: 'text-[var(--mist-1)] border border-[var(--hair-2)] bg-[linear-gradient(180deg,rgba(228,235,232,.05),rgba(228,235,232,.018))] hover:border-[rgba(155,195,174,.30)] hover:bg-[linear-gradient(180deg,rgba(155,195,174,.09),rgba(228,235,232,.02))]',
@@ -1640,13 +1686,13 @@
       p.nub ? D('nub', E(Icon, { name: p.nub, size: 12, stroke: 1.6 })) : null);
   }
 
-  var INPUT = 'w-full rounded-2xl border border-[var(--hair-2)] bg-[rgba(6,12,15,.72)] px-4 py-3 text-sm text-[var(--mist-1)] outline-none transition duration-500 [transition-timing-function:var(--ease)] focus:border-[rgba(155,195,174,.55)] focus:bg-[rgba(6,12,15,.88)] focus:shadow-[0_0_0_4px_rgba(155,195,174,.12)]';
+  var INPUT = 'form-control w-full rounded-2xl px-4 py-3 outline-none transition duration-500 [transition-timing-function:var(--ease)]';
 
   function Field(p) {
     var id = React.useId();
     var control = React.isValidElement(p.children) && ['input', 'textarea', 'select'].includes(p.children.type);
     return D('flex flex-col gap-2',
-      E('label', { htmlFor: control ? id : undefined, className: 'text-[12px] tracking-wide ' + T3 }, p.label),
+      E('label', { htmlFor: control ? id : undefined, className: 'type-meta font-medium ' + T3 }, p.label),
       control ? React.cloneElement(p.children, { id: id }) : p.children);
   }
 
@@ -1654,17 +1700,17 @@
     return D('flex flex-wrap items-end justify-between gap-4 pb-7',
       D('min-w-0',
         E('span', { className: 'eyebrow' }, p.eyebrow),
-        E('h2', { className: 'disp brush brush-title mt-3.5 text-[32px] font-bold leading-none ' + T1, style: { textWrap: 'balance' } }, p.title),
-        p.sub ? E('p', { className: 'mt-3 text-[13px] ' + T2 }, p.sub) : null),
+        E('h2', { className: 'disp brush brush-title mt-3.5 type-page font-bold leading-none ' + T1, style: { textWrap: 'balance' } }, p.title),
+        p.sub ? E('p', { className: 'mt-3 type-body ' + T2 }, p.sub) : null),
       p.action);
   }
 
   function Empty(p) {
-    return D('empty-scroll flex flex-col items-center justify-center gap-3.5 rounded-[20px] border border-dashed border-[var(--hair-2)] px-6 py-20 text-center',
+    return D('empty-scroll flex flex-col items-center justify-center gap-3.5 card-panel border border-dashed border-[var(--hair-2)] px-6 py-20 text-center',
       D('flex h-14 w-14 items-center justify-center rounded-full inlay ' + T3,
         E(Icon, { name: p.icon || 'Inbox', size: 22 })),
-      E('p', { className: 'disp text-[16px] font-semibold ' + T1 }, p.title),
-      p.hint ? E('p', { className: 'max-w-sm text-[12.5px] leading-relaxed ' + T3 }, p.hint) : null, p.action || null);
+      E('p', { className: 'disp type-name font-semibold ' + T1 }, p.title),
+      p.hint ? E('p', { className: 'max-w-sm type-body leading-relaxed ' + T3 }, p.hint) : null, p.action || null);
   }
 
   function Bubble(p) {
@@ -1679,6 +1725,10 @@
     var safeCenter = Math.max(16 + width / 2, Math.min(viewport - 16 - width / 2, center));
     el.style.setProperty('--tooltip-shift', (safeCenter - center) + 'px');
   }
+  // 手機旋轉或分割視窗時，也要重新限制已顯示的提示框。
+  window.addEventListener('resize', function () {
+    document.querySelectorAll('.level-badge-wrap:hover').forEach(function (el) { positionRealmTooltip({ currentTarget: el }); });
+  });
 
   function LevelBadge(p) {
     var lv = Number(p.level) || 1, realm = realmOf(lv), guide = badmintonGuideOf(lv);
@@ -1798,7 +1848,7 @@
     var d = dateParts(p.text);
     return D('date-seal relative flex h-[58px] w-[58px] shrink-0 flex-col items-center justify-center rounded-[18px] inlay',
       E('span', { className: 'disp num text-[24px] font-bold leading-none ' + T1 }, d.d),
-      E('span', { className: 'mt-1 text-[9.5px] tracking-[.18em] ' + T3 }, d.m),
+      E('span', { className: 'mt-1 type-caption tracking-[.12em] ' + T3 }, d.m),
       d.w ? E('span', {
         className: 'disp absolute -right-1.5 -top-1.5 flex h-[19px] w-[19px] items-center justify-center rounded-full text-[10px] font-semibold text-[var(--jade-100)]',
         style: {
@@ -1813,8 +1863,8 @@
     return D('flex items-start gap-3',
       D('flex h-8 w-8 shrink-0 items-center justify-center rounded-[11px] inlay ' + T3, E(Icon, { name: p.icon, size: 14 })),
       D('min-w-0 pt-0.5',
-        E('p', { className: 'text-[10.5px] tracking-wide ' + T3 }, p.label),
-        E('p', { className: 'mt-1 text-[13.5px] font-medium leading-snug ' + T1 }, p.value)));
+        E('p', { className: 'type-caption tracking-wide ' + T3 }, p.label),
+        E('p', { className: 'mt-1 type-body font-medium leading-snug ' + T1 }, p.value)));
   }
 
   /* 門規列：符號 / 標題 / 內文 三層 */
@@ -1823,10 +1873,10 @@
       p.rules.map(function (raw, i) {
         var r = parseRule(raw);
         return D('rule', { key: i },
-          D('glyph', r.glyph || S('disp text-[11px] ' + T3, String(i + 1))),
+          D('glyph', r.glyph || S('disp type-caption ' + T3, String(i + 1))),
           D('min-w-0',
-            r.title ? E('p', { className: 'disp text-[13px] font-semibold leading-snug ' + T1 }, r.title) : null,
-            E('p', { className: 'text-[12.5px] leading-relaxed ' + (r.title ? 'mt-1 ' : '') + T2, style: { textWrap: 'pretty' } }, r.body)));
+            r.title ? E('p', { className: 'disp type-body font-semibold leading-snug ' + T1 }, r.title) : null,
+            E('p', { className: 'type-body leading-relaxed ' + (r.title ? 'mt-1 ' : '') + T2, style: { textWrap: 'pretty' } }, r.body)));
       }));
   }
 
@@ -1869,8 +1919,8 @@
         { ref: dialog, role: 'dialog', 'aria-modal': true, 'aria-label': p.title },
         D('shrink-0 flex items-start justify-between gap-4 border-b border-[var(--hair)] px-5 py-4 sm:px-6 sm:py-5',
           D('min-w-0',
-            E('h2', { className: 'disp text-[18px] font-bold ' + T1 }, p.title),
-            p.sub ? E('p', { className: 'mt-1.5 text-[12.5px] ' + T3 }, p.sub) : null),
+            E('h2', { className: 'disp type-section font-bold ' + T1 }, p.title),
+            p.sub ? E('p', { className: 'mt-1.5 type-body ' + T3 }, p.sub) : null),
           E('button', {
             onClick: p.onClose, 'aria-label': '關閉',
             className: 'btn rounded-full p-2 ' + T3 + ' hover:bg-[rgba(228,235,232,.06)] hover:text-[var(--mist-1)]'
@@ -2549,7 +2599,7 @@
       { k: 'admin', label: '掌門殿', icon: 'Settings' }
     ];
     return E('header', {
-      className: 'sticky top-0 z-40 border-b border-[var(--hair)] bg-[rgba(10,18,21,.94)] backdrop-blur-xl'
+      className: 'site-header sticky top-0 z-40 border-b border-[var(--hair)] bg-[rgba(10,18,21,.94)] backdrop-blur-xl'
     },
       D('site-header-row mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6',
         E('button', {
@@ -2661,7 +2711,7 @@
   }
 
   function ReadOnlyHint() {
-    return D('mt-6 flex items-start gap-3 rounded-[20px] inlay px-4 py-3.5 text-[12.5px] leading-relaxed ' + T2,
+    return D('mt-6 flex items-start gap-3 card-panel inlay px-4 py-3.5 type-meta leading-relaxed ' + T2,
       E(Icon, { name: 'Eye', size: 14, className: 'mt-0.5 ' + T3 }),
       S('', '觀禮模式。點右上「入殿」以身分＋口令登入後才能異動，每筆修改都會記在你名下。'));
   }
@@ -2731,46 +2781,46 @@
           FILTERS.map(function (ff) {
             var on = filter === ff.k;
             return E('button', {
-              key: ff.k, onClick: function () { setFilter(ff.k); resetMemberPage(); },
-              className: 'btn rounded-full px-3.5 py-1.5 text-[12.5px] font-medium ' +
+              key: ff.k, 'aria-pressed': on, onClick: function () { setFilter(ff.k); resetMemberPage(); },
+              className: 'filter-tab btn rounded-full px-3.5 py-1.5 type-meta font-medium ' +
                 (on ? 'text-[var(--jade-100)]' : T3 + ' hover:text-[var(--mist-1)]'),
               style: on ? {
                 background: 'linear-gradient(180deg, rgba(155,195,174,.20), rgba(155,195,174,.06))',
                 border: '1px solid rgba(155,195,174,.28)',
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,.12)'
               } : { border: '1px solid var(--hair)' }
-            }, ff.label, S('num ml-2 text-[11px] opacity-80', String(countOf(ff.k))));
+            }, ff.label, S('num ml-2 type-caption', String(countOf(ff.k))));
           }))),
       rows.length === 0
         ? D('mt-5', E(Empty, { icon: 'UserSearch', title: '名冊上沒有相符的弟子', hint: '換個條件或關鍵字，或按上方「收錄弟子」建檔。' }))
         : D('mt-5', { ref: memberListTop },
           D('mb-3 flex items-center justify-between gap-3 px-1',
-            S('num text-[11px] ' + T3, '顯示 ' + (startAt + 1) + '–' + Math.min(startAt + pageSize, rows.length) + '／' + rows.length + ' 人'),
-            pageCount > 1 ? S('text-[11px] ' + T3, '第 ' + activePage + '／' + pageCount + ' 頁') : null),
+            S('num type-caption ' + T3, '顯示 ' + (startAt + 1) + '–' + Math.min(startAt + pageSize, rows.length) + '／' + rows.length + ' 人'),
+            pageCount > 1 ? S('type-caption ' + T3, '第 ' + activePage + '／' + pageCount + ' 頁') : null),
           D('grid gap-2.5', pageRows.map(function (m, idx) {
             return E(MemberCard, { key: m.id, m: m, idx: startAt + idx, p: p });
           })),
-          pageCount > 1 ? D('mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl inlay px-3 py-2.5 sm:px-4',
-            E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronLeft', disabled: activePage <= 1, onClick: function () { moveMemberPage(activePage - 1); } }, '上一頁'),
+          pageCount > 1 ? D('pagination mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl inlay px-3 py-2.5 sm:px-4',
+            E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronLeft', ariaLabel: '上一頁', disabled: activePage <= 1, onClick: function () { moveMemberPage(activePage - 1); } }, S('pager-label', '上一頁')),
             D('flex items-center gap-1', Array.from({ length: pageCount }, function (_, i) {
               var n = i + 1, on = n === activePage;
               return E('button', { key: n, type: 'button', 'aria-label': '第 ' + n + ' 頁', 'aria-current': on ? 'page' : undefined,
-                onClick: function () { moveMemberPage(n); }, className: 'btn min-h-[38px] min-w-[38px] rounded-xl px-2 text-[12px] ' + (on ? JADE : T3),
+                onClick: function () { moveMemberPage(n); }, className: 'btn min-h-[38px] min-w-[38px] rounded-xl px-2 type-meta ' + (on ? JADE : T3),
                 style: on ? { background:'linear-gradient(180deg,rgba(155,195,174,.20),rgba(155,195,174,.06))', border:'1px solid rgba(155,195,174,.28)' } : { border:'1px solid transparent' } }, String(n));
             })),
-            E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronRight', disabled: activePage >= pageCount, onClick: function () { moveMemberPage(activePage + 1); } }, '下一頁')) : null),
+            E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronRight', ariaLabel: '下一頁', disabled: activePage >= pageCount, onClick: function () { moveMemberPage(activePage + 1); } }, S('pager-label', '下一頁'))) : null),
       p.isAdmin ? null : E(ReadOnlyHint));
   }
 
   function MemberCard(props) {
     var m = props.m, p = props.p;
     var isHighRealm = Number(m.level) >= 5;
-    return D(CARD + ' ' + CARD_HOVER + (isHighRealm ? ' high-realm-card' : '') + ' flex items-center gap-3.5 px-4 py-3.5',
-      S('num w-5 shrink-0 text-center text-[11.5px] ' + T3, String(props.idx + 1)),
+    return D(CARD + ' ' + CARD_HOVER + (isHighRealm ? ' high-realm-card' : '') + ' member-card flex items-center gap-3.5 px-4 py-3.5',
+      S('num w-5 shrink-0 text-center type-caption ' + T3, String(props.idx + 1)),
       E(Avatar, { name: m.nickname, g: m.gender }),
       D('min-w-0 flex-1',
         D('flex flex-wrap items-center gap-x-2 gap-y-1.5',
-          S('disp truncate text-[15.5px] font-semibold ' + T1, m.nickname),
+          S('disp truncate type-name font-semibold ' + T1, m.nickname),
           E(GenderTag, { g: m.gender }),
           E(LevelBadge, { level: m.level }),
           function () {
@@ -2781,8 +2831,8 @@
               E('span', { className: 'office-badge ' + OFFICE_CLASS[rk.tone] }, S('office-sigil', { 'aria-hidden': 'true' }, rk.glyph), S('', rk.name)),
               ad.mood ? E('span', { className: 'tier', style: moodStyle(ad.mood) }, ad.mood) : null);
           }()),
-        m.referrer ? E('p', { className: 'mt-1.5 truncate text-[11.5px] ' + T3 }, '備註：' + m.referrer) : null),
-      D('flex shrink-0 items-center gap-1',
+        m.referrer ? E('p', { className: 'mt-1.5 truncate type-caption ' + T3 }, '備註：' + m.referrer) : null),
+      D('member-actions flex shrink-0 items-center gap-1',
         E(Btn, {
           variant: 'ghost', size: 'icon', icon: 'IdCard', ariaLabel: '生成修仙道照', title: '生成個人專屬修仙道照（分享小卡）',
           onClick: function () { p.setModal({ type: 'dharmaCard', target: m }); }
@@ -2826,7 +2876,7 @@
       D('mb-5 flex flex-wrap gap-2', [['upcoming', '即將開打'], ['history', '歷史活動']].concat(p.isAdmin ? [['drafts', '草稿']] : []).map(function (item) {
         return E('button', { key: item[0], type: 'button', 'aria-pressed': kind === item[0],
           onClick: function () { p.navigate('events', null, false, item[0]); },
-          className: 'btn rounded-full border border-[var(--hair)] px-4 py-2 text-sm ' + (kind === item[0] ? JADE : T3)
+          className: 'filter-tab btn rounded-full border border-[var(--hair)] px-4 py-2 type-body ' + (kind === item[0] ? JADE : T3)
         }, item[1] + ' ' + groups[item[0]].length);
       })),
       p.events.length === 0
@@ -2834,10 +2884,10 @@
         : (rows.length ? D('grid gap-3.5', rows.map(function (ev) { return E(EventCard, { key: ev.id, ev: ev, p: p }); }))
           : E(Empty, { icon: 'CalendarDays', title: kind === 'drafts' ? '尚無草稿' : (kind === 'history' ? '尚無歷史活動' : '目前沒有即將開打的活動'),
             hint: p.isAdmin ? '可用「開壇集結」新增活動，或切換上方分類查看。' : '請稍後查看，過往場次可在「歷史活動」找到。', action: kind === 'upcoming' ? E(Btn, { variant: 'soft', icon: 'QrCode', onClick: function () { p.setModal({ type: 'gateQr', date: todayKey() }); } }, '開啟門禁玉令（免開團通行證）') : null })),
-      p.logs.length ? D('mt-6 rounded-[20px] inlay p-5',
-        D('mb-3 flex items-center gap-2 ' + T3, E(Icon, { name: 'History', size: 14 }), S('text-[11px] tracking-wide', '近期共編異動')),
+      p.logs.length ? D('mt-6 card-panel inlay p-5',
+        D('mb-3 flex items-center gap-2 ' + T3, E(Icon, { name: 'History', size: 14 }), S('type-caption tracking-wide', '近期共編異動')),
         p.logs.slice(0, 4).map(function (l, i) {
-          return D('flex items-center gap-3 border-t border-[var(--hair)] py-2.5 text-[12px]', { key: i },
+          return D('flex items-center gap-3 border-t border-[var(--hair)] py-2.5 type-meta', { key: i },
             S('num shrink-0 ' + T3, fmtTime(l.t)),
             function () {
               var ad = (p.admins || []).find(function (a) { return a.account === l.who || a.name === l.name; });
@@ -2957,17 +3007,17 @@
         D('flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-5',
           D('flex min-w-0 items-center gap-3',
             D('flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] inlay text-[var(--gold)]', E(Icon, { name: 'CalendarDays', size: 18 })),
-            D('min-w-0', E('h3', { className: 'disp brush text-[17px] font-bold ' + T1 }, '試煉行事曆'), E('p', { className: 'mt-1 text-[12px] ' + T3 }, p.isAdmin ? '開團與行政院辦公日曆同覽・展開後可點日期檢視或開團' : '開團與行政院辦公日曆同覽・點擊日期可檢視當日集結'))),
+            D('min-w-0', E('h3', { className: 'disp brush type-section font-bold ' + T1 }, '試煉行事曆'), E('p', { className: 'mt-1 type-meta ' + T3 }, p.isAdmin ? '開團與行政院辦公日曆同覽・展開後可點日期檢視或開團' : '開團與行政院辦公日曆同覽・點擊日期可檢視當日集結'))),
           D('calendar-controls',
             D('calendar-month',
             E(Btn, { size: 'icon', variant: 'ghost', icon: 'ChevronLeft', ariaLabel: '上個月', disabled: monthKey === '2026-01', onClick: function () { move(-1); } }),
-            E('strong', { className: 'disp num min-w-[88px] text-center text-[15px] ' + T1 }, year + '年 ' + month + '月'),
+            E('strong', { className: 'disp num min-w-[88px] text-center type-name ' + T1 }, year + '年 ' + month + '月'),
             E(Btn, { size: 'icon', variant: 'ghost', icon: 'ChevronRight', ariaLabel: '下個月', disabled: monthKey === '2027-12', onClick: function () { move(1); } })),
             D('calendar-actions',
               E(Btn, { size: 'sm', variant: 'outline', icon: 'QrCode', onClick: function () { p.setModal({ type: 'gateQr', date: selectedDate || (monthKey === todayKey().slice(0, 7) ? todayKey() : (monthKey + '-01')) }); } }, '門禁碼'),
               E(Btn, { size: 'sm', variant: 'ghost', icon: expanded ? 'PanelTopClose' : 'PanelTopOpen', onClick: function () { setExpanded(!expanded); } }, expanded ? '收合' : '展開')))),
         expanded ? D('',
-          D('flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-[var(--hair)] px-4 py-3 text-[10.5px] ' + T3,
+          D('flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-[var(--hair)] px-4 py-3 type-caption ' + T3,
             D('flex items-center gap-1.5', E('i', { className: 'calendar-event-dot' }), '已開團'),
             D('flex items-center gap-1.5', E('i', { className: 'h-2 w-5 rounded-sm bg-[rgba(201,169,97,.35)]' }), '政府機關放假日'),
             D('flex items-center gap-1.5', E('i', { className: 'h-2 w-5 rounded-sm bg-[rgba(201,169,97,.12)]' }), '週末'),
@@ -2981,13 +3031,13 @@
                 selectedDate ? E('button', { type: 'button', onClick: function () { setSelectedDate(''); }, className: 'btn rounded-full border border-[var(--hair)] px-2.5 py-0.5 text-[11px] ' + JADE }, '顯示全月') : null,
                 selectedDate ? E('button', { type: 'button', onClick: function () { p.setModal({ type: 'gateQr', date: selectedDate }); }, className: 'btn inline-flex items-center gap-1 rounded-full border border-[rgba(201,169,97,.35)] bg-[rgba(201,169,97,.08)] px-2.5 py-0.5 text-[11px] ' + GOLD }, E(Icon, { name: 'QrCode', size: 11 }), '此日門禁碼') : null,
                 selectedDate && p.isAdmin ? E('button', { type: 'button', onClick: function () { createAt(selectedDate); }, className: 'btn rounded-full border border-[rgba(201,169,97,.35)] px-2.5 py-0.5 text-[11px] ' + GOLD }, '+ 在此日開壇') : null),
-              E('a', { href: 'https://data.gov.tw/dataset/14718', target: '_blank', rel: 'noopener noreferrer', className: 'text-[10.5px] underline underline-offset-4 ' + T3 }, '行政院資料來源')),
+              E('a', { href: 'https://data.gov.tw/dataset/14718', target: '_blank', rel: 'noopener noreferrer', className: 'type-caption underline underline-offset-4 ' + T3 }, '行政院資料來源')),
             visibleFocus.length ? D('grid gap-2 sm:grid-cols-2', visibleFocus.map(function (item, index) {
               return E(item.event ? 'button' : 'div', { key: item.date + '-' + index, type: item.event ? 'button' : undefined, onClick: item.event ? function () { p.setOpenEventId(item.event.id); } : undefined, className: 'flex min-w-0 items-center gap-3 rounded-xl inlay px-3 py-2.5 text-left' },
-                E('span', { className: 'disp num shrink-0 text-[11.5px] ' + (item.event ? JADE : GOLD) }, Number(item.date.slice(5, 7)) + '/' + Number(item.date.slice(8, 10))),
-                E('span', { className: 'truncate text-[11.5px] ' + T2 }, item.label),
+                E('span', { className: 'disp num shrink-0 type-caption ' + (item.event ? JADE : GOLD) }, Number(item.date.slice(5, 7)) + '/' + Number(item.date.slice(8, 10))),
+                E('span', { className: 'truncate type-caption ' + T2 }, item.label),
                 item.event ? E(Icon, { name: 'ChevronRight', size: 13, className: 'ml-auto shrink-0 ' + T3 }) : null);
-            })) : E('p', { className: 'text-[11.5px] ' + T3 }, selectedDate ? '此日尚無節日註記或開團集結。' : '本月尚無節日註記或開團。點月曆日期即可準備下一場。'))) : null));
+            })) : E('p', { className: 'type-caption ' + T3 }, selectedDate ? '此日尚無節日註記或開團集結。' : '本月尚無節日註記或開團。點月曆日期即可準備下一場。'))) : null));
   }
 
   function IntentPanel(props) {
@@ -3060,7 +3110,7 @@
   }
 
   function metaLine(icon, text) {
-    return D('inline-flex min-w-0 max-w-full items-center gap-1.5 text-[12.5px] text-[var(--mist-2)]',
+    return D('inline-flex min-w-0 max-w-full items-center gap-1.5 type-meta text-[var(--mist-2)]',
       E(Icon, { name: icon, size: 13, className: 'text-[var(--mist-3)]' }), S('truncate', text));
   }
 
@@ -3100,15 +3150,15 @@
       D('mt-4 grid grid-cols-4 gap-2',
         [['Check', '入陣', going, JADE], ['CircleHelp', '觀望', maybe, GOLD], ['Hourglass', '候補', wait, 'text-[var(--amethyst)]'], ['Gauge', '尚餘', Math.max(0, cap - going), T1]].map(function (x) {
           return D('rounded-xl inlay px-2.5 py-2.5', { key: x[1] },
-            D('flex items-center gap-1.5 ' + T3, E(Icon, { name: x[0], size: 12 }), S('text-[10.5px]', x[1])),
-            S('disp num mt-1.5 block text-[19px] font-semibold ' + x[3], String(x[2])));
+            D('flex items-center gap-1.5 ' + T3, E(Icon, { name: x[0], size: 12 }), S('type-caption', x[1])),
+            S('disp num mt-1.5 block text-[20px] font-semibold ' + x[3], String(x[2])));
         })),
       D('mt-5',
         D('mb-2 flex items-center justify-between',
           D('flex items-center gap-2.5',
-            S('text-[11px] tracking-wide ' + T3, '入陣進度'),
+            S('type-caption tracking-wide ' + T3, '入陣進度'),
             D('sm:hidden', E(CapacityPill, { value: going, cap: cap }))),
-          S('num text-[11px] font-medium ' + (over ? CIN : T3),
+          S('num type-caption font-medium ' + (over ? CIN : T3),
             over ? '超出上限 ' + (going - cap) + ' 人' : pct + '%')),
         flow(going, cap, true)));
     if (!p.isAdmin || p.eventList !== 'history' || !eventEnded(ev)) return card;
@@ -3250,18 +3300,18 @@
             }, '撤除')) : null)),
 
       /* 主卡：Double-bezel 外殼 + 內核，真磨砂只用在這一張 */
-      D('bezel',
+      D('bezel feature-frame',
         D('event-summary core glass overflow-hidden p-6 sm:p-8',
           D('flex flex-wrap items-start justify-between gap-5',
             D('event-summary-heading flex min-w-0 items-start gap-4',
               E(DateSeal, { text: ev.dateText }),
               D('min-w-0',
-                E('h2', { className: 'disp brush text-[29px] font-bold leading-tight ' + T1, style: { textWrap: 'balance' } }, ev.title),
+                E('h2', { className: 'disp brush type-detail font-bold leading-tight ' + T1, style: { textWrap: 'balance' } }, ev.title),
                 D('mt-3 flex flex-wrap items-center gap-x-5 gap-y-2',
                   metaLine('Clock', ev.startTime + '–' + ev.endTime),
                   metaLine('MapPin', ev.place),
                   metaLine('DollarSign', '$' + ev.fee + ' / 人'),
-                  D('inline-flex items-center gap-1.5 text-[12.5px] ' + recruitment.tone, E(Icon, { name: 'Radio', size: 13 }), recruitment.label)))),
+                  D('inline-flex items-center gap-1.5 type-meta ' + recruitment.tone, E(Icon, { name: 'Radio', size: 13 }), recruitment.label)))),
             D('shrink-0', E(CapacityPill, { value: going.length, cap: cap }))),
 
           (ev.signupDeadline || ev.cancellationDeadline) ? D('event-deadlines',
@@ -3280,34 +3330,34 @@
                       : 'linear-gradient(150deg, rgba(155,195,174,.10), rgba(228,235,232,.012))'
                   }
                 },
-                D('flex items-center gap-2 text-[11.5px] font-medium ' + (over ? CIN : JADE),
-                  S('text-[12px] leading-none', '✅'), '已入陣'),
+                D('flex items-center gap-2 type-caption font-medium ' + (over ? CIN : JADE),
+                  S('type-meta leading-none', '✅'), '已入陣'),
                 D('mt-3 flex items-end gap-3',
-                  E('span', { className: 'disp num text-[54px] font-bold leading-[.85] ' + (over ? CIN : T1) }, String(going.length)),
+                  E('span', { className: 'disp num type-stat font-bold leading-[.85] ' + (over ? CIN : T1) }, String(going.length)),
                   D('pb-1.5',
-                    S('num block text-[15px] ' + T3, '／ ' + cap + ' 人'),
-                    S('block mt-1 text-[11.5px] ' + T3, '男 ' + goMale + '　女 ' + goFemale))),
+                    S('num block type-section ' + T3, '／ ' + cap + ' 人'),
+                    S('block mt-1 type-caption ' + T3, '男 ' + goMale + '　女 ' + goFemale))),
                 D('mt-5',
                   D('mb-2 flex items-center justify-between',
-                    S('text-[11px] tracking-wide ' + T3, '入陣進度'),
-                    S('num text-[11.5px] font-medium ' + (over ? CIN : JADE), over ? '超出 ' + (going.length - cap) + ' 人' : pct + '%')),
+                    S('type-caption tracking-wide ' + T3, '入陣進度'),
+                    S('num type-caption font-medium ' + (over ? CIN : JADE), over ? '超出 ' + (going.length - cap) + ' 人' : pct + '%')),
                   flow(going.length, cap)),
-                E('p', { className: 'num mt-3 text-[11px] ' + T3 }, ev.courts + ' 面場 × ' + PER_COURT + ' 人 ＝ 上限 ' + cap + ' 人'))),
+                E('p', { className: 'num mt-3 type-caption ' + T3 }, ev.courts + ' 面場 × ' + PER_COURT + ' 人 ＝ 上限 ' + cap + ' 人'))),
             D('event-secondary-stats grid content-between gap-3 md:col-span-2',
               side.map(function (x) {
                 return D('flex items-center justify-between rounded-[16px] inlay px-4 py-3.5', { key: x.st.k },
-                  D('flex items-center gap-2 text-[12px] font-medium ' + x.st.tone,
-                    S('text-[11px] leading-none', x.st.emoji), x.st.label),
+                  D('flex items-center gap-2 type-meta font-medium ' + x.st.tone,
+                    S('type-caption leading-none', x.st.emoji), x.st.label),
                   E('span', { className: 'disp num text-[24px] font-bold leading-none ' + (x.n > 0 ? x.st.tone : T3) }, String(x.n)));
               }))),
 
-          over ? D('mt-4 flex items-center gap-2.5 rounded-2xl px-4 py-3 text-[12.5px] font-medium ' + CIN,
+          over ? D('mt-4 flex items-center gap-2.5 rounded-2xl px-4 py-3 type-meta font-medium ' + CIN,
             { style: { background: 'linear-gradient(180deg, rgba(208,122,108,.12), rgba(208,122,108,.04))', border: '1px solid rgba(208,122,108,.22)' } },
             E(Icon, { name: 'TriangleAlert', size: 14 }),
             '入陣人數超出場地上限 ' + (going.length - cap) + ' 人，請改列候補或加開場地') : null)),
 
       D('mt-8 mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-[var(--hair)] pb-3',
-        E('h3', { className: 'disp text-sm font-semibold ' + T1 },
+        E('h3', { className: 'disp type-section font-semibold ' + T1 },
           E(Icon, { name: 'Users', size: 14, className: 'mr-1.5 inline' }), '出陣名單 (' + roster.length + ')')
       ),
 
@@ -3329,20 +3379,20 @@
             D('mt-8 mb-3.5 flex items-end justify-between',
               D('',
                 E('span', { className: 'eyebrow' }, '入陣弟子'),
-                E('p', { className: 'disp mt-2.5 text-[19px] font-bold ' + T1 },
+                E('p', { className: 'disp mt-2.5 text-[20px] font-bold ' + T1 },
                   String(roster.length), S('text-[13px] font-normal ' + T3, ' 人在列'))),
-              S('text-[11px] ' + T3, p.isAdmin ? '點右側切換狀態' : '入殿後可切換狀態')),
+              S('type-caption ' + T3, p.isAdmin ? '點右側切換狀態' : '入殿後可切換狀態')),
 
             roster.length ? D('mb-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl inlay px-3 py-2.5 sm:px-4', { ref: rosterListTop },
               D('flex flex-wrap gap-1.5', [['all', '全部', roster.length], ['going', '入陣', going.length], ['maybe', '觀望', maybe.length], ['wait', '候補', wait.length]].map(function (x) {
                 var on = rosterFilter === x[0], meta = x[0] === 'all' ? null : statusMeta(x[0]);
                 return E('button', { key: x[0], type: 'button', 'aria-pressed': on,
                   onClick: function () { chooseRosterFilter(x[0]); },
-                  className: 'btn min-h-[38px] rounded-xl px-3 text-[12px] font-medium ' + (on ? (meta ? meta.tone : JADE) : T3),
+                  className: 'btn min-h-[38px] rounded-xl px-3 type-meta font-medium ' + (on ? (meta ? meta.tone : JADE) : T3),
                   style: on ? (meta ? meta.seg : { background:'linear-gradient(180deg,rgba(155,195,174,.20),rgba(155,195,174,.06))', border:'1px solid rgba(155,195,174,.28)' }) : { border:'1px solid transparent' }
                 }, x[1] + ' ' + x[2]);
               })),
-              S('num text-[12px] ' + T3, filteredView.length ? '顯示 ' + (rosterStart + 1) + '–' + Math.min(rosterStart + rosterPageSize, filteredView.length) + '／' + filteredView.length + ' 人' : '此狀態尚無人')) : null,
+              S('num type-meta ' + T3, filteredView.length ? '顯示 ' + (rosterStart + 1) + '–' + Math.min(rosterStart + rosterPageSize, filteredView.length) + '／' + filteredView.length + ' 人' : '此狀態尚無人')) : null,
 
             roster.length === 0
               ? E(Empty, {
@@ -3354,13 +3404,13 @@
                   D('grid gap-2.5', rosterRows.map(function (r, idx) {
                     return E(RosterCard, { key: r.rid || r.nickname + '-' + (rosterStart + idx), r: r, idx: rosterStart + idx, editable: p.isAdmin, setStatus: setStatus, removeRow: removeRow, admins: p.admins });
                   })),
-                  rosterPageCount > 1 ? D('mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl inlay px-3 py-2.5 sm:px-4',
-                    E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronLeft', disabled: activeRosterPage <= 1, onClick: function () { moveRosterPage(activeRosterPage - 1); } }, '上一頁'),
+                  rosterPageCount > 1 ? D('pagination mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl inlay px-3 py-2.5 sm:px-4',
+                    E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronLeft', ariaLabel: '上一頁', disabled: activeRosterPage <= 1, onClick: function () { moveRosterPage(activeRosterPage - 1); } }, S('pager-label', '上一頁')),
                     D('flex items-center gap-1', Array.from({ length: rosterPageCount }, function (_, i) {
                       var n = i + 1, on = n === activeRosterPage;
-                      return E('button', { key: n, type: 'button', 'aria-label': '入陣名冊第 ' + n + ' 頁', 'aria-current': on ? 'page' : undefined, onClick: function () { moveRosterPage(n); }, className: 'btn flex h-9 min-w-9 items-center justify-center rounded-xl px-2 text-[12px] font-medium ' + (on ? JADE : T3), style: on ? { background: 'rgba(155,195,174,.12)', border: '1px solid rgba(155,195,174,.25)' } : { border: '1px solid transparent' } }, String(n));
+                      return E('button', { key: n, type: 'button', 'aria-label': '入陣名冊第 ' + n + ' 頁', 'aria-current': on ? 'page' : undefined, onClick: function () { moveRosterPage(n); }, className: 'btn flex h-9 min-w-9 items-center justify-center rounded-xl px-2 type-meta font-medium ' + (on ? JADE : T3), style: on ? { background: 'rgba(155,195,174,.12)', border: '1px solid rgba(155,195,174,.25)' } : { border: '1px solid transparent' } }, String(n));
                     })),
-                    E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronRight', disabled: activeRosterPage >= rosterPageCount, onClick: function () { moveRosterPage(activeRosterPage + 1); } }, '下一頁')) : null
+                    E(Btn, { variant: 'ghost', size: 'sm', icon: 'ChevronRight', ariaLabel: '下一頁', disabled: activeRosterPage >= rosterPageCount, onClick: function () { moveRosterPage(activeRosterPage + 1); } }, S('pager-label', '下一頁'))) : null
                 ) : E(Empty, { icon: 'FilterX', title: '這個狀態目前無人', hint: '切換其他狀態，或由右側下拉選單調整出席狀態。' }))),
 
       /* 地點資訊 + 門規 */
@@ -3368,7 +3418,7 @@
         D(SOFT_CARD + ' p-5',
           D('mb-4 flex items-center gap-2.5',
             E(Icon, { name: 'MapPin', size: 14, className: JADE }),
-            E('h3', { className: 'disp text-[15px] font-semibold ' + T1 }, '地點資訊')),
+            E('h3', { className: 'disp type-section font-semibold ' + T1 }, '地點資訊')),
           D('grid gap-3.5',
             E(InfoRow, { icon: 'MapPin', label: '球館地點', value: ev.place }),
             E(InfoRow, { icon: 'Clock', label: '時間', value: ev.startTime + ' – ' + ev.endTime }),
@@ -3390,10 +3440,10 @@
               }, '下載 .ics'))),
           notesOf(ev).length
             ? D('mt-4 border-t border-[var(--hair)] pt-4',
-              E('p', { className: 'text-[10.5px] tracking-wide ' + T3 }, '補充事項'),
+              E('p', { className: 'type-caption tracking-wide ' + T3 }, '補充事項'),
               E('ul', { className: 'mt-2.5 grid gap-2' },
                 notesOf(ev).map(function (t, i) {
-                  return E('li', { key: i, className: 'flex items-start gap-2.5 text-[12.5px] leading-relaxed ' + T2 },
+                  return E('li', { key: i, className: 'flex items-start gap-2.5 type-meta leading-relaxed ' + T2 },
                     S('mt-[7px] h-1 w-1 shrink-0 rounded-full bg-[var(--jade-500)]'),
                     S('min-w-0 break-words', t));
                 })))
@@ -3401,7 +3451,7 @@
         D(SOFT_CARD + ' p-5',
           D('mb-3 flex items-center gap-2.5',
             E(Icon, { name: 'ClipboardList', size: 14, className: GOLD }),
-            E('h3', { className: 'disp text-[15px] font-semibold ' + T1 }, '門規')),
+            E('h3', { className: 'disp type-section font-semibold ' + T1 }, '門規')),
           E(RuleRows, { rules: rulesOf() })))
     );
   }
@@ -3409,7 +3459,7 @@
   function StatusBadge(p) {
     var meta = statusMeta(p.status);
     return E('span', {
-      className: 'inline-flex min-h-[34px] items-center gap-1.5 rounded-xl px-2.5 text-[12px] font-semibold tracking-wide',
+      className: 'inline-flex min-h-[34px] items-center gap-1.5 rounded-xl px-2.5 type-meta font-semibold tracking-wide',
       style: Object.assign({}, meta.seg, {
         color: 'var(--tone)', background: 'linear-gradient(180deg,var(--tone-hi),var(--tone-lo))',
         border: '1px solid var(--tone-br)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,.12)'
@@ -3435,11 +3485,11 @@
     var r = props.r;
     var isHighRealm = Number(r.level) >= 5;
     return D(CARD + ' ' + CARD_HOVER + (isHighRealm ? ' high-realm-card' : '') + ' flex flex-wrap items-center gap-x-3.5 gap-y-3 px-4 py-3.5',
-      S('num w-5 shrink-0 text-center text-[11.5px] ' + T3, String(props.idx + 1)),
+      S('num w-5 shrink-0 text-center type-caption ' + T3, String(props.idx + 1)),
       E(Avatar, { name: r.nickname, g: r.gender }),
       D('min-w-0 flex-1 basis-[150px]',
         D('flex flex-wrap items-center gap-x-2 gap-y-1.5',
-          S('disp truncate text-[15.5px] font-semibold ' + T1, r.nickname),
+          S('disp truncate type-name font-semibold ' + T1, r.nickname),
           E(GenderTag, { g: r.gender }),
           E(LevelBadge, { level: r.level }),
           function () {
@@ -3451,7 +3501,7 @@
               ad.mood ? E('span', { className: 'tier', style: moodStyle(ad.mood) }, ad.mood) : null);
           }(),
           (r.isMember || r.memberId) ? null : E('span', { className: 'tier', style: { '--tc': 'var(--mist-3)', '--tb': 'rgba(228,235,232,.10)', '--th': 'rgba(228,235,232,.05)', '--tl': 'rgba(228,235,232,.015)' } }, '散修')),
-        E('p', { className: 'mt-1.5 truncate text-[11.5px] ' + T3 },
+        E('p', { className: 'mt-1.5 truncate type-caption ' + T3 },
           r.referrer ? '引薦人／備註：' + r.referrer : '—')),
       D('roster-status-wrap ml-auto flex items-center gap-1.5',
         props.editable ? E(RosterStatusSwitch, { status: r.status, name: r.nickname, onChange: function (kk) { props.setStatus(r, kk); } }) : E(StatusBadge, { status: r.status }),
